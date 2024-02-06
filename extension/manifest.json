@@ -32,5 +32,8 @@
   ],
   "host_permissions": [
     "https://meet.google.com/*"
-  ]
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
 }

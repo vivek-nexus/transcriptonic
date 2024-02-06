@@ -47,11 +47,22 @@ checkExtensionStatus().then(() => {
                 "personName": personNameBuffer,
                 "personTranscript": transcriptTextBuffer
               })
+              chrome.storage.local.set({ transcript: transcript }, function () { })
             }
             observer.disconnect();
             console.log(`Transcript length ${transcript.length}`)
             if (transcript.length > 0)
               downloadTranscript()
+          })
+
+          window.addEventListener("beforeunload", function () {
+            transcript.push({
+              "personName": personNameBuffer,
+              "personTranscript": transcriptTextBuffer
+            })
+            chrome.runtime.sendMessage({ transcript: transcript }, function (response) {
+              console.log(response);
+            });
           })
         }
       })
@@ -219,6 +230,7 @@ function transcriber(mutationsList, observer) {
               "personName": personNameBuffer,
               "personTranscript": transcriptTextBuffer
             })
+            chrome.storage.local.set({ transcript: transcript }, function () { })
             beforeTranscriptText = currentTranscriptText
             personNameBuffer = currentPersonName;
             transcriptTextBuffer = currentTranscriptText;
@@ -236,6 +248,7 @@ function transcriber(mutationsList, observer) {
             "personName": personNameBuffer,
             "personTranscript": transcriptTextBuffer
           })
+          chrome.storage.local.set({ transcript: transcript }, function () { })
         }
         beforePersonName = ""
         beforeTranscriptText = ""
