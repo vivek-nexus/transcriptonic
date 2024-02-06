@@ -1,0 +1,110 @@
+<!-- popup.html -->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Transcripto</title>
+  <style>
+    body {
+      width: 480px;
+      padding: 1rem;
+      background: #DCE35B;
+      /* fallback for old browsers */
+      background: -webkit-linear-gradient(to right, #45B649, #DCE35B);
+      /* Chrome 10-25, Safari 5.1-6 */
+      background: linear-gradient(to right, #45B649, #DCE35B);
+      /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    }
+
+    .get-started {
+      padding: 0.5rem 1rem;
+      background-color: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(4px);
+      border-radius: 4px;
+      margin-bottom: 1.5rem;
+      text-align: left;
+      font-size: medium;
+    }
+
+    ul {
+      padding-inline-start: 20px;
+    }
+
+    img {
+      border-radius: 96px;
+    }
+
+    #blur-intensity {
+      accent-color: green;
+      width: 100%;
+    }
+
+    .customise-shortcuts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .label {
+      margin: 0px;
+      margin-bottom: 0.25rem;
+    }
+
+    .text-input {
+      padding: 0.5rem;
+      border: 2px solid green;
+      width: 3.5rem;
+      text-align: center;
+      font-size: medium;
+      font-weight: bold;
+      border-radius: 0.5rem;
+      color: green;
+    }
+
+    .input-group {
+      margin-bottom: 1rem;
+    }
+
+    a {
+      color: blue;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div>
+    <div>
+      <div>
+        <img src="./icon.png" width="48px" height="48px" alt="" />
+      </div>
+      <h2>Transcripto </h2>
+      <h3 style="font-weight: normal;">
+        On device, private Google Meet transcripts
+      </h3>
+    </div>
+
+    <div style="display: flex; gap: 0.15rem;">
+      <input type="radio" name="mode" id="auto-mode" />
+      <label class="label">Auto (records transcripts for all meetings)</label>
+    </div>
+    <div style="margin-bottom: 3rem; display: flex; gap: 0.15rem;">
+      <input type="radio" name="mode" id="manual-mode" />
+      <label class="label">Manual (switch on transcript as needed) </label>
+    </div>
+    <div class="get-started">
+      <h3>How to use Transcripto?</h3>
+      <p>In both modes, transcript will be automatically downloaded as a text file at the end of each meeting.</p>
+      <ul>
+        <li><b>Auto mode:</b> Automatically records transcripts for all meetings</li>
+        <li><b>Manual mode:</b> Switch on Transcripto by clicking on captions icon in Google Meet (CC icon)</li>
+      </ul>
+    </div>
+    <div style="text-align: center;">
+      <a href="https://github.com/vivek-nexus/transcripto#readme" target="_blank">Help</a>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>
