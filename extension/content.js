@@ -105,11 +105,11 @@ function showNotification(extensionStatusJSON) {
   }, 5000);
 
   if (extensionStatusJSON.status == 200) {
-    obj.style.cssText = `color: green; ${commonCSS}`;
+    obj.style.cssText = `color: lightgreen; ${commonCSS}`;
     text.innerHTML = extensionStatusJSON.message;
   }
   else {
-    obj.style.cssText = `color: red; ${commonCSS}`;
+    obj.style.cssText = `color: orange; ${commonCSS}`;
     text.innerHTML = extensionStatusJSON.message;
   }
 
@@ -119,10 +119,10 @@ function showNotification(extensionStatusJSON) {
     html.append(obj);
 }
 
-const commonCSS = `background: rgb(255 255 255 / 75%); 
+const commonCSS = `background: rgb(255 255 255 / 25%); 
     backdrop-filter: blur(16px); 
     position: fixed;
-    top: 10%; 
+    top: 5%; 
     left: 0; 
     right: 0; 
     margin-left: auto; 
@@ -143,7 +143,7 @@ const commonCSS = `background: rgb(255 255 255 / 75%);
 async function checkExtensionStatus() {
   // Set default value as 200
   chrome.storage.local.set({
-    extensionStatusJSON: { status: 200, message: "<strong>Google Meet Transcript is running</strong> <br /> Do not turn off captions" },
+    extensionStatusJSON: { status: 200, message: "<strong>Transcripto is running</strong> <br /> Do not turn off captions" },
   });
 
   // https://stackoverflow.com/a/42518434
