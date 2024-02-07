@@ -18,7 +18,12 @@ window.onload = function () {
   manualModeRadio.addEventListener('change', function () {
     chrome.storage.sync.set({ operationMode: "manual" }, function () { })
   })
-
+  lastMeetingTranscriptLink.addEventListener("click", () => {
+    chrome.storage.local.get(["transcript"], function (result) {
+      if (!result.transcript)
+        alert("Couldn't find the last meeting's transcript. May be attend one?")
+    })
+  })
 }
 
 downloadTranscript()
@@ -48,7 +53,5 @@ function downloadTranscript() {
       lastMeetingTranscriptLink.href = URL.createObjectURL(blob);
       lastMeetingTranscriptLink.download = `Transcript.txt`;
     }
-    else
-      alert("Couldn't find the last meeting's transcript. May be attend one?")
   })
 }

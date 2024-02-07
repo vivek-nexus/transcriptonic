@@ -151,28 +151,6 @@ const commonCSS = `background: rgb(255 255 255 / 25%);
     font-family: 'Google Sans',Roboto,Arial,sans-serif; 
     box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;`;
 
-async function checkExtensionStatus() {
-  // Set default value as 200
-  chrome.storage.local.set({
-    extensionStatusJSON: { status: 200, message: "<strong>Transcripto is running</strong> <br /> Do not turn off captions" },
-  });
-
-  // https://stackoverflow.com/a/42518434
-  // await fetch(
-  //   "https://ejnana.github.io/gmeet-slack-integration-status/status-prod.json",
-  //   { cache: "no-store" }
-  // )
-  //   .then((response) => response.json())
-  //   .then((result) => {
-  //     // Write status to chrome local storage
-  //     chrome.storage.local.set({ extensionStatusJSON: result }, function () {
-  //       console.log("Extension status fetched and saved")
-  //     });
-  //   })
-  //   .catch((err) => {
-  //     console.log(err);
-  //   });
-}
 
 
 function downloadTranscript() {
@@ -260,4 +238,28 @@ function transcriber(mutationsList, observer) {
     })
   }, 500);
 }
+
+async function checkExtensionStatus() {
+  // Set default value as 200
+  chrome.storage.local.set({
+    extensionStatusJSON: { status: 200, message: "<strong>Transcripto is running</strong> <br /> Do not turn off captions" },
+  });
+
+  // https://stackoverflow.com/a/42518434
+  await fetch(
+    "https://vivek-nexus.github.io/transcripto/status/status-prod.json",
+    { cache: "no-store" }
+  )
+    .then((response) => response.json())
+    .then((result) => {
+      // Write status to chrome local storage
+      chrome.storage.local.set({ extensionStatusJSON: result }, function () {
+        console.log("Extension status fetched and saved")
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
+
 
