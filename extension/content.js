@@ -105,7 +105,7 @@ function showNotification(extensionStatusJSON) {
 
   logo.setAttribute(
     "src",
-    "https://ejnana.github.io/gmeet-slack-integration-status/icon.png"
+    "https://ejnana.github.io/transcripto-status/icon.png"
   );
   logo.setAttribute("height", "32px");
   logo.setAttribute("width", "32px");
@@ -117,7 +117,7 @@ function showNotification(extensionStatusJSON) {
   }, 5000);
 
   if (extensionStatusJSON.status == 200) {
-    obj.style.cssText = `color: lightgreen; ${commonCSS}`;
+    obj.style.cssText = `color: #2A9ACA; ${commonCSS}`;
     text.innerHTML = extensionStatusJSON.message;
   }
   else {
@@ -248,7 +248,7 @@ async function checkExtensionStatus() {
 
   // https://stackoverflow.com/a/42518434
   await fetch(
-    "https://ejnana.github.io/gmeet-slack-integration-status/transcripto/status-prod.json",
+    "https://ejnana.github.io/transcripto-status/status-prod.json",
     { cache: "no-store" }
   )
     .then((response) => response.json())
