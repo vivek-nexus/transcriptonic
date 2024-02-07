@@ -165,6 +165,9 @@ function downloadTranscript() {
     lines.push(''); // Add an empty line between entries
   });
 
+  lines.push("---")
+  lines.push("Transcript generated using Transcripto Chrome extension")
+
   // Join the lines into a single string
   const textContent = lines.join('\n');
 
