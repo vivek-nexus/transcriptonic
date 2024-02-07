@@ -68,8 +68,9 @@ checkExtensionStatus().then(() => {
       })
     }
     else {
-      showNotification(extensionStatusJSON);
-      return;
+      checkElement(".google-material-icons", "call_end").then(() => {
+        showNotification(extensionStatusJSON);
+      })
     }
   })
 })
@@ -247,7 +248,7 @@ async function checkExtensionStatus() {
 
   // https://stackoverflow.com/a/42518434
   await fetch(
-    "https://vivek-nexus.github.io/transcripto/status/status-prod.json",
+    "https://ejnana.github.io/gmeet-slack-integration-status/transcripto/status-prod.json",
     { cache: "no-store" }
   )
     .then((response) => response.json())
