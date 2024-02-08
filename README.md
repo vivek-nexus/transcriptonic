@@ -20,8 +20,7 @@ View video on YouTube
 
 
 # Installation
-View video on YouTube
-![youtube-thumbnail](/assets/youtube-thumbnail.png)
+![chrome-webstore-banner](/assets/chrome-webstore-banner.png)
 
 
 <br />
