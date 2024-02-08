@@ -19,9 +19,17 @@ View video on YouTube
 <br />
 
 
+# Installation
+View video on YouTube
+![youtube-thumbnail](/assets/youtube-thumbnail.png)
+
+
+<br />
+<br />
+
 # How to use Transcripto
 ![screenshot-2](/assets/screenshot-2.png)
-Transcripto has two mods of operation.
+Transcripto has two modes of operation.
 
 **In both modes, transcript will be automatically downloaded as a text file at the end of each meeting.**
 
@@ -40,7 +48,7 @@ Transcripto has two mods of operation.
 
 **Can I change the language of the transcript?**
 
-Yes. Transcripto picks up the output of Google Meet captions. Google Meet captions supports variety if languages that you can choose. Click the settings icon when captions start showing and change the language.
+Yes. Transcripto picks up the output of Google Meet captions. Google Meet captions supports variety of languages that you can choose from. Click the settings icon when captions start showing and change the language.
 
 
 
