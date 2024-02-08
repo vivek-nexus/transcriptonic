@@ -1,2 +1,2 @@
 # transcripto
-On device, private Google Meet transcripts
+Simple Google Meet transcripts. Private and open source.
