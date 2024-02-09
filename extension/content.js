@@ -2,6 +2,10 @@ let transcript = []
 let personNameBuffer = "", transcriptTextBuffer = ""
 let beforePersonName = "", beforeTranscriptText = ""
 let meetingStartTimeStamp = new Date().toLocaleString()
+const extensionStatusJSON_bug = {
+  "status": 400,
+  "message": "<strong>Transcripto seems to have an error</strong> <br /> Please report it <a href='https://github.com/vivek-nexus/transcripto/issues' target='_blank'>here</a>."
+}
 
 checkExtensionStatus().then(() => {
   // Read the status JSON
@@ -38,7 +42,7 @@ checkExtensionStatus().then(() => {
             })
           }
           else {
-            showNotification(extensionStatusJSON)
+            showNotification(extensionStatusJSON_bug)
           }
 
           contains(".google-material-icons", "call_end")[0].parentElement.addEventListener("click", () => {
@@ -64,6 +68,9 @@ checkExtensionStatus().then(() => {
               console.log(response);
             });
           })
+        }
+        else {
+          showNotification(extensionStatusJSON_bug)
         }
       })
     }
