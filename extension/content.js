@@ -60,10 +60,8 @@ checkExtensionStatus().then(() => {
 
           contains(".google-material-icons", "call_end")[0].parentElement.addEventListener("click", () => {
             window.removeEventListener("beforeunload", beforeUnloadCallback)
-            transcript.push({
-              "personName": personNameBuffer,
-              "personTranscript": transcriptTextBuffer
-            })
+            observer.disconnect();
+            pushToTranscript()
             chrome.storage.local.set(
               {
                 transcript: transcript,
@@ -71,7 +69,6 @@ checkExtensionStatus().then(() => {
                 meetingStartTimeStamp: meetingStartTimeStamp
               },
               function () {
-                observer.disconnect();
                 console.log(`Transcript length ${transcript.length}`)
                 if (transcript.length > 0) {
                   chrome.runtime.sendMessage({ type: "download" }, function (response) {
@@ -173,10 +170,7 @@ const commonCSS = `background: rgb(255 255 255 / 25%);
 
 
 function beforeUnloadCallback() {
-  transcript.push({
-    "personName": personNameBuffer,
-    "personTranscript": transcriptTextBuffer
-  })
+  pushToTranscript()
   chrome.runtime.sendMessage(
     {
       type: "save_and_download",
@@ -207,16 +201,8 @@ function transcriber(mutationsList, observer) {
         }
         else {
           if (personNameBuffer != currentPersonName) {
-            transcript.push({
-              "personName": personNameBuffer,
-              "personTranscript": transcriptTextBuffer
-            })
-            chrome.storage.local.set(
-              {
-                transcript: transcript,
-                meetingTitle: meetingTitle,
-                meetingStartTimeStamp: meetingStartTimeStamp
-              }, function () { })
+            pushToTranscript()
+            overWriteChromeStorage()
             beforeTranscriptText = currentTranscriptText
             personNameBuffer = currentPersonName;
             transcriptTextBuffer = currentTranscriptText;
@@ -230,15 +216,8 @@ function transcriber(mutationsList, observer) {
       else {
         console.log("No active transcript")
         if ((personNameBuffer != "") && (transcriptTextBuffer != "")) {
-          transcript.push({
-            "personName": personNameBuffer,
-            "personTranscript": transcriptTextBuffer
-          })
-          chrome.storage.local.set({
-            transcript: transcript,
-            meetingTitle: meetingTitle,
-            meetingStartTimeStamp: meetingStartTimeStamp
-          }, function () { })
+          pushToTranscript()
+          overWriteChromeStorage()
         }
         beforePersonName = ""
         beforeTranscriptText = ""
@@ -249,6 +228,21 @@ function transcriber(mutationsList, observer) {
       // console.log(transcript)
     })
   }, 500);
+}
+
+function pushToTranscript() {
+  transcript.push({
+    "personName": personNameBuffer,
+    "personTranscript": transcriptTextBuffer
+  })
+}
+
+function overWriteChromeStorage() {
+  chrome.storage.local.set({
+    transcript: transcript,
+    meetingTitle: meetingTitle,
+    meetingStartTimeStamp: meetingStartTimeStamp
+  }, function () { })
 }
 
 async function checkExtensionStatus() {
