@@ -11,7 +11,7 @@ Extension status: 🟢 OPERATIONAL
 
 
 # Demo
-View video on [YouTube](https://www.youtube.com/watch?v=DSuzTejU1h8)
+View video on [YouTube](https://www.youtube.com/watch?v=MRmZLO-f8Sg)
 ![demo](/assets/demo.gif)
 
 
@@ -48,8 +48,22 @@ Transcripto has two modes of operation.
 **Can I change the language of the transcript?**
 
 Yes. Transcripto picks up the output of Google Meet captions. Google Meet captions supports variety of languages that you can choose from. Click the settings icon when captions start showing and change the language.
+Save transcripts of your Google Meet calls. Private on device processing.
+
+Get it from the Chrome Store here: Coming soon!
+
+👉 Auto mode to record transcripts of all meetings automatically
+👉 Manual mode to record transcripts whenever needed
+👉 Text file output, universal compatibility
+👉 Supports multiple languages that Google Meet offers
+👉 Download last meeting transcript later on
+👉 Open source: https://github.com/vivek-nexus/transcripto
 
 
+<br />
+<br />
 
+# Privacy policy
+Transcripto Chrome extension does not collect any information from users in any manner. All processing/transcript storage happens within the user's Chrome browser and does not leave the device.
 
 
