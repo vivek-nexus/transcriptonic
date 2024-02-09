@@ -11,8 +11,8 @@ Extension status: 🟢 OPERATIONAL
 
 
 # Demo
-View video on YouTube
-![youtube-thumbnail](/assets/youtube-thumbnail.png)
+View video on [YouTube](https://www.youtube.com/watch?v=DSuzTejU1h8)
+![demo](/assets/demo.gif)
 
 
 <br />
