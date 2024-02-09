@@ -1,7 +1,16 @@
 let transcript = []
 let personNameBuffer = "", transcriptTextBuffer = ""
 let beforePersonName = "", beforeTranscriptText = ""
-let meetingStartTimeStamp = new Date().toLocaleString()
+const options = {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: true
+};
+let meetingStartTimeStamp = new Date().toLocaleString("default", options).replace(/[/:]/g, '-')
+let meetingTitle = ""
 const extensionStatusJSON_bug = {
   "status": 400,
   "message": "<strong>Transcripto seems to have an error</strong> <br /> Please report it <a href='https://github.com/vivek-nexus/transcripto/issues' target='_blank'>here</a>."
@@ -19,6 +28,8 @@ checkExtensionStatus().then(() => {
           const captionsButton = contains(".material-icons-extended", "closed_caption_off")[0]
 
           console.log("Meeting started")
+          meetingTitle = document.querySelector('div[data-meeting-title]') ? document.querySelector('div[data-meeting-title]').getAttribute("data-meeting-title") : document.title
+
           chrome.storage.sync.get(["operationMode"], function (result) {
             if (result.operationMode == "manual")
               console.log("Manual mode selected, leaving transcript off")
@@ -36,7 +47,7 @@ checkExtensionStatus().then(() => {
             observer.observe(targetNode, config)
             chrome.storage.sync.get(["operationMode"], function (result) {
               if (result.operationMode == "manual")
-                showNotification({ status: 400, message: "<strong>Transcripto is not running</strong> <br /> Turn on captions, if needed" })
+                showNotification({ status: 400, message: "<strong>Transcripto is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
               else
                 showNotification(extensionStatusJSON)
             })
@@ -45,28 +56,29 @@ checkExtensionStatus().then(() => {
             showNotification(extensionStatusJSON_bug)
           }
 
-          contains(".google-material-icons", "call_end")[0].parentElement.addEventListener("click", () => {
-            if (personNameBuffer != "" || transcriptTextBuffer != "") {
-              transcript.push({
-                "personName": personNameBuffer,
-                "personTranscript": transcriptTextBuffer
-              })
-              chrome.storage.local.set({ transcript: transcript }, function () { })
-            }
-            observer.disconnect();
-            console.log(`Transcript length ${transcript.length}`)
-            if (transcript.length > 0)
-              downloadTranscript()
-          })
+          window.addEventListener("beforeunload", beforeUnloadCallback)
 
-          window.addEventListener("beforeunload", function () {
+          contains(".google-material-icons", "call_end")[0].parentElement.addEventListener("click", () => {
+            window.removeEventListener("beforeunload", beforeUnloadCallback)
             transcript.push({
               "personName": personNameBuffer,
               "personTranscript": transcriptTextBuffer
             })
-            chrome.runtime.sendMessage({ transcript: transcript }, function (response) {
-              console.log(response);
-            });
+            chrome.storage.local.set(
+              {
+                transcript: transcript,
+                meetingTitle: meetingTitle,
+                meetingStartTimeStamp: meetingStartTimeStamp
+              },
+              function () {
+                observer.disconnect();
+                console.log(`Transcript length ${transcript.length}`)
+                if (transcript.length > 0) {
+                  chrome.runtime.sendMessage({ type: "download" }, function (response) {
+                    console.log(response);
+                  });
+                }
+              })
           })
         }
         else {
@@ -160,41 +172,21 @@ const commonCSS = `background: rgb(255 255 255 / 25%);
     box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;`;
 
 
-
-function downloadTranscript() {
-  // Create an array to store lines of the text file
-  const lines = [];
-
-  // Iterate through the transcript array and format each entry
-  transcript.forEach(entry => {
-    lines.push(entry.personName);
-    lines.push(entry.personTranscript);
-    lines.push(''); // Add an empty line between entries
-  });
-
-  lines.push("---")
-  lines.push("Transcript generated using Transcripto Chrome extension")
-
-  // Join the lines into a single string
-  const textContent = lines.join('\n');
-
-  // Create a Blob from the text content
-  const blob = new Blob([textContent], { type: 'text/plain' });
-
-  // Create a download notification
-  let html = document.querySelector("html");
-  let obj = document.createElement("div");
-  let downloadLink = document.createElement("a")
-  downloadLink.setAttribute("id", "transcript-download-button")
-
-  obj.prepend(downloadLink)
-  if (html) {
-    html.append(obj)
-    downloadLink.href = URL.createObjectURL(blob);
-    downloadLink.download = `Transcript-${document.querySelector('div[data-meeting-title]') ? document.querySelector('div[data-meeting-title]').getAttribute("data-meeting-title") : document.title} ${meetingStartTimeStamp}.txt`;
-
-    downloadLink.click();
-  }
+function beforeUnloadCallback() {
+  transcript.push({
+    "personName": personNameBuffer,
+    "personTranscript": transcriptTextBuffer
+  })
+  chrome.runtime.sendMessage(
+    {
+      type: "save_and_download",
+      transcript: transcript,
+      meetingTitle: meetingTitle,
+      meetingStartTimeStamp: meetingStartTimeStamp,
+    },
+    function (response) {
+      console.log(response)
+    })
 }
 
 function transcriber(mutationsList, observer) {
@@ -219,7 +211,12 @@ function transcriber(mutationsList, observer) {
               "personName": personNameBuffer,
               "personTranscript": transcriptTextBuffer
             })
-            chrome.storage.local.set({ transcript: transcript }, function () { })
+            chrome.storage.local.set(
+              {
+                transcript: transcript,
+                meetingTitle: meetingTitle,
+                meetingStartTimeStamp: meetingStartTimeStamp
+              }, function () { })
             beforeTranscriptText = currentTranscriptText
             personNameBuffer = currentPersonName;
             transcriptTextBuffer = currentTranscriptText;
@@ -237,7 +234,11 @@ function transcriber(mutationsList, observer) {
             "personName": personNameBuffer,
             "personTranscript": transcriptTextBuffer
           })
-          chrome.storage.local.set({ transcript: transcript }, function () { })
+          chrome.storage.local.set({
+            transcript: transcript,
+            meetingTitle: meetingTitle,
+            meetingStartTimeStamp: meetingStartTimeStamp
+          }, function () { })
         }
         beforePersonName = ""
         beforeTranscriptText = ""
@@ -245,7 +246,7 @@ function transcriber(mutationsList, observer) {
         transcriptTextBuffer = ""
       }
       console.log(transcriptTextBuffer)
-      console.log(transcript)
+      // console.log(transcript)
     })
   }, 500);
 }
