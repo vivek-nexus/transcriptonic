@@ -55,7 +55,7 @@ function downloadTranscript() {
                 console.log(error)
                 chrome.downloads.download({
                     url: 'data:text/plain;base64,' + btoa(textContent),
-                    filename: "Transcript.txt",
+                    filename: "Transcripto/Transcript.txt",
                     conflictAction: 'uniquify' // Automatically rename the file if it already exists
                 })
                 console.log("Invalid file name. Transcript downloaded to Transcripto directory with simple file name.")
