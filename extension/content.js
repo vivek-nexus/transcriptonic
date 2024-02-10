@@ -253,7 +253,7 @@ function overWriteChromeStorage() {
 function updateMeetingTitle() {
   if (document.querySelector(".u6vdEc")) {
     const title = document.querySelector(".u6vdEc").textContent
-    const invalidFilenameRegex = /^[a-z0-9-_.() ]+$/i;
+    const invalidFilenameRegex = /[^\w\-_.() ]/g;
     return title.replace(invalidFilenameRegex, '_')
   }
   else
