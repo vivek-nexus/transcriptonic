@@ -10,7 +10,7 @@ const options = {
   hour12: true
 };
 let meetingStartTimeStamp = new Date().toLocaleString("default", options).replace(/[/:]/g, '-')
-let meetingTitle = ""
+let meetingTitle = document.title
 const extensionStatusJSON_bug = {
   "status": 400,
   "message": "<strong>Transcripto seems to have an error</strong> <br /> Please report it <a href='https://github.com/vivek-nexus/transcripto/issues' target='_blank'>here</a>."
@@ -28,7 +28,10 @@ checkExtensionStatus().then(() => {
           const captionsButton = contains(".material-icons-extended", "closed_caption_off")[0]
 
           console.log("Meeting started")
-          meetingTitle = document.querySelector('div[data-meeting-title]') ? document.querySelector('div[data-meeting-title]').getAttribute("data-meeting-title") : document.title
+          setTimeout(() => {
+            // pick up meeting name after a delay
+            meetingTitle = updateMeetingTitle()
+          }, 5000);
 
           chrome.storage.sync.get(["operationMode"], function (result) {
             if (result.operationMode == "manual")
@@ -245,6 +248,20 @@ function overWriteChromeStorage() {
     meetingTitle: meetingTitle,
     meetingStartTimeStamp: meetingStartTimeStamp
   }, function () { })
+}
+
+function updateMeetingTitle() {
+  if (document.querySelector('div[data-meeting-title]')) {
+    const title = document.querySelector('div[data-meeting-title]').getAttribute("data-meeting-title")
+    const validFilenameRegex = /^[a-z0-9-_.() ]+$/i;
+    if (validFilenameRegex.test(title))
+      return title
+    else
+      return document.title
+  }
+  else
+    return document.title
+
 }
 
 async function checkExtensionStatus() {

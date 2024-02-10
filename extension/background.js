@@ -49,8 +49,17 @@ function downloadTranscript() {
                 url: 'data:text/plain;base64,' + btoa(textContent),
                 filename: fileName,
                 conflictAction: 'uniquify' // Automatically rename the file if it already exists
-            });
-            console.log("Transcript downloaded to Transcripto directory")
+            }).then(() => {
+                console.log("Transcript downloaded to Transcripto directory")
+            }).catch((error) => {
+                console.log(error)
+                chrome.downloads.download({
+                    url: 'data:text/plain;base64,' + btoa(textContent),
+                    filename: "Transcript.txt",
+                    conflictAction: 'uniquify' // Automatically rename the file if it already exists
+                })
+                console.log("Invalid file name. Transcript downloaded to Transcripto directory with simple file name.")
+            })
         }
         else
             console.log("No transcript found")
