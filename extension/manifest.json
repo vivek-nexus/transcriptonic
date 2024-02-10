@@ -1,6 +1,6 @@
 {
   "name": "Transcripto",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest_version": 3,
   "description": "Simple Google Meet transcripts. Private and open source.",
   "action": {
@@ -28,7 +28,8 @@
     }
   ],
   "permissions": [
-    "storage"
+    "storage",
+    "downloads"
   ],
   "host_permissions": [
     "https://meet.google.com/*"
