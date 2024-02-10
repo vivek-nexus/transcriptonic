@@ -8,8 +8,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
                 meetingStartTimeStamp: message.meetingStartTimeStamp
             },
             function () {
-                console.log("Saved transcript and meta data, downloading now")
-                downloadTranscript()
+                console.log("Saved transcript and meta data, downloading now if non empty")
+                if (message.transcript.length > 0)
+                    downloadTranscript()
             })
     }
     if (message.type == "download") {
@@ -20,7 +21,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 function downloadTranscript() {
     chrome.storage.local.get(["transcript", "meetingTitle", "meetingStartTimeStamp"], function (result) {
-        if (result.transcript && result.transcript.length > 0) {
+        if (result.transcript) {
             const fileName = result.meetingTitle && result.meetingStartTimeStamp ? `Transcripto/Transcript-${result.meetingTitle} at ${result.meetingStartTimeStamp}.txt` : `Transcripto/Transcript.txt`
 
             // Create an array to store lines of the text file
