@@ -251,10 +251,10 @@ function overWriteChromeStorage() {
 }
 
 function updateMeetingTitle() {
-  if (document.querySelector('div[data-meeting-title]')) {
-    const title = document.querySelector('div[data-meeting-title]').getAttribute("data-meeting-title")
+  if (document.querySelector(".u6vdEc")) {
+    const title = document.querySelector(".u6vdEc").textContent
     const invalidFilenameRegex = /^[a-z0-9-_.() ]+$/i;
-    return filename.replace(invalidFilenameRegex, '_')
+    return title.replace(invalidFilenameRegex, '_')
   }
   else
     return document.title
