@@ -61,7 +61,8 @@ checkExtensionStatus().then(() => {
           contains(".google-material-icons", "call_end")[0].parentElement.addEventListener("click", () => {
             window.removeEventListener("beforeunload", beforeUnloadCallback)
             observer.disconnect();
-            pushToTranscript()
+            if ((personNameBuffer != "") && (transcriptTextBuffer != ""))
+              pushToTranscript()
             chrome.storage.local.set(
               {
                 transcript: transcript,
@@ -170,7 +171,8 @@ const commonCSS = `background: rgb(255 255 255 / 25%);
 
 
 function beforeUnloadCallback() {
-  pushToTranscript()
+  if ((personNameBuffer != "") && (transcriptTextBuffer != ""))
+    pushToTranscript()
   chrome.runtime.sendMessage(
     {
       type: "save_and_download",
