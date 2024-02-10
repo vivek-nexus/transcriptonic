@@ -253,15 +253,11 @@ function overWriteChromeStorage() {
 function updateMeetingTitle() {
   if (document.querySelector('div[data-meeting-title]')) {
     const title = document.querySelector('div[data-meeting-title]').getAttribute("data-meeting-title")
-    const validFilenameRegex = /^[a-z0-9-_.() ]+$/i;
-    if (validFilenameRegex.test(title))
-      return title
-    else
-      return document.title
+    const invalidFilenameRegex = /^[a-z0-9-_.() ]+$/i;
+    return filename.replace(invalidFilenameRegex, '_')
   }
   else
     return document.title
-
 }
 
 async function checkExtensionStatus() {
