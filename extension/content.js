@@ -13,7 +13,7 @@ let meetingStartTimeStamp = new Date().toLocaleString("default", options).replac
 let meetingTitle = document.title
 const extensionStatusJSON_bug = {
   "status": 400,
-  "message": "<strong>TranscripTonic seems to have an error</strong> <br /> Please report it <a href='https://github.com/vivek-nexus/transcripto/issues' target='_blank'>here</a>."
+  "message": "<strong>TranscripTonic seems to have an error</strong> <br /> Please report it <a href='https://github.com/vivek-nexus/transcriptonic/issues' target='_blank'>here</a>."
 }
 
 checkExtensionStatus().then(() => {

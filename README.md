@@ -20,7 +20,7 @@ View video on [YouTube](https://www.youtube.com/watch?v=MRmZLO-f8Sg)
 
 
 # Installation
-<a href="https://chromewebstore.google.com/detail/transcripto/ciepnfnceimjehngolkijpnbappkkiag" target="_blank">
+<a href="https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag" target="_blank">
     <img src="https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/iNEddTyWiMfLSwFD6qGq.png" />
 </a>
 
