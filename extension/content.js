@@ -13,7 +13,7 @@ let meetingStartTimeStamp = new Date().toLocaleString("default", options).replac
 let meetingTitle = document.title
 const extensionStatusJSON_bug = {
   "status": 400,
-  "message": "<strong>Transcripto seems to have an error</strong> <br /> Please report it <a href='https://github.com/vivek-nexus/transcripto/issues' target='_blank'>here</a>."
+  "message": "<strong>TranscripTonic seems to have an error</strong> <br /> Please report it <a href='https://github.com/vivek-nexus/transcriptonic/issues' target='_blank'>here</a>."
 }
 
 checkExtensionStatus().then(() => {
@@ -50,7 +50,7 @@ checkExtensionStatus().then(() => {
             observer.observe(targetNode, config)
             chrome.storage.sync.get(["operationMode"], function (result) {
               if (result.operationMode == "manual")
-                showNotification({ status: 400, message: "<strong>Transcripto is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
+                showNotification({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
               else
                 showNotification(extensionStatusJSON)
             })
@@ -196,8 +196,13 @@ function transcriber(mutationsList, observer) {
         const people = document.querySelector('.a4cQT').firstChild.firstChild.childNodes
 
         const person = people[people.length - 1]
-        const currentPersonName = person.childNodes[1] ? person.childNodes[1].textContent : ""
-        const currentTranscriptText = person.childNodes[2].lastChild ? person.childNodes[2].lastChild.textContent : ""
+        if ((!person.childNodes[0]) || (!person.childNodes[1]?.lastChild)) {
+          console.log("There is a bug in TranscripTonic. Please report it at https://github.com/vivek-nexus/transcriptonic/issues")
+          showNotification(extensionStatusJSON_bug)
+          return
+        }
+        const currentPersonName = person.childNodes[0] ? person.childNodes[0].textContent : ""
+        const currentTranscriptText = person.childNodes[1].lastChild ? person.childNodes[1].lastChild.textContent : ""
 
         if (beforeTranscriptText == "") {
           personNameBuffer = currentPersonName
@@ -263,7 +268,7 @@ function updateMeetingTitle() {
 async function checkExtensionStatus() {
   // Set default value as 200
   chrome.storage.local.set({
-    extensionStatusJSON: { status: 200, message: "<strong>Transcripto is running</strong> <br /> Do not turn off captions" },
+    extensionStatusJSON: { status: 200, message: "<strong>TranscripTonic is running</strong> <br /> Do not turn off captions" },
   });
 
   // https://stackoverflow.com/a/42518434

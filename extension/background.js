@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 function downloadTranscript() {
     chrome.storage.local.get(["transcript", "meetingTitle", "meetingStartTimeStamp"], function (result) {
         if (result.transcript) {
-            const fileName = result.meetingTitle && result.meetingStartTimeStamp ? `Transcripto/Transcript-${result.meetingTitle} at ${result.meetingStartTimeStamp}.txt` : `Transcripto/Transcript.txt`
+            const fileName = result.meetingTitle && result.meetingStartTimeStamp ? `TranscripTonic/Transcript-${result.meetingTitle} at ${result.meetingStartTimeStamp}.txt` : `TranscripTonic/Transcript.txt`
 
             // Create an array to store lines of the text file
             const lines = [];
@@ -35,7 +35,8 @@ function downloadTranscript() {
             });
 
             lines.push("---")
-            lines.push("Transcript saved using Transcripto Chrome extension")
+            lines.push("Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)")
+
 
             // Join the lines into a single string
             const textContent = lines.join('\n');
@@ -50,15 +51,15 @@ function downloadTranscript() {
                 filename: fileName,
                 conflictAction: 'uniquify' // Automatically rename the file if it already exists
             }).then(() => {
-                console.log("Transcript downloaded to Transcripto directory")
+                console.log("Transcript downloaded to TranscripTonic directory")
             }).catch((error) => {
                 console.log(error)
                 chrome.downloads.download({
                     url: 'data:text/plain;base64,' + btoa(textContent),
-                    filename: "Transcripto/Transcript.txt",
+                    filename: "TranscripTonic/Transcript.txt",
                     conflictAction: 'uniquify' // Automatically rename the file if it already exists
                 })
-                console.log("Invalid file name. Transcript downloaded to Transcripto directory with simple file name.")
+                console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
             })
         }
         else
