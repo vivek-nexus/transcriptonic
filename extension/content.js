@@ -196,8 +196,13 @@ function transcriber(mutationsList, observer) {
         const people = document.querySelector('.a4cQT').firstChild.firstChild.childNodes
 
         const person = people[people.length - 1]
-        const currentPersonName = person.childNodes[1] ? person.childNodes[1].textContent : ""
-        const currentTranscriptText = person.childNodes[2].lastChild ? person.childNodes[2].lastChild.textContent : ""
+        if ((!person.childNodes[0]) || (!person.childNodes[1]?.lastChild)) {
+          console.log("There is a bug in TranscripTonic. Please report it at https://github.com/vivek-nexus/transcriptonic/issues")
+          showNotification(extensionStatusJSON_bug)
+          return
+        }
+        const currentPersonName = person.childNodes[0] ? person.childNodes[0].textContent : ""
+        const currentTranscriptText = person.childNodes[1].lastChild ? person.childNodes[1].lastChild.textContent : ""
 
         if (beforeTranscriptText == "") {
           personNameBuffer = currentPersonName
