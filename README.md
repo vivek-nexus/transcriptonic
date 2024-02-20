@@ -3,7 +3,7 @@ Simple Google Meet transcripts. Private and open source.
 
 ![marquee-large](/assets/marquee-large.png)
 
-Extension status: 🟢 OPERATIONAL (bug fixes can take 5 hours to update)
+Extension status: 🟢 OPERATIONAL
 
 <br />
 <br />
