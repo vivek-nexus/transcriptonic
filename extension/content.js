@@ -237,7 +237,7 @@ function transcriber(mutationsList, observer) {
       console.log(transcriptTextBuffer)
       // console.log(transcript)
     })
-  }, 500);
+  }, 1000);
 }
 
 function pushToTranscript() {
