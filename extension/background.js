@@ -47,7 +47,7 @@ function downloadTranscript() {
             // Create a download
             // Use Chrome Download API
             chrome.downloads.download({
-                url: 'data:text/plain;base64,' + btoa(textContent),
+                url: 'data:text/plain;base64,' + encodeUnicodeString(textContent),
                 filename: fileName,
                 conflictAction: 'uniquify' // Automatically rename the file if it already exists
             }).then(() => {
@@ -55,7 +55,7 @@ function downloadTranscript() {
             }).catch((error) => {
                 console.log(error)
                 chrome.downloads.download({
-                    url: 'data:text/plain;base64,' + btoa(textContent),
+                    url: 'data:text/plain;base64,' + encodeUnicodeString(textContent),
                     filename: "TranscripTonic/Transcript.txt",
                     conflictAction: 'uniquify' // Automatically rename the file if it already exists
                 })
@@ -65,4 +65,11 @@ function downloadTranscript() {
         else
             console.log("No transcript found")
     })
+}
+
+// Thanks to @ifTNT(https://github.com/vivek-nexus/transcriptonic/pull/4)
+function encodeUnicodeString(text) {
+    const utf8Bytes = new TextEncoder().encode(text)
+    const binaryString = String.fromCodePoint(...utf8Bytes);
+    return btoa(binaryString);
 }
