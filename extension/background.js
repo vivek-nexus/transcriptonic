@@ -19,6 +19,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     return true
 })
 
+function unicodeToBase64(text){
+    const bytes = new TextEncoder().encode(text)
+    const binString = String.fromCodePoint(...bytes);
+    return btoa(binString);
+}
+
 function downloadTranscript() {
     chrome.storage.local.get(["transcript", "meetingTitle", "meetingStartTimeStamp"], function (result) {
         if (result.transcript) {
@@ -47,7 +53,7 @@ function downloadTranscript() {
             // Create a download
             // Use Chrome Download API
             chrome.downloads.download({
-                url: 'data:text/plain;base64,' + btoa(textContent),
+                url: 'data:text/plain;base64,' + unicodeToBase64(textContent),
                 filename: fileName,
                 conflictAction: 'uniquify' // Automatically rename the file if it already exists
             }).then(() => {
