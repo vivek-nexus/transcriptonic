@@ -11,7 +11,7 @@ Extension status: 🟢 OPERATIONAL (v2.0.1)
 
 
 # Demo
-View video on [YouTube](https://www.youtube.com/watch?v=MRmZLO-f8Sg)
+View video on [YouTube](https://www.youtube.com/watch?v=ARL6HbkakX4)
 
 ![demo](/assets/demo.gif)
 
