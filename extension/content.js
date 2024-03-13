@@ -193,7 +193,7 @@ function transcriber(mutationsList, observer) {
   // Callback function to execute when mutations are observed
   setTimeout(() => {
     mutationsList.forEach(mutation => {
-      if (document.querySelector('.a4cQT').firstChild.firstChild?.childNodes.length > 0) {
+      if (document.querySelector('.a4cQT').firstChild?.firstChild?.childNodes.length > 0) {
         const people = document.querySelector('.a4cQT').firstChild.firstChild.childNodes
 
         const person = people[people.length - 1]
