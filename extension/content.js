@@ -11,6 +11,7 @@ const options = {
 };
 let meetingStartTimeStamp = new Date().toLocaleString("default", options).replace(/[/:]/g, '-')
 let meetingTitle = document.title
+let startTime = Date.now();
 const extensionStatusJSON_bug = {
   "status": 400,
   "message": "<strong>TranscripTonic seems to have an error</strong> <br /> Please report it <a href='https://github.com/vivek-nexus/transcriptonic/issues' target='_blank'>here</a>."
@@ -28,6 +29,8 @@ checkExtensionStatus().then(() => {
           const captionsButton = contains(".material-icons-extended", "closed_caption_off")[0]
 
           console.log("Meeting started")
+          startTime = Date.now()
+
           setTimeout(() => {
             // pick up meeting name after a delay
             meetingTitle = updateMeetingTitle()
@@ -241,9 +244,14 @@ function transcriber(mutationsList, observer) {
 }
 
 function pushToTranscript() {
+  const timeElapsed = Date.now() - startTime; // calculate time elapsed since start
+  let secondsElapsed = Math.floor(timeElapsed / 1000) 
+  const minutesElapsed = Math.floor(secondsElapsed / 60)
+  secondsElapsed = secondsElapsed - minutesElapsed * 60
   transcript.push({
     "personName": personNameBuffer,
-    "personTranscript": transcriptTextBuffer
+    "personTranscript": transcriptTextBuffer,
+    "timeCode": `${minutesElapsed}:${secondsElapsed}`
   })
 }
 
@@ -287,5 +295,4 @@ async function checkExtensionStatus() {
       console.log(err);
     });
 }
-
 
