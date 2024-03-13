@@ -1,5 +1,5 @@
 let transcript = []
-let personNameBuffer = "", transcriptTextBuffer = ""
+let personNameBuffer = "", transcriptTextBuffer = "", timeStampBuffer = undefined
 let beforePersonName = "", beforeTranscriptText = ""
 const options = {
   year: 'numeric',
@@ -9,7 +9,7 @@ const options = {
   minute: '2-digit',
   hour12: true
 };
-let meetingStartTimeStamp = new Date().toLocaleString("default", options).replace(/[/:]/g, '-')
+let meetingStartTimeStamp = new Date().toLocaleString("default", options).replace(/[/:]/g, '-').toUpperCase()
 let meetingTitle = document.title
 let startTime = Date.now();
 const extensionStatusJSON_bug = {
@@ -195,7 +195,7 @@ function transcriber(mutationsList, observer) {
   // Callback function to execute when mutations are observed
   setTimeout(() => {
     mutationsList.forEach(mutation => {
-      if (document.querySelector('.a4cQT').firstChild.firstChild.childNodes.length > 0) {
+      if (document.querySelector('.a4cQT').firstChild.firstChild?.childNodes.length > 0) {
         const people = document.querySelector('.a4cQT').firstChild.firstChild.childNodes
 
         const person = people[people.length - 1]
@@ -207,19 +207,25 @@ function transcriber(mutationsList, observer) {
         const currentPersonName = person.childNodes[0] ? person.childNodes[0].textContent : ""
         const currentTranscriptText = person.childNodes[1].lastChild ? person.childNodes[1].lastChild.textContent : ""
 
+        // starting fresh with a person
         if (beforeTranscriptText == "") {
           personNameBuffer = currentPersonName
+          timeStampBuffer = new Date().toLocaleString("default", options).toUpperCase()
           beforeTranscriptText = currentTranscriptText
           transcriptTextBuffer += currentTranscriptText
         }
         else {
+          // new person started speaking
           if (personNameBuffer != currentPersonName) {
             pushToTranscript()
             overWriteChromeStorage()
             beforeTranscriptText = currentTranscriptText
-            personNameBuffer = currentPersonName;
-            transcriptTextBuffer = currentTranscriptText;
+            personNameBuffer = currentPersonName
+            timeStampBuffer = new Date().toLocaleString("default", options).toUpperCase()
+            console.log(timeStampBuffer)
+            transcriptTextBuffer = currentTranscriptText
           }
+          // same person speaking more
           else {
             transcriptTextBuffer += currentTranscriptText.substring(currentTranscriptText.indexOf(beforeTranscriptText) + beforeTranscriptText.length)
             beforeTranscriptText = currentTranscriptText
@@ -227,6 +233,7 @@ function transcriber(mutationsList, observer) {
         }
       }
       else {
+        // nothing or no one is speaking
         console.log("No active transcript")
         if ((personNameBuffer != "") && (transcriptTextBuffer != "")) {
           pushToTranscript()
@@ -245,13 +252,13 @@ function transcriber(mutationsList, observer) {
 
 function pushToTranscript() {
   const timeElapsed = Date.now() - startTime; // calculate time elapsed since start
-  let secondsElapsed = Math.floor(timeElapsed / 1000) 
+  let secondsElapsed = Math.floor(timeElapsed / 1000)
   const minutesElapsed = Math.floor(secondsElapsed / 60)
   secondsElapsed = secondsElapsed - minutesElapsed * 60
   transcript.push({
     "personName": personNameBuffer,
-    "personTranscript": transcriptTextBuffer,
-    "timeCode": `${minutesElapsed}:${secondsElapsed}`
+    "timeStamp": timeStampBuffer,
+    "personTranscript": transcriptTextBuffer
   })
 }
 
@@ -296,3 +303,43 @@ async function checkExtensionStatus() {
     });
 }
 
+
+
+// CURRENT GOOGLE MEET TRANSCRIPT DOM
+
+{/* <div class="a4cQT" jsaction="bz0DVc:HWTqGc;TpIHXe:c0270d;v2nhid:YHhXNc;kDAVge:lUFH9b;QBUr8:lUFH9b;stc2ve:oh3Xke"
+  jscontroller="D1tHje" style="right: 16px; left: 16px; bottom: 80px;">
+  <div>
+    <div class="iOzk7" jsname="dsyhDe" style="">
+      //PERSON 1
+      <div class="TBMuR bj4p3b" style="">
+        <div><img alt="" class="KpxDtd r6DyN"
+            src="https://lh3.googleusercontent.com/a/some-url"
+            data-iml="453">
+          <div class="zs7s8d jxFHg">Person 1</div>
+        </div>
+        <div jsname="YSxPC" class="Mz6pEf wY1pdd" style="height: 28.4444px;">
+          <div jsname="tgaKEf" class="iTTPOb VbkSUe">
+          <span>Some transcript text.</span>
+          <span>Some more text.</span></div>
+        </div>
+      </div>
+      
+      // PERSON 2
+      <div class="TBMuR bj4p3b" style="">
+        <div><img alt="" class="KpxDtd r6DyN"
+            src="https://lh3.googleusercontent.com/a/some-url"
+            data-iml="453">
+          <div class="zs7s8d jxFHg">Person 2</div>
+        </div>
+        <div jsname="YSxPC" class="Mz6pEf wY1pdd" style="height: 28.4444px;">
+          <div jsname="tgaKEf" class="iTTPOb VbkSUe">
+          <span>Some transcript text.</span>
+          <span>Some more text.</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="iOzk7" jsname="APQunf" style="display: none;"></div>
+  </div>
+  <More divs />
+</div> */}

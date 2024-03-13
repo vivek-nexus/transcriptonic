@@ -29,7 +29,7 @@ function downloadTranscript() {
 
             // Iterate through the transcript array and format each entry
             result.transcript.forEach(entry => {
-                lines.push(`[${entry.timeCode}] ${entry.personName}:`);
+                lines.push(`${entry.personName} (${entry.timeStamp})`);
                 lines.push(entry.personTranscript);
                 lines.push(''); // Add an empty line between entries
             });
