@@ -11,7 +11,6 @@ const options = {
 };
 let meetingStartTimeStamp = new Date().toLocaleString("default", options).replace(/[/:]/g, '-').toUpperCase()
 let meetingTitle = document.title
-let startTime = Date.now();
 const extensionStatusJSON_bug = {
   "status": 400,
   "message": "<strong>TranscripTonic seems to have an error</strong> <br /> Please report it <a href='https://github.com/vivek-nexus/transcriptonic/issues' target='_blank'>here</a>."
@@ -29,7 +28,6 @@ checkExtensionStatus().then(() => {
           const captionsButton = contains(".material-icons-extended", "closed_caption_off")[0]
 
           console.log("Meeting started")
-          startTime = Date.now()
 
           setTimeout(() => {
             // pick up meeting name after a delay
@@ -222,18 +220,18 @@ function transcriber(mutationsList, observer) {
             beforeTranscriptText = currentTranscriptText
             personNameBuffer = currentPersonName
             timeStampBuffer = new Date().toLocaleString("default", options).toUpperCase()
-            console.log(timeStampBuffer)
             transcriptTextBuffer = currentTranscriptText
           }
           // same person speaking more
           else {
+            // string subtraction
             transcriptTextBuffer += currentTranscriptText.substring(currentTranscriptText.indexOf(beforeTranscriptText) + beforeTranscriptText.length)
             beforeTranscriptText = currentTranscriptText
           }
         }
       }
       else {
-        // nothing or no one is speaking
+        // no transcript yet or no one is speaking
         console.log("No active transcript")
         if ((personNameBuffer != "") && (transcriptTextBuffer != "")) {
           pushToTranscript()
@@ -251,10 +249,6 @@ function transcriber(mutationsList, observer) {
 }
 
 function pushToTranscript() {
-  const timeElapsed = Date.now() - startTime; // calculate time elapsed since start
-  let secondsElapsed = Math.floor(timeElapsed / 1000)
-  const minutesElapsed = Math.floor(secondsElapsed / 60)
-  secondsElapsed = secondsElapsed - minutesElapsed * 60
   transcript.push({
     "personName": personNameBuffer,
     "timeStamp": timeStampBuffer,
