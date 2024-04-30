@@ -4,11 +4,13 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         chrome.storage.local.set(
             {
                 transcript: message.transcript,
+                chatMessages: message.chatMessages,
                 meetingTitle: message.meetingTitle,
                 meetingStartTimeStamp: message.meetingStartTimeStamp
             },
             function () {
                 console.log("Saved transcript and meta data, downloading now if non empty")
+                // Download only if any transcript is present, irrespective of chat messages
                 if (message.transcript.length > 0)
                     downloadTranscript()
             })
@@ -20,8 +22,8 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 })
 
 function downloadTranscript() {
-    chrome.storage.local.get(["transcript", "meetingTitle", "meetingStartTimeStamp"], function (result) {
-        if (result.transcript) {
+    chrome.storage.local.get(["transcript", "chatMessages", "meetingTitle", "meetingStartTimeStamp"], function (result) {
+        if (result.transcript && result.chatMessages) {
             // Create file name if values or provided, use default otherwise
             const fileName = result.meetingTitle && result.meetingStartTimeStamp ? `TranscripTonic/Transcript-${result.meetingTitle} at ${result.meetingStartTimeStamp}.txt` : `TranscripTonic/Transcript.txt`
 
@@ -35,13 +37,24 @@ function downloadTranscript() {
                 lines.push('') // Add an empty line between entries
             })
 
+            if (result.chatMessages.length > 0) {
+                // Iterate through the chat messages array and format each entry
+                lines.push("----------")
+                lines.push("CHAT MESSAGES")
+                result.chatMessages.forEach(entry => {
+                    lines.push(`${entry.personName} (${entry.timeStamp})`)
+                    lines.push(entry.chatMessageText)
+                    lines.push('') // Add an empty line between entries
+                })
+            }
+
             // Add branding
-            lines.push("---")
+            lines.push("----------")
             lines.push("Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)")
 
 
             // Join the lines into a single string
-            const textContent = lines.join('\n');
+            const textContent = lines.join('\n')
 
             // Create a download with Chrome Download API
             chrome.downloads.download({
