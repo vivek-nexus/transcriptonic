@@ -9,7 +9,7 @@ const timeFormat = {
 }
 const extensionStatusJSON_bug = {
   "status": 400,
-  "message": "<strong>TranscripTonic seems to have an error</strong> <br /> Please report it <a href='https://github.com/vivek-nexus/transcriptonic/issues' target='_blank'>here</a>."
+  "message": "<strong>TranscripTonic encountered a new error</strong> <br /> Please report it <a href='https://github.com/vivek-nexus/transcriptonic/issues' target='_blank'>here</a>."
 }
 const mutationConfig = { childList: true, attributes: true, subtree: true }
 
@@ -35,9 +35,9 @@ overWriteChromeStorage(["meetingStartTimeStamp", "meetingTitle"], false)
 let isTranscriptDomErrorCaptured = false
 let isChatMessagesDomErrorCaptured = false
 // Capture meeting begin to abort userName capturing interval
-let isMeetingStarted = false
+let hasMeetingStarted = false
 // Capture meeting end to suppress any errors
-let isMeetingOver = false
+let hasMeetingEnded = false
 
 
 checkExtensionStatus().then(() => {
@@ -53,7 +53,7 @@ checkExtensionStatus().then(() => {
         // Poll the element until the textContent loads from network or until meeting starts
         const captureUserNameInterval = setInterval(() => {
           userName = document.querySelector(".awLEm").textContent
-          if (userName || isMeetingStarted) {
+          if (userName || hasMeetingStarted) {
             clearInterval(captureUserNameInterval)
             overWriteChromeStorage(["userName"], false)
           }
@@ -63,7 +63,7 @@ checkExtensionStatus().then(() => {
       // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
       checkElement(".google-material-icons", "call_end").then(() => {
         console.log("Meeting started")
-        isMeetingStarted = true
+        hasMeetingStarted = true
 
         try {
           //*********** MEETING START ROUTINES **********//
@@ -124,7 +124,7 @@ checkExtensionStatus().then(() => {
           // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
           contains(".google-material-icons", "call_end")[0].parentElement.addEventListener("click", () => {
             // To suppress further errors
-            isMeetingOver = true
+            hasMeetingEnded = true
             // Remove unload event listener registered earlier, to prevent double downloads. Otherwise, unload event will trigger the callback, when user navigates away from meeting end page.
             window.removeEventListener("beforeunload", unloadCallback)
             transcriptObserver.disconnect()
@@ -259,7 +259,7 @@ const commonCSS = `background: rgb(255 255 255 / 10%);
 // Pushes any data in the buffer to transcript and tells background script to save it and download it
 function unloadCallback() {
   // To suppress further errors
-  isMeetingOver = true
+  hasMeetingEnded = true
   // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Handles one or more speaking when meeting ends.
   if ((personNameBuffer != "") && (transcriptTextBuffer != ""))
     pushBufferToTranscript()
@@ -343,7 +343,7 @@ function transcriber(mutationsList, observer) {
       } catch (error) {
         console.error(error)
         console.log("There is a bug in TranscripTonic. Please report it at https://github.com/vivek-nexus/transcriptonic/issues")
-        if (isTranscriptDomErrorCaptured == false && isMeetingOver == false)
+        if (isTranscriptDomErrorCaptured == false && hasMeetingEnded == false)
           showNotification(extensionStatusJSON_bug)
         isTranscriptDomErrorCaptured = true
       }
@@ -380,7 +380,7 @@ function chatMessagesRecorder(mutationsList, observer) {
     catch (error) {
       console.error(error)
       console.log("There is a bug in TranscripTonic. Please report it at https://github.com/vivek-nexus/transcriptonic/issues")
-      if (isChatMessagesDomErrorCaptured == false && isMeetingOver == false)
+      if (isChatMessagesDomErrorCaptured == false && hasMeetingEnded == false)
         showNotification(extensionStatusJSON_bug)
       isChatMessagesDomErrorCaptured = true
     }
