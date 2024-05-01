@@ -12,6 +12,10 @@ const extensionStatusJSON_bug = {
   "message": "<strong>TranscripTonic seems to have an error</strong> <br /> Please report it <a href='https://github.com/vivek-nexus/transcriptonic/issues' target='_blank'>here</a>."
 }
 const mutationConfig = { childList: true, attributes: true, subtree: true }
+
+// Name of the person attending the meeting
+let userName = "You"
+overWriteChromeStorage(["userName"], false)
 // Transcript array that holds one or more transcript blocks
 // Each transcript block (object) has personName, timeStamp and transcriptText key value pairs
 let transcript = []
@@ -30,6 +34,8 @@ overWriteChromeStorage(["meetingStartTimeStamp", "meetingTitle"], false)
 // Capture invalid transcript and chat messages DOM element error for the first time
 let isTranscriptDomErrorCaptured = false
 let isChatMessagesDomErrorCaptured = false
+// Capture meeting begin to abort userName capturing interval
+let isMeetingStarted = false
 // Capture meeting end to suppress any errors
 let isMeetingOver = false
 
@@ -42,9 +48,22 @@ checkExtensionStatus().then(() => {
 
     // Enable extension functions only if status is 200
     if (extensionStatusJSON.status == 200) {
+      // NON CRITICAL DOM DEPENDENCY. Attempt to get username before meeting starts. Abort interval if valid username is found or if meeting starts and default to "You".
+      checkElement(".awLEm").then(() => {
+        // Poll the element until the textContent loads from network or until meeting starts
+        const captureUserNameInterval = setInterval(() => {
+          userName = document.querySelector(".awLEm").textContent
+          if (userName || isMeetingStarted) {
+            clearInterval(captureUserNameInterval)
+            overWriteChromeStorage(["userName"], false)
+          }
+        }, 100)
+      })
+
       // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
       checkElement(".google-material-icons", "call_end").then(() => {
         console.log("Meeting started")
+        isMeetingStarted = true
 
         try {
           //*********** MEETING START ROUTINES **********//
@@ -216,7 +235,7 @@ function showNotification(extensionStatusJSON) {
 }
 
 // CSS for notification
-const commonCSS = `background: rgb(255 255 255 / 25%); 
+const commonCSS = `background: rgb(255 255 255 / 10%); 
     backdrop-filter: blur(16px); 
     position: fixed;
     top: 5%; 
@@ -392,6 +411,8 @@ function pushUnique(chatBlock) {
 function overWriteChromeStorage(keys, sendDownloadMessage) {
   const objectToSave = {}
   // Hard coded list of keys that are accepted
+  if (keys.includes("userName"))
+    objectToSave.userName = userName
   if (keys.includes("transcript"))
     objectToSave.transcript = transcript
   if (keys.includes("meetingTitle"))

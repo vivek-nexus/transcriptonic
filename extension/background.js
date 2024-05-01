@@ -22,8 +22,8 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 })
 
 function downloadTranscript() {
-    chrome.storage.local.get(["transcript", "chatMessages", "meetingTitle", "meetingStartTimeStamp"], function (result) {
-        if (result.transcript && result.chatMessages) {
+    chrome.storage.local.get(["userName", "transcript", "chatMessages", "meetingTitle", "meetingStartTimeStamp"], function (result) {
+        if (result.userName && result.transcript && result.chatMessages) {
             // Create file name if values or provided, use default otherwise
             const fileName = result.meetingTitle && result.meetingStartTimeStamp ? `TranscripTonic/Transcript-${result.meetingTitle} at ${result.meetingStartTimeStamp}.txt` : `TranscripTonic/Transcript.txt`
 
@@ -53,8 +53,8 @@ function downloadTranscript() {
             lines.push("Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)")
 
 
-            // Join the lines into a single string
-            const textContent = lines.join('\n')
+            // Join the lines into a single string, replace "You" with userName from storage
+            const textContent = lines.join('\n').replace(/You/g, result.userName)
 
             // Create a download with Chrome Download API
             chrome.downloads.download({
