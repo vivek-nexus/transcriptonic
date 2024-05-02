@@ -106,7 +106,7 @@ checkExtensionStatus().then(() => {
             chatMessagesObserver = new MutationObserver(chatMessagesRecorder)
 
             chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
-          }, 500)
+          }, 100)
 
           // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
           chrome.storage.sync.get(["operationMode"], function (result) {
