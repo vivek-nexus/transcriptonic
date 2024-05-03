@@ -11,6 +11,7 @@ const extensionStatusJSON_bug = {
   "status": 400,
   "message": "<strong>TranscripTonic encountered a new error</strong> <br /> Please report it <a href='https://github.com/vivek-nexus/transcriptonic/issues' target='_blank'>here</a>."
 }
+const reportErrorMessage = "There is a bug in TranscripTonic. Please report it at https://github.com/vivek-nexus/transcriptonic/issues"
 const mutationConfig = { childList: true, attributes: true, subtree: true }
 
 // Name of the person attending the meeting
@@ -111,7 +112,7 @@ checkExtensionStatus().then(() => {
               console.error(error)
               showNotification(extensionStatusJSON_bug)
             }
-          }, 300)
+          }, 500)
 
           // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
           chrome.storage.sync.get(["operationMode"], function (result) {
@@ -347,9 +348,10 @@ function transcriber(mutationsList, observer) {
         // console.log(transcript)
       } catch (error) {
         console.error(error)
-        console.log("There is a bug in TranscripTonic. Please report it at https://github.com/vivek-nexus/transcriptonic/issues")
-        if (isTranscriptDomErrorCaptured == false && hasMeetingEnded == false)
+        if (isTranscriptDomErrorCaptured == false && hasMeetingEnded == false) {
+          console.log(reportErrorMessage)
           showNotification(extensionStatusJSON_bug)
+        }
         isTranscriptDomErrorCaptured = true
       }
     })
@@ -377,6 +379,7 @@ function chatMessagesRecorder(mutationsList, observer) {
           timeStamp: timeStamp,
           chatMessageText: chatMessageText
         }
+
         // Lot of mutations fire for each message, pick them only once
         pushUnique(chatMessageBlock)
         console.log(chatMessages)
@@ -384,9 +387,10 @@ function chatMessagesRecorder(mutationsList, observer) {
     }
     catch (error) {
       console.error(error)
-      console.log("There is a bug in TranscripTonic. Please report it at https://github.com/vivek-nexus/transcriptonic/issues")
-      if (isChatMessagesDomErrorCaptured == false && hasMeetingEnded == false)
+      if (isChatMessagesDomErrorCaptured == false && hasMeetingEnded == false) {
+        console.log(reportErrorMessage)
         showNotification(extensionStatusJSON_bug)
+      }
       isChatMessagesDomErrorCaptured = true
     }
   })
