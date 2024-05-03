@@ -100,13 +100,18 @@ checkExtensionStatus().then(() => {
           setTimeout(() => {
             chatMessagesButton.click()
             // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
-            const chatMessagesTargetNode = document.querySelectorAll('div[aria-live="polite"]')[0]
+            try {
+              const chatMessagesTargetNode = document.querySelectorAll('div[aria-live="polite"]')[0]
 
-            // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
-            chatMessagesObserver = new MutationObserver(chatMessagesRecorder)
+              // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
+              chatMessagesObserver = new MutationObserver(chatMessagesRecorder)
 
-            chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
-          }, 100)
+              chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
+            } catch (error) {
+              console.error(error)
+              showNotification(extensionStatusJSON_bug)
+            }
+          }, 300)
 
           // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
           chrome.storage.sync.get(["operationMode"], function (result) {
