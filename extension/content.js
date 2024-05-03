@@ -27,6 +27,7 @@ let beforePersonName = "", beforeTranscriptText = ""
 // Chat messages array that holds one or chat messages of the meeting
 // Each message block(object) has personName, timeStamp and messageText key value pairs
 let chatMessages = []
+overWriteChromeStorage(["chatMessages"], false)
 
 // Capture meeting start timestamp and sanitize special characters with "-" to avoid invalid filenames
 let meetingStartTimeStamp = new Date().toLocaleString("default", timeFormat).replace(/[/:]/g, '-').toUpperCase()
@@ -382,6 +383,7 @@ function chatMessagesRecorder(mutationsList, observer) {
 
         // Lot of mutations fire for each message, pick them only once
         pushUnique(chatMessageBlock)
+        overWriteChromeStorage(["chatMessages", false])
         console.log(chatMessages)
       }
     }

@@ -25,72 +25,6 @@ function downloadTranscript() {
     chrome.storage.local.get(["userName", "transcript", "chatMessages", "meetingTitle", "meetingStartTimeStamp"], function (result) {
         if (result.userName && result.transcript && result.chatMessages) {
             // Create file name if values or provided, use default otherwise
-            const fileName = result.meetingTitle && result.meetingStartTimeStamp ? `TranscripTonic/Transcript-${result.meetingTitle} at ${result.meetingStartTimeStamp}.txt` : `TranscripTonic/Transcript.txt`;
-
-            // Create an array to store lines of the text file
-            const lines = [];
-
-            // Iterate through the transcript array and format each entry
-            result.transcript.forEach(entry => {
-                lines.push(`${entry.personName} (${entry.timeStamp})`);
-                lines.push(entry.personTranscript);
-                lines.push(''); // Add an empty line between entries
-            });
-
-            if (result.chatMessages.length > 0) {
-                // Iterate through the chat messages array and format each entry
-                lines.push("----------");
-                lines.push("CHAT MESSAGES");
-                result.chatMessages.forEach(entry => {
-                    lines.push(`${entry.personName} (${entry.timeStamp})`);
-                    lines.push(entry.chatMessageText);
-                    lines.push(''); // Add an empty line between entries
-                });
-            }
-
-            // Add branding
-            lines.push("----------");
-            lines.push("Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)");
-
-            // Join the lines into a single string, replace "You" with userName from storage
-            const textContent = lines.join('\n').replace(/You/g, result.userName)
-
-            // Create a Blob containing the text content
-            const blob = new Blob([textContent], { type: 'text/plain' });
-
-            // Read the Blob as a data URL
-            const reader = new FileReader()
-            reader.onload = function (event) {
-                const dataUrl = event.target.result;
-
-                // Create options for the download
-                const options = {
-                    url: dataUrl,
-                    filename: fileName,
-                    conflictAction: 'uniquify'
-                };
-
-                // Initiate the download using the Chrome download API
-                chrome.downloads.download(options, function (downloadId) {
-                    if (chrome.runtime.lastError) {
-                        console.error("Download failed: " + chrome.runtime.lastError.message);
-                    } else {
-                        console.log("Transcript downloaded to TranscripTonic directory");
-                    }
-                });
-            };
-            reader.readAsDataURL(blob);
-        } else {
-            console.log("No transcript found");
-        }
-    });
-}
-
-
-function downloadTranscript() {
-    chrome.storage.local.get(["userName", "transcript", "chatMessages", "meetingTitle", "meetingStartTimeStamp"], function (result) {
-        if (result.userName && result.transcript && result.chatMessages) {
-            // Create file name if values or provided, use default otherwise
             const fileName = result.meetingTitle && result.meetingStartTimeStamp ? `TranscripTonic/Transcript-${result.meetingTitle} at ${result.meetingStartTimeStamp}.txt` : `TranscripTonic/Transcript.txt`
 
             // Create an array to store lines of the text file
@@ -100,23 +34,31 @@ function downloadTranscript() {
             result.transcript.forEach(entry => {
                 lines.push(`${entry.personName} (${entry.timeStamp})`)
                 lines.push(entry.personTranscript)
-                lines.push('') // Add an empty line between entries
+                // Add an empty line between entries
+                lines.push('')
             })
+            lines.push('')
+            lines.push('')
 
             if (result.chatMessages.length > 0) {
                 // Iterate through the chat messages array and format each entry
-                lines.push("----------")
+                lines.push("---------------")
                 lines.push("CHAT MESSAGES")
+                lines.push("---------------")
                 result.chatMessages.forEach(entry => {
                     lines.push(`${entry.personName} (${entry.timeStamp})`)
                     lines.push(entry.chatMessageText)
-                    lines.push('') // Add an empty line between entries
+                    // Add an empty line between entries
+                    lines.push('')
                 })
             }
+            lines.push('')
+            lines.push('')
 
             // Add branding
-            lines.push("----------")
+            lines.push("---------------")
             lines.push("Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)")
+            lines.push("---------------")
 
 
             // Join the lines into a single string, replace "You" with userName from storage
