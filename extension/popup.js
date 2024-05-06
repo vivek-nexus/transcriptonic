@@ -22,8 +22,8 @@ window.onload = function () {
     chrome.storage.local.get(["transcript"], function (result) {
       if (result.transcript)
         chrome.runtime.sendMessage({ type: "download" }, function (response) {
-          console.log(response);
-        });
+          console.log(response)
+        })
       else
         alert("Couldn't find the last meeting's transcript. May be attend one?")
     })
