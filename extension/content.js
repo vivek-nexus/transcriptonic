@@ -57,7 +57,9 @@ checkExtensionStatus().then(() => {
           userName = document.querySelector(".awLEm").textContent
           if (userName || hasMeetingStarted) {
             clearInterval(captureUserNameInterval)
-            overWriteChromeStorage(["userName"], false)
+            // Prevent overwriting default "You" where element is found, but valid userName is not available
+            if (userName != "")
+              overWriteChromeStorage(["userName"], false)
           }
         }, 100)
       })
@@ -75,7 +77,7 @@ checkExtensionStatus().then(() => {
           // **** TRANSCRIPT ROUTINES **** //
           // CRITICAL DOM DEPENDENCY
           const captionsButton = contains(".material-icons-extended", "closed_caption_off")[0]
-          const chatMessagesButton = contains(".google-material-icons", "chat")[0]
+
 
           // Click captions icon for non manual operation modes. Async operation.
           chrome.storage.sync.get(["operationMode"], function (result) {
@@ -87,6 +89,12 @@ checkExtensionStatus().then(() => {
 
           // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
           const transcriptTargetNode = document.querySelector('.a4cQT')
+          // Attempt to dim down the transcript
+          try {
+            transcriptTargetNode.firstChild.style.opacity = 0.2
+          } catch (error) {
+            console.error(error)
+          }
 
           // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
           const transcriptObserver = new MutationObserver(transcriber)
@@ -95,6 +103,7 @@ checkExtensionStatus().then(() => {
           transcriptObserver.observe(transcriptTargetNode, mutationConfig)
 
           // **** CHAT MESSAGES ROUTINES **** //
+          const chatMessagesButton = contains(".google-material-icons", "chat")[0]
           // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
           chatMessagesButton.click()
           let chatMessagesObserver
