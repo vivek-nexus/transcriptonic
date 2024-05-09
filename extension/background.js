@@ -62,7 +62,7 @@ function downloadTranscript() {
 
 
             // Join the lines into a single string, replace "You" with userName from storage
-            const textContent = lines.join("\n").replace(/^You \(/, result.userName + " (")
+            const textContent = lines.join("\n").replace(/You \(/g, result.userName + " (")
 
             // Create a blob containing the text content
             const blob = new Blob([textContent], { type: "text/plain" })
