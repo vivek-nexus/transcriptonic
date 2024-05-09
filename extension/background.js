@@ -35,10 +35,10 @@ function downloadTranscript() {
                 lines.push(`${entry.personName} (${entry.timeStamp})`)
                 lines.push(entry.personTranscript)
                 // Add an empty line between entries
-                lines.push('')
+                lines.push("")
             })
-            lines.push('')
-            lines.push('')
+            lines.push("")
+            lines.push("")
 
             if (result.chatMessages.length > 0) {
                 // Iterate through the chat messages array and format each entry
@@ -49,11 +49,11 @@ function downloadTranscript() {
                     lines.push(`${entry.personName} (${entry.timeStamp})`)
                     lines.push(entry.chatMessageText)
                     // Add an empty line between entries
-                    lines.push('')
+                    lines.push("")
                 })
+                lines.push("")
+                lines.push("")
             }
-            lines.push('')
-            lines.push('')
 
             // Add branding
             lines.push("---------------")
@@ -62,10 +62,10 @@ function downloadTranscript() {
 
 
             // Join the lines into a single string, replace "You" with userName from storage
-            const textContent = lines.join('\n').replace(/You/g, result.userName)
+            const textContent = lines.join("\n").replace(/You \(/g, result.userName + " (")
 
             // Create a blob containing the text content
-            const blob = new Blob([textContent], { type: 'text/plain' })
+            const blob = new Blob([textContent], { type: "text/plain" })
 
             // Read the blob as a data URL
             const reader = new FileReader()
@@ -78,7 +78,7 @@ function downloadTranscript() {
                 chrome.downloads.download({
                     url: dataUrl,
                     filename: fileName,
-                    conflictAction: 'uniquify'
+                    conflictAction: "uniquify"
                 }).then(() => {
                     console.log("Transcript downloaded to TranscripTonic directory")
                 }).catch((error) => {
@@ -86,7 +86,7 @@ function downloadTranscript() {
                     chrome.downloads.download({
                         url: dataUrl,
                         filename: "TranscripTonic/Transcript.txt",
-                        conflictAction: 'uniquify'
+                        conflictAction: "uniquify"
                     })
                     console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
                 })
