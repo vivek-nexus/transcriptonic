@@ -103,7 +103,7 @@ checkExtensionStatus().then(() => {
           transcriptObserver.observe(transcriptTargetNode, mutationConfig)
 
           // **** CHAT MESSAGES ROUTINES **** //
-          const chatMessagesButton = contains(".google-material-icons", "chat")[0]
+          const chatMessagesButton = contains(".google-symbols", "chat")[0]
           // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
           chatMessagesButton.click()
           let chatMessagesObserver
