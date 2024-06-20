@@ -296,76 +296,76 @@ function unloadCallback() {
 // Callback function to execute when transcription mutations are observed. 
 function transcriber(mutationsList, observer) {
   // Delay for 1000ms to allow for text corrections by Meet.
-  setTimeout(() => {
-    mutationsList.forEach(mutation => {
-      try {
-        // CRITICAL DOM DEPENDENCY. Get all people in the transcript
-        const people = document.querySelector('.a4cQT').firstChild.firstChild.childNodes
-        // Begin parsing transcript
-        if (document.querySelector('.a4cQT')?.firstChild?.firstChild?.childNodes.length > 0) {
-          // Get the last person
-          const person = people[people.length - 1]
-          // CRITICAL DOM DEPENDENCY
-          const currentPersonName = person.childNodes[0].textContent
-          // CRITICAL DOM DEPENDENCY
-          const currentTranscriptText = person.childNodes[1].lastChild.textContent
+  mutationsList.forEach(mutation => {
+    try {
+      // CRITICAL DOM DEPENDENCY. Get all people in the transcript
+      const people = document.querySelector('.a4cQT').firstChild.firstChild.childNodes
+      // Begin parsing transcript
+      if (document.querySelector('.a4cQT')?.firstChild?.firstChild?.childNodes.length > 0) {
+        // Get the last person
+        const person = people[people.length - 1]
+        // CRITICAL DOM DEPENDENCY
+        const currentPersonName = person.childNodes[0].textContent
+        // CRITICAL DOM DEPENDENCY
+        const currentTranscriptText = person.childNodes[1].lastChild.textContent
 
-          // Starting fresh in a meeting or resume from no active transcript
-          if (beforeTranscriptText == "") {
-            personNameBuffer = currentPersonName
-            timeStampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
-            beforeTranscriptText = currentTranscriptText
-            transcriptTextBuffer += currentTranscriptText
-          }
-          // Some prior transcript buffer exists
-          else {
-            // New person started speaking 
-            if (personNameBuffer != currentPersonName) {
-              // Push previous person's transcript as a block
-              pushBufferToTranscript()
-              overWriteChromeStorage(["transcript"], false)
-              // Update buffers for next mutation and store transcript block timeStamp
-              beforeTranscriptText = currentTranscriptText
-              personNameBuffer = currentPersonName
-              timeStampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
-              transcriptTextBuffer = currentTranscriptText
-            }
-            // Same person speaking more
-            else {
-              // String subtraction to append only new characters to the buffer
-              transcriptTextBuffer += currentTranscriptText.substring(currentTranscriptText.indexOf(beforeTranscriptText) + beforeTranscriptText.length)
-              // Update buffers for next mutation
-              beforeTranscriptText = currentTranscriptText
-            }
-          }
+        // Starting fresh in a meeting or resume from no active transcript
+        if (beforeTranscriptText == "") {
+          personNameBuffer = currentPersonName
+          timeStampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
+          beforeTranscriptText = currentTranscriptText
+          transcriptTextBuffer = currentTranscriptText
         }
-        // No people found in transcript DOM
+        // Some prior transcript buffer exists
         else {
-          // No transcript yet or the last person stopped speaking(and no one has started speaking next)
-          console.log("No active transcript")
-          // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
-          if ((personNameBuffer != "") && (transcriptTextBuffer != "")) {
+          // New person started speaking 
+          if (personNameBuffer != currentPersonName) {
+            // Push previous person's transcript as a block
             pushBufferToTranscript()
             overWriteChromeStorage(["transcript"], false)
+            // Update buffers for next mutation and store transcript block timeStamp
+            beforeTranscriptText = currentTranscriptText
+            personNameBuffer = currentPersonName
+            timeStampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
+            transcriptTextBuffer = currentTranscriptText
           }
-          // Update buffers for the next person in the next mutation
-          beforePersonName = ""
-          beforeTranscriptText = ""
-          personNameBuffer = ""
-          transcriptTextBuffer = ""
+          // Same person speaking more
+          else {
+            transcriptTextBuffer = currentTranscriptText
+            // Update buffers for next mutation
+            beforeTranscriptText = currentTranscriptText
+            // If a person is speaking for a long time, Google Meet does not keep the entire text in the spans. Starting parts are automatically removed in an unpredictable way as the length increases and TranscripTonic will miss them. So we force remove a lengthy transcript node in a controlled way. Google Meet will add a fresh person node when we remove it and continue transcription. TranscripTonic picks it up as a new person and nothing is missed.
+            if (currentTranscriptText.length > 250)
+              person.remove()
+          }
         }
-        console.log(transcriptTextBuffer)
-        // console.log(transcript)
-      } catch (error) {
-        console.error(error)
-        if (isTranscriptDomErrorCaptured == false && hasMeetingEnded == false) {
-          console.log(reportErrorMessage)
-          showNotification(extensionStatusJSON_bug)
-        }
-        isTranscriptDomErrorCaptured = true
       }
-    })
-  }, 1000);
+      // No people found in transcript DOM
+      else {
+        // No transcript yet or the last person stopped speaking(and no one has started speaking next)
+        console.log("No active transcript")
+        // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
+        if ((personNameBuffer != "") && (transcriptTextBuffer != "")) {
+          pushBufferToTranscript()
+          overWriteChromeStorage(["transcript"], false)
+        }
+        // Update buffers for the next person in the next mutation
+        beforePersonName = ""
+        beforeTranscriptText = ""
+        personNameBuffer = ""
+        transcriptTextBuffer = ""
+      }
+      console.log(transcriptTextBuffer)
+      // console.log(transcript)
+    } catch (error) {
+      console.error(error)
+      if (isTranscriptDomErrorCaptured == false && hasMeetingEnded == false) {
+        console.log(reportErrorMessage)
+        showNotification(extensionStatusJSON_bug)
+      }
+      isTranscriptDomErrorCaptured = true
+    }
+  })
 }
 
 // Callback function to execute when chat messages mutations are observed. 
