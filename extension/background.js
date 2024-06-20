@@ -1,24 +1,36 @@
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     console.log(message.type)
-    if (message.type == "save_and_download") {
-        chrome.storage.local.set(
-            {
-                transcript: message.transcript,
-                chatMessages: message.chatMessages,
-                meetingTitle: message.meetingTitle,
-                meetingStartTimeStamp: message.meetingStartTimeStamp
-            },
-            function () {
-                console.log("Saved transcript and meta data, downloading now if non empty")
-                // Download only if any transcript is present, irrespective of chat messages
-                if (message.transcript.length > 0)
-                    downloadTranscript()
+    if (message.type == "new_meeting_started") {
+        // Saving current tab id, to download transcript when this tab is closed
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            const tabId = tabs[0].id
+            chrome.storage.local.set({ meetingTabId: tabId }, function () {
+                console.log("Meeting tab id saved")
             })
+        })
     }
     if (message.type == "download") {
+        // Invalidate tab id since transcript is downloaded, prevents double downloading of transcript from tab closed event listener
+        chrome.storage.local.set({ meetingTabId: null }, function () {
+            console.log("Meeting tab id cleared")
+        })
         downloadTranscript()
     }
     return true
+})
+
+// Download transcript if meeting tab is closed
+chrome.tabs.onRemoved.addListener(function (tabid) {
+    chrome.storage.local.get(["meetingTabId"], function (data) {
+        if (tabid == data.meetingTabId) {
+            console.log("Successfully intercepted tab close")
+            downloadTranscript()
+            // Clearing meetingTabId to prevent misfires of onRemoved until next meeting actually starts
+            chrome.storage.local.set({ meetingTabId: null }, function () {
+                console.log("Meeting tab id cleared for next meeting")
+            })
+        }
+    })
 })
 
 function downloadTranscript() {

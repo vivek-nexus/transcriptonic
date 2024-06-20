@@ -67,6 +67,9 @@ checkExtensionStatus().then(() => {
       // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
       checkElement(".google-material-icons", "call_end").then(() => {
         console.log("Meeting started")
+        chrome.runtime.sendMessage({ type: "new_meeting_started" }, function (response) {
+          console.log(response);
+        });
         hasMeetingStarted = true
 
         try {
@@ -134,19 +137,14 @@ checkExtensionStatus().then(() => {
 
 
           //*********** MEETING END ROUTINES **********//
-          // Event listener to capture browser tab or window close
-          window.addEventListener("beforeunload", unloadCallback)
-
           // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
           contains(".google-material-icons", "call_end")[0].parentElement.addEventListener("click", () => {
             // To suppress further errors
             hasMeetingEnded = true
-            // Remove unload event listener registered earlier, to prevent double downloads. Otherwise, unload event will trigger the callback, when user navigates away from meeting end page.
-            window.removeEventListener("beforeunload", unloadCallback)
             transcriptObserver.disconnect()
             chatMessagesObserver.disconnect()
 
-            // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Handles one or more speaking when meeting ends.
+            // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
             if ((personNameBuffer != "") && (transcriptTextBuffer != ""))
               pushBufferToTranscript()
             // Save to chrome storage and send message to download transcript from background script
@@ -272,100 +270,79 @@ const commonCSS = `background: rgb(255 255 255 / 10%);
     font-family: 'Google Sans',Roboto,Arial,sans-serif; 
     box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;`;
 
-// Pushes any data in the buffer to transcript and tells background script to save it and download it
-function unloadCallback() {
-  // To suppress further errors
-  hasMeetingEnded = true
-  // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Handles one or more speaking when meeting ends.
-  if ((personNameBuffer != "") && (transcriptTextBuffer != ""))
-    pushBufferToTranscript()
-  // Send a message to save to chrome storage as well as download. Saving is offloaded to background script, since browser often aborts this long operation on unload
-  chrome.runtime.sendMessage(
-    {
-      type: "save_and_download",
-      transcript: transcript,
-      chatMessages: chatMessages,
-      meetingTitle: meetingTitle,
-      meetingStartTimeStamp: meetingStartTimeStamp,
-    },
-    function (response) {
-      console.log(response)
-    })
-}
-
 // Callback function to execute when transcription mutations are observed. 
 function transcriber(mutationsList, observer) {
   // Delay for 1000ms to allow for text corrections by Meet.
-  setTimeout(() => {
-    mutationsList.forEach(mutation => {
-      try {
-        // CRITICAL DOM DEPENDENCY. Get all people in the transcript
-        const people = document.querySelector('.a4cQT').firstChild.firstChild.childNodes
-        // Begin parsing transcript
-        if (document.querySelector('.a4cQT')?.firstChild?.firstChild?.childNodes.length > 0) {
-          // Get the last person
-          const person = people[people.length - 1]
-          // CRITICAL DOM DEPENDENCY
-          const currentPersonName = person.childNodes[0].textContent
-          // CRITICAL DOM DEPENDENCY
-          const currentTranscriptText = person.childNodes[1].lastChild.textContent
+  mutationsList.forEach(mutation => {
+    try {
+      // CRITICAL DOM DEPENDENCY. Get all people in the transcript
+      const people = document.querySelector('.a4cQT').firstChild.firstChild.childNodes
+      // Begin parsing transcript
+      if (document.querySelector('.a4cQT')?.firstChild?.firstChild?.childNodes.length > 0) {
+        // Get the last person
+        const person = people[people.length - 1]
+        // CRITICAL DOM DEPENDENCY
+        const currentPersonName = person.childNodes[0].textContent
+        // CRITICAL DOM DEPENDENCY
+        const currentTranscriptText = person.childNodes[1].lastChild.textContent
 
-          // Starting fresh in a meeting or resume from no active transcript
-          if (beforeTranscriptText == "") {
-            personNameBuffer = currentPersonName
-            timeStampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
-            beforeTranscriptText = currentTranscriptText
-            transcriptTextBuffer += currentTranscriptText
-          }
-          // Some prior transcript buffer exists
-          else {
-            // New person started speaking 
-            if (personNameBuffer != currentPersonName) {
-              // Push previous person's transcript as a block
-              pushBufferToTranscript()
-              overWriteChromeStorage(["transcript"], false)
-              // Update buffers for next mutation and store transcript block timeStamp
-              beforeTranscriptText = currentTranscriptText
-              personNameBuffer = currentPersonName
-              timeStampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
-              transcriptTextBuffer = currentTranscriptText
-            }
-            // Same person speaking more
-            else {
-              // String subtraction to append only new characters to the buffer
-              transcriptTextBuffer += currentTranscriptText.substring(currentTranscriptText.indexOf(beforeTranscriptText) + beforeTranscriptText.length)
-              // Update buffers for next mutation
-              beforeTranscriptText = currentTranscriptText
-            }
-          }
+        // Starting fresh in a meeting or resume from no active transcript
+        if (beforeTranscriptText == "") {
+          personNameBuffer = currentPersonName
+          timeStampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
+          beforeTranscriptText = currentTranscriptText
+          transcriptTextBuffer = currentTranscriptText
         }
-        // No people found in transcript DOM
+        // Some prior transcript buffer exists
         else {
-          // No transcript yet or the last person stopped speaking(and no one has started speaking next)
-          console.log("No active transcript")
-          // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
-          if ((personNameBuffer != "") && (transcriptTextBuffer != "")) {
+          // New person started speaking 
+          if (personNameBuffer != currentPersonName) {
+            // Push previous person's transcript as a block
             pushBufferToTranscript()
             overWriteChromeStorage(["transcript"], false)
+            // Update buffers for next mutation and store transcript block timeStamp
+            beforeTranscriptText = currentTranscriptText
+            personNameBuffer = currentPersonName
+            timeStampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
+            transcriptTextBuffer = currentTranscriptText
           }
-          // Update buffers for the next person in the next mutation
-          beforePersonName = ""
-          beforeTranscriptText = ""
-          personNameBuffer = ""
-          transcriptTextBuffer = ""
+          // Same person speaking more
+          else {
+            transcriptTextBuffer = currentTranscriptText
+            // Update buffers for next mutation
+            beforeTranscriptText = currentTranscriptText
+            // If a person is speaking for a long time, Google Meet does not keep the entire text in the spans. Starting parts are automatically removed in an unpredictable way as the length increases and TranscripTonic will miss them. So we force remove a lengthy transcript node in a controlled way. Google Meet will add a fresh person node when we remove it and continue transcription. TranscripTonic picks it up as a new person and nothing is missed.
+            if (currentTranscriptText.length > 250)
+              person.remove()
+          }
         }
-        console.log(transcriptTextBuffer)
-        // console.log(transcript)
-      } catch (error) {
-        console.error(error)
-        if (isTranscriptDomErrorCaptured == false && hasMeetingEnded == false) {
-          console.log(reportErrorMessage)
-          showNotification(extensionStatusJSON_bug)
-        }
-        isTranscriptDomErrorCaptured = true
       }
-    })
-  }, 1000);
+      // No people found in transcript DOM
+      else {
+        // No transcript yet or the last person stopped speaking(and no one has started speaking next)
+        console.log("No active transcript")
+        // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
+        if ((personNameBuffer != "") && (transcriptTextBuffer != "")) {
+          pushBufferToTranscript()
+          overWriteChromeStorage(["transcript"], false)
+        }
+        // Update buffers for the next person in the next mutation
+        beforePersonName = ""
+        beforeTranscriptText = ""
+        personNameBuffer = ""
+        transcriptTextBuffer = ""
+      }
+      console.log(transcriptTextBuffer)
+      // console.log(transcript)
+    } catch (error) {
+      console.error(error)
+      if (isTranscriptDomErrorCaptured == false && hasMeetingEnded == false) {
+        console.log(reportErrorMessage)
+        showNotification(extensionStatusJSON_bug)
+      }
+      isTranscriptDomErrorCaptured = true
+    }
+  })
 }
 
 // Callback function to execute when chat messages mutations are observed. 
