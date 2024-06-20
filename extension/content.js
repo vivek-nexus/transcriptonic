@@ -67,6 +67,9 @@ checkExtensionStatus().then(() => {
       // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
       checkElement(".google-material-icons", "call_end").then(() => {
         console.log("Meeting started")
+        chrome.runtime.sendMessage({ type: "new_meeting_started" }, function (response) {
+          console.log(response);
+        });
         hasMeetingStarted = true
 
         try {
@@ -134,19 +137,14 @@ checkExtensionStatus().then(() => {
 
 
           //*********** MEETING END ROUTINES **********//
-          // Event listener to capture browser tab or window close
-          window.addEventListener("beforeunload", unloadCallback)
-
           // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
           contains(".google-material-icons", "call_end")[0].parentElement.addEventListener("click", () => {
             // To suppress further errors
             hasMeetingEnded = true
-            // Remove unload event listener registered earlier, to prevent double downloads. Otherwise, unload event will trigger the callback, when user navigates away from meeting end page.
-            window.removeEventListener("beforeunload", unloadCallback)
             transcriptObserver.disconnect()
             chatMessagesObserver.disconnect()
 
-            // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Handles one or more speaking when meeting ends.
+            // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
             if ((personNameBuffer != "") && (transcriptTextBuffer != ""))
               pushBufferToTranscript()
             // Save to chrome storage and send message to download transcript from background script
@@ -271,27 +269,6 @@ const commonCSS = `background: rgb(255 255 255 / 10%);
     line-height: 1.5; 
     font-family: 'Google Sans',Roboto,Arial,sans-serif; 
     box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;`;
-
-// Pushes any data in the buffer to transcript and tells background script to save it and download it
-function unloadCallback() {
-  // To suppress further errors
-  hasMeetingEnded = true
-  // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Handles one or more speaking when meeting ends.
-  if ((personNameBuffer != "") && (transcriptTextBuffer != ""))
-    pushBufferToTranscript()
-  // Send a message to save to chrome storage as well as download. Saving is offloaded to background script, since browser often aborts this long operation on unload
-  chrome.runtime.sendMessage(
-    {
-      type: "save_and_download",
-      transcript: transcript,
-      chatMessages: chatMessages,
-      meetingTitle: meetingTitle,
-      meetingStartTimeStamp: meetingStartTimeStamp,
-    },
-    function (response) {
-      console.log(response)
-    })
-}
 
 // Callback function to execute when transcription mutations are observed. 
 function transcriber(mutationsList, observer) {
