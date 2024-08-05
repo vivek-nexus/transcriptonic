@@ -41,11 +41,13 @@ let hasMeetingStarted = false
 // Capture meeting end to suppress any errors
 let hasMeetingEnded = false
 
+let extensionStatusJSON
+
 
 checkExtensionStatus().then(() => {
   // Read the status JSON
   chrome.storage.local.get(["extensionStatusJSON"], function (result) {
-    let extensionStatusJSON = result.extensionStatusJSON;
+    extensionStatusJSON = result.extensionStatusJSON;
     console.log("Extension status " + extensionStatusJSON.status);
 
     // Enable extension functions only if status is 200
@@ -64,97 +66,11 @@ checkExtensionStatus().then(() => {
         }, 100)
       })
 
-      // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
-      checkElement(".google-material-icons", "call_end").then(() => {
-        console.log("Meeting started")
-        chrome.runtime.sendMessage({ type: "new_meeting_started" }, function (response) {
-          console.log(response);
-        });
-        hasMeetingStarted = true
+      // 1. Meet UI prior to July/Aug 2024
+      meetingRoutines(1)
 
-        try {
-          //*********** MEETING START ROUTINES **********//
-          // Pick up meeting name after a delay, since Google meet updates meeting name after a delay
-          setTimeout(() => updateMeetingTitle(), 5000)
-
-          // **** TRANSCRIPT ROUTINES **** //
-          // CRITICAL DOM DEPENDENCY
-          const captionsButton = contains(".material-icons-extended", "closed_caption_off")[0]
-
-
-          // Click captions icon for non manual operation modes. Async operation.
-          chrome.storage.sync.get(["operationMode"], function (result) {
-            if (result.operationMode == "manual")
-              console.log("Manual mode selected, leaving transcript off")
-            else
-              captionsButton.click()
-          })
-
-          // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
-          const transcriptTargetNode = document.querySelector('.a4cQT')
-          // Attempt to dim down the transcript
-          try {
-            transcriptTargetNode.firstChild.style.opacity = 0.2
-          } catch (error) {
-            console.error(error)
-          }
-
-          // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
-          const transcriptObserver = new MutationObserver(transcriber)
-
-          // Start observing the transcript element and chat messages element for configured mutations
-          transcriptObserver.observe(transcriptTargetNode, mutationConfig)
-
-          // **** CHAT MESSAGES ROUTINES **** //
-          const chatMessagesButton = contains(".google-symbols", "chat")[0]
-          // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
-          chatMessagesButton.click()
-          let chatMessagesObserver
-          // Allow DOM to be updated and then register chatMessage mutation observer
-          setTimeout(() => {
-            chatMessagesButton.click()
-            // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
-            try {
-              const chatMessagesTargetNode = document.querySelectorAll('div[aria-live="polite"]')[0]
-
-              // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
-              chatMessagesObserver = new MutationObserver(chatMessagesRecorder)
-
-              chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
-            } catch (error) {
-              console.error(error)
-              showNotification(extensionStatusJSON_bug)
-            }
-          }, 500)
-
-          // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
-          chrome.storage.sync.get(["operationMode"], function (result) {
-            if (result.operationMode == "manual")
-              showNotification({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
-            else
-              showNotification(extensionStatusJSON)
-          })
-
-
-          //*********** MEETING END ROUTINES **********//
-          // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
-          contains(".google-material-icons", "call_end")[0].parentElement.addEventListener("click", () => {
-            // To suppress further errors
-            hasMeetingEnded = true
-            transcriptObserver.disconnect()
-            chatMessagesObserver.disconnect()
-
-            // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
-            if ((personNameBuffer != "") && (transcriptTextBuffer != ""))
-              pushBufferToTranscript()
-            // Save to chrome storage and send message to download transcript from background script
-            overWriteChromeStorage(["transcript", "chatMessages"], true)
-          })
-        } catch (error) {
-          console.error(error)
-          showNotification(extensionStatusJSON_bug)
-        }
-      })
+      // 2. Meet UI post July/Aug 2024
+      meetingRoutines(2)
     }
     else {
       // Show downtime message as extension status is 400
@@ -186,6 +102,128 @@ async function checkExtensionStatus() {
       console.log(err);
     });
 }
+
+
+function meetingRoutines(uiType) {
+  const meetingEndIconData = {
+    selector: "",
+    text: ""
+  }
+  const captionsIconData = {
+    selector: "",
+    text: ""
+  }
+  switch (uiType) {
+    case 1:
+      meetingEndIconData.selector = ".google-material-icons"
+      meetingEndIconData.text = "call_end"
+      captionsIconData.selector = ".material-icons-extended"
+      captionsIconData.text = "closed_caption_off"
+      break;
+    case 2:
+      meetingEndIconData.selector = ".google-symbols"
+      meetingEndIconData.text = "call_end"
+      captionsIconData.selector = ".google-symbols"
+      captionsIconData.text = "closed_caption_off"
+    default:
+      break;
+  }
+
+  // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
+  checkElement(meetingEndIconData.selector, meetingEndIconData.text).then(() => {
+    console.log("Meeting started")
+    chrome.runtime.sendMessage({ type: "new_meeting_started" }, function (response) {
+      console.log(response);
+    });
+    hasMeetingStarted = true
+
+
+
+    try {
+      //*********** MEETING START ROUTINES **********//
+      // Pick up meeting name after a delay, since Google meet updates meeting name after a delay
+      setTimeout(() => updateMeetingTitle(), 5000)
+
+      // **** TRANSCRIPT ROUTINES **** //
+      // CRITICAL DOM DEPENDENCY
+      const captionsButton = contains(captionsIconData.selector, captionsIconData.text)[0]
+
+
+      // Click captions icon for non manual operation modes. Async operation.
+      chrome.storage.sync.get(["operationMode"], function (result) {
+        if (result.operationMode == "manual")
+          console.log("Manual mode selected, leaving transcript off")
+        else
+          captionsButton.click()
+      })
+
+      // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
+      const transcriptTargetNode = document.querySelector('.a4cQT')
+      // Attempt to dim down the transcript
+      try {
+        transcriptTargetNode.firstChild.style.opacity = 0.2
+      } catch (error) {
+        console.error(error)
+      }
+
+      // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
+      const transcriptObserver = new MutationObserver(transcriber)
+
+      // Start observing the transcript element and chat messages element for configured mutations
+      transcriptObserver.observe(transcriptTargetNode, mutationConfig)
+
+      // **** CHAT MESSAGES ROUTINES **** //
+      const chatMessagesButton = contains(".google-symbols", "chat")[0]
+      // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
+      chatMessagesButton.click()
+      let chatMessagesObserver
+      // Allow DOM to be updated and then register chatMessage mutation observer
+      setTimeout(() => {
+        chatMessagesButton.click()
+        // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
+        try {
+          const chatMessagesTargetNode = document.querySelectorAll('div[aria-live="polite"]')[0]
+
+          // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
+          chatMessagesObserver = new MutationObserver(chatMessagesRecorder)
+
+          chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
+        } catch (error) {
+          console.error(error)
+          showNotification(extensionStatusJSON_bug)
+        }
+      }, 500)
+
+      // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
+      chrome.storage.sync.get(["operationMode"], function (result) {
+        if (result.operationMode == "manual")
+          showNotification({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
+        else
+          showNotification(extensionStatusJSON)
+      })
+
+
+      //*********** MEETING END ROUTINES **********//
+      // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
+      contains(meetingEndIconData.selector, meetingEndIconData.text)[0].parentElement.parentElement.addEventListener("click", () => {
+        // To suppress further errors
+        hasMeetingEnded = true
+        transcriptObserver.disconnect()
+        chatMessagesObserver.disconnect()
+
+        // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
+        if ((personNameBuffer != "") && (transcriptTextBuffer != ""))
+          pushBufferToTranscript()
+        // Save to chrome storage and send message to download transcript from background script
+        overWriteChromeStorage(["transcript", "chatMessages"], true)
+      })
+    } catch (error) {
+      console.error(error)
+      showNotification(extensionStatusJSON_bug)
+    }
+  })
+}
+
 
 // Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the upper parents. 
 function contains(selector, text) {
