@@ -358,7 +358,7 @@ function chatMessagesRecorder(mutationsList, observer) {
         // CRITICAL DOM DEPENDENCY.
         const personName = chatMessageElement.firstChild.firstChild.textContent
         const timeStamp = new Date().toLocaleString("default", timeFormat).toUpperCase()
-        // CRITICAL DOM DEPENDENCY. Some mutations will have some noisy text at the end, which is handled in pushUnique function.
+        // CRITICAL DOM DEPENDENCY. Some mutations will have some noisy text at the end, which is handled in pushUniqueChatBlock function.
         const chatMessageText = chatMessageElement.lastChild.lastChild.textContent
 
         const chatMessageBlock = {
@@ -368,7 +368,7 @@ function chatMessagesRecorder(mutationsList, observer) {
         }
 
         // Lot of mutations fire for each message, pick them only once
-        pushUnique(chatMessageBlock)
+        pushUniqueChatBlock(chatMessageBlock)
         overWriteChromeStorage(["chatMessages", false])
         console.log(chatMessages)
       }
@@ -394,7 +394,7 @@ function pushBufferToTranscript() {
 }
 
 // Pushes object to array only if it doesn't already exist. chatMessage is checked for substring since some trailing text(keep Pin message) is present from a button that allows to pin the message.
-function pushUnique(chatBlock) {
+function pushUniqueChatBlock(chatBlock) {
   const isExisting = chatMessages.some(item =>
     item.personName == chatBlock.personName &&
     item.timeStamp == chatBlock.timeStamp &&
