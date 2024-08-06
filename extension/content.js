@@ -113,6 +113,7 @@ function meetingRoutines(uiType) {
     selector: "",
     text: ""
   }
+  // Different selector data for different UI versions
   switch (uiType) {
     case 1:
       meetingEndIconData.selector = ".google-material-icons"
@@ -477,11 +478,8 @@ function updateMeetingTitle() {
     const invalidFilenameRegex = /[^\w\-_.() ]/g
     meetingTitle = title.replace(invalidFilenameRegex, '_')
     overWriteChromeStorage(["meetingTitle"], false)
-    return meetingTitle
   } catch (error) {
     console.error(error)
-    overWriteChromeStorage(["meetingTitle"], false)
-    return meetingTitle
   }
 }
 
