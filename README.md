@@ -3,7 +3,7 @@ Simple Google Meet transcripts. Private and open source.
 
 ![marquee-large](/assets/marquee-large.png)
 
-Extension status: 🟢 AUTO UPDATE ROLLING OUT — CAN TAKE UP TO 5 HOURS(v2.3.0)
+Extension status: 🟢 OPERATIONAL (v2.3.0)
 
 <br />
 <br />
