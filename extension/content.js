@@ -162,7 +162,7 @@ function meetingRoutines(uiType) {
       const transcriptTargetNode = document.querySelector('.a4cQT')
       // Attempt to dim down the transcript
       try {
-        transcriptTargetNode.firstChild.style.opacity = 0.2
+        transcriptTargetNode.childNodes[1].style.opacity = 0.2
       } catch (error) {
         console.error(error)
       }
@@ -315,9 +315,9 @@ function transcriber(mutationsList, observer) {
   mutationsList.forEach(mutation => {
     try {
       // CRITICAL DOM DEPENDENCY. Get all people in the transcript
-      const people = document.querySelector('.a4cQT').firstChild.firstChild.childNodes
+      const people = document.querySelector('.a4cQT').childNodes[1].firstChild.childNodes
       // Begin parsing transcript
-      if (document.querySelector('.a4cQT')?.firstChild?.firstChild?.childNodes.length > 0) {
+      if (document.querySelector('.a4cQT')?.childNodes[1]?.firstChild?.childNodes.length > 0) {
         // Get the last person
         const person = people[people.length - 1]
         // CRITICAL DOM DEPENDENCY
@@ -489,41 +489,41 @@ function updateMeetingTitle() {
 
 // CURRENT GOOGLE MEET TRANSCRIPT DOM
 
-{/* <div class="a4cQT" jsaction="bz0DVc:HWTqGc;TpIHXe:c0270d;v2nhid:YHhXNc;kDAVge:lUFH9b;QBUr8:lUFH9b;stc2ve:oh3Xke"
-  jscontroller="D1tHje" style="right: 16px; left: 16px; bottom: 80px;">
+{/* <div class="a4cQT kV7vwc eO2Zfd" jscontroller="D1tHje" jsaction="bz0DVc:HWTqGc;E18dRb:lUFH9b;QBUr8:lUFH9b;stc2ve:oh3Xke" style="">
+  // CAPTION LANGUAGE SETTINGS. MAY OR MAY NOT HAVE CHILDREN
+  <div class="NmXUuc  P9KVBf" jscontroller="rRafu" jsaction="F41Sec:tsH52e;OmFrlf:xfAI6e(zHUIdd)"></div>
   <div>
-    <div class="iOzk7" jsname="dsyhDe" style="">
+    <div jsname="dsyhDe" class="iOzk7 uYs2ee " style="">
       //PERSON 1
-      <div class="TBMuR bj4p3b" style="">
-        <div><img alt="" class="KpxDtd r6DyN"
-            src="https://lh3.googleusercontent.com/a/some-url"
-            data-iml="453">
-          <div class="zs7s8d jxFHg">Person 1</div>
+      <div class="nMcdL bj4p3b" style="">
+        <div class="adE6rb M6cG9d">
+          <img alt="" class="Z6byG r6DyN" src="https://lh3.googleusercontent.com/a/some-url" data-iml="63197.699999999255">
+            <div class="KcIKyf jxFHg">Person 1</div>
         </div>
-        <div jsname="YSxPC" class="Mz6pEf wY1pdd" style="height: 28.4444px;">
-          <div jsname="tgaKEf" class="iTTPOb VbkSUe">
-          <span>Some transcript text.</span>
-          <span>Some more text.</span></div>
+        <div jsname="YSxPC" class="bYevke wY1pdd" style="height: 27.5443px;">
+          <div jsname="tgaKEf" class="bh44bd VbkSUe">
+            <span>Some transcript text.</span>
+            <span>Some more text.</span></div>
         </div>
       </div>
-      
-      // PERSON 2
-      <div class="TBMuR bj4p3b" style="">
-        <div><img alt="" class="KpxDtd r6DyN"
-            src="https://lh3.googleusercontent.com/a/some-url"
-            data-iml="453">
-          <div class="zs7s8d jxFHg">Person 2</div>
+      //PERSON 2
+      <div class="nMcdL bj4p3b" style="">
+        <div class="adE6rb M6cG9d">
+          <img alt="" class="Z6byG r6DyN" src="https://lh3.googleusercontent.com/a/some-url" data-iml="63197.699999999255">
+            <div class="KcIKyf jxFHg">Person 2</div>
         </div>
-        <div jsname="YSxPC" class="Mz6pEf wY1pdd" style="height: 28.4444px;">
-          <div jsname="tgaKEf" class="iTTPOb VbkSUe">
-          <span>Some transcript text.</span>
-          <span>Some more text.</span></div>
+        <div jsname="YSxPC" class="bYevke wY1pdd" style="height: 27.5443px;">
+          <div jsname="tgaKEf" class="bh44bd VbkSUe">
+            <span>Some transcript text.</span>
+            <span>Some more text.</span></div>
         </div>
       </div>
     </div>
-    <div class="iOzk7" jsname="APQunf" style="display: none;"></div>
+    <div jsname="APQunf" class="iOzk7 uYs2ee" style="display: none;">
+    </div>
   </div>
-  <More divs />
+  <div jscontroller="mdnBv" jsaction="stc2ve:MO88xb;QBUr8:KNou4c">
+  </div>
 </div> */}
 
 // CURRENT GOOGLE MEET CHAT MESSAGES DOM
