@@ -1,6 +1,6 @@
 {
   "name": "TranscripTonic",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "manifest_version": 3,
   "description": "Simple Google Meet transcripts. Private and open source.",
   "action": {
