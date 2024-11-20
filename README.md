@@ -3,7 +3,7 @@ Simple Google Meet transcripts. Private and open source.
 
 ![marquee-large](/assets/marquee-large.png)
 
-Extension status: 🟢 OPERATIONAL (v2.2.0)
+Extension status: 🔴 DOWN FOR BUG FIX (v2.2.0)
 
 <br />
 <br />
