@@ -1,4 +1,6 @@
 const puppeteer = require('puppeteer-core');
+const player = require('node-wav-player');
+
 
 const browserURL = 'http://127.0.0.1:21222';
 
@@ -8,6 +10,7 @@ let page;
 beforeAll(async () => {
   browser = await puppeteer.connect({ browserURL });
   page = await browser.newPage();
+  page.setViewport(null)
 });
 
 afterAll(async () => {
@@ -16,11 +19,13 @@ afterAll(async () => {
     .locator('[aria-label="Leave call"')
     .click();
 
-  await browser.close();
-});
+  await new Promise(r => setTimeout(r, 2000));
 
-describe('Google Meet Test Suite', () => {
-  test('Username exists on page', async () => {
+  await browser.close();
+}, 100000);
+
+describe('Check presence of selectors', () => {
+  test('Username exists', async () => {
     await page.goto('https://meet.google.com/qea-oqjv-gjw');
 
     const username = await page.$('.awLEm');
@@ -37,7 +42,7 @@ describe('Google Meet Test Suite', () => {
       click();
   }, 100000);
 
-  test('End call button exists after joining the meeting', async () => {
+  test('End call button exists', async () => {
     await new Promise(r => setTimeout(r, 5000));
 
     const endCallButton = await page.$('.google-symbols ::-p-text(call_end)');
@@ -68,6 +73,77 @@ describe('Google Meet Test Suite', () => {
     const meetingTitle = await page.$('.u6vdEc');
     expect(meetingTitle).not.toBeNull();
   });
+});
+
+describe('Check validity of DOM', () => {
+  test('Chat DOM valid', async () => {
+    await page
+      .locator('.google-symbols ::-p-text(chat)')
+      .click()
+    await new Promise(r => setTimeout(r, 1000));
+    await page
+      .type('[aria-label="Send a message to everyone"]', "Hello, this is a test chat message")
+    await new Promise(r => setTimeout(r, 1000));
+    page.keyboard.press('Enter')
+
+    await new Promise(r => setTimeout(r, 1000));
+
+    const chatMessageElement = await page.evaluateHandle(() => {
+      document.querySelectorAll('div[aria-live="polite"]')[0].lastChild
+    })
+    const personName = await page.evaluateHandle(() => {
+      document.querySelectorAll('div[aria-live="polite"]')[0].lastChild.firstChild.firstChild
+    })
+    const chatMessageText = await page.evaluateHandle(() => {
+      document.querySelectorAll('div[aria-live="polite"]')[0].lastChild.lastChild.lastChild
+    })
+
+    await page
+      .locator('.google-symbols ::-p-text(chat_bubble)')
+      .click()
+
+    expect(chatMessageElement && personName && chatMessageText).not.toBeNull();
+  }, 100000);
+
+  test('Transcript DOM valid', async () => {
+    // Play mock voice
+    player.play({
+      path: './test-person.wav',
+      sync: true
+    }).catch((error) => {
+      console.error(error);
+    });
+
+    // Allow the audio to play fully
+    await new Promise(r => setTimeout(r, 5000));
+
+    const people = await page.evaluateHandle(() => {
+      const people = document.querySelector('.a4cQT').childNodes[1].firstChild.childNodes
+      return people
+    })
+
+    const person = await page.evaluateHandle(() => {
+      const people = document.querySelector('.a4cQT').childNodes[1].firstChild.childNodes
+      const person = people[people.length - 1]
+      return person
+    })
+
+    const currentPersonName = await page.evaluateHandle(() => {
+      const people = document.querySelector('.a4cQT').childNodes[1].firstChild.childNodes
+      const person = people[people.length - 1]
+      const currentPersonName = person.childNodes[0]
+      return currentPersonName
+    })
+
+    const currentTranscriptText = await page.evaluateHandle(() => {
+      const people = document.querySelector('.a4cQT').childNodes[1].firstChild.childNodes
+      const person = people[people.length - 1]
+      const currentTranscriptText = person.childNodes[1].lastChild
+      return currentTranscriptText
+    })
+
+    expect(people && person && currentPersonName && currentTranscriptText).not.toBeNull();
+  }, 100000);
 });
 
 
