@@ -8,7 +8,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap');
 
     body {
-      width: 640px;
+      width: 520px;
       padding: 3rem;
       background: #071f29;
       color: #2A9ACA;
@@ -19,12 +19,12 @@
       background-size: cover;
     }
 
-    hr {
-      border-color: #2A9ACA;
+    h1 {
+      font-size: 2rem;
     }
 
     .get-started {
-      padding: 0.5rem 1rem;
+      padding: 1rem;
       background-color: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(4px);
       border-radius: 8px;
@@ -45,9 +45,22 @@
       border-radius: 96px;
     }
 
+    .radio-item {
+      display: flex;
+      gap: 0.5rem;
+      align-items: start;
+      margin-bottom: 2rem;
+    }
+
+    .sub-text {
+      font-size: 1rem;
+    }
+
     input {
+      margin-top: 0.5rem;
       accent-color: #2A9ACA;
       width: 18px;
+      height: 18px;
     }
 
     label {
@@ -69,7 +82,7 @@
   <div>
     <div style="margin-bottom: 2rem;">
       <div style="display: flex; gap: 1rem; align-items: center;">
-        <img src="./icon.png" width="48px" height="48px" alt="" />
+        <img src="./icon.png" width="48px" height="48px" alt="Extension icon" />
         <div>
           <h1 style="margin: 0px;">TranscripTonic</h1>
           <p style="margin: 0px;">
@@ -79,30 +92,31 @@
       </div>
     </div>
 
-    <hr style="margin-bottom: 2rem;" />
 
-    <div style="display: flex; gap: 0.25rem;">
-      <input type="radio" name="mode" id="auto-mode" />
-      <label><b>Auto</b> (records transcripts for all meetings)</label>
-    </div>
-    <div style="margin-bottom: 2rem; display: flex; gap: 0.25rem;">
-      <input type="radio" name="mode" id="manual-mode" />
-      <label><b>Manual</b> (switch on transcript as needed) </label>
-    </div>
     <div class="get-started">
-      <h2>How to use TranscripTonic?</h2>
-      <p>In both modes, transcript will be automatically downloaded as a text file at the end of each meeting. <b>Avoid
-          closing the meeting tab.</b></p>
-      <ul>
-        <li><b>Auto mode:</b> Automatically records transcripts for all meetings</li>
-        <li><b>Manual mode:</b> Switch on TranscripTonic by clicking on captions icon in Google Meet (CC icon)</li>
-      </ul>
+      <div class="radio-item">
+        <input type="radio" name="mode" id="auto-mode" />
+        <label for="auto-mode"><b>Auto mode</b>
+          <br /><span class="sub-text">Records transcripts for all
+            meetings</span>
+        </label>
+      </div>
+      <div class="radio-item">
+        <input type="radio" name="mode" id="manual-mode" />
+        <label for="manual-mode"><b>Manual mode</b> <br />
+          <span class="sub-text">Switch on transcript as needed using the CC icon in
+            Google Meet</span>
+        </label>
+      </div>
+      <p style="margin-bottom: 0rem;">In both modes, transcript will be downloaded as a text file at the end
+        of each meeting.</p>
     </div>
+
     <div>
       <div style="margin-bottom: 2.75rem">
         <a href="" id="last-meeting-transcript">Download last meeting transcript</a>
         &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp;
-        <a href="https://github.com/vivek-nexus/transcriptonic#readme" target="_blank">Get more help</a>
+        <a href="https://github.com/vivek-nexus/transcriptonic#readme" target="_blank">Get help</a>
         &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp;
         <a href="https://github.com/vivek-nexus/transcriptonic/issues" target="_blank">Report a bug</a>
       </div>
