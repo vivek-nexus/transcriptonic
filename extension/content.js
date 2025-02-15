@@ -20,6 +20,7 @@ overWriteChromeStorage(["userName"], false)
 // Transcript array that holds one or more transcript blocks
 // Each transcript block (object) has personName, timeStamp and transcriptText key value pairs
 let transcript = []
+overWriteChromeStorage(["transcript"], false)
 // Buffer variables to dump values, which get pushed to transcript array as transcript blocks, at defined conditions
 let personNameBuffer = "", transcriptTextBuffer = "", timeStampBuffer = undefined
 // Buffer variables for deciding when to push a transcript block
@@ -162,7 +163,7 @@ function meetingRoutines(uiType) {
       const transcriptTargetNode = document.querySelector('.a4cQT')
       // Attempt to dim down the transcript
       try {
-        transcriptTargetNode.childNodes[1].style.opacity = 0.2
+        transcriptTargetNode.childNodes[1].setAttribute("style", "opacity:0.2")
       } catch (error) {
         console.error(error)
       }
@@ -183,7 +184,7 @@ function meetingRoutines(uiType) {
         chatMessagesButton.click()
         // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
         try {
-          const chatMessagesTargetNode = document.querySelectorAll('div[aria-live="polite"]')[0]
+          const chatMessagesTargetNode = document.querySelector('div[aria-live="polite"].Ge9Kpc')
 
           // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
           chatMessagesObserver = new MutationObserver(chatMessagesRecorder)
@@ -193,7 +194,7 @@ function meetingRoutines(uiType) {
           console.error(error)
           showNotification(extensionStatusJSON_bug)
         }
-      }, 500)
+      }, 1000)
 
       // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
       chrome.storage.sync.get(["operationMode"], function (result) {
@@ -389,7 +390,7 @@ function chatMessagesRecorder(mutationsList, observer) {
   mutationsList.forEach(mutation => {
     try {
       // CRITICAL DOM DEPENDENCY. Get all people in the transcript
-      const chatMessagesElement = document.querySelectorAll('div[aria-live="polite"]')[0]
+      const chatMessagesElement = document.querySelector('div[aria-live="polite"].Ge9Kpc')
       // Attempt to parse messages only if at least one message exists
       if (chatMessagesElement.children.length > 0) {
         // CRITICAL DOM DEPENDENCY. Get the last message that was sent/received.
@@ -461,11 +462,9 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
   chrome.storage.local.set(objectToSave, function () {
     if (sendDownloadMessage) {
       // Download only if any transcript is present, irrespective of chat messages
-      if (transcript.length > 0) {
-        chrome.runtime.sendMessage({ type: "download" }, function (response) {
-          console.log(response);
-        })
-      }
+      chrome.runtime.sendMessage({ type: "download" }, function (response) {
+        console.log(response);
+      })
     }
   })
 }
