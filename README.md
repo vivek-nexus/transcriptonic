@@ -22,7 +22,7 @@ View video on [YouTube](https://www.youtube.com/watch?v=ARL6HbkakX4)
 
 # Installation
 <a href="https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag" target="_blank">
-    <img src="https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/iNEddTyWiMfLSwFD6qGq.png" />
+    <img src="https://developer.chrome.com/static/docs/webstore/branding/image/iNEddTyWiMfLSwFD6qGq.png" />
 </a>
 
 <br />
