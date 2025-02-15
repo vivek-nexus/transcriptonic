@@ -35,22 +35,24 @@ chrome.tabs.onRemoved.addListener(function (tabid) {
 
 function downloadTranscript() {
     chrome.storage.local.get(["userName", "transcript", "chatMessages", "meetingTitle", "meetingStartTimeStamp"], function (result) {
-        if (result.userName && result.transcript && result.chatMessages) {
+        if (result.userName && (result.transcript.length > 0 || result.chatMessages.length > 0)) {
             // Create file name if values or provided, use default otherwise
             const fileName = result.meetingTitle && result.meetingStartTimeStamp ? `TranscripTonic/Transcript-${result.meetingTitle} at ${result.meetingStartTimeStamp}.txt` : `TranscripTonic/Transcript.txt`
 
             // Create an array to store lines of the text file
             const lines = []
 
-            // Iterate through the transcript array and format each entry
-            result.transcript.forEach(entry => {
-                lines.push(`${entry.personName} (${entry.timeStamp})`)
-                lines.push(entry.personTranscript)
-                // Add an empty line between entries
+            if (result.transcript.length > 0) {
+                // Iterate through the transcript array and format each entry
+                result.transcript.forEach(entry => {
+                    lines.push(`${entry.personName} (${entry.timeStamp})`)
+                    lines.push(entry.personTranscript)
+                    // Add an empty line between entries
+                    lines.push("")
+                })
                 lines.push("")
-            })
-            lines.push("")
-            lines.push("")
+                lines.push("")
+            }
 
             if (result.chatMessages.length > 0) {
                 // Iterate through the chat messages array and format each entry
