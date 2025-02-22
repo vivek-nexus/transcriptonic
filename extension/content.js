@@ -151,7 +151,6 @@ function meetingRoutines(uiType) {
         transcriptTargetNode = document.querySelector('.a4cQT')
         canUseAriaBasedTranscriptSelector = false
       }
-      console.log(canUseAriaBasedTranscriptSelector)
 
 
       // Attempt to dim down the transcript
@@ -519,7 +518,7 @@ async function checkExtensionStatus() {
 
   // https://stackoverflow.com/a/42518434
   await fetch(
-    "https://ejnana.github.io/transcripto-status/status-prod1.json",
+    "https://ejnana.github.io/transcripto-status/status-prod.json",
     { cache: "no-store" }
   )
     .then((response) => response.json())
