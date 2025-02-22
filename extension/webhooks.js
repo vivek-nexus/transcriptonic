@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     saveButton.disabled = true
 
     // Load saved webhook URL
-    chrome.storage.local.get(['webhookUrl'], function (result) {
+    chrome.storage.sync.get(['webhookUrl'], function (result) {
         if (result.webhookUrl) {
             webhookUrlInput.value = result.webhookUrl
             saveButton.disabled = !webhookUrlInput.checkValidity()
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 await requestWebhookPermission(webhookUrl)
 
                 // Save webhook URL
-                chrome.storage.local.set({ webhookUrl: webhookUrl }, function () {
+                chrome.storage.sync.set({ webhookUrl: webhookUrl }, function () {
                     alert('Webhook URL saved successfully!')
                     console.log('Webhook URL saved')
                 })
@@ -99,20 +99,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     button.addEventListener('click', function () {
                         const index = parseInt(this.getAttribute('data-index'))
 
-                        // Send message to background script to retry webhook
-                        chrome.runtime.sendMessage({
-                            type: 'retry_webhook',
-                            index: index
-                        }, response => {
-                            if (response && response.success) {
-                                // Refresh the table to show updated status
-                                loadTranscripts()
-                            } else {
-                                alert('Failed to retry webhook. Please check your webhook URL configuration.')
-                                // Refresh the table to show updated status
-                                loadTranscripts()
+                        chrome.storage.sync.get(['webhookUrl'], function (result) {
+                            if (result.webhookUrl) {
+                                // Send message to background script to retry webhook
+                                chrome.runtime.sendMessage({
+                                    type: 'retry_webhook_at_index',
+                                    index: index
+                                }, response => {
+                                    loadTranscripts()
+                                })
+                            }
+                            else {
+                                alert("Please provide a webhook URL")
                             }
                         })
+
                     })
                 })
             } else {
