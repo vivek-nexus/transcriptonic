@@ -193,7 +193,7 @@ function meetingRoutines(uiType) {
           console.error(error)
           showNotification(extensionStatusJSON_bug)
         }
-      }, 500)
+      }, 1000)
 
       // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
       chrome.storage.sync.get(["operationMode"], function (result) {
