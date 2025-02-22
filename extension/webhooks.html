@@ -10,12 +10,31 @@
 
         body {
             font-family: "SUSE", sans-serif;
-            max-width: 800px;
+            max-width: 1024px;
             margin: 2rem auto;
             padding: 0 1rem;
             color: #C0C0C0;
             background: #071f29;
             font-size: 1rem;
+        }
+
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #a0a0a0;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2A9ACA;
         }
 
         h1 {
@@ -26,7 +45,7 @@
             background: rgba(255, 255, 255, 0.1);
             padding: 1.5rem;
             border-radius: 8px;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
         }
 
         .form-group {
@@ -97,6 +116,26 @@
             cursor: not-allowed;
         }
 
+        summary {
+            cursor: pointer;
+            font-weight: bold;
+            color: #2A9ACA;
+        }
+
+        .accordion-content {
+            margin-bottom: 3rem;
+        }
+
+        .code-block {
+            margin: 1rem 0rem;
+            overflow-x: auto;
+            padding: 1rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            line-height: 1.5;
+            white-space: nowrap;
+        }
+
         .notice {
             color: #a0a0a0;
             font-size: small;
@@ -159,6 +198,24 @@
             </div>
         </div>
         <button id="save-webhook">Save</button>
+    </div>
+
+    <details class="accordion-content">
+        <summary>Sample webhook payload</summary>
+        <div class="code-block">
+            <code>
+        {<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;"meetingTitle": "Team meeting",<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;"meetingStartTimeStampLocaleString": "01/15/2024, 10:00 AM",<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;"meetingStartTimeStampISOString": "2024-01-15T15:00:00.000Z",<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;"meetingEndTimeStampLocaleString": "01/15/2024, 11:00 AM",<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;"meetingEndTimeStampISOString": "2024-01-15T11:00:00.000Z",<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;"transcript": "Priya (01/15/2024, 10:00 AM)\nHi everyone!\n\nCarlos (01/15/2024, 10:01 AM)\nHello Priya!...\n\n",<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;"chatMessages": "Mohammed (01/15/2024, 10:05 AM)\nCan you share the slides?\n\nSofia (01/15/2024, 10:06 AM)\nHere's the link: ...\n\n"<br />
+        }
+        </code>
+        </div>
+    </details>
     </div>
 
     <h2>Last 10 transcripts</h2>
