@@ -3,6 +3,8 @@ window.onload = function () {
   const manualModeRadio = document.querySelector('#manual-mode')
   const lastMeetingTranscriptLink = document.querySelector("#last-meeting-transcript")
 
+  document.querySelector("#version").innerHTML = `v${chrome.runtime.getManifest().version}`
+
   chrome.storage.sync.get(["operationMode"], function (result) {
     if (result.operationMode == undefined)
       autoModeRadio.checked = true
