@@ -1,15 +1,15 @@
 //*********** GLOBAL VARIABLES **********//
 const timeFormat = {
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
   hour12: true
 }
 const extensionStatusJSON_bug = {
   "status": 400,
-  "message": "<strong>TranscripTonic encountered a new error</strong> <br /> Please report it <a href='https://github.com/vivek-nexus/transcriptonic/issues' target='_blank'>here</a>."
+  "message": `<strong>TranscripTonic encountered a new error</strong> <br /> Please report it <a href="https://github.com/vivek-nexus/transcriptonic/issues" target="_blank">here</a>.`
 }
 const reportErrorMessage = "There is a bug in TranscripTonic. Please report it at https://github.com/vivek-nexus/transcriptonic/issues"
 const mutationConfig = { childList: true, attributes: true, subtree: true, characterData: true }
@@ -145,10 +145,10 @@ function meetingRoutines(uiType) {
       })
 
       // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
-      let transcriptTargetNode = document.querySelector('div[role="region"][tabindex="0"]')
+      let transcriptTargetNode = document.querySelector(`div[role="region"][tabindex="0"]`)
       // For old captions UI
       if (!transcriptTargetNode) {
-        transcriptTargetNode = document.querySelector('.a4cQT')
+        transcriptTargetNode = document.querySelector(".a4cQT")
         canUseAriaBasedTranscriptSelector = false
       }
 
@@ -177,11 +177,11 @@ function meetingRoutines(uiType) {
       chatMessagesButton.click()
 
       // Allow DOM to be updated and then register chatMessage mutation observer
-      waitForElement('div[aria-live="polite"].Ge9Kpc').then(() => {
+      waitForElement(`div[aria-live="polite"].Ge9Kpc`).then(() => {
         chatMessagesButton.click()
         // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
         try {
-          const chatMessagesTargetNode = document.querySelector('div[aria-live="polite"].Ge9Kpc')
+          const chatMessagesTargetNode = document.querySelector(`div[aria-live="polite"].Ge9Kpc`)
 
           // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
           chatMessagesObserver = new MutationObserver(chatMessagesMutationCallback)
@@ -253,8 +253,8 @@ function transcriptMutationCallback(mutationsList, observer) {
     try {
       // CRITICAL DOM DEPENDENCY. Get all people in the transcript
       const people = canUseAriaBasedTranscriptSelector
-        ? document.querySelector('div[role="region"][tabindex="0"]').children
-        : document.querySelector('.a4cQT').childNodes[1].firstChild.childNodes
+        ? document.querySelector(`div[role="region"][tabindex="0"]`).children
+        : document.querySelector(".a4cQT").childNodes[1].firstChild.childNodes
 
       // Begin parsing transcript
       if (people.length > 0) {
@@ -278,7 +278,7 @@ function transcriptMutationCallback(mutationsList, observer) {
         else {
           // New person started speaking 
           if (personNameBuffer != currentPersonName) {
-            // Push previous person's transcript as a block
+            // Push previous person"s transcript as a block
             pushBufferToTranscript()
             // Update buffers for next mutation and store transcript block timeStamp
             beforeTranscriptText = currentTranscriptText
@@ -345,7 +345,7 @@ function chatMessagesMutationCallback(mutationsList, observer) {
   mutationsList.forEach(mutation => {
     try {
       // CRITICAL DOM DEPENDENCY. Get all people in the transcript
-      const chatMessagesElement = document.querySelector('div[aria-live="polite"].Ge9Kpc')
+      const chatMessagesElement = document.querySelector(`div[aria-live="polite"].Ge9Kpc`)
       // Attempt to parse messages only if at least one message exists
       if (chatMessagesElement.children.length > 0) {
         // CRITICAL DOM DEPENDENCY. Get the last message that was sent/received.
@@ -399,7 +399,7 @@ function pushBufferToTranscript() {
   overWriteChromeStorage(["transcript"], false)
 }
 
-// Pushes object to array only if it doesn't already exist. chatMessage is checked for substring since some trailing text(keep Pin message) is present from a button that allows to pin the message.
+// Pushes object to array only if it doesn"t already exist. chatMessage is checked for substring since some trailing text(keep Pin message) is present from a button that allows to pin the message.
 function pushUniqueChatBlock(chatBlock) {
   const isExisting = chatMessages.some(item =>
     item.personName == chatBlock.personName &&
@@ -532,7 +532,7 @@ const commonCSS = `background: rgb(255 255 255 / 10%);
     gap: 16px;  
     font-size: 1rem; 
     line-height: 1.5; 
-    font-family: 'Google Sans',Roboto,Arial,sans-serif; 
+    font-family: "Google Sans",Roboto,Arial,sans-serif; 
     box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;`
 
 

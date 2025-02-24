@@ -29,7 +29,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
                 sendResponse({ success: true })
             })
             .catch(error => {
-                console.error('Webhook retry failed:', error)
+                console.error("Webhook retry failed:", error)
                 sendResponse({ success: false, error: error.message })
             })
         return true // Keep the message channel open for async response
@@ -66,7 +66,7 @@ function downloadAndPostWebhook() {
                     chrome.storage.sync.get(["webhookUrl"], function (resultSync) {
                         if (resultSync.webhookUrl) {
                             postTranscriptToWebhook(lastIndex).catch(error => {
-                                console.error('Webhook post failed:', error)
+                                console.error("Webhook post failed:", error)
                             })
                         }
                     })
@@ -110,7 +110,7 @@ function processTranscript() {
 
             // Create new transcript entry
             const newTranscriptEntry = {
-                meetingTitle: result.meetingTitle || 'Meeting',
+                meetingTitle: result.meetingTitle || "Meeting",
                 meetingStartTimeStamp: result.meetingStartTimeStamp,
                 transcript: transcriptString,
                 chatMessages: chatMessagesString,
@@ -140,26 +140,26 @@ function processTranscript() {
 
 
 function downloadTranscript(index) {
-    chrome.storage.local.get(['recentTranscripts'], function (result) {
+    chrome.storage.local.get(["recentTranscripts"], function (result) {
         if (result.recentTranscripts && result.recentTranscripts[index]) {
             const transcript = result.recentTranscripts[index]
 
             // Clean up meeting title for filename
             // https://stackoverflow.com/a/78675894
             const invalidFilenameRegex = /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/gui
-            const cleanTitle = transcript.meetingTitle.replaceAll(invalidFilenameRegex, '_')
+            const cleanTitle = transcript.meetingTitle.replaceAll(invalidFilenameRegex, "_")
 
             // Format timestamp for human-readable filename
             const date = new Date(transcript.meetingStartTimeStamp)
-            const formattedDate = date.toLocaleString('default', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
+            const formattedDate = date.toLocaleString("default", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
                 hour12: false
-            }).replace(/[\/:]/g, '-')
+            }).replace(/[\/:]/g, "-")
 
             const filename = `${cleanTitle} at ${formattedDate}.txt`
 
@@ -173,7 +173,7 @@ function downloadTranscript(index) {
             content += "Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)"
             content += "---------------"
 
-            const blob = new Blob([content], { type: 'text/plain' })
+            const blob = new Blob([content], { type: "text/plain" })
 
             // Read the blob as a data URL
             const reader = new FileReader()
@@ -220,15 +220,15 @@ function downloadTranscript(index) {
 function postTranscriptToWebhook(index) {
     return new Promise((resolve, reject) => {
         // Get webhook URL and recent transcripts
-        chrome.storage.local.get(['recentTranscripts'], function (resultLocal) {
-            chrome.storage.sync.get(['webhookUrl'], function (resultSync) {
+        chrome.storage.local.get(["recentTranscripts"], function (resultLocal) {
+            chrome.storage.sync.get(["webhookUrl"], function (resultSync) {
                 if (!resultSync.webhookUrl) {
-                    reject(new Error('No webhook URL configured'))
+                    reject(new Error("No webhook URL configured"))
                     return
                 }
 
                 if (!resultLocal.recentTranscripts || !resultLocal.recentTranscripts[index]) {
-                    reject(new Error('Transcript not found'))
+                    reject(new Error("Transcript not found"))
                     return
                 }
 
@@ -242,14 +242,14 @@ function postTranscriptToWebhook(index) {
 
                 // Post to webhook
                 fetch(resultSync.webhookUrl, {
-                    method: 'POST',
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/json'
+                        "Content-Type": "application/json"
                     },
                     body: JSON.stringify(webhookData)
                 }).then(response => {
                     if (!response.ok) {
-                        throw new Error('Webhook request failed')
+                        throw new Error("Webhook request failed")
                     }
                     return response.json()
                 }).then(() => {
@@ -264,17 +264,17 @@ function postTranscriptToWebhook(index) {
                     chrome.storage.local.set({ recentTranscripts: resultLocal.recentTranscripts }, function () {
                         // Create notification and open webhooks page
                         chrome.notifications.create({
-                            type: 'basic',
-                            iconUrl: 'icon.png',
-                            title: 'Could not post webhook',
-                            message: 'Check URL or retry',
-                            buttons: [{ title: 'Open webhooks page' }]
+                            type: "basic",
+                            iconUrl: "icon.png",
+                            title: "Could not post webhook",
+                            message: "Check URL or retry",
+                            buttons: [{ title: "Open webhooks page" }]
                         })
 
                         // Handle notification click
                         chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
                             if (buttonIndex === 0) {
-                                chrome.tabs.create({ url: 'webhooks.html' })
+                                chrome.tabs.create({ url: "webhooks.html" })
                             }
                         })
 
