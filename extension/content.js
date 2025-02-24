@@ -163,10 +163,12 @@ function meetingRoutines(uiType) {
 
       // Start observing the transcript element and chat messages element for configured mutations
       transcriptObserver.observe(transcriptTargetNode, mutationConfig)
-    } catch (error) {
-      console.error(error)
+    } catch (err) {
+      console.error(err)
       isTranscriptDomErrorCaptured = true
       showNotification(extensionStatusJSON_bug)
+
+      logError(err)
     }
 
     // **** REGISTER CHAT MESSAGES LISTENER **** //
@@ -186,15 +188,19 @@ function meetingRoutines(uiType) {
           chatMessagesObserver = new MutationObserver(chatMessagesMutationCallback)
 
           chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
-        } catch (error) {
-          console.error(error)
+        } catch (err) {
+          console.error(err)
           showNotification(extensionStatusJSON_bug)
+
+          logError(err)
         }
       }, 1000)
-    } catch (error) {
-      console.error(error)
+    } catch (err) {
+      console.error(err)
       isChatMessagesDomErrorCaptured = true
       showNotification(extensionStatusJSON_bug)
+
+      logError(err)
     }
 
     // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
@@ -226,9 +232,11 @@ function meetingRoutines(uiType) {
         // Save to chrome storage and send message to download transcript from background script
         overWriteChromeStorage(["transcript", "chatMessages"], true)
       })
-    } catch (error) {
-      console.error(error)
+    } catch (err) {
+      console.error(err)
       showNotification(extensionStatusJSON_bug)
+
+      logError(err)
     }
   })
 }
@@ -308,11 +316,13 @@ function transcriptMutationCallback(mutationsList, observer) {
       }
       console.log(transcriptTextBuffer)
       // console.log(transcript)
-    } catch (error) {
-      console.error(error)
+    } catch (err) {
+      console.error(err)
       if (isTranscriptDomErrorCaptured == false && hasMeetingEnded == false) {
         console.log(reportErrorMessage)
         showNotification(extensionStatusJSON_bug)
+
+        logError(err)
       }
       isTranscriptDomErrorCaptured = true
     }
@@ -347,11 +357,13 @@ function chatMessagesMutationCallback(mutationsList, observer) {
         console.log(chatMessages)
       }
     }
-    catch (error) {
-      console.error(error)
+    catch (err) {
+      console.error(err)
       if (isChatMessagesDomErrorCaptured == false && hasMeetingEnded == false) {
         console.log(reportErrorMessage)
         showNotification(extensionStatusJSON_bug)
+
+        logError(err)
       }
       isChatMessagesDomErrorCaptured = true
     }
@@ -421,8 +433,10 @@ function updateMeetingTitle() {
     const invalidFilenameRegex = /[^\w\-_.() ]/g
     meetingTitle = title.replace(invalidFilenameRegex, '_')
     overWriteChromeStorage(["meetingTitle"], false)
-  } catch (error) {
-    console.error(error)
+  } catch (err) {
+    console.error(err)
+
+    logError(err)
   }
 }
 
@@ -509,6 +523,13 @@ const commonCSS = `background: rgb(255 255 255 / 10%);
     font-family: 'Google Sans',Roboto,Arial,sans-serif; 
     box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;`;
 
+
+// Logs anonymous errors to a Google sheet for swift debugging   
+function logError(err) {
+  fetch(`https://script.google.com/macros/s/AKfycbydJjDgaRMTccagvK04U80um1rfAdgzz1VunCjDS799UqyGTFrvKLOz0ED8btnvA7Pxvw/exec?version=${chrome.runtime.getManifest().version}&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
+}
+
+
 // Fetches extension status from GitHub and saves to chrome storage. Defaults to 200, if remote server is unavailable.
 async function checkExtensionStatus() {
   // Set default value as 200
@@ -529,7 +550,9 @@ async function checkExtensionStatus() {
       });
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
+
+      logError(err)
     });
 }
 

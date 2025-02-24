@@ -95,14 +95,20 @@ function downloadTranscript() {
                     conflictAction: "uniquify"
                 }).then(() => {
                     console.log("Transcript downloaded to TranscripTonic directory")
-                }).catch((error) => {
-                    console.log(error)
+                    // Increment anonymous transcript generated count to a Google sheet
+                    fetch("https://script.google.com/macros/s/AKfycbzjyUMJ6kn4afWcmyEZYaMayA2GKgDEJB7zTXpRFoJcYvoCjfftWBYeRKyIUEUBCE1KMQ/exec", {
+                        mode: "no-cors"
+                    })
+                }).catch((err) => {
+                    console.error(err)
                     chrome.downloads.download({
                         url: dataUrl,
                         filename: "TranscripTonic/Transcript.txt",
                         conflictAction: "uniquify"
                     })
                     console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
+                    // Logs anonymous errors to a Google sheet for swift debugging   
+                    fetch(`https://script.google.com/macros/s/AKfycbydJjDgaRMTccagvK04U80um1rfAdgzz1VunCjDS799UqyGTFrvKLOz0ED8btnvA7Pxvw/exec?version=${chrome.runtime.getManifest().version}&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
                 })
             }
 
