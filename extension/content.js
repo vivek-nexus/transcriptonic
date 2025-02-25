@@ -171,7 +171,7 @@ function meetingRoutines(uiType) {
       isTranscriptDomErrorCaptured = true
       showNotification(extensionStatusJSON_bug)
 
-      logError(err)
+      logError("001", err)
     }
 
     // **** REGISTER CHAT MESSAGES LISTENER **** //
@@ -195,7 +195,7 @@ function meetingRoutines(uiType) {
           console.error(err)
           showNotification(extensionStatusJSON_bug)
 
-          logError(err)
+          logError("002", err)
         }
       }, 1000)
     } catch (err) {
@@ -203,7 +203,7 @@ function meetingRoutines(uiType) {
       isChatMessagesDomErrorCaptured = true
       showNotification(extensionStatusJSON_bug)
 
-      logError(err)
+      logError("003", err)
     }
 
     // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
@@ -239,7 +239,7 @@ function meetingRoutines(uiType) {
       console.error(err)
       showNotification(extensionStatusJSON_bug)
 
-      logError(err)
+      logError("004", err)
     }
   })
 }
@@ -321,11 +321,11 @@ function transcriptMutationCallback(mutationsList, observer) {
       // console.log(transcript)
     } catch (err) {
       console.error(err)
-      if (isTranscriptDomErrorCaptured == false && hasMeetingEnded == false) {
+      if (!isTranscriptDomErrorCaptured && !hasMeetingEnded) {
         console.log(reportErrorMessage)
         showNotification(extensionStatusJSON_bug)
 
-        logError(err)
+        logError("005", err)
       }
       isTranscriptDomErrorCaptured = true
     }
@@ -362,11 +362,11 @@ function chatMessagesMutationCallback(mutationsList, observer) {
     }
     catch (err) {
       console.error(err)
-      if (isChatMessagesDomErrorCaptured == false && hasMeetingEnded == false) {
+      if (!isChatMessagesDomErrorCaptured && !hasMeetingEnded) {
         console.log(reportErrorMessage)
         showNotification(extensionStatusJSON_bug)
 
-        logError(err)
+        logError("006", err)
       }
       isChatMessagesDomErrorCaptured = true
     }
@@ -433,13 +433,15 @@ function updateMeetingTitle() {
   try {
     // NON CRITICAL DOM DEPENDENCY
     const title = document.querySelector(".u6vdEc").textContent
-    const invalidFilenameRegex = /[^\w\-_.() ]/g
+    const invalidFilenameRegex = /[<>:"/\\|?*\x00-\x1F]/g
     meetingTitle = title.replace(invalidFilenameRegex, '_')
     overWriteChromeStorage(["meetingTitle"], false)
   } catch (err) {
     console.error(err)
 
-    logError(err)
+    if (!hasMeetingEnded) {
+      logError("007", err)
+    }
   }
 }
 
@@ -528,8 +530,8 @@ const commonCSS = `background: rgb(255 255 255 / 10%);
 
 
 // Logs anonymous errors to a Google sheet for swift debugging   
-function logError(err) {
-  fetch(`https://script.google.com/macros/s/AKfycbydJjDgaRMTccagvK04U80um1rfAdgzz1VunCjDS799UqyGTFrvKLOz0ED8btnvA7Pxvw/exec?version=${chrome.runtime.getManifest().version}&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
+function logError(code, err) {
+  fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=${code}&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
 }
 
 
@@ -555,7 +557,7 @@ async function checkExtensionStatus() {
     .catch((err) => {
       console.error(err);
 
-      logError(err)
+      logError("008", err)
     });
 }
 
