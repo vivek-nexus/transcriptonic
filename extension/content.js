@@ -146,7 +146,7 @@ function meetingRoutines(uiType) {
 
       // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
       let transcriptTargetNode
-      transcriptTargetNode = document.querySelector('div[aria-label="Captions"]')
+      transcriptTargetNode = document.querySelectorAll('div[role="region"]')[0]
       if (!transcriptTargetNode) {
         transcriptTargetNode = document.querySelector('.a4cQT')
         canUseAriaBasedTranscriptSelector = false
@@ -252,7 +252,7 @@ function transcriptMutationCallback(mutationsList, observer) {
     try {
       // CRITICAL DOM DEPENDENCY. Get all people in the transcript
       const people = canUseAriaBasedTranscriptSelector
-        ? document.querySelector('div[aria-label="Captions"]').children
+        ? document.querySelectorAll('div[role="region"]')[0].children
         : document.querySelector('.a4cQT').childNodes[1].firstChild.childNodes
 
       // Begin parsing transcript
