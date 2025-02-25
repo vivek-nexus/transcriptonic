@@ -96,7 +96,7 @@ function downloadTranscript() {
                 }).then(() => {
                     console.log("Transcript downloaded to TranscripTonic directory")
                     // Increment anonymous transcript generated count to a Google sheet
-                    fetch("https://script.google.com/macros/s/AKfycbzjyUMJ6kn4afWcmyEZYaMayA2GKgDEJB7zTXpRFoJcYvoCjfftWBYeRKyIUEUBCE1KMQ/exec", {
+                    fetch(`https://script.google.com/macros/s/AKfycbwBdD_OLFWXW2DS5n81ToaxhUU3PPDdFYgs_ttxmUtvhUSthKpffxOp9dJFhqSLS14/exec?version=${chrome.runtime.getManifest().version}`, {
                         mode: "no-cors"
                     })
                 }).catch((err) => {
