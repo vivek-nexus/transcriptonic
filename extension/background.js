@@ -169,9 +169,9 @@ function downloadTranscript(index) {
             content += transcript.chatMessages
 
             // Add branding
-            content += "---------------"
+            content += "\n\n---------------\n"
             content += "Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)"
-            content += "---------------"
+            content += "\n---------------"
 
             const blob = new Blob([content], { type: "text/plain" })
 
@@ -267,7 +267,7 @@ function postTranscriptToWebhook(index) {
                             type: "basic",
                             iconUrl: "icon.png",
                             title: "Could not post webhook",
-                            message: "Check URL or retry",
+                            message: "Check URL or manually repost webhook",
                             buttons: [{ title: "Open webhooks page" }]
                         })
 
