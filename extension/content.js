@@ -146,8 +146,11 @@ function meetingRoutines(uiType) {
 
       // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
       let transcriptTargetNode
-      transcriptTargetNode = document.querySelectorAll('div[role="region"]')[0]
-      if (!transcriptTargetNode) {
+      // Expect two elements with role=region in the DOM: captions region and meeting controls region. Captions region is the new addition. Meeting controls region was always present. So check if both exist and only then pick the first.
+      if (document.querySelectorAll('div[role="region"]').length > 1) {
+        transcriptTargetNode = document.querySelectorAll('div[role="region"]')[0]
+      }
+      else {
         transcriptTargetNode = document.querySelector('.a4cQT')
         canUseAriaBasedTranscriptSelector = false
       }
