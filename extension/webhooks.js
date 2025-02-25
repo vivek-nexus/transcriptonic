@@ -94,7 +94,7 @@ function loadTranscripts() {
             // Loop through the array in reverse order to list latest meeting first
             for (let i = result.recentTranscripts.length - 1; i >= 0; i--) {
                 const transcript = result.recentTranscripts[i]
-                const date = new Date(transcript.meetingStartTimeStamp).toLocaleString()
+                const date = new Date(transcript.meetingStartTimestamp).toLocaleString()
 
                 const row = document.createElement("tr")
                 row.innerHTML = `

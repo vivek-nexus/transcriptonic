@@ -18,22 +18,22 @@ const mutationConfig = { childList: true, attributes: true, subtree: true, chara
 let userName = "You"
 overWriteChromeStorage(["userName"], false)
 // Transcript array that holds one or more transcript blocks
-// Each transcript block (object) has personName, timeStamp and transcriptText key value pairs
+// Each transcript block (object) has personName, timestamp and transcriptText key value pairs
 let transcript = []
 overWriteChromeStorage(["transcript"], false)
 // Buffer variables to dump values, which get pushed to transcript array as transcript blocks, at defined conditions
-let personNameBuffer = "", transcriptTextBuffer = "", timeStampBuffer = undefined
+let personNameBuffer = "", transcriptTextBuffer = "", timestampBuffer = undefined
 // Buffer variables for deciding when to push a transcript block
 let beforePersonName = "", beforeTranscriptText = ""
 // Chat messages array that holds one or chat messages of the meeting
-// Each message block(object) has personName, timeStamp and messageText key value pairs
+// Each message block(object) has personName, timestamp and messageText key value pairs
 let chatMessages = []
 overWriteChromeStorage(["chatMessages"], false)
 
-// Capture meeting start time stamp, stored in UNIX format
-let meetingStartTimeStamp = Date.now()
+// Capture meeting start timestamp, stored in UNIX format
+let meetingStartTimestamp = Date.now()
 let meetingTitle = document.title
-overWriteChromeStorage(["meetingStartTimeStamp", "meetingTitle"], false)
+overWriteChromeStorage(["meetingStartTimestamp", "meetingTitle"], false)
 // Capture invalid transcript and chat messages DOM element error for the first time
 let isTranscriptDomErrorCaptured = false
 let isChatMessagesDomErrorCaptured = false
@@ -271,7 +271,7 @@ function transcriptMutationCallback(mutationsList, observer) {
         // Starting fresh in a meeting or resume from no active transcript
         if (beforeTranscriptText == "") {
           personNameBuffer = currentPersonName
-          timeStampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
+          timestampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
           beforeTranscriptText = currentTranscriptText
           transcriptTextBuffer = currentTranscriptText
         }
@@ -281,10 +281,10 @@ function transcriptMutationCallback(mutationsList, observer) {
           if (personNameBuffer != currentPersonName) {
             // Push previous person's transcript as a block
             pushBufferToTranscript()
-            // Update buffers for next mutation and store transcript block timeStamp
+            // Update buffers for next mutation and store transcript block timestamp
             beforeTranscriptText = currentTranscriptText
             personNameBuffer = currentPersonName
-            timeStampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
+            timestampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
             transcriptTextBuffer = currentTranscriptText
           }
           // Same person speaking more
@@ -297,7 +297,7 @@ function transcriptMutationCallback(mutationsList, observer) {
             }
             // Update buffers for next mutation
             transcriptTextBuffer = currentTranscriptText
-            timeStampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
+            timestampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
             beforeTranscriptText = currentTranscriptText
             if (!canUseAriaBasedTranscriptSelector) {
               // If a person is speaking for a long time, Google Meet does not keep the entire text in the spans. Starting parts are automatically removed in an unpredictable way as the length increases and TranscripTonic will miss them. So we force remove a lengthy transcript node in a controlled way. Google Meet will add a fresh person node when we remove it and continue transcription. TranscripTonic picks it up as a new person and nothing is missed.
@@ -353,13 +353,13 @@ function chatMessagesMutationCallback(mutationsList, observer) {
         const chatMessageElement = chatMessagesElement.lastChild
         // CRITICAL DOM DEPENDENCY.
         const personName = chatMessageElement.firstChild.firstChild.textContent
-        const timeStamp = new Date().toLocaleString("default", timeFormat).toUpperCase()
+        const timestamp = new Date().toLocaleString("default", timeFormat).toUpperCase()
         // CRITICAL DOM DEPENDENCY. Some mutations will have some noisy text at the end, which is handled in pushUniqueChatBlock function.
         const chatMessageText = chatMessageElement.lastChild.lastChild.textContent
 
         const chatMessageBlock = {
           personName: personName,
-          timeStamp: timeStamp,
+          timestamp: timestamp,
           chatMessageText: chatMessageText
         }
 
@@ -394,7 +394,7 @@ function chatMessagesMutationCallback(mutationsList, observer) {
 function pushBufferToTranscript() {
   transcript.push({
     "personName": personNameBuffer,
-    "timeStamp": timeStampBuffer,
+    "timestamp": timestampBuffer,
     "personTranscript": transcriptTextBuffer
   })
   overWriteChromeStorage(["transcript"], false)
@@ -404,7 +404,7 @@ function pushBufferToTranscript() {
 function pushUniqueChatBlock(chatBlock) {
   const isExisting = chatMessages.some(item =>
     item.personName == chatBlock.personName &&
-    item.timeStamp == chatBlock.timeStamp &&
+    item.timestamp == chatBlock.timestamp &&
     chatBlock.chatMessageText.includes(item.chatMessageText)
   )
   if (!isExisting) {
@@ -424,8 +424,8 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
     objectToSave.transcript = transcript
   if (keys.includes("meetingTitle"))
     objectToSave.meetingTitle = meetingTitle
-  if (keys.includes("meetingStartTimeStamp"))
-    objectToSave.meetingStartTimeStamp = meetingStartTimeStamp
+  if (keys.includes("meetingStartTimestamp"))
+    objectToSave.meetingStartTimestamp = meetingStartTimestamp
   if (keys.includes("chatMessages"))
     objectToSave.chatMessages = chatMessages
 

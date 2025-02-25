@@ -94,14 +94,14 @@ function processTranscript() {
             "transcript",
             "chatMessages",
             "meetingTitle",
-            "meetingStartTimeStamp"
+            "meetingStartTimestamp"
         ], function (result) {
             // Format transcript entries into string
             let transcriptString = ""
             if (result.transcript.length > 0) {
                 result.transcript.forEach(transcriptBlock => {
                     const personName = transcriptBlock.personName === "You" ? result.userName : transcriptBlock.personName
-                    transcriptString += `${personName} (${transcriptBlock.timeStamp})\n`
+                    transcriptString += `${personName} (${transcriptBlock.timestamp})\n`
                     transcriptString += transcriptBlock.personTranscript
                     transcriptString += "\n\n"
                 })
@@ -112,7 +112,7 @@ function processTranscript() {
             if (result.chatMessages.length > 0) {
                 result.chatMessages.forEach(chatBlock => {
                     const personName = chatBlock.personName === "You" ? result.userName : chatBlock.personName
-                    chatMessagesString += `${personName} (${chatBlock.timeStamp})\n`
+                    chatMessagesString += `${personName} (${chatBlock.timestamp})\n`
                     chatMessagesString += chatBlock.chatMessageText
                     chatMessagesString += "\n\n"
                 })
@@ -121,8 +121,8 @@ function processTranscript() {
             // Create new transcript entry
             const newTranscriptEntry = {
                 meetingTitle: result.meetingTitle || "Google Meet call",
-                meetingStartTimeStamp: result.meetingStartTimeStamp,
-                meetingEndTimeStamp: Date.now(),
+                meetingStartTimestamp: result.meetingStartTimestamp,
+                meetingEndTimestamp: Date.now(),
                 transcript: transcriptString,
                 chatMessages: chatMessagesString,
                 webhookPostStatus: "new"
@@ -160,9 +160,9 @@ function downloadTranscript(index, webhookEnabled) {
             const invalidFilenameRegex = /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/gui
             const sanitisedMeetingTitle = transcript.meetingTitle.replaceAll(invalidFilenameRegex, "_")
 
-            // Format time stamp for human-readable filename
-            const timeStamp = new Date(transcript.meetingStartTimeStamp)
-            const formattedTimeStamp = timeStamp.toLocaleString("default", {
+            // Format timestamp for human-readable filename
+            const timestamp = new Date(transcript.meetingStartTimestamp)
+            const formattedTimestamp = timestamp.toLocaleString("default", {
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit",
@@ -172,7 +172,7 @@ function downloadTranscript(index, webhookEnabled) {
                 hour12: false
             }).replace(/[\/:]/g, "-")
 
-            const fileName = `${sanitisedMeetingTitle} at ${formattedTimeStamp}.txt`
+            const fileName = `${sanitisedMeetingTitle} at ${formattedTimestamp}.txt`
 
             // Format transcript content
             let content = transcript.transcript
@@ -244,13 +244,13 @@ function postTranscriptToWebhook(index) {
                 }
 
                 const transcript = resultLocal.recentTranscripts[index]
-                // LocaleString included for no-code automation consumption and ISO time stamp included for code consumption
+                // LocaleString included for no-code automation consumption and ISO timestamp included for code consumption
                 const webhookData = {
                     meetingTitle: transcript.meetingTitle,
-                    meetingStartTimeStampLocaleString: new Date(transcript.meetingStartTimeStamp).toLocaleString("default", timeFormat).toUpperCase(),
-                    meetingStartTimeStampISOString: new Date(transcript.meetingStartTimeStamp).toISOString(),
-                    meetingEndTimeStampLocaleString: new Date(transcript.meetingEndTimeStamp).toLocaleString("default", timeFormat).toUpperCase(),
-                    meetingEndTimeStampISOString: new Date(transcript.meetingEndTimeStamp).toISOString(),
+                    meetingStartTimestampLocaleString: new Date(transcript.meetingStartTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
+                    meetingStartTimestampISOString: new Date(transcript.meetingStartTimestamp).toISOString(),
+                    meetingEndTimestampLocaleString: new Date(transcript.meetingEndTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
+                    meetingEndTimestampISOString: new Date(transcript.meetingEndTimestamp).toISOString(),
                     transcript: transcript.transcript,
                     chatMessages: transcript.chatMessages
                 }
