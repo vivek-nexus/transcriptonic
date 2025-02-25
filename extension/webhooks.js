@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const webhookUrlInput = document.querySelector("#webhook-url")
     const saveButton = document.querySelector("#save-webhook")
-    const transcriptsTable = document.querySelector("#transcripts-table")
     const autoPostCheckbox = document.querySelector("#auto-post-webhook")
 
     // Initially disable the save button
@@ -21,8 +20,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Handle URL input changes
     webhookUrlInput.addEventListener("input", function () {
-        saveButton.disabled = !this.value || !this.checkValidity()
-        autoPostCheckbox.disabled = !this.value || !this.checkValidity()
+        saveButton.disabled = !webhookUrlInput.value || !webhookUrlInput.checkValidity()
+        autoPostCheckbox.disabled = !webhookUrlInput.value || !webhookUrlInput.checkValidity()
     })
 
     // Save webhook URL and auto-post setting
@@ -45,77 +44,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     })
 
+    // Initial load of transcripts
+    loadTranscripts()
+
     // Reload transcripts when page becomes visible
     document.addEventListener("visibilitychange", function () {
         if (document.visibilityState === "visible") {
             loadTranscripts()
         }
     })
-
-    // Load and display recent transcripts
-    function loadTranscripts() {
-        chrome.storage.local.get(["recentTranscripts"], function (result) {
-            // Clear existing content
-            transcriptsTable.innerHTML = ""
-
-            if (result.recentTranscripts && result.recentTranscripts.length > 0) {
-                // Loop through the array in reverse order to list latest meeting first
-                for (let i = result.recentTranscripts.length - 1; i >= 0; i--) {
-                    const transcript = result.recentTranscripts[i]
-                    const date = new Date(transcript.meetingStartTimeStamp).toLocaleString()
-
-                    const row = document.createElement("tr")
-                    row.innerHTML = `
-                        <td>${transcript.meetingTitle}</td>
-                        <td>${date}</td>
-                        <td>
-                            ${transcript.webhookPostStatus === "successful"
-                            ? `<span class="status-success">Successful</span>`
-                            : transcript.webhookPostStatus === "failed"
-                                ? `<span class="status-failed">Failed</span>`
-                                : `<span class="status-new">New</span>`}
-                        </td>
-                        <td style="min-width: 96px;">
-                            <button class="post-button" data-index="${i}">${transcript.webhookPostStatus === "new" ? `Post` : `Repost`}</button>
-                        </td>
-                    `
-                    transcriptsTable.appendChild(row)
-
-                    // Add event listener to the post button
-                    const button = row.querySelector(".post-button")
-                    button.addEventListener("click", function () {
-                        chrome.storage.sync.get(["webhookUrl"], function (result) {
-                            if (result.webhookUrl) {
-                                // Disable button and update text
-                                button.disabled = true
-                                button.textContent = transcript.webhookPostStatus === "new" ? "Posting..." : "Reposting..."
-
-                                // Send message to background script to post webhook
-                                const index = parseInt(button.getAttribute("data-index"))
-                                chrome.runtime.sendMessage({
-                                    type: "retry_webhook_at_index",
-                                    index: index
-                                }, response => {
-                                    loadTranscripts()
-                                    if (response.success) {
-                                        alert("Posted successfully!")
-                                    }
-                                })
-                            }
-                            else {
-                                alert("Please provide a webhook URL")
-                            }
-                        })
-                    })
-                }
-            } else {
-                transcriptsTable.innerHTML = `<tr><td colspan="3">No transcripts available</td></tr>`
-            }
-        })
-    }
-
-    // Initial load of transcripts
-    loadTranscripts()
 })
 
 
@@ -141,6 +78,80 @@ function requestWebhookAndNotificationPermission(url) {
             })
         } catch (error) {
             reject(new Error("Invalid URL format"))
+        }
+    })
+}
+
+// Load and display recent transcripts
+function loadTranscripts() {
+    const transcriptsTable = document.querySelector("#transcripts-table")
+
+    chrome.storage.local.get(["recentTranscripts"], function (result) {
+        // Clear existing content
+        transcriptsTable.innerHTML = ""
+
+        if (result.recentTranscripts && result.recentTranscripts.length > 0) {
+            // Loop through the array in reverse order to list latest meeting first
+            for (let i = result.recentTranscripts.length - 1; i >= 0; i--) {
+                const transcript = result.recentTranscripts[i]
+                const date = new Date(transcript.meetingStartTimeStamp).toLocaleString()
+
+                const row = document.createElement("tr")
+                row.innerHTML = `
+                    <td>${transcript.meetingTitle}</td>
+                    <td>${date}</td>
+                    <td>
+                        ${(
+                        () => {
+                            switch (transcript.webhookPostStatus) {
+                                case "successful":
+                                    return `<span class="status-success">Successful</span>`
+                                case "failed":
+                                    return `<span class="status-failed">Failed</span>`
+                                case "new":
+                                    return `<span class="status-new">New</span>`
+                                default:
+                                    return `<span class="status-new">Unknown</span>`
+                            }
+                        }
+                    )()}
+                    </td>
+                    <td style="min-width: 96px;">
+                        <button class="post-button" data-index="${i}">${transcript.webhookPostStatus === "new" ? `Post` : `Repost`}</button>
+                    </td>
+                `
+                transcriptsTable.appendChild(row)
+
+                // Add event listener to the post button
+                const button = row.querySelector(".post-button")
+                button.addEventListener("click", function () {
+                    chrome.storage.sync.get(["webhookUrl"], function (result) {
+                        if (result.webhookUrl) {
+                            // Disable button and update text
+                            button.disabled = true
+                            button.textContent = transcript.webhookPostStatus === "new" ? "Posting..." : "Reposting..."
+
+                            // Send message to background script to post webhook
+                            const index = parseInt(button.getAttribute("data-index"))
+                            chrome.runtime.sendMessage({
+                                type: "retry_webhook_at_index",
+                                index: index
+                            }, response => {
+                                loadTranscripts()
+                                if (response.success) {
+                                    alert("Posted successfully!")
+                                }
+                            })
+                        }
+                        else {
+                            alert("Please provide a webhook URL")
+                        }
+                    })
+                })
+            }
+        }
+        else {
+            transcriptsTable.innerHTML = `<tr><td colspan="4">No transcripts available</td></tr>`
         }
     })
 }

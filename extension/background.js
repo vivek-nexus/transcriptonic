@@ -29,7 +29,8 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
     }
     if (message.type == "download_transcript_at_index") {
-        downloadTranscript(message.index, false) // Download the requested item
+        // Download the requested item
+        downloadTranscript(message.index, false)
     }
     if (message.type == "retry_webhook_at_index") {
         // Handle webhook retry
@@ -41,7 +42,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
                 console.error("Webhook retry failed:", error)
                 sendResponse({ success: false, error: error.message })
             })
-        return true // Keep the message channel open for async response
     }
     return true
 })
@@ -244,6 +244,7 @@ function postTranscriptToWebhook(index) {
                 }
 
                 const transcript = resultLocal.recentTranscripts[index]
+                // LocaleString included for no-code automation consumption and ISO timestamp included for code consumption
                 const webhookData = {
                     meetingTitle: transcript.meetingTitle,
                     meetingStartTimeStampLocaleString: new Date(transcript.meetingStartTimeStamp).toLocaleString("default", timeFormat).toUpperCase(),
@@ -272,6 +273,7 @@ function postTranscriptToWebhook(index) {
                         resolve()
                     })
                 }).catch(error => {
+                    console.error(error)
                     // Update failure status
                     resultLocal.recentTranscripts[index].webhookPostStatus = "failed"
                     chrome.storage.local.set({ recentTranscripts: resultLocal.recentTranscripts }, function () {
