@@ -108,7 +108,7 @@ function downloadTranscript() {
                     })
                     console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
                     // Logs anonymous errors to a Google sheet for swift debugging   
-                    fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=009error=${encodeURIComponent(err)}`, { mode: "no-cors" })
+                    fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
                 })
             }
 

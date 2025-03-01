@@ -145,12 +145,9 @@ function meetingRoutines(uiType) {
       })
 
       // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
-      let transcriptTargetNode
-      // Expect two elements with role=region in the DOM: captions region and meeting controls region. Captions region is the new addition. Meeting controls region was always present. So check if both exist and only then pick the first.
-      if (document.querySelectorAll('div[role="region"]').length > 1) {
-        transcriptTargetNode = document.querySelectorAll('div[role="region"]')[0]
-      }
-      else {
+      let transcriptTargetNode = document.querySelector('div[role="region"][tabindex="0"]')
+      // For old captions UI
+      if (!transcriptTargetNode) {
         transcriptTargetNode = document.querySelector('.a4cQT')
         canUseAriaBasedTranscriptSelector = false
       }
@@ -181,7 +178,7 @@ function meetingRoutines(uiType) {
       chatMessagesButton.click()
 
       // Allow DOM to be updated and then register chatMessage mutation observer
-      setTimeout(() => {
+      checkElement('div[aria-live="polite"].Ge9Kpc').then(() => {
         chatMessagesButton.click()
         // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
         try {
@@ -197,7 +194,7 @@ function meetingRoutines(uiType) {
 
           logError("002", err)
         }
-      }, 1000)
+      })
     } catch (err) {
       console.error(err)
       isChatMessagesDomErrorCaptured = true
@@ -209,10 +206,12 @@ function meetingRoutines(uiType) {
     // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
     if (!isTranscriptDomErrorCaptured && !isChatMessagesDomErrorCaptured) {
       chrome.storage.sync.get(["operationMode"], function (result) {
-        if (result.operationMode == "manual")
+        if (result.operationMode == "manual") {
           showNotification({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
-        else
+        }
+        else {
           showNotification(extensionStatusJSON)
+        }
       })
     }
 
@@ -255,7 +254,7 @@ function transcriptMutationCallback(mutationsList, observer) {
     try {
       // CRITICAL DOM DEPENDENCY. Get all people in the transcript
       const people = canUseAriaBasedTranscriptSelector
-        ? document.querySelectorAll('div[role="region"]')[0].children
+        ? document.querySelector('div[role="region"][tabindex="0"]').children
         : document.querySelector('.a4cQT').childNodes[1].firstChild.childNodes
 
       // Begin parsing transcript
