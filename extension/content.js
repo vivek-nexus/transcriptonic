@@ -290,8 +290,16 @@ function transcriptMutationCallback(mutationsList, observer) {
           }
           // Same person speaking more
           else {
-            transcriptTextBuffer = currentTranscriptText
+            if (canUseAriaBasedTranscriptSelector) {
+              // When the same person speaks for more than 30 min (approx), Meet drops very long transcript for current person and starts over, which is detected by current transcript string being significantly smaller than the previous one
+              if ((currentTranscriptText.length - transcriptTextBuffer.length) < -250) {
+                pushBufferToTranscript()
+                overWriteChromeStorage(["transcript"], false)
+              }
+            }
             // Update buffers for next mutation
+            transcriptTextBuffer = currentTranscriptText
+            timeStampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
             beforeTranscriptText = currentTranscriptText
             if (!canUseAriaBasedTranscriptSelector) {
               // If a person is speaking for a long time, Google Meet does not keep the entire text in the spans. Starting parts are automatically removed in an unpredictable way as the length increases and TranscripTonic will miss them. So we force remove a lengthy transcript node in a controlled way. Google Meet will add a fresh person node when we remove it and continue transcription. TranscripTonic picks it up as a new person and nothing is missed.
