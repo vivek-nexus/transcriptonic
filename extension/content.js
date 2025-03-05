@@ -63,7 +63,7 @@ checkExtensionStatus().then(() => {
     // Enable extension functions only if status is 200
     if (extensionStatusJSON.status == 200) {
       // NON CRITICAL DOM DEPENDENCY. Attempt to get username before meeting starts. Abort interval if valid username is found or if meeting starts and default to "You".
-      checkElement(".awLEm").then(() => {
+      waitForElement(".awLEm").then(() => {
         // Poll the element until the textContent loads from network or until meeting starts
         const captureUserNameInterval = setInterval(() => {
           userName = document.querySelector(".awLEm").textContent
@@ -116,7 +116,7 @@ function meetingRoutines(uiType) {
   }
 
   // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
-  checkElement(meetingEndIconData.selector, meetingEndIconData.text).then(() => {
+  waitForElement(meetingEndIconData.selector, meetingEndIconData.text).then(() => {
     console.log("Meeting started")
     chrome.runtime.sendMessage({ type: "new_meeting_started" }, function (response) {
       console.log(response);
@@ -134,7 +134,7 @@ function meetingRoutines(uiType) {
     // **** REGISTER TRANSCRIPT LISTENER **** //
     try {
       // CRITICAL DOM DEPENDENCY
-      const captionsButton = contains(captionsIconData.selector, captionsIconData.text)[0]
+      const captionsButton = selectElements(captionsIconData.selector, captionsIconData.text)[0]
 
       // Click captions icon for non manual operation modes. Async operation.
       chrome.storage.sync.get(["operationMode"], function (result) {
@@ -173,12 +173,12 @@ function meetingRoutines(uiType) {
 
     // **** REGISTER CHAT MESSAGES LISTENER **** //
     try {
-      const chatMessagesButton = contains(".google-symbols", "chat")[0]
+      const chatMessagesButton = selectElements(".google-symbols", "chat")[0]
       // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
       chatMessagesButton.click()
 
       // Allow DOM to be updated and then register chatMessage mutation observer
-      checkElement('div[aria-live="polite"].Ge9Kpc').then(() => {
+      waitForElement('div[aria-live="polite"].Ge9Kpc').then(() => {
         chatMessagesButton.click()
         // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
         try {
@@ -218,7 +218,7 @@ function meetingRoutines(uiType) {
     //*********** MEETING END ROUTINES **********//
     try {
       // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
-      contains(meetingEndIconData.selector, meetingEndIconData.text)[0].parentElement.parentElement.addEventListener("click", () => {
+      selectElements(meetingEndIconData.selector, meetingEndIconData.text)[0].parentElement.parentElement.addEventListener("click", () => {
         // To suppress further errors
         hasMeetingEnded = true
         if (transcriptObserver) {
@@ -324,7 +324,12 @@ function transcriptMutationCallback(mutationsList, observer) {
         personNameBuffer = ""
         transcriptTextBuffer = ""
       }
-      console.log(transcriptTextBuffer)
+      // if (transcriptTextBuffer.length > 125) {
+      //   console.log(transcriptTextBuffer.slice(0, 50) + " ... " + transcriptTextBuffer.slice(-50))
+      // }
+      // else {
+      //   console.log(transcriptTextBuffer)
+      // }
       // console.log(transcript)
     } catch (err) {
       console.error(err)
@@ -425,6 +430,8 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
   if (keys.includes("chatMessages"))
     objectToSave.chatMessages = chatMessages
 
+  console.log(objectToSave)
+
   chrome.storage.local.set(objectToSave, function () {
     if (sendDownloadMessage) {
       // Download only if any transcript is present, irrespective of chat messages
@@ -453,7 +460,7 @@ function updateMeetingTitle() {
 }
 
 // Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the upper parents. 
-function contains(selector, text) {
+function selectElements(selector, text) {
   var elements = document.querySelectorAll(selector);
   return Array.prototype.filter.call(elements, function (element) {
     return RegExp(text).test(element.textContent);
@@ -461,7 +468,7 @@ function contains(selector, text) {
 }
 
 // Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change
-const checkElement = async (selector, text) => {
+const waitForElement = async (selector, text) => {
   if (text) {
     // loops for every animation frame change, until the required element is found
     while (!Array.from(document.querySelectorAll(selector)).find(element => element.textContent === text)) {
