@@ -2,37 +2,51 @@ document.addEventListener("DOMContentLoaded", function () {
     const webhookUrlInput = document.querySelector("#webhook-url")
     const saveButton = document.querySelector("#save-webhook")
     const transcriptsTable = document.querySelector("#transcripts-table")
+    const autoPostCheckbox = document.querySelector("#auto-post-webhook")
 
     // Initially disable the save button
     saveButton.disabled = true
 
-    // Load saved webhook URL
-    chrome.storage.sync.get(["webhookUrl"], function (result) {
+    // Load saved webhook URL and auto-post setting
+    chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (result) {
         if (result.webhookUrl) {
             webhookUrlInput.value = result.webhookUrl
             saveButton.disabled = !webhookUrlInput.checkValidity()
         }
+        // Set checkbox state, default to true if not set
+        autoPostCheckbox.checked = result.autoPostWebhookAfterMeeting !== false
     })
 
     // Handle URL input changes
     webhookUrlInput.addEventListener("input", function () {
         saveButton.disabled = !this.value || !this.checkValidity()
+        autoPostCheckbox.disabled = !this.value || !this.checkValidity()
     })
 
-    // Save webhook URL
+    // Save webhook URL and auto-post setting
     saveButton.addEventListener("click", async function () {
         const webhookUrl = webhookUrlInput.value
         if (webhookUrl && webhookUrlInput.checkValidity()) {
             // Request runtime permission for the webhook URL
             requestWebhookAndNotificationPermission(webhookUrl).then(() => {
-                // Save webhook URL
-                chrome.storage.sync.set({ webhookUrl: webhookUrl }, function () {
-                    alert("Webhook URL saved!")
+                // Save webhook URL and auto-post setting
+                chrome.storage.sync.set({
+                    webhookUrl: webhookUrl,
+                    autoPostWebhookAfterMeeting: autoPostCheckbox.checked
+                }, function () {
+                    alert("Settings saved!")
                 })
             }).catch((error) => {
                 alert("Fine! No webhooks for you!")
                 console.error("Webhook permission error:", error)
             })
+        }
+    })
+
+    // Reload transcripts when page becomes visible
+    document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") {
+            loadTranscripts()
         }
     })
 
@@ -59,26 +73,31 @@ document.addEventListener("DOMContentLoaded", function () {
                                 ? `<span class="status-failed">Failed</span>`
                                 : `<span class="status-new">New</span>`}
                         </td>
-                        <td>
-                            <button class="repost-button" data-index="${i}">Repost</button>
+                        <td style="min-width: 96px;">
+                            <button class="post-button" data-index="${i}">${transcript.webhookPostStatus === "new" ? `Post` : `Repost`}</button>
                         </td>
                     `
                     transcriptsTable.appendChild(row)
-                }
 
-                // Add event listeners to repost buttons
-                document.querySelectorAll(".repost-button").forEach(button => {
+                    // Add event listener to the post button
+                    const button = row.querySelector(".post-button")
                     button.addEventListener("click", function () {
-                        const index = parseInt(this.getAttribute("data-index"))
-
                         chrome.storage.sync.get(["webhookUrl"], function (result) {
                             if (result.webhookUrl) {
-                                // Send message to background script to repost webhook
+                                // Disable button and update text
+                                button.disabled = true
+                                button.textContent = transcript.webhookPostStatus === "new" ? "Posting..." : "Reposting..."
+
+                                // Send message to background script to post webhook
+                                const index = parseInt(button.getAttribute("data-index"))
                                 chrome.runtime.sendMessage({
                                     type: "retry_webhook_at_index",
                                     index: index
                                 }, response => {
                                     loadTranscripts()
+                                    if (response.success) {
+                                        alert("Posted successfully!")
+                                    }
                                 })
                             }
                             else {
@@ -86,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             }
                         })
                     })
-                })
+                }
             } else {
                 transcriptsTable.innerHTML = `<tr><td colspan="3">No transcripts available</td></tr>`
             }
