@@ -63,7 +63,7 @@ checkExtensionStatus().then(() => {
     // Enable extension functions only if status is 200
     if (extensionStatusJSON.status == 200) {
       // NON CRITICAL DOM DEPENDENCY. Attempt to get username before meeting starts. Abort interval if valid username is found or if meeting starts and default to "You".
-      checkElement(".awLEm").then(() => {
+      waitForElement(".awLEm").then(() => {
         // Poll the element until the textContent loads from network or until meeting starts
         const captureUserNameInterval = setInterval(() => {
           userName = document.querySelector(".awLEm").textContent
@@ -116,7 +116,7 @@ function meetingRoutines(uiType) {
   }
 
   // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
-  checkElement(meetingEndIconData.selector, meetingEndIconData.text).then(() => {
+  waitForElement(meetingEndIconData.selector, meetingEndIconData.text).then(() => {
     console.log("Meeting started")
     chrome.runtime.sendMessage({ type: "new_meeting_started" }, function (response) {
       console.log(response);
@@ -134,7 +134,7 @@ function meetingRoutines(uiType) {
     // **** REGISTER TRANSCRIPT LISTENER **** //
     try {
       // CRITICAL DOM DEPENDENCY
-      const captionsButton = contains(captionsIconData.selector, captionsIconData.text)[0]
+      const captionsButton = selectElements(captionsIconData.selector, captionsIconData.text)[0]
 
       // Click captions icon for non manual operation modes. Async operation.
       chrome.storage.sync.get(["operationMode"], function (result) {
@@ -151,7 +151,6 @@ function meetingRoutines(uiType) {
         transcriptTargetNode = document.querySelector('.a4cQT')
         canUseAriaBasedTranscriptSelector = false
       }
-
 
       // Attempt to dim down the transcript
       canUseAriaBasedTranscriptSelector
@@ -173,12 +172,12 @@ function meetingRoutines(uiType) {
 
     // **** REGISTER CHAT MESSAGES LISTENER **** //
     try {
-      const chatMessagesButton = contains(".google-symbols", "chat")[0]
+      const chatMessagesButton = selectElements(".google-symbols", "chat")[0]
       // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
       chatMessagesButton.click()
 
       // Allow DOM to be updated and then register chatMessage mutation observer
-      checkElement('div[aria-live="polite"].Ge9Kpc').then(() => {
+      waitForElement('div[aria-live="polite"].Ge9Kpc').then(() => {
         chatMessagesButton.click()
         // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
         try {
@@ -218,7 +217,7 @@ function meetingRoutines(uiType) {
     //*********** MEETING END ROUTINES **********//
     try {
       // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
-      contains(meetingEndIconData.selector, meetingEndIconData.text)[0].parentElement.parentElement.addEventListener("click", () => {
+      selectElements(meetingEndIconData.selector, meetingEndIconData.text)[0].parentElement.parentElement.addEventListener("click", () => {
         // To suppress further errors
         hasMeetingEnded = true
         if (transcriptObserver) {
@@ -281,7 +280,6 @@ function transcriptMutationCallback(mutationsList, observer) {
           if (personNameBuffer != currentPersonName) {
             // Push previous person's transcript as a block
             pushBufferToTranscript()
-            overWriteChromeStorage(["transcript"], false)
             // Update buffers for next mutation and store transcript block timeStamp
             beforeTranscriptText = currentTranscriptText
             personNameBuffer = currentPersonName
@@ -290,8 +288,15 @@ function transcriptMutationCallback(mutationsList, observer) {
           }
           // Same person speaking more
           else {
-            transcriptTextBuffer = currentTranscriptText
+            if (canUseAriaBasedTranscriptSelector) {
+              // When the same person speaks for more than 30 min (approx), Meet drops very long transcript for current person and starts over, which is detected by current transcript string being significantly smaller than the previous one
+              if ((currentTranscriptText.length - transcriptTextBuffer.length) < -250) {
+                pushBufferToTranscript()
+              }
+            }
             // Update buffers for next mutation
+            transcriptTextBuffer = currentTranscriptText
+            timeStampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
             beforeTranscriptText = currentTranscriptText
             if (!canUseAriaBasedTranscriptSelector) {
               // If a person is speaking for a long time, Google Meet does not keep the entire text in the spans. Starting parts are automatically removed in an unpredictable way as the length increases and TranscripTonic will miss them. So we force remove a lengthy transcript node in a controlled way. Google Meet will add a fresh person node when we remove it and continue transcription. TranscripTonic picks it up as a new person and nothing is missed.
@@ -308,7 +313,6 @@ function transcriptMutationCallback(mutationsList, observer) {
         // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
         if ((personNameBuffer != "") && (transcriptTextBuffer != "")) {
           pushBufferToTranscript()
-          overWriteChromeStorage(["transcript"], false)
         }
         // Update buffers for the next person in the next mutation
         beforePersonName = ""
@@ -316,7 +320,12 @@ function transcriptMutationCallback(mutationsList, observer) {
         personNameBuffer = ""
         transcriptTextBuffer = ""
       }
-      console.log(transcriptTextBuffer)
+      if (transcriptTextBuffer.length > 125) {
+        console.log(transcriptTextBuffer.slice(0, 50) + " ... " + transcriptTextBuffer.slice(-50))
+      }
+      else {
+        console.log(transcriptTextBuffer)
+      }
       // console.log(transcript)
     } catch (err) {
       console.error(err)
@@ -355,8 +364,6 @@ function chatMessagesMutationCallback(mutationsList, observer) {
 
         // Lot of mutations fire for each message, pick them only once
         pushUniqueChatBlock(chatMessageBlock)
-        overWriteChromeStorage(["chatMessages", false])
-        console.log(chatMessages)
       }
     }
     catch (err) {
@@ -389,6 +396,7 @@ function pushBufferToTranscript() {
     "timeStamp": timeStampBuffer,
     "personTranscript": transcriptTextBuffer
   })
+  overWriteChromeStorage(["transcript"], false)
 }
 
 // Pushes object to array only if it doesn't already exist. chatMessage is checked for substring since some trailing text(keep Pin message) is present from a button that allows to pin the message.
@@ -398,8 +406,11 @@ function pushUniqueChatBlock(chatBlock) {
     item.timeStamp == chatBlock.timeStamp &&
     chatBlock.chatMessageText.includes(item.chatMessageText)
   )
-  if (!isExisting)
-    chatMessages.push(chatBlock);
+  if (!isExisting) {
+    console.log(chatBlock)
+    chatMessages.push(chatBlock)
+    overWriteChromeStorage(["chatMessages", false])
+  }
 }
 
 // Saves specified variables to chrome storage. Optionally, can send message to background script to download, post saving.
@@ -419,7 +430,6 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
 
   chrome.storage.local.set(objectToSave, function () {
     if (sendDownloadMessage) {
-      // Download only if any transcript is present, irrespective of chat messages
       chrome.runtime.sendMessage({ type: "download" }, function (response) {
         console.log(response);
       })
@@ -432,8 +442,10 @@ function updateMeetingTitle() {
   try {
     // NON CRITICAL DOM DEPENDENCY
     const title = document.querySelector(".u6vdEc").textContent
-    const invalidFilenameRegex = /[<>:"/\\|?*\x00-\x1F]/g
-    meetingTitle = title.replace(invalidFilenameRegex, '_')
+    // const invalidFilenameRegex = /[<>:"/\\|?*\x00-\x1F]/g
+    // https://stackoverflow.com/a/78675894
+    const invalidFilenameRegex = /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/gui
+    meetingTitle = title.replaceAll(invalidFilenameRegex, '_')
     overWriteChromeStorage(["meetingTitle"], false)
   } catch (err) {
     console.error(err)
@@ -445,7 +457,7 @@ function updateMeetingTitle() {
 }
 
 // Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the upper parents. 
-function contains(selector, text) {
+function selectElements(selector, text) {
   var elements = document.querySelectorAll(selector);
   return Array.prototype.filter.call(elements, function (element) {
     return RegExp(text).test(element.textContent);
@@ -453,7 +465,7 @@ function contains(selector, text) {
 }
 
 // Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change
-const checkElement = async (selector, text) => {
+const waitForElement = async (selector, text) => {
   if (text) {
     // loops for every animation frame change, until the required element is found
     while (!Array.from(document.querySelectorAll(selector)).find(element => element.textContent === text)) {
