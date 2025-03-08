@@ -61,12 +61,14 @@
       accent-color: #2A9ACA;
       width: 18px;
       height: 18px;
+      cursor: pointer;
     }
 
     label {
       margin: 0px;
       margin-bottom: 0.25rem;
       font-size: 1.25rem;
+      cursor: pointer;
     }
 
     a {
@@ -74,6 +76,20 @@
       font-weight: bold;
       font-size: 1rem;
       text-underline-offset: 4px;
+    }
+
+    button {
+      color: #2A9ACA;
+      font-weight: bold;
+      font-size: 1rem;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      font-family: "Outfit", sans-serif;
+      background: transparent;
+      color: #2A9ACA;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -114,7 +130,7 @@
 
     <div>
       <div style="margin-bottom: 2.75rem">
-        <a href="" id="last-meeting-transcript">Download last meeting transcript</a>
+        <button id="last-meeting-transcript">Download last meeting transcript</button>
         &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp;
         <a href="https://github.com/vivek-nexus/transcriptonic#readme" target="_blank">Get help</a>
         &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp;
