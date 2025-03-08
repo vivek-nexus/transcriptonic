@@ -152,7 +152,6 @@ function meetingRoutines(uiType) {
         canUseAriaBasedTranscriptSelector = false
       }
 
-
       // Attempt to dim down the transcript
       canUseAriaBasedTranscriptSelector
         ? transcriptTargetNode.setAttribute("style", "opacity:0.2")
@@ -281,7 +280,6 @@ function transcriptMutationCallback(mutationsList, observer) {
           if (personNameBuffer != currentPersonName) {
             // Push previous person's transcript as a block
             pushBufferToTranscript()
-            overWriteChromeStorage(["transcript"], false)
             // Update buffers for next mutation and store transcript block timeStamp
             beforeTranscriptText = currentTranscriptText
             personNameBuffer = currentPersonName
@@ -294,7 +292,6 @@ function transcriptMutationCallback(mutationsList, observer) {
               // When the same person speaks for more than 30 min (approx), Meet drops very long transcript for current person and starts over, which is detected by current transcript string being significantly smaller than the previous one
               if ((currentTranscriptText.length - transcriptTextBuffer.length) < -250) {
                 pushBufferToTranscript()
-                overWriteChromeStorage(["transcript"], false)
               }
             }
             // Update buffers for next mutation
@@ -316,7 +313,6 @@ function transcriptMutationCallback(mutationsList, observer) {
         // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
         if ((personNameBuffer != "") && (transcriptTextBuffer != "")) {
           pushBufferToTranscript()
-          overWriteChromeStorage(["transcript"], false)
         }
         // Update buffers for the next person in the next mutation
         beforePersonName = ""
@@ -324,12 +320,12 @@ function transcriptMutationCallback(mutationsList, observer) {
         personNameBuffer = ""
         transcriptTextBuffer = ""
       }
-      // if (transcriptTextBuffer.length > 125) {
-      //   console.log(transcriptTextBuffer.slice(0, 50) + " ... " + transcriptTextBuffer.slice(-50))
-      // }
-      // else {
-      //   console.log(transcriptTextBuffer)
-      // }
+      if (transcriptTextBuffer.length > 125) {
+        console.log(transcriptTextBuffer.slice(0, 50) + " ... " + transcriptTextBuffer.slice(-50))
+      }
+      else {
+        console.log(transcriptTextBuffer)
+      }
       // console.log(transcript)
     } catch (err) {
       console.error(err)
@@ -368,8 +364,6 @@ function chatMessagesMutationCallback(mutationsList, observer) {
 
         // Lot of mutations fire for each message, pick them only once
         pushUniqueChatBlock(chatMessageBlock)
-        overWriteChromeStorage(["chatMessages", false])
-        console.log(chatMessages)
       }
     }
     catch (err) {
@@ -402,6 +396,7 @@ function pushBufferToTranscript() {
     "timeStamp": timeStampBuffer,
     "personTranscript": transcriptTextBuffer
   })
+  overWriteChromeStorage(["transcript"], false)
 }
 
 // Pushes object to array only if it doesn't already exist. chatMessage is checked for substring since some trailing text(keep Pin message) is present from a button that allows to pin the message.
@@ -411,8 +406,11 @@ function pushUniqueChatBlock(chatBlock) {
     item.timeStamp == chatBlock.timeStamp &&
     chatBlock.chatMessageText.includes(item.chatMessageText)
   )
-  if (!isExisting)
-    chatMessages.push(chatBlock);
+  if (!isExisting) {
+    console.log(chatBlock)
+    chatMessages.push(chatBlock)
+    overWriteChromeStorage(["chatMessages", false])
+  }
 }
 
 // Saves specified variables to chrome storage. Optionally, can send message to background script to download, post saving.
@@ -430,11 +428,8 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
   if (keys.includes("chatMessages"))
     objectToSave.chatMessages = chatMessages
 
-  console.log(objectToSave)
-
   chrome.storage.local.set(objectToSave, function () {
     if (sendDownloadMessage) {
-      // Download only if any transcript is present, irrespective of chat messages
       chrome.runtime.sendMessage({ type: "download" }, function (response) {
         console.log(response);
       })
@@ -447,8 +442,10 @@ function updateMeetingTitle() {
   try {
     // NON CRITICAL DOM DEPENDENCY
     const title = document.querySelector(".u6vdEc").textContent
-    const invalidFilenameRegex = /[<>:"/\\|?*\x00-\x1F]/g
-    meetingTitle = title.replace(invalidFilenameRegex, '_')
+    // const invalidFilenameRegex = /[<>:"/\\|?*\x00-\x1F]/g
+    // https://stackoverflow.com/a/78675894
+    const invalidFilenameRegex = /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/gui
+    meetingTitle = title.replaceAll(invalidFilenameRegex, '_')
     overWriteChromeStorage(["meetingTitle"], false)
   } catch (err) {
     console.error(err)
