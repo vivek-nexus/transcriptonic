@@ -28,10 +28,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         downloadAndPostWebhook()
 
     }
+
     if (message.type == "download_transcript_at_index") {
         // Download the requested item
         downloadTranscript(message.index, false)
     }
+
     if (message.type == "retry_webhook_at_index") {
         // Handle webhook retry
         postTranscriptToWebhook(message.index)
@@ -42,6 +44,10 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
                 console.error("Webhook retry failed:", error)
                 sendResponse({ success: false, error: error.message })
             })
+    }
+
+    if (message.type == "recover_last_transcript_and_download") {
+        downloadAndPostWebhook()
     }
     return true
 })
@@ -172,7 +178,7 @@ function downloadTranscript(index, webhookEnabled) {
                 hour12: false
             }).replace(/[\/:]/g, "-")
 
-            const fileName = `${sanitisedMeetingTitle} at ${formattedTimestamp}.txt`
+            const fileName = `TranscripTonic/Transcript-${sanitisedMeetingTitle} at ${formattedTimestamp}.txt`
 
             // Format transcript content
             let content = transcript.transcript
