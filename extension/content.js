@@ -145,26 +145,24 @@ function meetingRoutines(uiType) {
       })
 
       // Allow captions to switch on. An attempt to reduce errors of missing transcript nodes.
-      setTimeout(() => {
-        // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
-        let transcriptTargetNode = document.querySelector(`div[role="region"][tabindex="0"]`)
-        // For old captions UI
-        if (!transcriptTargetNode) {
-          transcriptTargetNode = document.querySelector(".a4cQT")
-          canUseAriaBasedTranscriptSelector = false
-        }
+      // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
+      let transcriptTargetNode = document.querySelector(`div[role="region"][tabindex="0"]`)
+      // For old captions UI
+      if (!transcriptTargetNode) {
+        transcriptTargetNode = document.querySelector(".a4cQT")
+        canUseAriaBasedTranscriptSelector = false
+      }
 
-        // Attempt to dim down the transcript
-        canUseAriaBasedTranscriptSelector
-          ? transcriptTargetNode.setAttribute("style", "opacity:0.2")
-          : transcriptTargetNode.childNodes[1].setAttribute("style", "opacity:0.2")
+      // Attempt to dim down the transcript
+      canUseAriaBasedTranscriptSelector
+        ? transcriptTargetNode.setAttribute("style", "opacity:0.2")
+        : transcriptTargetNode.childNodes[1].setAttribute("style", "opacity:0.2")
 
-        // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
-        transcriptObserver = new MutationObserver(transcriptMutationCallback)
+      // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
+      transcriptObserver = new MutationObserver(transcriptMutationCallback)
 
-        // Start observing the transcript element and chat messages element for configured mutations
-        transcriptObserver.observe(transcriptTargetNode, mutationConfig)
-      }, 500)
+      // Start observing the transcript element and chat messages element for configured mutations
+      transcriptObserver.observe(transcriptTargetNode, mutationConfig)
     } catch (err) {
       console.error(err)
       isTranscriptDomErrorCaptured = true
@@ -259,8 +257,8 @@ function transcriptMutationCallback(mutationsList, observer) {
         ? document.querySelector(`div[role="region"][tabindex="0"]`).children
         : document.querySelector(".a4cQT").childNodes[1].firstChild.childNodes
 
-      // Begin parsing transcript
-      if (people.length > 0) {
+      /// In aria based selector case, the last people element is "Jump to bottom" button. So, pick up only if more than 1 element is available.
+      if (canUseAriaBasedTranscriptSelector ? (people.length > 1) : (people.length > 0)) {
         // Get the last person
         const person = canUseAriaBasedTranscriptSelector
           ? people[people.length - 2]
