@@ -1,3 +1,12 @@
+const timeFormat = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true
+}
+
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     console.log(message.type)
 
@@ -113,6 +122,7 @@ function processTranscript() {
             const newTranscriptEntry = {
                 meetingTitle: result.meetingTitle || "Meeting",
                 meetingStartTimeStamp: result.meetingStartTimeStamp,
+                meetingEndTimeStamp: Date.now(),
                 transcript: transcriptString,
                 chatMessages: chatMessagesString,
                 webhookPostStatus: "new"
@@ -236,7 +246,10 @@ function postTranscriptToWebhook(index) {
                 const transcript = resultLocal.recentTranscripts[index]
                 const webhookData = {
                     meetingTitle: transcript.meetingTitle,
-                    meetingStartTimeStamp: transcript.meetingStartTimeStamp,
+                    meetingStartTimeStampLocaleString: new Date(transcript.meetingStartTimeStamp).toLocaleString("default", timeFormat).toUpperCase(),
+                    meetingStartTimeStampISOString: new Date(transcript.meetingStartTimeStamp).toISOString(),
+                    meetingEndTimeStampLocaleString: new Date(transcript.meetingEndTimeStamp).toLocaleString("default", timeFormat).toUpperCase(),
+                    meetingEndTimeStampISOString: new Date(transcript.meetingEndTimeStamp).toISOString(),
                     transcript: transcript.transcript,
                     chatMessages: transcript.chatMessages
                 }
