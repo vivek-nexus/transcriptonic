@@ -1,5 +1,6 @@
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     console.log(message.type)
+
     if (message.type == "new_meeting_started") {
         // Saving current tab id, to download transcript when this tab is closed
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -9,34 +10,19 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             })
         })
     }
+
     if (message.type == "meeting_ended") {
         // Invalidate tab id since transcript is downloaded, prevents double downloading of transcript from tab closed event listener
         chrome.storage.local.set({ meetingTabId: null }, function () {
             console.log("Meeting tab id cleared")
         })
-
-        chrome.storage.local.get(["transcript", "chatMessages"], function (result) {
-            if ((result.transcript != "") || (result.chatMessages != "")) {
-                processTranscript().then(() => {
-                    chrome.storage.local.get(["recentTranscripts", "webhookUrl"], function (result) {
-                        const lastIndex = result.recentTranscripts.length - 1
-                        downloadTranscript(lastIndex)
-                        // Post to webhook after processing
-                        if (result.webhookUrl) {
-                            postTranscriptToWebhook(lastIndex).catch(error => {
-                                console.error('Webhook post failed:', error)
-                            })
-                        }
-                    })
-                })
-            }
-        })
+        downloadAndPostWebhook()
 
     }
     if (message.type == "download_transcript_at_index") {
         downloadTranscript(message.index) // Download the requested item
     }
-    if (message.type == "retry_webhook") {
+    if (message.type == "retry_webhook_at_index") {
         // Handle webhook retry
         postTranscriptToWebhook(message.index)
             .then(() => {
@@ -56,30 +42,39 @@ chrome.tabs.onRemoved.addListener(function (tabid) {
     chrome.storage.local.get(["meetingTabId"], function (data) {
         if (tabid == data.meetingTabId) {
             console.log("Successfully intercepted tab close")
+
             // Clearing meetingTabId to prevent misfires of onRemoved until next meeting actually starts
             chrome.storage.local.set({ meetingTabId: null }, function () {
                 console.log("Meeting tab id cleared for next meeting")
             })
 
-            chrome.storage.local.get(["transcript", "chatMessages"], function (result) {
-                if ((result.transcript != "") || (result.chatMessages != "")) {
-                    processTranscript().then(() => {
-                        chrome.storage.local.get(["recentTranscripts", "webhookUrl"], function (result) {
-                            const lastIndex = result.recentTranscripts.length - 1
-                            downloadTranscript(lastIndex)
-                            // Post to webhook after processing
-                            if (result.webhookUrl) {
-                                postTranscriptToWebhook(lastIndex).catch(error => {
-                                    console.error('Webhook post failed:', error)
-                                })
-                            }
-                        })
-                    })
-                }
-            })
+            downloadAndPostWebhook()
         }
     })
 })
+
+// Download transcripts, post webhook if URL is available
+function downloadAndPostWebhook() {
+    chrome.storage.local.get(["transcript", "chatMessages"], function (resultLocal) {
+        if ((resultLocal.transcript != "") || (resultLocal.chatMessages != "")) {
+            processTranscript().then(() => {
+                chrome.storage.local.get(["recentTranscripts"], function (resultLocal) {
+                    // Download and post the last transcript
+                    const lastIndex = resultLocal.recentTranscripts.length - 1
+                    downloadTranscript(lastIndex)
+
+                    chrome.storage.sync.get(["webhookUrl"], function (resultSync) {
+                        if (resultSync.webhookUrl) {
+                            postTranscriptToWebhook(lastIndex).catch(error => {
+                                console.error('Webhook post failed:', error)
+                            })
+                        }
+                    })
+                })
+            })
+        }
+    })
+}
 
 // Process transcript and chat messages of the meeting that just ended from storage, format them into strings, and save as a new entry in recentTranscripts (keeping last 5)
 function processTranscript() {
@@ -141,6 +136,8 @@ function processTranscript() {
         })
     })
 }
+
+
 
 function downloadTranscript(index) {
     chrome.storage.local.get(['recentTranscripts'], function (result) {
@@ -223,57 +220,55 @@ function downloadTranscript(index) {
 function postTranscriptToWebhook(index) {
     return new Promise((resolve, reject) => {
         // Get webhook URL and recent transcripts
-        chrome.storage.local.get(['webhookUrl', 'recentTranscripts'], function (result) {
-            if (!result.webhookUrl) {
-                reject(new Error('No webhook URL configured'))
-                return
-            }
+        chrome.storage.local.get(['recentTranscripts'], function (resultLocal) {
+            chrome.storage.sync.get(['webhookUrl'], function (resultSync) {
+                if (!resultSync.webhookUrl) {
+                    reject(new Error('No webhook URL configured'))
+                    return
+                }
 
-            if (!result.recentTranscripts || !result.recentTranscripts[index]) {
-                reject(new Error('Transcript not found'))
-                return
-            }
+                if (!resultLocal.recentTranscripts || !resultLocal.recentTranscripts[index]) {
+                    reject(new Error('Transcript not found'))
+                    return
+                }
 
-            const transcript = result.recentTranscripts[index]
-            const webhookData = {
-                meetingTitle: transcript.meetingTitle,
-                meetingStartTimeStamp: transcript.meetingStartTimeStamp,
-                transcript: transcript.transcript,
-                chatMessages: transcript.chatMessages
-            }
+                const transcript = resultLocal.recentTranscripts[index]
+                const webhookData = {
+                    meetingTitle: transcript.meetingTitle,
+                    meetingStartTimeStamp: transcript.meetingStartTimeStamp,
+                    transcript: transcript.transcript,
+                    chatMessages: transcript.chatMessages
+                }
 
-            // Post to webhook
-            fetch(result.webhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(webhookData)
-            })
-                .then(response => {
+                // Post to webhook
+                fetch(resultSync.webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(webhookData)
+                }).then(response => {
                     if (!response.ok) {
                         throw new Error('Webhook request failed')
                     }
                     return response.json()
-                })
-                .then(() => {
+                }).then(() => {
                     // Update success status
-                    result.recentTranscripts[index].webhookPostStatus = "successful"
-                    chrome.storage.local.set({ recentTranscripts: result.recentTranscripts }, function () {
+                    resultLocal.recentTranscripts[index].webhookPostStatus = "successful"
+                    chrome.storage.local.set({ recentTranscripts: resultLocal.recentTranscripts }, function () {
                         resolve()
                     })
-                })
-                .catch(error => {
+                }).catch(error => {
                     // Update failure status
-                    result.recentTranscripts[index].webhookPostStatus = "failed"
-                    chrome.storage.local.set({ recentTranscripts: result.recentTranscripts }, function () {
+                    resultLocal.recentTranscripts[index].webhookPostStatus = "failed"
+                    chrome.storage.local.set({ recentTranscripts: resultLocal.recentTranscripts }, function () {
                         // Create notification and open webhooks page
                         chrome.notifications.create({
                             type: 'basic',
                             iconUrl: 'icon.png',
-                            title: 'Webhook Post Failed',
-                            message: 'Failed to post transcript to webhook',
-                            buttons: [{ title: 'View status and retry' }]
+                            title: 'Could not post webhook',
+                            message: 'Check URL or retry',
+                            buttons: [{ title: 'Open webhooks page' }]
                         })
 
                         // Handle notification click
@@ -286,6 +281,7 @@ function postTranscriptToWebhook(index) {
                         reject(error)
                     })
                 })
+            })
         })
     })
 }
