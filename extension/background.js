@@ -15,18 +15,23 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             console.log("Meeting tab id cleared")
         })
 
-        processTranscript().then(() => {
-            chrome.storage.local.get(["recentTranscripts", "webhookUrl"], function (result) {
-                const lastIndex = result.recentTranscripts.length - 1
-                downloadTranscript(lastIndex)
-                // Post to webhook after processing
-                if (result.webhookUrl) {
-                    postTranscriptToWebhook(lastIndex).catch(error => {
-                        console.error('Webhook post failed:', error)
+        chrome.storage.local.get(["transcript", "chatMessages"], function (result) {
+            if ((result.transcript != "") || (result.chatMessages != "")) {
+                processTranscript().then(() => {
+                    chrome.storage.local.get(["recentTranscripts", "webhookUrl"], function (result) {
+                        const lastIndex = result.recentTranscripts.length - 1
+                        downloadTranscript(lastIndex)
+                        // Post to webhook after processing
+                        if (result.webhookUrl) {
+                            postTranscriptToWebhook(lastIndex).catch(error => {
+                                console.error('Webhook post failed:', error)
+                            })
+                        }
                     })
-                }
-            })
+                })
+            }
         })
+
     }
     if (message.type == "download_transcript_at_index") {
         downloadTranscript(message.index) // Download the requested item
@@ -56,15 +61,21 @@ chrome.tabs.onRemoved.addListener(function (tabid) {
                 console.log("Meeting tab id cleared for next meeting")
             })
 
-            processTranscript().then(() => {
-                chrome.storage.local.get(["recentTranscripts"], function (result) {
-                    const lastIndex = result.recentTranscripts.length - 1
-                    downloadTranscript(lastIndex)
-                    // Post to webhook after processing
-                    postTranscriptToWebhook(lastIndex).catch(error => {
-                        console.error('Webhook post failed:', error)
+            chrome.storage.local.get(["transcript", "chatMessages"], function (result) {
+                if ((result.transcript != "") || (result.chatMessages != "")) {
+                    processTranscript().then(() => {
+                        chrome.storage.local.get(["recentTranscripts", "webhookUrl"], function (result) {
+                            const lastIndex = result.recentTranscripts.length - 1
+                            downloadTranscript(lastIndex)
+                            // Post to webhook after processing
+                            if (result.webhookUrl) {
+                                postTranscriptToWebhook(lastIndex).catch(error => {
+                                    console.error('Webhook post failed:', error)
+                                })
+                            }
+                        })
                     })
-                })
+                }
             })
         }
     })
@@ -156,13 +167,14 @@ function downloadTranscript(index) {
             const filename = `${cleanTitle} at ${formattedDate}.txt`
 
             // Format transcript content
-            let content = `Meeting Title: ${transcript.meetingTitle}\n`
-            content += `Start Time: ${formattedDate}\n`
-            content += `Duration: ${transcript.meetingDuration}\n`
-            content += `\n---------------\nTRANSCRIPT\n---------------\n\n`
-            content += transcript.transcript
+            let content = transcript.transcript
             content += `\n\n---------------\nCHAT MESSAGES\n---------------\n\n`
             content += transcript.chatMessages
+
+            // Add branding
+            content += "---------------"
+            content += "Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)"
+            content += "---------------"
 
             const blob = new Blob([content], { type: 'text/plain' })
 

@@ -22,17 +22,24 @@ window.onload = function () {
   })
   lastMeetingTranscriptLink.addEventListener("click", () => {
     chrome.storage.local.get(["recentTranscripts"], function (result) {
-      if (result.recentTranscripts.length > 0)
-        chrome.runtime.sendMessage({ type: "download_transcript_at_index", index: result.recentTranscripts.length - 1 }, function (response) {
-          console.log(response)
-        })
-      else
-        alert("Couldn't find the last meeting's transcript. May be attend one?")
-    })
-  })
+      if (result.recentTranscripts && (result.recentTranscripts.length > 0)) {
+        const transcriptToDownload = result.recentTranscripts[result.recentTranscripts.length - 1]
 
-  // Add event listener for manage webhooks button
-  document.getElementById('manage-webhooks').addEventListener('click', function () {
-    chrome.tabs.create({ url: 'webhooks.html' })
+        if ((transcriptToDownload.transcript != "") || (transcriptToDownload.chatMessages != "")) {
+          chrome.runtime.sendMessage({
+            type: "download_transcript_at_index",
+            index: result.recentTranscripts.length - 1
+          }, function (response) {
+            console.log(response)
+          })
+        }
+        else {
+          alert("Last meeting transcript is empty :(")
+        }
+      }
+      else {
+        alert("Couldn't find the last meeting's transcript. May be attend one?")
+      }
+    })
   })
 }
