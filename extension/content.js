@@ -57,8 +57,8 @@ let canUseAriaBasedTranscriptSelector = true
 checkExtensionStatus().then(() => {
   // Read the status JSON
   chrome.storage.local.get(["extensionStatusJSON"], function (result) {
-    extensionStatusJSON = result.extensionStatusJSON;
-    console.log("Extension status " + extensionStatusJSON.status);
+    extensionStatusJSON = result.extensionStatusJSON
+    console.log("Extension status " + extensionStatusJSON.status)
 
     // Enable extension functions only if status is 200
     if (extensionStatusJSON.status == 200) {
@@ -105,22 +105,22 @@ function meetingRoutines(uiType) {
       meetingEndIconData.text = "call_end"
       captionsIconData.selector = ".material-icons-extended"
       captionsIconData.text = "closed_caption_off"
-      break;
+      break
     case 2:
       meetingEndIconData.selector = ".google-symbols"
       meetingEndIconData.text = "call_end"
       captionsIconData.selector = ".google-symbols"
       captionsIconData.text = "closed_caption_off"
     default:
-      break;
+      break
   }
 
   // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
   waitForElement(meetingEndIconData.selector, meetingEndIconData.text).then(() => {
     console.log("Meeting started")
     chrome.runtime.sendMessage({ type: "new_meeting_started" }, function (response) {
-      console.log(response);
-    });
+      console.log(response)
+    })
     hasMeetingStarted = true
 
 
@@ -430,8 +430,8 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
 
   chrome.storage.local.set(objectToSave, function () {
     if (sendDownloadMessage) {
-      chrome.runtime.sendMessage({ type: "download" }, function (response) {
-        console.log(response);
+      chrome.runtime.sendMessage({ type: "meeting_ended" }, function (response) {
+        console.log(response)
       })
     }
   })
@@ -458,10 +458,10 @@ function updateMeetingTitle() {
 
 // Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the upper parents. 
 function selectElements(selector, text) {
-  var elements = document.querySelectorAll(selector);
+  var elements = document.querySelectorAll(selector)
   return Array.prototype.filter.call(elements, function (element) {
-    return RegExp(text).test(element.textContent);
-  });
+    return RegExp(text).test(element.textContent)
+  })
 }
 
 // Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change
@@ -469,52 +469,52 @@ const waitForElement = async (selector, text) => {
   if (text) {
     // loops for every animation frame change, until the required element is found
     while (!Array.from(document.querySelectorAll(selector)).find(element => element.textContent === text)) {
-      await new Promise((resolve) => requestAnimationFrame(resolve));
+      await new Promise((resolve) => requestAnimationFrame(resolve))
     }
   }
   else {
     // loops for every animation frame change, until the required element is found
     while (!document.querySelector(selector)) {
-      await new Promise((resolve) => requestAnimationFrame(resolve));
+      await new Promise((resolve) => requestAnimationFrame(resolve))
     }
   }
-  return document.querySelector(selector);
+  return document.querySelector(selector)
 }
 
 // Shows a responsive notification of specified type and message
 function showNotification(extensionStatusJSON) {
   // Banner CSS
-  let html = document.querySelector("html");
-  let obj = document.createElement("div");
-  let logo = document.createElement("img");
-  let text = document.createElement("p");
+  let html = document.querySelector("html")
+  let obj = document.createElement("div")
+  let logo = document.createElement("img")
+  let text = document.createElement("p")
 
   logo.setAttribute(
     "src",
     "https://ejnana.github.io/transcripto-status/icon.png"
-  );
-  logo.setAttribute("height", "32px");
-  logo.setAttribute("width", "32px");
-  logo.style.cssText = "border-radius: 4px";
+  )
+  logo.setAttribute("height", "32px")
+  logo.setAttribute("width", "32px")
+  logo.style.cssText = "border-radius: 4px"
 
   // Remove banner after 5s
   setTimeout(() => {
-    obj.style.display = "none";
-  }, 5000);
+    obj.style.display = "none"
+  }, 5000)
 
   if (extensionStatusJSON.status == 200) {
-    obj.style.cssText = `color: #2A9ACA; ${commonCSS}`;
-    text.innerHTML = extensionStatusJSON.message;
+    obj.style.cssText = `color: #2A9ACA; ${commonCSS}`
+    text.innerHTML = extensionStatusJSON.message
   }
   else {
-    obj.style.cssText = `color: orange; ${commonCSS}`;
-    text.innerHTML = extensionStatusJSON.message;
+    obj.style.cssText = `color: orange; ${commonCSS}`
+    text.innerHTML = extensionStatusJSON.message
   }
 
-  obj.prepend(text);
-  obj.prepend(logo);
+  obj.prepend(text)
+  obj.prepend(logo)
   if (html)
-    html.append(obj);
+    html.append(obj)
 }
 
 // CSS for notification
@@ -537,7 +537,7 @@ const commonCSS = `background: rgb(255 255 255 / 10%);
     font-size: 1rem; 
     line-height: 1.5; 
     font-family: 'Google Sans',Roboto,Arial,sans-serif; 
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;`;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;`
 
 
 // Logs anonymous errors to a Google sheet for swift debugging   
@@ -551,7 +551,7 @@ async function checkExtensionStatus() {
   // Set default value as 200
   chrome.storage.local.set({
     extensionStatusJSON: { status: 200, message: "<strong>TranscripTonic is running</strong> <br /> Do not turn off captions" },
-  });
+  })
 
   // https://stackoverflow.com/a/42518434
   await fetch(
@@ -563,13 +563,13 @@ async function checkExtensionStatus() {
       // Write status to chrome local storage
       chrome.storage.local.set({ extensionStatusJSON: result }, function () {
         console.log("Extension status fetched and saved")
-      });
+      })
     })
     .catch((err) => {
-      console.error(err);
+      console.error(err)
 
       logError("008", err)
-    });
+    })
 }
 
 

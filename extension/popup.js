@@ -21,9 +21,9 @@ window.onload = function () {
     chrome.storage.sync.set({ operationMode: "manual" }, function () { })
   })
   lastMeetingTranscriptLink.addEventListener("click", () => {
-    chrome.storage.local.get(["transcript"], function (result) {
-      if (result.transcript)
-        chrome.runtime.sendMessage({ type: "download" }, function (response) {
+    chrome.storage.local.get(["recentTranscripts"], function (result) {
+      if (result.recentTranscripts.length > 0)
+        chrome.runtime.sendMessage({ type: "download_transcript_at_index", index: result.recentTranscripts.length - 1 }, function (response) {
           console.log(response)
         })
       else
