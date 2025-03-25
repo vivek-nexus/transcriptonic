@@ -1,6 +1,6 @@
 window.onload = function () {
-  const autoModeRadio = document.querySelector('#auto-mode')
-  const manualModeRadio = document.querySelector('#manual-mode')
+  const autoModeRadio = document.querySelector("#auto-mode")
+  const manualModeRadio = document.querySelector("#manual-mode")
   const lastMeetingTranscriptLink = document.querySelector("#last-meeting-transcript")
 
   document.querySelector("#version").innerHTML = `v${chrome.runtime.getManifest().version}`

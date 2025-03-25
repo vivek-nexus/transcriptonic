@@ -1,13 +1,13 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const webhookUrlInput = document.querySelector('#webhook-url')
-    const saveButton = document.querySelector('#save-webhook')
-    const transcriptsTable = document.querySelector('#transcripts-table')
+document.addEventListener("DOMContentLoaded", function () {
+    const webhookUrlInput = document.querySelector("#webhook-url")
+    const saveButton = document.querySelector("#save-webhook")
+    const transcriptsTable = document.querySelector("#transcripts-table")
 
     // Initially disable the save button
     saveButton.disabled = true
 
     // Load saved webhook URL
-    chrome.storage.sync.get(['webhookUrl'], function (result) {
+    chrome.storage.sync.get(["webhookUrl"], function (result) {
         if (result.webhookUrl) {
             webhookUrlInput.value = result.webhookUrl
             saveButton.disabled = !webhookUrlInput.checkValidity()
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
 
     // Handle URL input changes
-    webhookUrlInput.addEventListener('input', function () {
+    webhookUrlInput.addEventListener("input", function () {
         saveButton.disabled = !this.value || !this.checkValidity()
     })
 
@@ -29,24 +29,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Request both host and notifications permissions
                 chrome.permissions.request({
                     origins: [originPattern],
-                    permissions: ['notifications']
+                    permissions: ["notifications"]
                 }).then((granted) => {
                     if (granted) {
                         resolve()
                     } else {
-                        reject(new Error('Permission denied'))
+                        reject(new Error("Permission denied"))
                     }
                 }).catch((error) => {
                     reject(error)
                 })
             } catch (error) {
-                reject(new Error('Invalid URL format'))
+                reject(new Error("Invalid URL format"))
             }
         })
     }
 
     // Save webhook URL
-    saveButton.addEventListener('click', async function () {
+    saveButton.addEventListener("click", async function () {
         const webhookUrl = webhookUrlInput.value
         if (webhookUrl && webhookUrlInput.checkValidity()) {
             try {
@@ -55,20 +55,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Save webhook URL
                 chrome.storage.sync.set({ webhookUrl: webhookUrl }, function () {
-                    alert('Webhook URL saved successfully!')
-                    console.log('Webhook URL saved')
+                    alert("Webhook URL saved successfully!")
+                    console.log("Webhook URL saved")
                 })
             } catch (error) {
-                alert('Failed to save webhook URL. Please allow permission when prompted.')
-                console.error('Webhook permission error:', error)
+                alert("Failed to save webhook URL. Please allow permission when prompted.")
+                console.error("Webhook permission error:", error)
             }
         }
     })
 
     // Load and display recent transcripts
     function loadTranscripts() {
-        chrome.storage.local.get(['recentTranscripts'], function (result) {
-            transcriptsTable.innerHTML = '' // Clear existing content
+        chrome.storage.local.get(["recentTranscripts"], function (result) {
+            transcriptsTable.innerHTML = "" // Clear existing content
 
             if (result.recentTranscripts && result.recentTranscripts.length > 0) {
                 // Loop through the array in reverse order
@@ -77,33 +77,33 @@ document.addEventListener('DOMContentLoaded', function () {
                     const date = new Date(transcript.meetingStartTimeStamp)
                     const formattedDate = date.toLocaleString()
 
-                    const row = document.createElement('tr')
+                    const row = document.createElement("tr")
                     row.innerHTML = `
                         <td>${transcript.meetingTitle}</td>
                         <td>${formattedDate}</td>
                         <td>
                             ${transcript.webhookPostStatus === "successful" ?
-                            '<span class="status-success">Successful</span>' :
+                            `<span class="status-success">Successful</span>` :
                             transcript.webhookPostStatus === "failed" ?
-                                '<span class="status-failed">Failed</span>' :
-                                '<span class="status-new">New</span>'
+                                `<span class="status-failed">Failed</span>` :
+                                `<span class="status-new">New</span>`
                         }
-                            <button class="retry-button" data-index="${i}">Repost</button>
-                        </td>
+                <button class="retry-button" data-index="${i}">Repost</button>
+                        </td >
                     `
                     transcriptsTable.appendChild(row)
                 }
 
                 // Add event listeners to retry buttons
-                document.querySelectorAll('.retry-button').forEach(button => {
-                    button.addEventListener('click', function () {
-                        const index = parseInt(this.getAttribute('data-index'))
+                document.querySelectorAll(".retry-button").forEach(button => {
+                    button.addEventListener("click", function () {
+                        const index = parseInt(this.getAttribute("data-index"))
 
-                        chrome.storage.sync.get(['webhookUrl'], function (result) {
+                        chrome.storage.sync.get(["webhookUrl"], function (result) {
                             if (result.webhookUrl) {
                                 // Send message to background script to retry webhook
                                 chrome.runtime.sendMessage({
-                                    type: 'retry_webhook_at_index',
+                                    type: "retry_webhook_at_index",
                                     index: index
                                 }, response => {
                                     loadTranscripts()
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     })
                 })
             } else {
-                transcriptsTable.innerHTML = '<tr><td colspan="3">No transcripts available</td></tr>'
+                transcriptsTable.innerHTML = `<tr><td colspan="3">No transcripts available</td></tr>`
             }
         })
     }
