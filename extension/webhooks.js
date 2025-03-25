@@ -94,12 +94,13 @@ function loadTranscripts() {
             // Loop through the array in reverse order to list latest meeting first
             for (let i = result.recentTranscripts.length - 1; i >= 0; i--) {
                 const transcript = result.recentTranscripts[i]
-                const date = new Date(transcript.meetingStartTimestamp).toLocaleString()
+                const timestamp = new Date(transcript.meetingStartTimestamp).toLocaleString()
+                const durationString = getDuration(transcript.meetingStartTimestamp, transcript.meetingEndTimestamp)
 
                 const row = document.createElement("tr")
                 row.innerHTML = `
                     <td>${transcript.meetingTitle}</td>
-                    <td>${date}</td>
+                    <td>${timestamp} &nbsp; &#9679; &nbsp; ${durationString}</td>
                     <td>
                         ${(
                         () => {
@@ -154,4 +155,15 @@ function loadTranscripts() {
             transcriptsTable.innerHTML = `<tr><td colspan="4">No transcripts available</td></tr>`
         }
     })
+}
+
+// Format duration between two timestamps, specified in milliseconds elapsed since the epoch
+function getDuration(startTimestamp, endTimestamp) {
+    const duration = new Date(endTimestamp) - new Date(startTimestamp)
+    const durationMinutes = Math.round(duration / (1000 * 60))
+    const durationHours = Math.floor(durationMinutes / 60)
+    const remainingMinutes = durationMinutes % 60
+    return durationHours > 0
+        ? `${durationHours}h ${remainingMinutes}m`
+        : `${durationMinutes}m`
 }
