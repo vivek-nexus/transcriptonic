@@ -16,13 +16,32 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         })
 
         processTranscript().then(() => {
-            chrome.storage.local.get(["recentTranscripts"], function (result) {
-                downloadTranscript(result.recentTranscripts.length - 1)
+            chrome.storage.local.get(["recentTranscripts", "webhookUrl"], function (result) {
+                const lastIndex = result.recentTranscripts.length - 1
+                downloadTranscript(lastIndex)
+                // Post to webhook after processing
+                if (result.webhookUrl) {
+                    postTranscriptToWebhook(lastIndex).catch(error => {
+                        console.error('Webhook post failed:', error)
+                    })
+                }
             })
         })
     }
     if (message.type == "download_transcript_at_index") {
         downloadTranscript(message.index) // Download the requested item
+    }
+    if (message.type == "retry_webhook") {
+        // Handle webhook retry
+        postTranscriptToWebhook(message.index)
+            .then(() => {
+                sendResponse({ success: true })
+            })
+            .catch(error => {
+                console.error('Webhook retry failed:', error)
+                sendResponse({ success: false, error: error.message })
+            })
+        return true // Keep the message channel open for async response
     }
     return true
 })
@@ -39,7 +58,12 @@ chrome.tabs.onRemoved.addListener(function (tabid) {
 
             processTranscript().then(() => {
                 chrome.storage.local.get(["recentTranscripts"], function (result) {
-                    downloadTranscript(result.recentTranscripts.length - 1)
+                    const lastIndex = result.recentTranscripts.length - 1
+                    downloadTranscript(lastIndex)
+                    // Post to webhook after processing
+                    postTranscriptToWebhook(lastIndex).catch(error => {
+                        console.error('Webhook post failed:', error)
+                    })
                 })
             })
         }
@@ -83,7 +107,8 @@ function processTranscript() {
                 meetingTitle: result.meetingTitle || 'Meeting',
                 meetingStartTimeStamp: result.meetingStartTimeStamp,
                 transcript: transcriptString,
-                chatMessages: chatMessagesString
+                chatMessages: chatMessagesString,
+                webhookPostStatus: "new"
             }
 
             // Get existing recent transcripts and update
@@ -107,84 +132,148 @@ function processTranscript() {
 }
 
 function downloadTranscript(index) {
-    chrome.storage.local.get(["recentTranscripts"], function (result) {
-        if (!result.recentTranscripts || !result.recentTranscripts[index]) {
-            console.log("No transcript found at index:", index)
-            return
-        }
+    chrome.storage.local.get(['recentTranscripts'], function (result) {
+        if (result.recentTranscripts && result.recentTranscripts[index]) {
+            const transcript = result.recentTranscripts[index]
 
-        const transcriptEntry = result.recentTranscripts[index]
+            // Clean up meeting title for filename
+            // https://stackoverflow.com/a/78675894
+            const invalidFilenameRegex = /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/gui
+            const cleanTitle = transcript.meetingTitle.replaceAll(invalidFilenameRegex, '_')
 
-        // Create file name if values are provided, use default otherwise
-        const fileName = transcriptEntry.meetingTitle && transcriptEntry.meetingStartTimeStamp
-            ? `TranscripTonic/Transcript-${transcriptEntry.meetingTitle} at ${transcriptEntry.meetingStartTimeStamp}.txt`
-            : `TranscripTonic/Transcript.txt`
+            // Format timestamp for human-readable filename
+            const date = new Date(transcript.meetingStartTimeStamp)
+            const formattedDate = date.toLocaleString('default', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(/[\/:]/g, '-')
 
-        // Create an array to store lines of the text file
-        const lines = []
+            const filename = `${cleanTitle} at ${formattedDate}.txt`
 
-        if (transcriptEntry.transcript) {
-            lines.push(transcriptEntry.transcript)
-            lines.push("") // Add extra newline for file formatting
-            lines.push("") // Add extra newline for file formatting
-        }
+            // Format transcript content
+            let content = `Meeting Title: ${transcript.meetingTitle}\n`
+            content += `Start Time: ${formattedDate}\n`
+            content += `Duration: ${transcript.meetingDuration}\n`
+            content += `\n---------------\nTRANSCRIPT\n---------------\n\n`
+            content += transcript.transcript
+            content += `\n\n---------------\nCHAT MESSAGES\n---------------\n\n`
+            content += transcript.chatMessages
 
-        if (transcriptEntry.chatMessages) {
-            lines.push("---------------")
-            lines.push("CHAT MESSAGES")
-            lines.push("---------------")
-            lines.push(transcriptEntry.chatMessages)
-            lines.push("") // Add extra newline for file formatting
-            lines.push("") // Add extra newline for file formatting
-        }
+            const blob = new Blob([content], { type: 'text/plain' })
 
-        // Add branding
-        lines.push("---------------")
-        lines.push("Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)")
-        lines.push("---------------")
+            // Read the blob as a data URL
+            const reader = new FileReader()
 
-        // Join the lines into a single string
-        const textContent = lines.join("\n")
+            // Download once blob is read
+            reader.onload = function (event) {
+                const dataUrl = event.target.result
 
-        // Create a blob containing the text content
-        const blob = new Blob([textContent], { type: "text/plain" })
-
-        // Read the blob as a data URL
-        const reader = new FileReader()
-
-        // Download once blob is read
-        reader.onload = function (event) {
-            const dataUrl = event.target.result
-
-            // Create a download with Chrome Download API
-            chrome.downloads.download({
-                url: dataUrl,
-                filename: fileName,
-                conflictAction: "uniquify"
-            }).then(() => {
-                console.log("Transcript downloaded to TranscripTonic directory")
-                // Increment anonymous transcript generated count to a Google sheet
-                fetch(`https://script.google.com/macros/s/AKfycbwBdD_OLFWXW2DS5n81ToaxhUU3PPDdFYgs_ttxmUtvhUSthKpffxOp9dJFhqSLS14/exec?version=${chrome.runtime.getManifest().version}`, {
-                    mode: "no-cors"
-                })
-            }).catch((err) => {
-                console.error(err)
+                // Create a download with Chrome Download API
                 chrome.downloads.download({
                     url: dataUrl,
-                    filename: "TranscripTonic/Transcript.txt",
+                    filename: filename,
                     conflictAction: "uniquify"
+                }).then(() => {
+                    console.log("Transcript downloaded")
+                    // Increment anonymous transcript generated count to a Google sheet
+                    fetch(`https://script.google.com/macros/s/AKfycbwBdD_OLFWXW2DS5n81ToaxhUU3PPDdFYgs_ttxmUtvhUSthKpffxOp9dJFhqSLS14/exec?version=${chrome.runtime.getManifest().version}`, {
+                        mode: "no-cors"
+                    })
+                }).catch((err) => {
+                    console.error(err)
+                    chrome.downloads.download({
+                        url: dataUrl,
+                        filename: "TranscripTonic/Transcript.txt",
+                        conflictAction: "uniquify"
+                    })
+                    console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
+                    // Logs anonymous errors to a Google sheet for swift debugging   
+                    fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
+                    // Increment anonymous transcript generated count to a Google sheet
+                    fetch(`https://script.google.com/macros/s/AKfycbwBdD_OLFWXW2DS5n81ToaxhUU3PPDdFYgs_ttxmUtvhUSthKpffxOp9dJFhqSLS14/exec?version=${chrome.runtime.getManifest().version}`, {
+                        mode: "no-cors"
+                    })
                 })
-                console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
-                // Logs anonymous errors to a Google sheet for swift debugging   
-                fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
-                // Increment anonymous transcript generated count to a Google sheet
-                fetch(`https://script.google.com/macros/s/AKfycbwBdD_OLFWXW2DS5n81ToaxhUU3PPDdFYgs_ttxmUtvhUSthKpffxOp9dJFhqSLS14/exec?version=${chrome.runtime.getManifest().version}`, {
-                    mode: "no-cors"
-                })
-            })
-        }
+            }
 
-        // Read the blob and download as text file
-        reader.readAsDataURL(blob)
+            // Read the blob and download as text file
+            reader.readAsDataURL(blob)
+        }
+    })
+}
+
+// Post transcript to webhook
+function postTranscriptToWebhook(index) {
+    return new Promise((resolve, reject) => {
+        // Get webhook URL and recent transcripts
+        chrome.storage.local.get(['webhookUrl', 'recentTranscripts'], function (result) {
+            if (!result.webhookUrl) {
+                reject(new Error('No webhook URL configured'))
+                return
+            }
+
+            if (!result.recentTranscripts || !result.recentTranscripts[index]) {
+                reject(new Error('Transcript not found'))
+                return
+            }
+
+            const transcript = result.recentTranscripts[index]
+            const webhookData = {
+                meetingTitle: transcript.meetingTitle,
+                meetingStartTimeStamp: transcript.meetingStartTimeStamp,
+                transcript: transcript.transcript,
+                chatMessages: transcript.chatMessages
+            }
+
+            // Post to webhook
+            fetch(result.webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(webhookData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Webhook request failed')
+                    }
+                    return response.json()
+                })
+                .then(() => {
+                    // Update success status
+                    result.recentTranscripts[index].webhookPostStatus = "successful"
+                    chrome.storage.local.set({ recentTranscripts: result.recentTranscripts }, function () {
+                        resolve()
+                    })
+                })
+                .catch(error => {
+                    // Update failure status
+                    result.recentTranscripts[index].webhookPostStatus = "failed"
+                    chrome.storage.local.set({ recentTranscripts: result.recentTranscripts }, function () {
+                        // Create notification and open webhooks page
+                        chrome.notifications.create({
+                            type: 'basic',
+                            iconUrl: 'icon.png',
+                            title: 'Webhook Post Failed',
+                            message: 'Failed to post transcript to webhook',
+                            buttons: [{ title: 'View status and retry' }]
+                        })
+
+                        // Handle notification click
+                        chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
+                            if (buttonIndex === 0) {
+                                chrome.tabs.create({ url: 'webhooks.html' })
+                            }
+                        })
+
+                        reject(error)
+                    })
+                })
+        })
     })
 }

@@ -30,4 +30,9 @@ window.onload = function () {
         alert("Couldn't find the last meeting's transcript. May be attend one?")
     })
   })
+
+  // Add event listener for manage webhooks button
+  document.getElementById('manage-webhooks').addEventListener('click', function () {
+    chrome.tabs.create({ url: 'webhooks.html' })
+  })
 }

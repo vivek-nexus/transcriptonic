@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>TranscripTonic - Webhook Management</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap');
+
+        body {
+            font-family: "Outfit", sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            color: #2A9ACA;
+            background: #071f29;
+        }
+
+        h1 {
+            margin-bottom: 2rem;
+        }
+
+        .webhook-form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        input[type="url"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #2A9ACA;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #2A9ACA;
+            font-family: "Outfit", sans-serif;
+        }
+
+        button {
+            background: #2A9ACA;
+            color: #071f29;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: "Outfit", sans-serif;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #1F6F92;
+        }
+
+        button:disabled {
+            background: #1F6F92;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(42, 154, 202, 0.2);
+        }
+
+        th {
+            background: rgba(42, 154, 202, 0.1);
+            font-weight: bold;
+        }
+
+        .status-success {
+            color: #4CAF50;
+        }
+
+        .status-failed {
+            color: #f44336;
+        }
+
+        .status-new {
+            color: #FFA726;
+        }
+
+        .retry-button {
+            background: transparent;
+            color: #f44336;
+            border: 1px solid #f44336;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .retry-button:hover {
+            background: rgba(244, 67, 54, 0.1);
+        }
+
+        .url-status {
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+
+        .url-status.saved {
+            color: #4CAF50;
+        }
+
+        .url-status.edited {
+            color: #FFA726;
+        }
+
+        .url-error {
+            color: #f44336;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        input[type="url"]:invalid {
+            border-color: #f44336;
+        }
+
+        input[type="url"]:valid {
+            border-color: #4CAF50;
+        }
+
+        .alert {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Webhook Management</h1>
+
+    <div class="webhook-form">
+        <div class="form-group">
+            <label for="webhook-url">Webhook URL</label>
+            <input type="url" id="webhook-url" placeholder="https://your-webhook-url.com">
+        </div>
+        <button id="save-webhook">Save Webhook URL</button>
+    </div>
+
+    <h2>Last 5 Transcripts</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Meeting Name</th>
+                <th>Meeting Start Time</th>
+                <th>Webhook Status</th>
+            </tr>
+        </thead>
+        <tbody id="transcripts-table">
+            <!-- Table content will be populated by JavaScript -->
+        </tbody>
+    </table>
+
+    <script src="webhooks.js"></script>
+</body>
+
+</html>

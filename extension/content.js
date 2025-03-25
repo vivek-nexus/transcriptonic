@@ -31,7 +31,7 @@ let chatMessages = []
 overWriteChromeStorage(["chatMessages"], false)
 
 // Capture meeting start timestamp and sanitize special characters with "-" to avoid invalid filenames
-let meetingStartTimeStamp = new Date().toLocaleString("default", timeFormat).replace(/[/:]/g, '-').toUpperCase()
+let meetingStartTimeStamp = Date.now()
 let meetingTitle = document.title
 overWriteChromeStorage(["meetingStartTimeStamp", "meetingTitle"], false)
 // Capture invalid transcript and chat messages DOM element error for the first time
@@ -441,11 +441,7 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
 function updateMeetingTitle() {
   try {
     // NON CRITICAL DOM DEPENDENCY
-    const title = document.querySelector(".u6vdEc").textContent
-    // const invalidFilenameRegex = /[<>:"/\\|?*\x00-\x1F]/g
-    // https://stackoverflow.com/a/78675894
-    const invalidFilenameRegex = /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/gui
-    meetingTitle = title.replaceAll(invalidFilenameRegex, '_')
+    meetingTitle = document.querySelector(".u6vdEc").textContent
     overWriteChromeStorage(["meetingTitle"], false)
   } catch (err) {
     console.error(err)
