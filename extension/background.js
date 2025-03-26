@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
     }
     if (message.type == "download_transcript_at_index") {
-        downloadTranscript(message.index) // Download the requested item
+        downloadTranscript(message.index, false) // Download the requested item
     }
     if (message.type == "retry_webhook_at_index") {
         // Handle webhook retry
@@ -59,11 +59,11 @@ function downloadAndPostWebhook() {
         if ((resultLocal.transcript != "") || (resultLocal.chatMessages != "")) {
             processTranscript().then(() => {
                 chrome.storage.local.get(["recentTranscripts"], function (resultLocal) {
-                    // Download and post the last transcript
-                    const lastIndex = resultLocal.recentTranscripts.length - 1
-                    downloadTranscript(lastIndex)
-
                     chrome.storage.sync.get(["webhookUrl"], function (resultSync) {
+                        // Download and post the last transcript
+                        const lastIndex = resultLocal.recentTranscripts.length - 1
+                        downloadTranscript(lastIndex, resultSync.webhookUrl ? true : false)
+
                         if (resultSync.webhookUrl) {
                             postTranscriptToWebhook(lastIndex).catch(error => {
                                 console.error("Webhook post failed:", error)
@@ -139,7 +139,7 @@ function processTranscript() {
 
 
 
-function downloadTranscript(index) {
+function downloadTranscript(index, webhookEnabled) {
     chrome.storage.local.get(["recentTranscripts"], function (result) {
         if (result.recentTranscripts && result.recentTranscripts[index]) {
             const transcript = result.recentTranscripts[index]
@@ -190,7 +190,7 @@ function downloadTranscript(index) {
                 }).then(() => {
                     console.log("Transcript downloaded")
                     // Increment anonymous transcript generated count to a Google sheet
-                    fetch(`https://script.google.com/macros/s/AKfycbwBdD_OLFWXW2DS5n81ToaxhUU3PPDdFYgs_ttxmUtvhUSthKpffxOp9dJFhqSLS14/exec?version=${chrome.runtime.getManifest().version}`, {
+                    fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}&webhookEnabled=${webhookEnabled}`, {
                         mode: "no-cors"
                     })
                 }).catch((err) => {
@@ -204,7 +204,7 @@ function downloadTranscript(index) {
                     // Logs anonymous errors to a Google sheet for swift debugging   
                     fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
                     // Increment anonymous transcript generated count to a Google sheet
-                    fetch(`https://script.google.com/macros/s/AKfycbwBdD_OLFWXW2DS5n81ToaxhUU3PPDdFYgs_ttxmUtvhUSthKpffxOp9dJFhqSLS14/exec?version=${chrome.runtime.getManifest().version}`, {
+                    fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}`, {
                         mode: "no-cors"
                     })
                 })
