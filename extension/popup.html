@@ -11,12 +11,38 @@
       width: 520px;
       padding: 1.5rem;
       background: #071f29;
-      color: #c0c0c0;
+      color: #C0C0C0;
       font-family: "SUSE", sans-serif;
+      font-size: 1rem;
     }
 
     h1 {
       font-size: 2rem;
+      margin: 0;
+    }
+
+    .header {
+      margin-bottom: 2rem;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-text {
+      color: #2A9ACA;
+    }
+
+    .header-description {
+      margin: 0;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 96px;
     }
 
     .get-started {
@@ -35,10 +61,7 @@
 
     p {
       font-size: 1rem;
-    }
-
-    img {
-      border-radius: 96px;
+      margin-bottom: 0;
     }
 
     .radio-item {
@@ -46,6 +69,10 @@
       gap: 0.5rem;
       align-items: start;
       margin-bottom: 1rem;
+    }
+
+    .sub-text {
+      color: #a0a0a0;
     }
 
     input {
@@ -57,7 +84,7 @@
     }
 
     label {
-      margin: 0px;
+      margin: 0;
       margin-bottom: 0.25rem;
       font-size: 1rem;
       cursor: pointer;
@@ -66,7 +93,6 @@
     a {
       color: #2A9ACA;
       font-weight: bold;
-      font-size: 1rem;
       text-underline-offset: 4px;
     }
 
@@ -78,61 +104,71 @@
       text-underline-offset: 4px;
       font-family: "SUSE", sans-serif;
       background: transparent;
-      color: #2A9ACA;
-      font-weight: bold;
       border: none;
       cursor: pointer;
+    }
+
+    .divider {
+      border-color: #a0a0a0;
+    }
+
+    .footer {
+      margin-bottom: 2.75rem;
+    }
+
+    .footer-link {
+      font-size: small;
+    }
+
+    .footer-separator {
+      margin: 0 0.5rem;
     }
   </style>
 </head>
 
 <body>
   <div>
-    <div style="margin-bottom: 2rem;">
-      <div style="display: flex;align-items: center; justify-content: space-between;">
-        <div style="color: #2A9ACA;">
-          <h1 style="margin: 0px;">TranscripTonic</h1>
-          <p style="margin: 0px;">
+    <div class="header">
+      <div class="header-content">
+        <div class="header-text">
+          <h1>TranscripTonic</h1>
+          <p class="header-description">
             Simple Google Meet transcripts. Private and open source.
           </p>
         </div>
-        <img src="./icon.png" width="48px" height="48px" alt="Extension icon" />
+        <img class="logo" src="./icon.png" alt="Extension icon" />
       </div>
     </div>
-
 
     <div class="get-started">
       <div class="radio-item">
         <input type="radio" name="mode" id="auto-mode" />
         <label for="auto-mode"><b>Auto mode</b>
-          <br /><span>Records transcripts for all
-            meetings</span>
+          <br /><span class="sub-text">Get transcripts of all meetings</span>
         </label>
       </div>
       <div class="radio-item">
         <input type="radio" name="mode" id="manual-mode" />
         <label for="manual-mode"><b>Manual mode</b> <br />
-          <span>Switch on transcript as needed using the CC icon in
-            Google Meet</span>
+          <span class="sub-text">Switch on transcript as needed using the CC icon in Google Meet</span>
         </label>
       </div>
-      <p style="margin-bottom: 0rem;">In both modes, transcript will be downloaded as a text file at the end
-        of each meeting. You can also <a href="webhooks.html" target="_blank"><b>set up webhooks -></b></a>.
-      </p>
+      <hr class="divider" />
+      <p>In both modes, transcript will be downloaded as a text file at the end of each meeting. You can also <a
+          href="webhooks.html" target="_blank"><b>set up webhooks -></b></a>.</p>
     </div>
 
     <div>
-      <div style="margin-bottom: 2.75rem">
+      <div class="footer">
         <button id="last-meeting-transcript">Download last meeting transcript</button>
-        &nbsp; &nbsp; &#9679; &nbsp; &nbsp;
+        <span class="footer-separator">&#9679;</span>
         <a href="https://github.com/vivek-nexus/transcriptonic#readme" target="_blank">Get help &UpperRightArrow;</a>
-        &nbsp; &nbsp; &#9679; &nbsp; &nbsp;
+        <span class="footer-separator">&#9679;</span>
         <a href="https://github.com/vivek-nexus/transcriptonic/issues" target="_blank">Report a bug
           &UpperRightArrow;</a>
       </div>
-      <p style="font-size: small;"><span id="version"></span>. Another
-        project by <span><a href="https://vivek-nexus.github.io" target="_blank"
-            style="font-size: small; margin: 0px;">Vivek</a></span></p>
+      <p class="footer-link"><span id="version"></span>. Another project by <a href="https://vivek-nexus.github.io"
+          target="_blank">Vivek</a></p>
     </div>
   </div>
 

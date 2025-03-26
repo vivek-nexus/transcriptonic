@@ -19,89 +19,61 @@ document.addEventListener("DOMContentLoaded", function () {
         saveButton.disabled = !this.value || !this.checkValidity()
     })
 
-    // Request runtime permission for webhook URL
-    function requestWebhookPermission(url) {
-        return new Promise((resolve, reject) => {
-            try {
-                const urlObj = new URL(url)
-                const originPattern = `${urlObj.protocol}//${urlObj.hostname}/*`
-
-                // Request both host and notifications permissions
-                chrome.permissions.request({
-                    origins: [originPattern],
-                    permissions: ["notifications"]
-                }).then((granted) => {
-                    if (granted) {
-                        resolve()
-                    } else {
-                        reject(new Error("Permission denied"))
-                    }
-                }).catch((error) => {
-                    reject(error)
-                })
-            } catch (error) {
-                reject(new Error("Invalid URL format"))
-            }
-        })
-    }
-
     // Save webhook URL
     saveButton.addEventListener("click", async function () {
         const webhookUrl = webhookUrlInput.value
         if (webhookUrl && webhookUrlInput.checkValidity()) {
-            try {
-                // Request runtime permission for the webhook URL
-                await requestWebhookPermission(webhookUrl)
-
+            // Request runtime permission for the webhook URL
+            requestWebhookAndNotificationPermission(webhookUrl).then(() => {
                 // Save webhook URL
                 chrome.storage.sync.set({ webhookUrl: webhookUrl }, function () {
-                    alert("Webhook URL saved successfully!")
-                    console.log("Webhook URL saved")
+                    alert("Webhook URL saved!")
                 })
-            } catch (error) {
-                alert("Failed to save webhook URL. Please allow permission when prompted.")
+            }).catch((error) => {
+                alert("Fine! No webhooks for you!")
                 console.error("Webhook permission error:", error)
-            }
+            })
         }
     })
 
     // Load and display recent transcripts
     function loadTranscripts() {
         chrome.storage.local.get(["recentTranscripts"], function (result) {
-            transcriptsTable.innerHTML = "" // Clear existing content
+            // Clear existing content
+            transcriptsTable.innerHTML = ""
 
             if (result.recentTranscripts && result.recentTranscripts.length > 0) {
-                // Loop through the array in reverse order
+                // Loop through the array in reverse order to list latest meeting first
                 for (let i = result.recentTranscripts.length - 1; i >= 0; i--) {
                     const transcript = result.recentTranscripts[i]
-                    const date = new Date(transcript.meetingStartTimeStamp)
-                    const formattedDate = date.toLocaleString()
+                    const date = new Date(transcript.meetingStartTimeStamp).toLocaleString()
 
                     const row = document.createElement("tr")
                     row.innerHTML = `
                         <td>${transcript.meetingTitle}</td>
-                        <td>${formattedDate}</td>
+                        <td>${date}</td>
                         <td>
-                            ${transcript.webhookPostStatus === "successful" ?
-                            `<span class="status-success">Successful</span>` :
-                            transcript.webhookPostStatus === "failed" ?
-                                `<span class="status-failed">Failed</span>` :
-                                `<span class="status-new">New</span>`
-                        }
-                <button class="retry-button" data-index="${i}">Repost</button>
-                        </td >
+                            ${transcript.webhookPostStatus === "successful"
+                            ? `<span class="status-success">Successful</span>`
+                            : transcript.webhookPostStatus === "failed"
+                                ? `<span class="status-failed">Failed</span>`
+                                : `<span class="status-new">New</span>`}
+                        </td>
+                        <td>
+                            <button class="repost-button" data-index="${i}">Repost</button>
+                        </td>
                     `
                     transcriptsTable.appendChild(row)
                 }
 
-                // Add event listeners to retry buttons
-                document.querySelectorAll(".retry-button").forEach(button => {
+                // Add event listeners to repost buttons
+                document.querySelectorAll(".repost-button").forEach(button => {
                     button.addEventListener("click", function () {
                         const index = parseInt(this.getAttribute("data-index"))
 
                         chrome.storage.sync.get(["webhookUrl"], function (result) {
                             if (result.webhookUrl) {
-                                // Send message to background script to retry webhook
+                                // Send message to background script to repost webhook
                                 chrome.runtime.sendMessage({
                                     type: "retry_webhook_at_index",
                                     index: index
@@ -113,7 +85,6 @@ document.addEventListener("DOMContentLoaded", function () {
                                 alert("Please provide a webhook URL")
                             }
                         })
-
                     })
                 })
             } else {
@@ -124,4 +95,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initial load of transcripts
     loadTranscripts()
-}) 
+})
+
+
+// Request runtime permission for webhook URL
+function requestWebhookAndNotificationPermission(url) {
+    return new Promise((resolve, reject) => {
+        try {
+            const urlObj = new URL(url)
+            const originPattern = `${urlObj.protocol}//${urlObj.hostname}/*`
+
+            // Request both host and notifications permissions
+            chrome.permissions.request({
+                origins: [originPattern],
+                permissions: ["notifications"]
+            }).then((granted) => {
+                if (granted) {
+                    resolve()
+                } else {
+                    reject(new Error("Permission denied"))
+                }
+            }).catch((error) => {
+                reject(error)
+            })
+        } catch (error) {
+            reject(new Error("Invalid URL format"))
+        }
+    })
+}
