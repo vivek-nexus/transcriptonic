@@ -48,6 +48,37 @@
             color: white;
             font-family: "SUSE", sans-serif;
             box-sizing: border-box;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin: 0;
+            accent-color: #2A9ACA;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"]:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .checkbox-group input[type="checkbox"]:disabled+label {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
         }
 
         button {
@@ -64,6 +95,11 @@
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        .notice {
+            color: #a0a0a0;
+            font-size: small;
         }
 
         table {
@@ -101,7 +137,7 @@
             font-weight: bold
         }
 
-        .repost-button {
+        .post-button {
             background: transparent;
             color: #2A9ACA;
             border: 1px solid #2A9ACA;
@@ -117,11 +153,15 @@
         <div class="form-group">
             <label for="webhook-url">Webhook URL</label>
             <input type="url" id="webhook-url" placeholder="https://your-webhook-url.com">
+            <div class="checkbox-group">
+                <input type="checkbox" id="auto-post-webhook" checked>
+                <label for="auto-post-webhook">Automatically post webhooks after each meeting</label>
+            </div>
         </div>
         <button id="save-webhook">Save</button>
     </div>
 
-    <h2>Last 5 transcripts</h2>
+    <h2>Last 10 transcripts</h2>
     <table>
         <thead>
             <tr>
@@ -135,6 +175,10 @@
             <!-- Table content will be populated by JavaScript -->
         </tbody>
     </table>
+
+    <p class="notice">The transcript may not always be accurate and is only intended to aid in improving productivity.
+        It is the
+        responsibility of the user to ensure they comply with any applicable laws/rules.</p>
 
     <script src="webhooks.js"></script>
 </body>

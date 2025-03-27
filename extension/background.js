@@ -53,18 +53,19 @@ chrome.tabs.onRemoved.addListener(function (tabid) {
     })
 })
 
-// Download transcripts, post webhook if URL is available
+// Download transcripts, post webhook if URL is enabled and available 
 function downloadAndPostWebhook() {
     chrome.storage.local.get(["transcript", "chatMessages"], function (resultLocal) {
         if ((resultLocal.transcript != "") || (resultLocal.chatMessages != "")) {
             processTranscript().then(() => {
                 chrome.storage.local.get(["recentTranscripts"], function (resultLocal) {
-                    chrome.storage.sync.get(["webhookUrl"], function (resultSync) {
-                        // Download and post the last transcript
+                    chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (resultSync) {
+                        // Download the last transcript
                         const lastIndex = resultLocal.recentTranscripts.length - 1
-                        downloadTranscript(lastIndex, resultSync.webhookUrl ? true : false)
+                        downloadTranscript(lastIndex, (resultSync.webhookUrl && resultSync.autoPostWebhookAfterMeeting) ? true : false)
 
-                        if (resultSync.webhookUrl) {
+                        // Post the last transcript to webhook if auto-post is enabled and available
+                        if (resultSync.autoPostWebhookAfterMeeting && resultSync.webhookUrl) {
                             postTranscriptToWebhook(lastIndex).catch(error => {
                                 console.error("Webhook post failed:", error)
                             })
@@ -76,7 +77,7 @@ function downloadAndPostWebhook() {
     })
 }
 
-// Process transcript and chat messages of the meeting that just ended from storage, format them into strings, and save as a new entry in recentTranscripts (keeping last 5)
+// Process transcript and chat messages of the meeting that just ended from storage, format them into strings, and save as a new entry in recentTranscripts (keeping last 10)
 function processTranscript() {
     return new Promise((resolve) => {
         chrome.storage.local.get([
@@ -122,9 +123,9 @@ function processTranscript() {
                 let recentTranscripts = storageData.recentTranscripts || []
                 recentTranscripts.push(newTranscriptEntry)
 
-                // Keep only last 5 transcripts
-                if (recentTranscripts.length > 5) {
-                    recentTranscripts = recentTranscripts.slice(-5)
+                // Keep only last 10 transcripts
+                if (recentTranscripts.length > 10) {
+                    recentTranscripts = recentTranscripts.slice(-10)
                 }
 
                 // Save updated recent transcripts
@@ -251,7 +252,6 @@ function postTranscriptToWebhook(index) {
                     if (!response.ok) {
                         throw new Error("Webhook request failed")
                     }
-                    return response.json()
                 }).then(() => {
                     // Update success status
                     resultLocal.recentTranscripts[index].webhookPostStatus = "successful"
@@ -267,15 +267,14 @@ function postTranscriptToWebhook(index) {
                             type: "basic",
                             iconUrl: "icon.png",
                             title: "Could not post webhook",
-                            message: "Check URL or manually repost webhook",
-                            buttons: [{ title: "Open webhooks page" }]
-                        })
-
-                        // Handle notification click
-                        chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
-                            if (buttonIndex === 0) {
-                                chrome.tabs.create({ url: "webhooks.html" })
-                            }
+                            message: "Click to view status and retry or check URL"
+                        }, function (notificationId) {
+                            // Handle notification click
+                            chrome.notifications.onClicked.addListener(function (clickedNotificationId) {
+                                if (clickedNotificationId === notificationId) {
+                                    chrome.tabs.create({ url: "webhooks.html" })
+                                }
+                            })
                         })
 
                         reject(error)
