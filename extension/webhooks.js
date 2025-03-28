@@ -6,12 +6,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initially disable the save button
     saveButton.disabled = true
+    autoPostCheckbox.disabled = true
 
     // Load saved webhook URL and auto-post setting
     chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (result) {
         if (result.webhookUrl) {
             webhookUrlInput.value = result.webhookUrl
             saveButton.disabled = !webhookUrlInput.checkValidity()
+            autoPostCheckbox.disabled = !webhookUrlInput.checkValidity()
         }
         // Set checkbox state, default to true if not set
         autoPostCheckbox.checked = result.autoPostWebhookAfterMeeting !== false
