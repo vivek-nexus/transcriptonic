@@ -30,7 +30,7 @@ let beforePersonName = "", beforeTranscriptText = ""
 let chatMessages = []
 overWriteChromeStorage(["chatMessages"], false)
 
-// Capture meeting start timestamp and sanitize special characters with "-" to avoid invalid filenames
+// Capture meeting start time stamp, stored in UNIX format
 let meetingStartTimeStamp = Date.now()
 let meetingTitle = document.title
 overWriteChromeStorage(["meetingStartTimeStamp", "meetingTitle"], false)
@@ -281,7 +281,7 @@ function transcriptMutationCallback(mutationsList, observer) {
         else {
           // New person started speaking 
           if (personNameBuffer != currentPersonName) {
-            // Push previous person"s transcript as a block
+            // Push previous person's transcript as a block
             pushBufferToTranscript()
             // Update buffers for next mutation and store transcript block timeStamp
             beforeTranscriptText = currentTranscriptText
@@ -402,7 +402,7 @@ function pushBufferToTranscript() {
   overWriteChromeStorage(["transcript"], false)
 }
 
-// Pushes object to array only if it doesn"t already exist. chatMessage is checked for substring since some trailing text(keep Pin message) is present from a button that allows to pin the message.
+// Pushes object to array only if it doesn't already exist. chatMessage is checked for substring since some trailing text(keep Pin message) is present from a button that allows to pin the message.
 function pushUniqueChatBlock(chatBlock) {
   const isExisting = chatMessages.some(item =>
     item.personName == chatBlock.personName &&
@@ -440,7 +440,7 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
   })
 }
 
-// Grabs updated meeting title, if available. Replaces special characters with underscore to avoid invalid file names.
+// Grabs updated meeting title, if available
 function updateMeetingTitle() {
   try {
     // NON CRITICAL DOM DEPENDENCY

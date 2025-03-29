@@ -55,7 +55,7 @@ Yes. TranscripTonic picks up the output of Google Meet captions. Google Meet cap
 <br />
 
 # Privacy policy
-TranscripTonic Chrome extension does not collect any information from users in any manner, except anonymous errors and transcript download timestamp. All processing/transcript storage happens within the user's Chrome browser and does not leave the device.
+TranscripTonic Chrome extension does not collect any information from users in any manner, except anonymous errors and transcript download time stamp. All processing/transcript storage happens within the user's Chrome browser and does not leave the device.
 
 # Notice
 The transcript may not always be accurate and is only intended to aid in improving productivity. It is the responsibility of the user to ensure they comply with any applicable laws/rules.

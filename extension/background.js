@@ -99,10 +99,10 @@ function processTranscript() {
             // Format transcript entries into string
             let transcriptString = ""
             if (result.transcript.length > 0) {
-                result.transcript.forEach(entry => {
-                    const personName = entry.personName === "You" ? result.userName : entry.personName
-                    transcriptString += `${personName} (${entry.timeStamp})\n`
-                    transcriptString += entry.personTranscript
+                result.transcript.forEach(transcriptBlock => {
+                    const personName = transcriptBlock.personName === "You" ? result.userName : transcriptBlock.personName
+                    transcriptString += `${personName} (${transcriptBlock.timeStamp})\n`
+                    transcriptString += transcriptBlock.personTranscript
                     transcriptString += "\n\n"
                 })
             }
@@ -110,17 +110,17 @@ function processTranscript() {
             // Format chat messages into string
             let chatMessagesString = ""
             if (result.chatMessages.length > 0) {
-                result.chatMessages.forEach(entry => {
-                    const personName = entry.personName === "You" ? result.userName : entry.personName
-                    chatMessagesString += `${personName} (${entry.timeStamp})\n`
-                    chatMessagesString += entry.chatMessageText
+                result.chatMessages.forEach(chatBlock => {
+                    const personName = chatBlock.personName === "You" ? result.userName : chatBlock.personName
+                    chatMessagesString += `${personName} (${chatBlock.timeStamp})\n`
+                    chatMessagesString += chatBlock.chatMessageText
                     chatMessagesString += "\n\n"
                 })
             }
 
             // Create new transcript entry
             const newTranscriptEntry = {
-                meetingTitle: result.meetingTitle || "Meeting",
+                meetingTitle: result.meetingTitle || "Google Meet call",
                 meetingStartTimeStamp: result.meetingStartTimeStamp,
                 meetingEndTimeStamp: Date.now(),
                 transcript: transcriptString,
@@ -155,14 +155,14 @@ function downloadTranscript(index, webhookEnabled) {
         if (result.recentTranscripts && result.recentTranscripts[index]) {
             const transcript = result.recentTranscripts[index]
 
-            // Clean up meeting title for filename
+            // Sanitise meeting title to prevent invalid file name errors
             // https://stackoverflow.com/a/78675894
             const invalidFilenameRegex = /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/gui
-            const cleanTitle = transcript.meetingTitle.replaceAll(invalidFilenameRegex, "_")
+            const sanitisedMeetingTitle = transcript.meetingTitle.replaceAll(invalidFilenameRegex, "_")
 
-            // Format timestamp for human-readable filename
-            const date = new Date(transcript.meetingStartTimeStamp)
-            const formattedDate = date.toLocaleString("default", {
+            // Format time stamp for human-readable filename
+            const timeStamp = new Date(transcript.meetingStartTimeStamp)
+            const formattedTimeStamp = timeStamp.toLocaleString("default", {
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit",
@@ -172,7 +172,7 @@ function downloadTranscript(index, webhookEnabled) {
                 hour12: false
             }).replace(/[\/:]/g, "-")
 
-            const filename = `${cleanTitle} at ${formattedDate}.txt`
+            const fileName = `${sanitisedMeetingTitle} at ${formattedTimeStamp}.txt`
 
             // Format transcript content
             let content = transcript.transcript
@@ -196,7 +196,7 @@ function downloadTranscript(index, webhookEnabled) {
                 // Create a download with Chrome Download API
                 chrome.downloads.download({
                     url: dataUrl,
-                    filename: filename,
+                    filename: fileName,
                     conflictAction: "uniquify"
                 }).then(() => {
                     console.log("Transcript downloaded")
@@ -215,7 +215,7 @@ function downloadTranscript(index, webhookEnabled) {
                     // Logs anonymous errors to a Google sheet for swift debugging   
                     fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
                     // Increment anonymous transcript generated count to a Google sheet
-                    fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}`, {
+                    fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}&webhookEnabled=${webhookEnabled}`, {
                         mode: "no-cors"
                     })
                 })
@@ -244,7 +244,7 @@ function postTranscriptToWebhook(index) {
                 }
 
                 const transcript = resultLocal.recentTranscripts[index]
-                // LocaleString included for no-code automation consumption and ISO timestamp included for code consumption
+                // LocaleString included for no-code automation consumption and ISO time stamp included for code consumption
                 const webhookData = {
                     meetingTitle: transcript.meetingTitle,
                     meetingStartTimeStampLocaleString: new Date(transcript.meetingStartTimeStamp).toLocaleString("default", timeFormat).toUpperCase(),
