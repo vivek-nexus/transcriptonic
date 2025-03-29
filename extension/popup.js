@@ -21,6 +21,7 @@ window.onload = function () {
     chrome.storage.sync.set({ operationMode: "manual" }, function () { })
   })
   lastMeetingTranscriptLink.addEventListener("click", () => {
+    // Unhandled case: if transcript and chatMessages variables in chrome storage are empty, but meetingStartTimestamp is somehow available (dev reload or 0 meetings attended), the button does not do anything
     chrome.storage.local.get(["recentTranscripts", "meetingStartTimestamp"], function (result) {
       if (result.meetingStartTimestamp) {
         if (result.recentTranscripts && (result.recentTranscripts.length > 0)) {
