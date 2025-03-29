@@ -21,24 +21,41 @@ window.onload = function () {
     chrome.storage.sync.set({ operationMode: "manual" }, function () { })
   })
   lastMeetingTranscriptLink.addEventListener("click", () => {
-    chrome.storage.local.get(["recentTranscripts"], function (result) {
-      if (result.recentTranscripts && (result.recentTranscripts.length > 0)) {
-        const transcriptToDownload = result.recentTranscripts[result.recentTranscripts.length - 1]
+    chrome.storage.local.get(["recentTranscripts", "meetingStartTimestamp"], function (result) {
+      if (result.meetingStartTimestamp) {
+        if (result.recentTranscripts && (result.recentTranscripts.length > 0)) {
 
-        if ((transcriptToDownload.transcript != "") || (transcriptToDownload.chatMessages != "")) {
+          const transcriptToDownload = result.recentTranscripts[result.recentTranscripts.length - 1]
+
+          // Check if last meeting was successfully processed and added to recentTranscripts
+          if (result.meetingStartTimestamp === transcriptToDownload.meetingStartTimestamp) {
+            chrome.runtime.sendMessage({
+              type: "download_transcript_at_index",
+              index: result.recentTranscripts.length - 1
+            }, function (response) {
+              console.log(response)
+            })
+          }
+          // Last meeting was not processed for some reason. Need to recover that data, process and download it.
+          else {
+            chrome.runtime.sendMessage({
+              type: "recover_last_transcript_and_download",
+            }, function (response) {
+              console.log(response)
+            })
+          }
+        }
+        // First meeting itself ended in a disaster. Need to recover that data, process and download it.
+        else {
           chrome.runtime.sendMessage({
-            type: "download_transcript_at_index",
-            index: result.recentTranscripts.length - 1
+            type: "recover_last_transcript_and_download",
           }, function (response) {
             console.log(response)
           })
         }
-        else {
-          alert("Last meeting transcript is empty :(")
-        }
       }
       else {
-        alert("Couldn't find the last meeting's transcript. May be attend one?")
+        alert("Couldn't find any meeting transcript. May be attend one?")
       }
     })
   })
