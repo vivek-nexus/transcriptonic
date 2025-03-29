@@ -287,7 +287,7 @@ function postTranscriptToWebhook(index) {
                         chrome.notifications.create({
                             type: "basic",
                             iconUrl: "icon.png",
-                            title: "Could not post webhook",
+                            title: "Could not post webhook!",
                             message: "Click to view status and retry or check URL"
                         }, function (notificationId) {
                             // Handle notification click
