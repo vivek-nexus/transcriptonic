@@ -84,27 +84,27 @@ function requestWebhookAndNotificationPermission(url) {
 
 // Load and display recent transcripts
 function loadTranscripts() {
-    const transcriptsTable = document.querySelector("#transcripts-table")
+    const meetingsTable = document.querySelector("#transcripts-table")
 
-    chrome.storage.local.get(["recentTranscripts"], function (result) {
+    chrome.storage.local.get(["meetings"], function (result) {
         // Clear existing content
-        transcriptsTable.innerHTML = ""
+        meetingsTable.innerHTML = ""
 
-        if (result.recentTranscripts && result.recentTranscripts.length > 0) {
+        if (result.meetings && result.meetings.length > 0) {
             // Loop through the array in reverse order to list latest meeting first
-            for (let i = result.recentTranscripts.length - 1; i >= 0; i--) {
-                const transcript = result.recentTranscripts[i]
-                const timestamp = new Date(transcript.meetingStartTimestamp).toLocaleString()
-                const durationString = getDuration(transcript.meetingStartTimestamp, transcript.meetingEndTimestamp)
+            for (let i = result.meetings.length - 1; i >= 0; i--) {
+                const meeting = result.meetings[i]
+                const timestamp = new Date(meeting.startTimestamp).toLocaleString()
+                const durationString = getDuration(meeting.startTimestamp, meeting.endTimestamp)
 
                 const row = document.createElement("tr")
                 row.innerHTML = `
-                    <td>${transcript.meetingTitle}</td>
+                    <td>${meeting.title}</td>
                     <td>${timestamp} &nbsp; &#9679; &nbsp; ${durationString}</td>
                     <td>
                         ${(
                         () => {
-                            switch (transcript.webhookPostStatus) {
+                            switch (meeting.webhookPostStatus) {
                                 case "successful":
                                     return `<span class="status-success">Successful</span>`
                                 case "failed":
@@ -118,10 +118,10 @@ function loadTranscripts() {
                     )()}
                     </td>
                     <td style="min-width: 96px;">
-                        <button class="post-button" data-index="${i}">${transcript.webhookPostStatus === "new" ? `Post` : `Repost`}</button>
+                        <button class="post-button" data-index="${i}">${meeting.webhookPostStatus === "new" ? `Post` : `Repost`}</button>
                     </td>
                 `
-                transcriptsTable.appendChild(row)
+                meetingsTable.appendChild(row)
 
                 // Add event listener to the post button
                 const button = row.querySelector(".post-button")
@@ -130,7 +130,7 @@ function loadTranscripts() {
                         if (result.webhookUrl) {
                             // Disable button and update text
                             button.disabled = true
-                            button.textContent = transcript.webhookPostStatus === "new" ? "Posting..." : "Reposting..."
+                            button.textContent = meeting.webhookPostStatus === "new" ? "Posting..." : "Reposting..."
 
                             // Send message to background script to post webhook
                             const index = parseInt(button.getAttribute("data-index"))
@@ -152,7 +152,7 @@ function loadTranscripts() {
             }
         }
         else {
-            transcriptsTable.innerHTML = `<tr><td colspan="4">No transcripts available</td></tr>`
+            meetingsTable.innerHTML = `<tr><td colspan="4">No transcripts available</td></tr>`
         }
     })
 }

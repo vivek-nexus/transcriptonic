@@ -73,10 +73,10 @@ function downloadAndPostWebhook() {
     chrome.storage.local.get(["transcript", "chatMessages"], function (resultLocal) {
         if ((resultLocal.transcript != "") || (resultLocal.chatMessages != "")) {
             processTranscript().then(() => {
-                chrome.storage.local.get(["recentTranscripts"], function (resultLocal) {
+                chrome.storage.local.get(["meetings"], function (resultLocal) {
                     chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (resultSync) {
                         // Download the last transcript
-                        const lastIndex = resultLocal.recentTranscripts.length - 1
+                        const lastIndex = resultLocal.meetings.length - 1
                         downloadTranscript(lastIndex, (resultSync.webhookUrl && resultSync.autoPostWebhookAfterMeeting) ? true : false)
 
                         // Post the last transcript to webhook if auto-post is enabled and available
@@ -96,57 +96,35 @@ function downloadAndPostWebhook() {
 function processTranscript() {
     return new Promise((resolve) => {
         chrome.storage.local.get([
-            "userName",
             "transcript",
             "chatMessages",
             "meetingTitle",
             "meetingStartTimestamp"
         ], function (result) {
-            // Format transcript entries into string
-            let transcriptString = ""
-            if (result.transcript.length > 0) {
-                result.transcript.forEach(transcriptBlock => {
-                    const personName = transcriptBlock.personName === "You" ? result.userName : transcriptBlock.personName
-                    transcriptString += `${personName} (${transcriptBlock.timestamp})\n`
-                    transcriptString += transcriptBlock.personTranscript
-                    transcriptString += "\n\n"
-                })
-            }
-
-            // Format chat messages into string
-            let chatMessagesString = ""
-            if (result.chatMessages.length > 0) {
-                result.chatMessages.forEach(chatBlock => {
-                    const personName = chatBlock.personName === "You" ? result.userName : chatBlock.personName
-                    chatMessagesString += `${personName} (${chatBlock.timestamp})\n`
-                    chatMessagesString += chatBlock.chatMessageText
-                    chatMessagesString += "\n\n"
-                })
-            }
 
             // Create new transcript entry
-            const newTranscriptEntry = {
-                meetingTitle: result.meetingTitle || "Google Meet call",
-                meetingStartTimestamp: result.meetingStartTimestamp,
-                meetingEndTimestamp: Date.now(),
-                transcript: transcriptString,
-                chatMessages: chatMessagesString,
+            const newMeetingEntry = {
+                title: result.meetingTitle || "Google Meet call",
+                startTimestamp: result.meetingStartTimestamp,
+                endTimestamp: Date.now(),
+                transcript: result.transcript,
+                chatMessages: result.chatMessages,
                 webhookPostStatus: "new"
             }
 
             // Get existing recent transcripts and update
-            chrome.storage.local.get(["recentTranscripts"], function (storageData) {
-                let recentTranscripts = storageData.recentTranscripts || []
-                recentTranscripts.push(newTranscriptEntry)
+            chrome.storage.local.get(["meetings"], function (storageData) {
+                let meetings = storageData.meetings || []
+                meetings.push(newMeetingEntry)
 
                 // Keep only last 10 transcripts
-                if (recentTranscripts.length > 10) {
-                    recentTranscripts = recentTranscripts.slice(-10)
+                if (meetings.length > 10) {
+                    meetings = meetings.slice(-10)
                 }
 
                 // Save updated recent transcripts
-                chrome.storage.local.set({ recentTranscripts: recentTranscripts }, function () {
-                    console.log("Recent transcripts updated")
+                chrome.storage.local.set({ meetings: meetings }, function () {
+                    console.log("Meeting data updated")
                     resolve()
                 })
             })
@@ -157,17 +135,17 @@ function processTranscript() {
 
 
 function downloadTranscript(index, webhookEnabled) {
-    chrome.storage.local.get(["recentTranscripts"], function (result) {
-        if (result.recentTranscripts && result.recentTranscripts[index]) {
-            const transcript = result.recentTranscripts[index]
+    chrome.storage.local.get(["meetings"], function (result) {
+        if (result.meetings && result.meetings[index]) {
+            const meeting = result.meetings[index]
 
             // Sanitise meeting title to prevent invalid file name errors
             // https://stackoverflow.com/a/78675894
             const invalidFilenameRegex = /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/gui
-            const sanitisedMeetingTitle = transcript.meetingTitle.replaceAll(invalidFilenameRegex, "_")
+            const sanitisedMeetingTitle = meeting.title.replaceAll(invalidFilenameRegex, "_")
 
             // Format timestamp for human-readable filename
-            const timestamp = new Date(transcript.meetingStartTimestamp)
+            const timestamp = new Date(meeting.startTimestamp)
             const formattedTimestamp = timestamp.toLocaleString("default", {
                 year: "numeric",
                 month: "2-digit",
@@ -180,10 +158,11 @@ function downloadTranscript(index, webhookEnabled) {
 
             const fileName = `TranscripTonic/Transcript-${sanitisedMeetingTitle} at ${formattedTimestamp}.txt`
 
-            // Format transcript content
-            let content = transcript.transcript
+
+            // Format transcript and chatMessages content
+            let content = getTranscriptString(meeting.transcript)
             content += `\n\n---------------\nCHAT MESSAGES\n---------------\n\n`
-            content += transcript.chatMessages
+            content += getChatMessagesString(meeting.chatMessages)
 
             // Add branding
             content += "\n\n---------------\n"
@@ -237,28 +216,28 @@ function downloadTranscript(index, webhookEnabled) {
 function postTranscriptToWebhook(index) {
     return new Promise((resolve, reject) => {
         // Get webhook URL and recent transcripts
-        chrome.storage.local.get(["recentTranscripts"], function (resultLocal) {
+        chrome.storage.local.get(["meetings"], function (resultLocal) {
             chrome.storage.sync.get(["webhookUrl"], function (resultSync) {
                 if (!resultSync.webhookUrl) {
                     reject(new Error("No webhook URL configured"))
                     return
                 }
 
-                if (!resultLocal.recentTranscripts || !resultLocal.recentTranscripts[index]) {
+                if (!resultLocal.meetings || !resultLocal.meetings[index]) {
                     reject(new Error("Transcript not found"))
                     return
                 }
 
-                const transcript = resultLocal.recentTranscripts[index]
+                const meeting = resultLocal.meetings[index]
                 // LocaleString included for no-code automation consumption and ISO timestamp included for code consumption
                 const webhookData = {
-                    meetingTitle: transcript.meetingTitle,
-                    meetingStartTimestampLocaleString: new Date(transcript.meetingStartTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
-                    meetingStartTimestampISOString: new Date(transcript.meetingStartTimestamp).toISOString(),
-                    meetingEndTimestampLocaleString: new Date(transcript.meetingEndTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
-                    meetingEndTimestampISOString: new Date(transcript.meetingEndTimestamp).toISOString(),
-                    transcript: transcript.transcript,
-                    chatMessages: transcript.chatMessages
+                    meetingTitle: meeting.title,
+                    meetingStartTimestampLocaleString: new Date(meeting.startTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
+                    meetingStartTimestampISOString: new Date(meeting.startTimestamp).toISOString(),
+                    meetingEndTimestampLocaleString: new Date(meeting.endTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
+                    meetingEndTimestampISOString: new Date(meeting.endTimestamp).toISOString(),
+                    transcript: meeting.transcript,
+                    chatMessages: meeting.chatMessages
                 }
 
                 // Post to webhook
@@ -274,15 +253,15 @@ function postTranscriptToWebhook(index) {
                     }
                 }).then(() => {
                     // Update success status
-                    resultLocal.recentTranscripts[index].webhookPostStatus = "successful"
-                    chrome.storage.local.set({ recentTranscripts: resultLocal.recentTranscripts }, function () {
+                    resultLocal.meetings[index].webhookPostStatus = "successful"
+                    chrome.storage.local.set({ meetings: resultLocal.meetings }, function () {
                         resolve()
                     })
                 }).catch(error => {
                     console.error(error)
                     // Update failure status
-                    resultLocal.recentTranscripts[index].webhookPostStatus = "failed"
-                    chrome.storage.local.set({ recentTranscripts: resultLocal.recentTranscripts }, function () {
+                    resultLocal.meetings[index].webhookPostStatus = "failed"
+                    chrome.storage.local.set({ meetings: resultLocal.meetings }, function () {
                         // Create notification and open webhooks page
                         chrome.notifications.create({
                             type: "basic",
@@ -304,4 +283,31 @@ function postTranscriptToWebhook(index) {
             })
         })
     })
+}
+
+function getTranscriptString(transcript) {
+    // Format transcript entries into string
+    let transcriptString = ""
+    if (transcript.length > 0) {
+        transcript.forEach(transcriptBlock => {
+            transcriptString += `${transcriptBlock.personName} (${new Date(transcriptBlock.timestamp).toLocaleString("default", timeFormat).toUpperCase()})\n`
+            transcriptString += transcriptBlock.transcriptText
+            transcriptString += "\n\n"
+        })
+        return transcriptString
+    }
+    return transcriptString
+}
+
+function getChatMessagesString(chatMessages) {
+    // Format chat messages into string
+    let chatMessagesString = ""
+    if (chatMessages.length > 0) {
+        chatMessages.forEach(chatBlock => {
+            chatMessagesString += `${chatBlock.personName} (${new Date(chatBlock.timestamp).toLocaleString("default", timeFormat).toUpperCase()})\n`
+            chatMessagesString += chatBlock.chatMessageText
+            chatMessagesString += "\n\n"
+        })
+    }
+    return chatMessagesString
 }

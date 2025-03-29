@@ -16,7 +16,6 @@ const mutationConfig = { childList: true, attributes: true, subtree: true, chara
 
 // Name of the person attending the meeting
 let userName = "You"
-overWriteChromeStorage(["userName"], false)
 // Transcript array that holds one or more transcript blocks
 // Each transcript block (object) has personName, timestamp and transcriptText key value pairs
 let transcript = []
@@ -66,12 +65,10 @@ checkExtensionStatus().then(() => {
       waitForElement(".awLEm").then(() => {
         // Poll the element until the textContent loads from network or until meeting starts
         const captureUserNameInterval = setInterval(() => {
-          userName = document.querySelector(".awLEm").textContent
-          if (userName || hasMeetingStarted) {
+          const captureUserName = document.querySelector(".awLEm").textContent
+          if (captureUserName != "") {
+            userName = captureUserName
             clearInterval(captureUserNameInterval)
-            // Prevent overwriting default "You" where element is found, but valid userName is not available
-            if (userName != "")
-              overWriteChromeStorage(["userName"], false)
           }
         }, 100)
       })
@@ -271,7 +268,7 @@ function transcriptMutationCallback(mutationsList, observer) {
         // Starting fresh in a meeting or resume from no active transcript
         if (beforeTranscriptText == "") {
           personNameBuffer = currentPersonName
-          timestampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
+          timestampBuffer = new Date().toISOString()
           beforeTranscriptText = currentTranscriptText
           transcriptTextBuffer = currentTranscriptText
         }
@@ -284,7 +281,7 @@ function transcriptMutationCallback(mutationsList, observer) {
             // Update buffers for next mutation and store transcript block timestamp
             beforeTranscriptText = currentTranscriptText
             personNameBuffer = currentPersonName
-            timestampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
+            timestampBuffer = new Date().toISOString()
             transcriptTextBuffer = currentTranscriptText
           }
           // Same person speaking more
@@ -297,7 +294,7 @@ function transcriptMutationCallback(mutationsList, observer) {
             }
             // Update buffers for next mutation
             transcriptTextBuffer = currentTranscriptText
-            timestampBuffer = new Date().toLocaleString("default", timeFormat).toUpperCase()
+            timestampBuffer = new Date().toISOString()
             beforeTranscriptText = currentTranscriptText
             if (!canUseAriaBasedTranscriptSelector) {
               // If a person is speaking for a long time, Google Meet does not keep the entire text in the spans. Starting parts are automatically removed in an unpredictable way as the length increases and TranscripTonic will miss them. So we force remove a lengthy transcript node in a controlled way. Google Meet will add a fresh person node when we remove it and continue transcription. TranscripTonic picks it up as a new person and nothing is missed.
@@ -353,14 +350,14 @@ function chatMessagesMutationCallback(mutationsList, observer) {
         const chatMessageElement = chatMessagesElement.lastChild
         // CRITICAL DOM DEPENDENCY.
         const personName = chatMessageElement.firstChild.firstChild.textContent
-        const timestamp = new Date().toLocaleString("default", timeFormat).toUpperCase()
+        const timestamp = new Date().toISOString()
         // CRITICAL DOM DEPENDENCY. Some mutations will have some noisy text at the end, which is handled in pushUniqueChatBlock function.
         const chatMessageText = chatMessageElement.lastChild.lastChild.textContent
 
         const chatMessageBlock = {
-          personName: personName,
-          timestamp: timestamp,
-          chatMessageText: chatMessageText
+          "personName": personName === "You" ? userName : personName,
+          "timestamp": timestamp,
+          "chatMessageText": chatMessageText
         }
 
         // Lot of mutations fire for each message, pick them only once
@@ -393,9 +390,9 @@ function chatMessagesMutationCallback(mutationsList, observer) {
 // Pushes data in the buffer to transcript array as a transcript block
 function pushBufferToTranscript() {
   transcript.push({
-    "personName": personNameBuffer,
+    "personName": personNameBuffer === "You" ? userName : personNameBuffer,
     "timestamp": timestampBuffer,
-    "personTranscript": transcriptTextBuffer
+    "transcriptText": transcriptTextBuffer
   })
   overWriteChromeStorage(["transcript"], false)
 }
@@ -404,7 +401,6 @@ function pushBufferToTranscript() {
 function pushUniqueChatBlock(chatBlock) {
   const isExisting = chatMessages.some(item =>
     item.personName == chatBlock.personName &&
-    item.timestamp == chatBlock.timestamp &&
     chatBlock.chatMessageText.includes(item.chatMessageText)
   )
   if (!isExisting) {
@@ -418,8 +414,6 @@ function pushUniqueChatBlock(chatBlock) {
 function overWriteChromeStorage(keys, sendDownloadMessage) {
   const objectToSave = {}
   // Hard coded list of keys that are accepted
-  if (keys.includes("userName"))
-    objectToSave.userName = userName
   if (keys.includes("transcript"))
     objectToSave.transcript = transcript
   if (keys.includes("meetingTitle"))

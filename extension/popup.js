@@ -22,17 +22,17 @@ window.onload = function () {
   })
   lastMeetingTranscriptLink.addEventListener("click", () => {
     // Unhandled case: if transcript and chatMessages variables in chrome storage are empty, but meetingStartTimestamp is somehow available (dev reload or 0 meetings attended), the button does not do anything
-    chrome.storage.local.get(["recentTranscripts", "meetingStartTimestamp"], function (result) {
+    chrome.storage.local.get(["meetings", "meetingStartTimestamp"], function (result) {
       if (result.meetingStartTimestamp) {
-        if (result.recentTranscripts && (result.recentTranscripts.length > 0)) {
+        if (result.meetings && (result.meetings.length > 0)) {
 
-          const transcriptToDownload = result.recentTranscripts[result.recentTranscripts.length - 1]
+          const meetingToDownload = result.meetings[result.recentTranscripts.length - 1]
 
           // Check if last meeting was successfully processed and added to recentTranscripts
-          if (result.meetingStartTimestamp === transcriptToDownload.meetingStartTimestamp) {
+          if (result.meetingStartTimestamp === meetingToDownload.meetingStartTimestamp) {
             chrome.runtime.sendMessage({
               type: "download_transcript_at_index",
-              index: result.recentTranscripts.length - 1
+              index: result.meetings.length - 1
             }, function (response) {
               console.log(response)
             })
