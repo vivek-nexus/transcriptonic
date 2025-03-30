@@ -1,6 +1,6 @@
 window.onload = function () {
-  const autoModeRadio = document.querySelector('#auto-mode')
-  const manualModeRadio = document.querySelector('#manual-mode')
+  const autoModeRadio = document.querySelector("#auto-mode")
+  const manualModeRadio = document.querySelector("#manual-mode")
   const lastMeetingTranscriptLink = document.querySelector("#last-meeting-transcript")
 
   document.querySelector("#version").innerHTML = `v${chrome.runtime.getManifest().version}`
@@ -21,13 +21,43 @@ window.onload = function () {
     chrome.storage.sync.set({ operationMode: "manual" }, function () { })
   })
   lastMeetingTranscriptLink.addEventListener("click", () => {
-    chrome.storage.local.get(["transcript"], function (result) {
-      if (result.transcript)
-        chrome.runtime.sendMessage({ type: "download" }, function (response) {
-          console.log(response)
-        })
-      else
-        alert("Couldn't find the last meeting's transcript. May be attend one?")
+    // Unhandled case: if transcript and chatMessages variables in chrome storage are empty, but meetingStartTimestamp is somehow available (dev reload or 0 meetings attended), the button does not do anything
+    chrome.storage.local.get(["meetings", "meetingStartTimestamp"], function (result) {
+      if (result.meetingStartTimestamp) {
+        if (result.meetings && (result.meetings.length > 0)) {
+
+          const meetingToDownload = result.meetings[result.recentTranscripts.length - 1]
+
+          // Check if last meeting was successfully processed and added to recentTranscripts
+          if (result.meetingStartTimestamp === meetingToDownload.meetingStartTimestamp) {
+            chrome.runtime.sendMessage({
+              type: "download_transcript_at_index",
+              index: result.meetings.length - 1
+            }, function (response) {
+              console.log(response)
+            })
+          }
+          // Last meeting was not processed for some reason. Need to recover that data, process and download it.
+          else {
+            chrome.runtime.sendMessage({
+              type: "recover_last_transcript_and_download",
+            }, function (response) {
+              console.log(response)
+            })
+          }
+        }
+        // First meeting itself ended in a disaster. Need to recover that data, process and download it.
+        else {
+          chrome.runtime.sendMessage({
+            type: "recover_last_transcript_and_download",
+          }, function (response) {
+            console.log(response)
+          })
+        }
+      }
+      else {
+        alert("Couldn't find any meeting transcript. May be attend one?")
+      }
     })
   })
 }
