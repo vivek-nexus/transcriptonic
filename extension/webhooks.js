@@ -2,40 +2,46 @@ document.addEventListener("DOMContentLoaded", function () {
     const webhookUrlInput = document.querySelector("#webhook-url")
     const saveButton = document.querySelector("#save-webhook")
     const autoPostCheckbox = document.querySelector("#auto-post-webhook")
+    const simpleWebhookBodyRadio = document.querySelector("#simple-webhook-body")
+    const advancedWebhookBodyRadio = document.querySelector("#advanced-webhook-body")
 
     // Initially disable the save button
     saveButton.disabled = true
-    autoPostCheckbox.disabled = true
 
-    // Load saved webhook URL and auto-post setting
-    chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (result) {
+    // Load saved webhook URL, auto-post setting, and webhook body type
+    chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting", "webhookBodyType"], function (result) {
         if (result.webhookUrl) {
             webhookUrlInput.value = result.webhookUrl
             saveButton.disabled = !webhookUrlInput.checkValidity()
-            autoPostCheckbox.disabled = !webhookUrlInput.checkValidity()
         }
         // Set checkbox state, default to true if not set
         autoPostCheckbox.checked = result.autoPostWebhookAfterMeeting !== false
+        // Set radio button state, default to simple if not set
+        if (result.webhookBodyType === "advanced") {
+            advancedWebhookBodyRadio.checked = true
+        } else {
+            simpleWebhookBodyRadio.checked = true
+        }
     })
 
     // Handle URL input changes
     webhookUrlInput.addEventListener("input", function () {
         saveButton.disabled = !webhookUrlInput.value || !webhookUrlInput.checkValidity()
-        autoPostCheckbox.disabled = !webhookUrlInput.value || !webhookUrlInput.checkValidity()
     })
 
-    // Save webhook URL and auto-post setting
+    // Save webhook URL, auto-post setting, and webhook body type
     saveButton.addEventListener("click", async function () {
         const webhookUrl = webhookUrlInput.value
         if (webhookUrl && webhookUrlInput.checkValidity()) {
             // Request runtime permission for the webhook URL
             requestWebhookAndNotificationPermission(webhookUrl).then(() => {
-                // Save webhook URL and auto-post setting
+                // Save webhook URL and settings
                 chrome.storage.sync.set({
                     webhookUrl: webhookUrl,
-                    autoPostWebhookAfterMeeting: autoPostCheckbox.checked
+                    autoPostWebhookAfterMeeting: autoPostCheckbox.checked,
+                    webhookBodyType: advancedWebhookBodyRadio.checked ? "advanced" : "simple"
                 }, function () {
-                    alert("Settings saved!")
+                    alert("Webhook settings saved!")
                 })
             }).catch((error) => {
                 alert("Fine! No webhooks for you!")
@@ -152,7 +158,7 @@ function loadTranscripts() {
             }
         }
         else {
-            meetingsTable.innerHTML = `<tr><td colspan="4">No transcripts available</td></tr>`
+            meetingsTable.innerHTML = `<tr><td colspan="4">Your next meeting will show up here</td></tr>`
         }
     })
 }

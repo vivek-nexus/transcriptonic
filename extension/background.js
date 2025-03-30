@@ -215,9 +215,9 @@ function downloadTranscript(index, webhookEnabled) {
 // Post transcript to webhook
 function postTranscriptToWebhook(index) {
     return new Promise((resolve, reject) => {
-        // Get webhook URL and recent transcripts
+        // Get webhook URL and meetings
         chrome.storage.local.get(["meetings"], function (resultLocal) {
-            chrome.storage.sync.get(["webhookUrl"], function (resultSync) {
+            chrome.storage.sync.get(["webhookUrl", "webhookBodyType"], function (resultSync) {
                 if (!resultSync.webhookUrl) {
                     reject(new Error("No webhook URL configured"))
                     return
@@ -229,15 +229,25 @@ function postTranscriptToWebhook(index) {
                 }
 
                 const meeting = resultLocal.meetings[index]
-                // LocaleString included for no-code automation consumption and ISO timestamp included for code consumption
-                const webhookData = {
-                    meetingTitle: meeting.title,
-                    meetingStartTimestampLocaleString: new Date(meeting.startTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
-                    meetingStartTimestampISOString: new Date(meeting.startTimestamp).toISOString(),
-                    meetingEndTimestampLocaleString: new Date(meeting.endTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
-                    meetingEndTimestampISOString: new Date(meeting.endTimestamp).toISOString(),
-                    transcript: meeting.transcript,
-                    chatMessages: meeting.chatMessages
+
+                let webhookData
+                if (resultSync.webhookBodyType === "advanced") {
+                    webhookData = {
+                        meetingTitle: meeting.title,
+                        meetingStartTimestamp: new Date(meeting.startTimestamp).toISOString(),
+                        meetingEndTimestamp: new Date(meeting.endTimestamp).toISOString(),
+                        transcript: meeting.transcript,
+                        chatMessages: meeting.chatMessages
+                    }
+                }
+                else {
+                    webhookData = {
+                        meetingTitle: meeting.title,
+                        meetingStartTimestamp: new Date(meeting.startTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
+                        meetingEndTimestamp: new Date(meeting.endTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
+                        transcript: getTranscriptString(meeting.transcript),
+                        chatMessages: getChatMessagesString(meeting.chatMessages)
+                    }
                 }
 
                 // Post to webhook

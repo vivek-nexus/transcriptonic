@@ -10,12 +10,37 @@
 
         body {
             font-family: "SUSE", sans-serif;
-            max-width: 1024px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+            padding: 0.5rem 1rem;
             color: #C0C0C0;
             background: #071f29;
             font-size: 1rem;
+        }
+
+        h1 {
+            margin: 0.5rem 0rem;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .grid-container>* {
+            overflow-x: auto;
+        }
+
+        .card {
+            grid-column: 1;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            margin-bottom: 1rem;
         }
 
         /* Custom scrollbar styling */
@@ -37,28 +62,23 @@
             background: #2A9ACA;
         }
 
-        h1 {
-            margin-bottom: 1rem;
-        }
-
-        .webhook-form {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1.5rem;
-            border-radius: 8px;
+        .form-field {
             margin-bottom: 2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
         }
 
         label {
             display: block;
-            margin-bottom: 0.5rem;
             font-weight: bold;
+            cursor: pointer;
+        }
+
+        .sub-text {
+            font-weight: normal;
+            color: #a0a0a0;
         }
 
         input[type="url"] {
+            margin-top: 0.5rem;
             width: 100%;
             padding: 0.5rem;
             border: 1px solid #2A9ACA;
@@ -67,17 +87,15 @@
             color: white;
             font-family: "SUSE", sans-serif;
             box-sizing: border-box;
-            margin-bottom: 1rem;
         }
 
         .checkbox-group {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 2rem;
         }
 
-        .checkbox-group input[type="checkbox"] {
+        input[type="checkbox"] {
             margin: 0;
             accent-color: #2A9ACA;
             width: 16px;
@@ -85,19 +103,21 @@
             cursor: pointer;
         }
 
-        .checkbox-group input[type="checkbox"]:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .radio-item {
+            display: flex;
+            gap: 0.5rem;
+            align-items: start;
         }
 
-        .checkbox-group input[type="checkbox"]:disabled+label {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .radio-item:not(:last-of-type) {
+            margin-bottom: 0.5rem;
         }
 
-        .checkbox-group label {
+        input[type="radio"] {
             margin: 0;
-            cursor: pointer;
+            margin-top: 0.3rem;
+            width: 16px;
+            height: 16px;
         }
 
         button {
@@ -116,6 +136,10 @@
             cursor: not-allowed;
         }
 
+        details:first-of-type {
+            margin-bottom: 0.5rem;
+        }
+
         summary {
             cursor: pointer;
             font-weight: bold;
@@ -123,7 +147,7 @@
         }
 
         .accordion-content {
-            margin-bottom: 3rem;
+            margin-bottom: 1.5rem;
         }
 
         .code-block {
@@ -133,7 +157,11 @@
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.1);
             line-height: 1.5;
-            white-space: nowrap;
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre;
         }
 
         .notice {
@@ -188,54 +216,123 @@
 <body>
     <h1>Webhooks</h1>
 
-    <div class="webhook-form">
-        <div class="form-group">
-            <label for="webhook-url">Webhook URL</label>
-            <input type="url" id="webhook-url" placeholder="https://your-webhook-url.com">
-            <div class="checkbox-group">
-                <input type="checkbox" id="auto-post-webhook" checked>
-                <label for="auto-post-webhook">Automatically post webhooks after each meeting</label>
+    <div class="grid-container">
+        <div>
+            <h2>Webhook settings</h2>
+            <div class="card">
+                <div class="form-field">
+                    <label for="webhook-url">Webhook URL</label>
+                    <input type="url" id="webhook-url" placeholder="https://your-webhook-url.com">
+                </div>
+
+                <div class="form-field">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="auto-post-webhook" checked>
+                        <label for="auto-post-webhook">Automatically post webhooks after each
+                            meeting</label>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <div class="radio-item">
+                        <input type="radio" name="webhook-body-type" id="simple-webhook-body" checked />
+                        <label for="simple-webhook-body"><b>Simple webhook body</b>
+                            <br /><span class="sub-text">Pre-formatted data, suitable for no-code
+                                integrations</span>
+                        </label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="webhook-body-type" id="advanced-webhook-body" />
+                        <label for="advanced-webhook-body"><b>Advanced webhook body</b> <br />
+                            <span class="sub-text">Raw data, suitable for code integrations</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button id="save-webhook">Save</button>
+            </div>
+            <div class="card">
+                <details>
+                    <summary>Sample webhook body (simple)</summary>
+                    <div class="code-block accordion-content">
+                        <code>
+                        <pre>
+{
+    "meetingTitle": "Team meeting",
+    "meetingStartTimestamp": "01/15/2024, 10:00 AM",
+    "meetingEndTimestamp": "01/15/2024, 11:00 AM",
+    "transcript": "Priya (01/15/2024, 10:00 AM)\nHi everyone!\n\nCarlos (01/15/2024, 10:01 AM)\nHello Priya!...\n\n",
+    "chatMessages": "Mohammed (01/15/2024, 10:05 AM)\nCan you share the slides?\n\nSofia (01/15/2024, 10:06 AM)\nHere's the link: ...\n\n"
+}
+</pre>
+                        </code>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>Sample webhook body (advanced)</summary>
+                    <div class="code-block accordion-content">
+                        <code>
+                            <pre>
+{
+    "meetingTitle": "Team meeting",
+    "meetingStartTimestamp": "2024-01-15T15:00:00.000Z",
+    "meetingEndTimestamp": "2024-01-15T11:00:00.000Z",
+    "transcript": [
+        {
+            "personName": "Priya",
+            "timestamp": "2024-01-15T10:00:00.000Z",
+            "transcriptText": "Hi everyone!"
+        },
+        {
+            "personName": "Carlos",
+            "timestamp": "2024-01-15T10:01:00.000Z",
+            "transcriptText": "Hello Priya!"
+        }
+    ],
+    "chatMessages": [
+        {
+            "personName": "Mohammed",
+            "timestamp": "2024-01-15T10:05:00.000Z",
+            "chatMessageText": "Can you share the slides?"
+        },
+        {
+            "personName": "Sofia",
+            "timestamp": "2024-01-15T10:06:00.000Z",
+            "chatMessageText": "Here's the link: ..."
+        }
+    ]
+}
+</pre>
+                    </code>
+                    </div>
+                </details>
             </div>
         </div>
-        <button id="save-webhook">Save</button>
-    </div>
 
-    <details class="accordion-content">
-        <summary>Sample webhook body</summary>
-        <div class="code-block">
-            <code>
-        {<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;"meetingTitle": "Team meeting",<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;"meetingStartTimestampLocaleString": "01/15/2024, 10:00 AM",<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;"meetingStartTimestampISOString": "2024-01-15T15:00:00.000Z",<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;"meetingEndTimestampLocaleString": "01/15/2024, 11:00 AM",<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;"meetingEndTimestampISOString": "2024-01-15T11:00:00.000Z",<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;"transcript": "Priya (01/15/2024, 10:00 AM)\nHi everyone!\n\nCarlos (01/15/2024, 10:01 AM)\nHello Priya!...\n\n",<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;"chatMessages": "Mohammed (01/15/2024, 10:05 AM)\nCan you share the slides?\n\nSofia (01/15/2024, 10:06 AM)\nHere's the link: ...\n\n"<br />
-        }
-        </code>
+        <div>
+            <h2>Last 10 meetings</h2>
+            <div class="transcripts-section">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Meeting title</th>
+                            <th>Meeting start time and duration</th>
+                            <th>Webhook status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transcripts-table">
+                        <!-- Table content will be populated by JavaScript -->
+                    </tbody>
+                </table>
+
+                <p class="notice">The transcript may not always be accurate and is only intended to aid in improving
+                    productivity.
+                    It is the
+                    responsibility of the user to ensure they comply with any applicable laws/rules.</p>
+            </div>
         </div>
-    </details>
     </div>
-
-    <h2>Last 10 transcripts</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Meeting title</th>
-                <th>Meeting start time and duration</th>
-                <th>Webhook status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="transcripts-table">
-            <!-- Table content will be populated by JavaScript -->
-        </tbody>
-    </table>
-
-    <p class="notice">The transcript may not always be accurate and is only intended to aid in improving productivity.
-        It is the
-        responsibility of the user to ensure they comply with any applicable laws/rules.</p>
 
     <script src="webhooks.js"></script>
 </body>
