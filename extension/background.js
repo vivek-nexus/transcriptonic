@@ -92,7 +92,7 @@ function downloadAndPostWebhook() {
     })
 }
 
-// Process transcript and chat messages of the meeting that just ended from storage, format them into strings, and save as a new entry in recentTranscripts (keeping last 10)
+// Process transcript and chat messages of the meeting that just ended from storage, format them into strings, and save as a new entry in meetings (keeping last 10)
 function processTranscript() {
     return new Promise((resolve) => {
         chrome.storage.local.get([
