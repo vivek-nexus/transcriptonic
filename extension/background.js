@@ -324,7 +324,7 @@ function getTranscriptString(transcript) {
         transcript.forEach(transcriptBlock => {
             transcriptString += `${transcriptBlock.personName} (${new Date(transcriptBlock.timestamp).toLocaleString("default", timeFormat).toUpperCase()})\n`
             // Backward compatible key.  Old name "personTranscript".
-            transcriptString += transcriptBlock.transcriptText || transcript.personTranscript
+            transcriptString += transcriptBlock.transcriptText || transcriptBlock.personTranscript
             transcriptString += "\n\n"
         })
         return transcriptString

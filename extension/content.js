@@ -418,7 +418,7 @@ function pushUniqueChatBlock(chatBlock) {
   if (!isExisting) {
     console.log(chatBlock)
     chatMessages.push(chatBlock)
-    overWriteChromeStorage(["chatMessages", false])
+    overWriteChromeStorage(["chatMessages"], false)
   }
 }
 
