@@ -9,15 +9,17 @@ const timeFormat = {
 
 // Listen for extension updates
 chrome.runtime.onUpdateAvailable.addListener((details) => {
-    console.log('Extension update available:', details.version)
+    console.log("Extension update available:", details.version)
     // Check if there is an active meeting
     chrome.storage.local.get(["meetingTabId"], function (result) {
         if (result.meetingTabId) {
             // There is an active meeting, defer the update
-            console.log('Caught event, which will defer this update attempt')
+            chrome.storage.local.set({ deferredUpdateAvailableTimestamp: Date.now() }, function () {
+                console.log("Deferred update flag set")
+            })
         } else {
             // No active meeting, apply the update immediately
-            console.log('No active meeting, applying update immediately')
+            console.log("No active meeting, applying update immediately")
             chrome.runtime.reload()
         }
     })
@@ -38,9 +40,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
     if (message.type == "meeting_ended") {
         // Invalidate tab id since transcript is downloaded, prevents double downloading of transcript from tab closed event listener
-        chrome.storage.local.set({ meetingTabId: null }, function () {
-            console.log("Meeting tab id cleared")
-        })
+        clearTabIdAndApplyUpdate()
         downloadAndPostWebhook()
 
     }
@@ -76,10 +76,7 @@ chrome.tabs.onRemoved.addListener(function (tabid) {
             console.log("Successfully intercepted tab close")
 
             // Clearing meetingTabId to prevent misfires of onRemoved until next meeting actually starts
-            chrome.storage.local.set({ meetingTabId: null }, function () {
-                console.log("Meeting tab id cleared for next meeting")
-            })
-
+            clearTabIdAndApplyUpdate()
             downloadAndPostWebhook()
         }
     })
@@ -343,4 +340,25 @@ function getChatMessagesString(chatMessages) {
         })
     }
     return chatMessagesString
+}
+
+function clearTabIdAndApplyUpdate() {
+    chrome.storage.local.set({ meetingTabId: null }, function () {
+        console.log("Meeting tab id cleared for next meeting")
+        // Check if there's a deferred update
+        chrome.storage.local.get(["deferredUpdateAvailableTimestamp"], function (result) {
+            if (result.deferredUpdateAvailableTimestamp) {
+                const timeSinceUpdateAvailable = Date.now() - result.deferredUpdateAvailableTimestamp
+                const timeToWait = timeSinceUpdateAvailable > 10000 ? 0 : 10000 - timeSinceUpdateAvailable
+
+                console.log(`Applying deferred update in ${timeToWait}ms`)
+                setTimeout(() => {
+                    console.log("Applying deferred update")
+                    chrome.storage.local.set({ deferredUpdateAvailableTimestamp: null }, function () {
+                        chrome.runtime.reload()
+                    })
+                }, timeToWait)
+            }
+        })
+    })
 }
