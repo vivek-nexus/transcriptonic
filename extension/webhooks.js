@@ -100,8 +100,8 @@ function loadTranscripts() {
             // Loop through the array in reverse order to list latest meeting first
             for (let i = result.meetings.length - 1; i >= 0; i--) {
                 const meeting = result.meetings[i]
-                const timestamp = new Date(meeting.startTimestamp).toLocaleString()
-                const durationString = getDuration(meeting.startTimestamp, meeting.endTimestamp)
+                const timestamp = new Date(meeting.meetingStartTimestamp).toLocaleString()
+                const durationString = getDuration(meeting.meetingStartTimestamp, meeting.meetingEndTimestamp)
 
                 const row = document.createElement("tr")
                 row.innerHTML = `
@@ -164,8 +164,8 @@ function loadTranscripts() {
 }
 
 // Format duration between two timestamps, specified in milliseconds elapsed since the epoch
-function getDuration(startTimestamp, endTimestamp) {
-    const duration = new Date(endTimestamp) - new Date(startTimestamp)
+function getDuration(meetingStartTimestamp, meetingEndTimestamp) {
+    const duration = new Date(meetingEndTimestamp) - new Date(meetingStartTimestamp)
     const durationMinutes = Math.round(duration / (1000 * 60))
     const durationHours = Math.floor(durationMinutes / 60)
     const remainingMinutes = durationMinutes % 60

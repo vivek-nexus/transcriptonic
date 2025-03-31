@@ -29,7 +29,7 @@ window.onload = function () {
           const meetingToDownload = result.meetings[result.meetings.length - 1]
 
           // Check if last meeting was successfully processed and added to meetings
-          if (result.meetingStartTimestamp === meetingToDownload.startTimestamp) {
+          if (result.meetingStartTimestamp === meetingToDownload.meetingStartTimestamp) {
             chrome.runtime.sendMessage({
               type: "download_transcript_at_index",
               index: result.meetings.length - 1

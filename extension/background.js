@@ -105,8 +105,8 @@ function processTranscript() {
             // Create new transcript entry
             const newMeetingEntry = {
                 title: result.meetingTitle || "Google Meet call",
-                startTimestamp: result.meetingStartTimestamp,
-                endTimestamp: Date.now(),
+                meetingStartTimestamp: result.meetingStartTimestamp,
+                meetingEndTimestamp: Date.now(),
                 transcript: result.transcript,
                 chatMessages: result.chatMessages,
                 webhookPostStatus: "new"
@@ -145,7 +145,7 @@ function downloadTranscript(index, webhookEnabled) {
             const sanitisedMeetingTitle = meeting.title.replaceAll(invalidFilenameRegex, "_")
 
             // Format timestamp for human-readable filename
-            const timestamp = new Date(meeting.startTimestamp)
+            const timestamp = new Date(meeting.meetingStartTimestamp)
             const formattedTimestamp = timestamp.toLocaleString("default", {
                 year: "numeric",
                 month: "2-digit",
@@ -234,8 +234,8 @@ function postTranscriptToWebhook(index) {
                 if (resultSync.webhookBodyType === "advanced") {
                     webhookData = {
                         meetingTitle: meeting.title,
-                        meetingStartTimestamp: new Date(meeting.startTimestamp).toISOString(),
-                        meetingEndTimestamp: new Date(meeting.endTimestamp).toISOString(),
+                        meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toISOString(),
+                        meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toISOString(),
                         transcript: meeting.transcript,
                         chatMessages: meeting.chatMessages
                     }
@@ -243,8 +243,8 @@ function postTranscriptToWebhook(index) {
                 else {
                     webhookData = {
                         meetingTitle: meeting.title,
-                        meetingStartTimestamp: new Date(meeting.startTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
-                        meetingEndTimestamp: new Date(meeting.endTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
+                        meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
+                        meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
                         transcript: getTranscriptString(meeting.transcript),
                         chatMessages: getChatMessagesString(meeting.chatMessages)
                     }
