@@ -3,7 +3,7 @@ Simple Google Meet transcripts. Private and open source.
 
 ![marquee-large](/assets/marquee-large.png)
 
-Extension status: 🟢 OPERATIONAL (v3.0.0)
+Extension status: 🟢 OPERATIONAL (v3.0.1)
 
 <br />
 <br />
@@ -47,9 +47,20 @@ TranscripTonic has two modes of operation.
 
 # FAQs
 
-**Can I change the language of the transcript?**
+**1. Can I change the language of the transcript?**
 
 Yes. TranscripTonic picks up the output of Google Meet captions. Google Meet captions supports variety of languages that you can choose from. Click the settings icon when captions start showing and change the language.
+
+**2. I did not get any transcript at the end of the meeting.**
+
+This could happen when:
+1. TranscripTonic was auto-updated by Chrome
+2. New errors caused by Google Meet updates
+3. Any unexpected events like network drop, browser crashes etc.
+
+When this happens, it might be possible to recover the transcript, but recovery should be done before starting another meeting.
+- Open the extension and click on "Download last meeting transcript". TranscripTonic will try and recover the last meeting transcript to the best possible extent.
+- TranscripTonic will also attempt to auto-recover any missed transcripts, whenever a new meeting starts.
 
 <br />
 <br />

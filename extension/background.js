@@ -7,6 +7,22 @@ const timeFormat = {
     hour12: true
 }
 
+// Listen for extension updates
+chrome.runtime.onUpdateAvailable.addListener((details) => {
+    console.log('Extension update available:', details.version)
+    // Check if there's an active meeting
+    chrome.storage.local.get(["meetingTabId"], function (data) {
+        if (data.meetingTabId) {
+            // There's an active meeting, defer the update
+            console.log('Caught event, which will defer this update attempt')
+        } else {
+            // No active meeting, apply the update immediately
+            console.log('No active meeting, applying update immediately')
+            chrome.runtime.reload()
+        }
+    })
+})
+
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     console.log(message.type)
 
@@ -48,6 +64,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
     if (message.type == "recover_last_transcript_and_download") {
         downloadAndPostWebhook()
+        sendResponse({ message: "Recovery process started" })
     }
     return true
 })
@@ -71,6 +88,7 @@ chrome.tabs.onRemoved.addListener(function (tabid) {
 // Download transcripts, post webhook if URL is enabled and available 
 function downloadAndPostWebhook() {
     chrome.storage.local.get(["transcript", "chatMessages"], function (resultLocal) {
+        // Check if at least one of transcript or chatMessages exist. To prevent downloading empty transcripts.
         if ((resultLocal.transcript != "") || (resultLocal.chatMessages != "")) {
             processTranscript().then(() => {
                 chrome.storage.local.get(["meetings"], function (resultLocal) {
@@ -99,14 +117,18 @@ function processTranscript() {
             "transcript",
             "chatMessages",
             "meetingTitle",
-            "meetingStartTimestamp"
+            "meetingStartTimestamp",
+            // Old name of meetingStartTimestamp
+            "meetingStartTimeStamp"
         ], function (result) {
 
             // Create new transcript entry
             const newMeetingEntry = {
                 title: result.meetingTitle || "Google Meet call",
-                startTimestamp: result.meetingStartTimestamp,
-                endTimestamp: Date.now(),
+                // Backward compatible chrome storage variable. Old name "meetingStartTimeStamp". 
+                meetingStartTimestamp: result.meetingStartTimestamp || result.meetingStartTimeStamp,
+                meetingEndTimestamp: Date.now(),
+                // Backward compatible chrome storage variable transcript. One of the keys is changed from "personTranscript" to "transcriptText"
                 transcript: result.transcript,
                 chatMessages: result.chatMessages,
                 webhookPostStatus: "new"
@@ -145,7 +167,7 @@ function downloadTranscript(index, webhookEnabled) {
             const sanitisedMeetingTitle = meeting.title.replaceAll(invalidFilenameRegex, "_")
 
             // Format timestamp for human-readable filename
-            const timestamp = new Date(meeting.startTimestamp)
+            const timestamp = new Date(meeting.meetingStartTimestamp)
             const formattedTimestamp = timestamp.toLocaleString("default", {
                 year: "numeric",
                 month: "2-digit",
@@ -234,8 +256,8 @@ function postTranscriptToWebhook(index) {
                 if (resultSync.webhookBodyType === "advanced") {
                     webhookData = {
                         meetingTitle: meeting.title,
-                        meetingStartTimestamp: new Date(meeting.startTimestamp).toISOString(),
-                        meetingEndTimestamp: new Date(meeting.endTimestamp).toISOString(),
+                        meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toISOString(),
+                        meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toISOString(),
                         transcript: meeting.transcript,
                         chatMessages: meeting.chatMessages
                     }
@@ -243,8 +265,8 @@ function postTranscriptToWebhook(index) {
                 else {
                     webhookData = {
                         meetingTitle: meeting.title,
-                        meetingStartTimestamp: new Date(meeting.startTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
-                        meetingEndTimestamp: new Date(meeting.endTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
+                        meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
+                        meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
                         transcript: getTranscriptString(meeting.transcript),
                         chatMessages: getChatMessagesString(meeting.chatMessages)
                     }
@@ -301,7 +323,8 @@ function getTranscriptString(transcript) {
     if (transcript.length > 0) {
         transcript.forEach(transcriptBlock => {
             transcriptString += `${transcriptBlock.personName} (${new Date(transcriptBlock.timestamp).toLocaleString("default", timeFormat).toUpperCase()})\n`
-            transcriptString += transcriptBlock.transcriptText
+            // Backward compatible key.  Old name "personTranscript".
+            transcriptString += transcriptBlock.transcriptText || transcriptBlock.personTranscript
             transcriptString += "\n\n"
         })
         return transcriptString

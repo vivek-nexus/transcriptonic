@@ -21,15 +21,16 @@ window.onload = function () {
     chrome.storage.sync.set({ operationMode: "manual" }, function () { })
   })
   lastMeetingTranscriptLink.addEventListener("click", () => {
-    // Unhandled case: if transcript and chatMessages variables in chrome storage are empty, but meetingStartTimestamp is somehow available (dev reload or 0 meetings attended), the button does not do anything
-    chrome.storage.local.get(["meetings", "meetingStartTimestamp"], function (result) {
-      if (result.meetingStartTimestamp) {
+    chrome.storage.local.get(["meetings", "meetingStartTimestamp", "meetingStartTimeStamp"], function (result) {
+      // Check if user ever attended a meeting
+      if (result.meetingStartTimestamp || result.meetingStartTimeStamp) {
         if (result.meetings && (result.meetings.length > 0)) {
 
           const meetingToDownload = result.meetings[result.meetings.length - 1]
 
           // Check if last meeting was successfully processed and added to meetings
-          if (result.meetingStartTimestamp === meetingToDownload.startTimestamp) {
+          if (result.meetingStartTimestamp === meetingToDownload.meetingStartTimestamp) {
+            // Silent failure if last meeting was an empty meeting
             chrome.runtime.sendMessage({
               type: "download_transcript_at_index",
               index: result.meetings.length - 1
@@ -39,6 +40,7 @@ window.onload = function () {
           }
           // Last meeting was not processed for some reason. Need to recover that data, process and download it.
           else {
+            // Silent failure if last meeting was an empty meeting
             chrome.runtime.sendMessage({
               type: "recover_last_transcript_and_download",
             }, function (response) {
@@ -46,7 +48,7 @@ window.onload = function () {
             })
           }
         }
-        // First meeting itself ended in a disaster. Need to recover that data, process and download it.
+        // First meeting itself ended in a disaster. Need to recover that data, process and download it. Also handles recoveries of versions where "meetingStartTimeStamp" was used, because result.meetings will always be undefined in those versions.
         else {
           chrome.runtime.sendMessage({
             type: "recover_last_transcript_and_download",
