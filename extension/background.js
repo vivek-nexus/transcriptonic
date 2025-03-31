@@ -7,6 +7,22 @@ const timeFormat = {
     hour12: true
 }
 
+// Listen for extension updates
+chrome.runtime.onUpdateAvailable.addListener((details) => {
+    console.log('Extension update available:', details.version)
+    // Check if there's an active meeting
+    chrome.storage.local.get(["meetingTabId"], function (data) {
+        if (data.meetingTabId) {
+            // There's an active meeting, defer the update
+            console.log('Caught event, which will defer this update attempt')
+        } else {
+            // No active meeting, apply the update immediately
+            console.log('No active meeting, applying update immediately')
+            chrome.runtime.reload()
+        }
+    })
+})
+
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     console.log(message.type)
 
