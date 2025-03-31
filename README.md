@@ -58,7 +58,9 @@ This could happen when:
 2. New errors caused by Google Meet updates
 3. Any unexpected events like network drop, browser crashes etc.
 
-When this happens, it might be possible to recover the transcript, but recovery should be done before starting another meeting. Open the extension and click on "Download last meeting transcript". TranscripTonic will try and recover the last meeting transcript to the best possible extent.
+When this happens, it might be possible to recover the transcript, but recovery should be done before starting another meeting.
+- Open the extension and click on "Download last meeting transcript". TranscripTonic will try and recover the last meeting transcript to the best possible extent.
+- TranscripTonic will also attempt to auto-recover any missed transcripts, whenever a new meeting starts.
 
 <br />
 <br />

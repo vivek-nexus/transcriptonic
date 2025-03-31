@@ -64,6 +64,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
     if (message.type == "recover_last_transcript_and_download") {
         downloadAndPostWebhook()
+        sendResponse({ message: "Recovery process started" })
     }
     return true
 })
@@ -87,6 +88,7 @@ chrome.tabs.onRemoved.addListener(function (tabid) {
 // Download transcripts, post webhook if URL is enabled and available 
 function downloadAndPostWebhook() {
     chrome.storage.local.get(["transcript", "chatMessages"], function (resultLocal) {
+        // Check if at least one of transcript or chatMessages exist. To prevent downloading empty transcripts.
         if ((resultLocal.transcript != "") || (resultLocal.chatMessages != "")) {
             processTranscript().then(() => {
                 chrome.storage.local.get(["meetings"], function (resultLocal) {

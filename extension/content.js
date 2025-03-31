@@ -1,3 +1,18 @@
+// Attempt to recover last meeting, if any. Abort if it takes more than 1 second to prevent current meeting getting messed up.
+Promise.race([
+  recoverLastMeeting(),
+  new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Recovery timed out')), 1000)
+  )
+]).
+  catch((error) => {
+    console.log(error)
+  }).
+  finally(() => {
+    // Save current meeting data to chrome storage once recovery is complete or is aborted
+    overWriteChromeStorage(["meetingStartTimestamp", "meetingTitle", "transcript", "chatMessages"], false)
+  })
+
 //*********** GLOBAL VARIABLES **********//
 const timeFormat = {
   year: "numeric",
@@ -19,7 +34,6 @@ let userName = "You"
 // Transcript array that holds one or more transcript blocks
 // Each transcript block (object) has personName, timestamp and transcriptText key value pairs
 let transcript = []
-overWriteChromeStorage(["transcript"], false)
 // Buffer variables to dump values, which get pushed to transcript array as transcript blocks, at defined conditions
 let personNameBuffer = "", transcriptTextBuffer = "", timestampBuffer = undefined
 // Buffer variables for deciding when to push a transcript block
@@ -27,12 +41,10 @@ let beforePersonName = "", beforeTranscriptText = ""
 // Chat messages array that holds one or chat messages of the meeting
 // Each message block(object) has personName, timestamp and messageText key value pairs
 let chatMessages = []
-overWriteChromeStorage(["chatMessages"], false)
 
 // Capture meeting start timestamp, stored in UNIX format
 let meetingStartTimestamp = Date.now()
 let meetingTitle = document.title
-overWriteChromeStorage(["meetingStartTimestamp", "meetingTitle"], false)
 // Capture invalid transcript and chat messages DOM element error for the first time
 let isTranscriptDomErrorCaptured = false
 let isChatMessagesDomErrorCaptured = false
@@ -561,6 +573,42 @@ async function checkExtensionStatus() {
 
       logError("008", err)
     })
+}
+
+function recoverLastMeeting() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(["meetings", "meetingStartTimestamp", "meetingStartTimeStamp"], function (result) {
+      // Check if user ever attended a meeting
+      // Backward compatible chrome storage variable. Old name "meetingStartTimeStamp". 
+      if (result.meetingStartTimestamp || result.meetingStartTimeStamp) {
+        if (result.meetings && (result.meetings.length > 0)) {
+          const meetingToDownload = result.meetings[result.meetings.length - 1]
+
+          // Last meeting was not processed for some reason. Need to recover that data, process and download it.
+          if (result.meetingStartTimestamp !== meetingToDownload.meetingStartTimestamp) {
+            // Silent failure if last meeting was an empty meeting
+            chrome.runtime.sendMessage({
+              type: "recover_last_transcript_and_download",
+            }, function (response) {
+              console.log(response)
+              resolve()
+              return
+            })
+          }
+        }
+        // First meeting itself ended in a disaster. Need to recover that data, process and download it. Also handles recoveries of versions where "meetingStartTimeStamp" was used, because result.meetings will always be undefined in those versions.
+        else {
+          chrome.runtime.sendMessage({
+            type: "recover_last_transcript_and_download",
+          }, function (response) {
+            console.log(response)
+            resolve()
+            return
+          })
+        }
+      }
+    })
+  })
 }
 
 
