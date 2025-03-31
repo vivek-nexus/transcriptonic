@@ -7,23 +7,6 @@ const timeFormat = {
     hour12: true
 }
 
-// Listen for extension updates
-chrome.runtime.onUpdateAvailable.addListener((details) => {
-    console.log("Extension update available:", details.version)
-    // Check if there is an active meeting
-    chrome.storage.local.get(["meetingTabId"], function (result) {
-        if (result.meetingTabId) {
-            // There is an active meeting, defer the update
-            chrome.storage.local.set({ deferredUpdateAvailableTimestamp: Date.now() }, function () {
-                console.log("Deferred update flag set")
-            })
-        } else {
-            // No active meeting, apply the update immediately
-            console.log("No active meeting, applying update immediately")
-            chrome.runtime.reload()
-        }
-    })
-})
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     console.log(message.type)
@@ -39,15 +22,17 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     }
 
     if (message.type == "meeting_ended") {
-        // Invalidate tab id since transcript is downloaded, prevents double downloading of transcript from tab closed event listener
-        clearTabIdAndApplyUpdate()
-        downloadAndPostWebhook()
-
+        downloadAndPostWebhook().finally(() => {
+            // Invalidate tab id since transcript is downloaded, prevents double downloading of transcript from tab closed event listener
+            clearTabIdAndApplyUpdate()
+        })
     }
 
     if (message.type == "download_transcript_at_index") {
         // Download the requested item
-        downloadTranscript(message.index, false)
+        downloadTranscript(message.index, false).then(() => {
+            sendResponse({ success: true })
+        })
     }
 
     if (message.type == "retry_webhook_at_index") {
@@ -62,9 +47,14 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             })
     }
 
-    if (message.type == "recover_last_transcript") {
-        downloadAndPostWebhook()
-        sendResponse({ message: "Recovery process started" })
+    if (message.type == "recover_last_meeting") {
+        downloadAndPostWebhook().then(() => {
+            sendResponse({ success: true })
+        }).catch((error) => {
+            // Fails if transcript is empty or webhook request fails
+            console.error("Recovery process failed:", error)
+            sendResponse({ success: false, error: error.message })
+        })
     }
     return true
 })
@@ -75,35 +65,76 @@ chrome.tabs.onRemoved.addListener(function (tabid) {
         if (tabid == data.meetingTabId) {
             console.log("Successfully intercepted tab close")
 
-            // Clearing meetingTabId to prevent misfires of onRemoved until next meeting actually starts
-            clearTabIdAndApplyUpdate()
-            downloadAndPostWebhook()
+            downloadAndPostWebhook().finally(() => {
+                // Clearing meetingTabId to prevent misfires of onRemoved until next meeting actually starts
+                clearTabIdAndApplyUpdate()
+            })
         }
     })
 })
 
-// Download transcripts, post webhook if URL is enabled and available 
-function downloadAndPostWebhook() {
-    chrome.storage.local.get(["transcript", "chatMessages"], function (resultLocal) {
-        // Check if at least one of transcript or chatMessages exist. To prevent downloading empty transcripts.
-        if ((resultLocal.transcript != "") || (resultLocal.chatMessages != "")) {
-            processTranscript().then(() => {
-                chrome.storage.local.get(["meetings"], function (resultLocal) {
-                    chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (resultSync) {
-                        // Download the last transcript
-                        const lastIndex = resultLocal.meetings.length - 1
-                        downloadTranscript(lastIndex, (resultSync.webhookUrl && resultSync.autoPostWebhookAfterMeeting) ? true : false)
+// Listen for extension updates
+chrome.runtime.onUpdateAvailable.addListener(() => {
+    // Check if there is an active meeting
+    chrome.storage.local.get(["meetingTabId"], function (result) {
+        if (result.meetingTabId) {
+            // There is an active meeting, defer the update
+            chrome.storage.local.set({ isDeferredUpdatedAvailable: true }, function () {
+                console.log("Deferred update flag set")
+            })
+        } else {
+            // No active meeting, apply the update immediately. Meeting tab id is invalidated only post meeting operations are done, so no race conditions.
+            console.log("No active meeting, applying update immediately")
+            chrome.runtime.reload()
+        }
+    })
+})
 
-                        // Post the last transcript to webhook if auto-post is enabled and available
-                        if (resultSync.autoPostWebhookAfterMeeting && resultSync.webhookUrl) {
-                            postTranscriptToWebhook(lastIndex).catch(error => {
-                                console.error("Webhook post failed:", error)
-                            })
-                        }
+// Download transcripts, post webhook if URL is enabled and available
+// Fails if transcript is empty or webhook request fails
+function downloadAndPostWebhook() {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(["transcript", "chatMessages"], function (resultLocal) {
+            // Check if at least one of transcript or chatMessages exist. To prevent downloading empty transcripts.
+            if ((resultLocal.transcript != "") || (resultLocal.chatMessages != "")) {
+                processTranscript().then(() => {
+                    chrome.storage.local.get(["meetings"], function (resultLocal) {
+                        chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (resultSync) {
+                            // Create an array of promises to execute in parallel
+                            const promises = []
+
+                            // Promise to download transcript
+                            const lastIndex = resultLocal.meetings.length - 1
+                            promises.push([
+                                downloadTranscript(
+                                    lastIndex,
+                                    resultSync.webhookUrl && resultSync.autoPostWebhookAfterMeeting ? true : false
+                                )
+                            ])
+
+                            // Promise to post webhook if enabled
+                            if (resultSync.autoPostWebhookAfterMeeting && resultSync.webhookUrl) {
+                                promises.push(postTranscriptToWebhook(lastIndex))
+                            }
+
+                            // Execute all promises in parallel
+                            // First promise will always resolve, second one will fail if webhook request fails
+                            Promise.all(promises)
+                                .then(() => {
+                                    resolve()
+                                })
+                                .catch(error => {
+                                    console.error("Operation failed:", error)
+                                    reject(error)
+                                })
+                        })
                     })
                 })
-            })
-        }
+            }
+            else {
+                reject("Empty transcript and empty chatMessages")
+            }
+        })
     })
 }
 
@@ -154,80 +185,84 @@ function processTranscript() {
 
 
 function downloadTranscript(index, webhookEnabled) {
-    chrome.storage.local.get(["meetings"], function (result) {
-        if (result.meetings && result.meetings[index]) {
-            const meeting = result.meetings[index]
+    return new Promise((resolve) => {
+        chrome.storage.local.get(["meetings"], function (result) {
+            if (result.meetings && result.meetings[index]) {
+                const meeting = result.meetings[index]
 
-            // Sanitise meeting title to prevent invalid file name errors
-            // https://stackoverflow.com/a/78675894
-            const invalidFilenameRegex = /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/gui
-            const sanitisedMeetingTitle = meeting.title.replaceAll(invalidFilenameRegex, "_")
+                // Sanitise meeting title to prevent invalid file name errors
+                // https://stackoverflow.com/a/78675894
+                const invalidFilenameRegex = /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/gui
+                const sanitisedMeetingTitle = meeting.title.replaceAll(invalidFilenameRegex, "_")
 
-            // Format timestamp for human-readable filename
-            const timestamp = new Date(meeting.meetingStartTimestamp)
-            const formattedTimestamp = timestamp.toLocaleString("default", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: false
-            }).replace(/[\/:]/g, "-")
+                // Format timestamp for human-readable filename
+                const timestamp = new Date(meeting.meetingStartTimestamp)
+                const formattedTimestamp = timestamp.toLocaleString("default", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: false
+                }).replace(/[\/:]/g, "-")
 
-            const fileName = `TranscripTonic/Transcript-${sanitisedMeetingTitle} at ${formattedTimestamp}.txt`
+                const fileName = `TranscripTonic/Transcript-${sanitisedMeetingTitle} at ${formattedTimestamp}.txt`
 
 
-            // Format transcript and chatMessages content
-            let content = getTranscriptString(meeting.transcript)
-            content += `\n\n---------------\nCHAT MESSAGES\n---------------\n\n`
-            content += getChatMessagesString(meeting.chatMessages)
+                // Format transcript and chatMessages content
+                let content = getTranscriptString(meeting.transcript)
+                content += `\n\n---------------\nCHAT MESSAGES\n---------------\n\n`
+                content += getChatMessagesString(meeting.chatMessages)
 
-            // Add branding
-            content += "\n\n---------------\n"
-            content += "Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)"
-            content += "\n---------------"
+                // Add branding
+                content += "\n\n---------------\n"
+                content += "Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)"
+                content += "\n---------------"
 
-            const blob = new Blob([content], { type: "text/plain" })
+                const blob = new Blob([content], { type: "text/plain" })
 
-            // Read the blob as a data URL
-            const reader = new FileReader()
+                // Read the blob as a data URL
+                const reader = new FileReader()
 
-            // Download once blob is read
-            reader.onload = function (event) {
-                const dataUrl = event.target.result
+                // Read the blob and download as text file
+                reader.readAsDataURL(blob)
 
-                // Create a download with Chrome Download API
-                chrome.downloads.download({
-                    url: dataUrl,
-                    filename: fileName,
-                    conflictAction: "uniquify"
-                }).then(() => {
-                    console.log("Transcript downloaded")
-                    // Increment anonymous transcript generated count to a Google sheet
-                    fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}&webhookEnabled=${webhookEnabled}`, {
-                        mode: "no-cors"
-                    })
-                }).catch((err) => {
-                    console.error(err)
+                // Download once blob is read
+                reader.onload = function (event) {
+                    const dataUrl = event.target.result
+
+                    // Create a download with Chrome Download API
                     chrome.downloads.download({
                         url: dataUrl,
-                        filename: "TranscripTonic/Transcript.txt",
+                        filename: fileName,
                         conflictAction: "uniquify"
+                    }).then(() => {
+                        console.log("Transcript downloaded")
+                        // Increment anonymous transcript generated count to a Google sheet
+                        fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}&webhookEnabled=${webhookEnabled}`, {
+                            mode: "no-cors"
+                        })
+                        resolve()
+                    }).catch((err) => {
+                        console.error(err)
+                        chrome.downloads.download({
+                            url: dataUrl,
+                            filename: "TranscripTonic/Transcript.txt",
+                            conflictAction: "uniquify"
+                        })
+                        console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
+                        // Logs anonymous errors to a Google sheet for swift debugging   
+                        fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
+                        // Increment anonymous transcript generated count to a Google sheet
+                        fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}&webhookEnabled=${webhookEnabled}`, {
+                            mode: "no-cors"
+                        })
+                        resolve()
                     })
-                    console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
-                    // Logs anonymous errors to a Google sheet for swift debugging   
-                    fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
-                    // Increment anonymous transcript generated count to a Google sheet
-                    fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}&webhookEnabled=${webhookEnabled}`, {
-                        mode: "no-cors"
-                    })
-                })
+                }
             }
-
-            // Read the blob and download as text file
-            reader.readAsDataURL(blob)
-        }
+        })
     })
 }
 
@@ -345,19 +380,14 @@ function getChatMessagesString(chatMessages) {
 function clearTabIdAndApplyUpdate() {
     chrome.storage.local.set({ meetingTabId: null }, function () {
         console.log("Meeting tab id cleared for next meeting")
-        // Check if there's a deferred update
-        chrome.storage.local.get(["deferredUpdateAvailableTimestamp"], function (result) {
-            if (result.deferredUpdateAvailableTimestamp) {
-                const timeSinceUpdateAvailable = Date.now() - result.deferredUpdateAvailableTimestamp
-                const timeToWait = timeSinceUpdateAvailable > 10000 ? 0 : 10000 - timeSinceUpdateAvailable
 
-                console.log(`Applying deferred update in ${timeToWait}ms`)
-                setTimeout(() => {
-                    console.log("Applying deferred update")
-                    chrome.storage.local.set({ deferredUpdateAvailableTimestamp: null }, function () {
-                        chrome.runtime.reload()
-                    })
-                }, timeToWait)
+        // Check if there's a deferred update
+        chrome.storage.local.get(["isDeferredUpdatedAvailable"], function (result) {
+            if (result.isDeferredUpdatedAvailable) {
+                console.log("Applying deferred update")
+                chrome.storage.local.set({ isDeferredUpdatedAvailable: false }, function () {
+                    chrome.runtime.reload()
+                })
             }
         })
     })

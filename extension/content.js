@@ -576,7 +576,7 @@ async function checkExtensionStatus() {
 }
 
 function recoverLastMeeting() {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     chrome.storage.local.get(["meetings", "meetingStartTimestamp", "meetingStartTimeStamp"], function (result) {
       // Check if user ever attended a meeting
       // Backward compatible chrome storage variable. Old name "meetingStartTimeStamp". 
@@ -588,22 +588,35 @@ function recoverLastMeeting() {
           if (result.meetingStartTimestamp !== meetingToDownload.meetingStartTimestamp) {
             // Silent failure if last meeting is an empty meeting
             chrome.runtime.sendMessage({
-              type: "recover_last_transcript",
+              type: "recover_last_meeting",
             }, function (response) {
-              console.log(response)
-              resolve()
-              return
+              if (response.success) {
+                resolve()
+                return
+              }
+              else {
+                resolve("Could not recover. Last meeting was likely empty.")
+                return
+              }
             })
+          }
+          else {
+            resolve("No recovery needed")
           }
         }
         // First meeting itself ended in a disaster. Need to recover that data, process and download it. Also handle recoveries of versions where "meetingStartTimeStamp" was used, because result.meetings will always be undefined in those versions.
         else {
           chrome.runtime.sendMessage({
-            type: "recover_last_transcript",
+            type: "recover_last_meeting",
           }, function (response) {
-            console.log(response)
-            resolve()
-            return
+            if (response.success) {
+              resolve()
+              return
+            }
+            else {
+              reject("Could not recover. Last meeting was likely empty.")
+              return
+            }
           })
         }
       }

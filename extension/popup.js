@@ -43,7 +43,7 @@ window.onload = function () {
           else {
             // Silent failure if last meeting is an empty meeting
             chrome.runtime.sendMessage({
-              type: "recover_last_transcript",
+              type: "recover_last_meeting",
             }, function (response) {
               console.log(response)
             })
@@ -52,7 +52,7 @@ window.onload = function () {
         // First meeting itself ended in a disaster. Need to recover that data, process and download it. Also handle recoveries of versions where "meetingStartTimeStamp" was used, because result.meetings will always be undefined in those versions.
         else {
           chrome.runtime.sendMessage({
-            type: "recover_last_transcript",
+            type: "recover_last_meeting",
           }, function (response) {
             console.log(response)
           })
