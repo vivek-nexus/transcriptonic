@@ -115,14 +115,18 @@ function processTranscript() {
             "transcript",
             "chatMessages",
             "meetingTitle",
-            "meetingStartTimestamp"
+            "meetingStartTimestamp",
+            // Old name of meetingStartTimestamp
+            "meetingStartTimeStamp"
         ], function (result) {
 
             // Create new transcript entry
             const newMeetingEntry = {
                 title: result.meetingTitle || "Google Meet call",
-                meetingStartTimestamp: result.meetingStartTimestamp,
+                // Backward compatible chrome storage variable. Old name "meetingStartTimeStamp". 
+                meetingStartTimestamp: result.meetingStartTimestamp || result.meetingStartTimeStamp,
                 meetingEndTimestamp: Date.now(),
+                // Backward compatible chrome storage variable transcript. One of the keys is changed from "personTranscript" to "transcriptText"
                 transcript: result.transcript,
                 chatMessages: result.chatMessages,
                 webhookPostStatus: "new"
@@ -317,7 +321,8 @@ function getTranscriptString(transcript) {
     if (transcript.length > 0) {
         transcript.forEach(transcriptBlock => {
             transcriptString += `${transcriptBlock.personName} (${new Date(transcriptBlock.timestamp).toLocaleString("default", timeFormat).toUpperCase()})\n`
-            transcriptString += transcriptBlock.transcriptText
+            // Backward compatible key.  Old name "personTranscript".
+            transcriptString += transcriptBlock.transcriptText || transcript.personTranscript
             transcriptString += "\n\n"
         })
         return transcriptString
