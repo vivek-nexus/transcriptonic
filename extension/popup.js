@@ -23,6 +23,7 @@ window.onload = function () {
   lastMeetingTranscriptLink.addEventListener("click", () => {
     chrome.storage.local.get(["meetings", "meetingStartTimestamp", "meetingStartTimeStamp"], function (result) {
       // Check if user ever attended a meeting
+      // Backward compatible chrome storage variable. Old name "meetingStartTimeStamp". 
       if (result.meetingStartTimestamp || result.meetingStartTimeStamp) {
         if (result.meetings && (result.meetings.length > 0)) {
 
@@ -30,7 +31,7 @@ window.onload = function () {
 
           // Check if last meeting was successfully processed and added to meetings
           if (result.meetingStartTimestamp === meetingToDownload.meetingStartTimestamp) {
-            // Silent failure if last meeting was an empty meeting
+            // Silent failure if last meeting is an empty meeting
             chrome.runtime.sendMessage({
               type: "download_transcript_at_index",
               index: result.meetings.length - 1
@@ -40,18 +41,18 @@ window.onload = function () {
           }
           // Last meeting was not processed for some reason. Need to recover that data, process and download it.
           else {
-            // Silent failure if last meeting was an empty meeting
+            // Silent failure if last meeting is an empty meeting
             chrome.runtime.sendMessage({
-              type: "recover_last_transcript_and_download",
+              type: "recover_last_transcript",
             }, function (response) {
               console.log(response)
             })
           }
         }
-        // First meeting itself ended in a disaster. Need to recover that data, process and download it. Also handles recoveries of versions where "meetingStartTimeStamp" was used, because result.meetings will always be undefined in those versions.
+        // First meeting itself ended in a disaster. Need to recover that data, process and download it. Also handle recoveries of versions where "meetingStartTimeStamp" was used, because result.meetings will always be undefined in those versions.
         else {
           chrome.runtime.sendMessage({
-            type: "recover_last_transcript_and_download",
+            type: "recover_last_transcript",
           }, function (response) {
             console.log(response)
           })

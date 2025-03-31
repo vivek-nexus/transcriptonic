@@ -586,9 +586,9 @@ function recoverLastMeeting() {
 
           // Last meeting was not processed for some reason. Need to recover that data, process and download it.
           if (result.meetingStartTimestamp !== meetingToDownload.meetingStartTimestamp) {
-            // Silent failure if last meeting was an empty meeting
+            // Silent failure if last meeting is an empty meeting
             chrome.runtime.sendMessage({
-              type: "recover_last_transcript_and_download",
+              type: "recover_last_transcript",
             }, function (response) {
               console.log(response)
               resolve()
@@ -596,10 +596,10 @@ function recoverLastMeeting() {
             })
           }
         }
-        // First meeting itself ended in a disaster. Need to recover that data, process and download it. Also handles recoveries of versions where "meetingStartTimeStamp" was used, because result.meetings will always be undefined in those versions.
+        // First meeting itself ended in a disaster. Need to recover that data, process and download it. Also handle recoveries of versions where "meetingStartTimeStamp" was used, because result.meetings will always be undefined in those versions.
         else {
           chrome.runtime.sendMessage({
-            type: "recover_last_transcript_and_download",
+            type: "recover_last_transcript",
           }, function (response) {
             console.log(response)
             resolve()

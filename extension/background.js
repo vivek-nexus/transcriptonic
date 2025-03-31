@@ -10,10 +10,10 @@ const timeFormat = {
 // Listen for extension updates
 chrome.runtime.onUpdateAvailable.addListener((details) => {
     console.log('Extension update available:', details.version)
-    // Check if there's an active meeting
-    chrome.storage.local.get(["meetingTabId"], function (data) {
-        if (data.meetingTabId) {
-            // There's an active meeting, defer the update
+    // Check if there is an active meeting
+    chrome.storage.local.get(["meetingTabId"], function (result) {
+        if (result.meetingTabId) {
+            // There is an active meeting, defer the update
             console.log('Caught event, which will defer this update attempt')
         } else {
             // No active meeting, apply the update immediately
@@ -62,7 +62,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             })
     }
 
-    if (message.type == "recover_last_transcript_and_download") {
+    if (message.type == "recover_last_transcript") {
         downloadAndPostWebhook()
         sendResponse({ message: "Recovery process started" })
     }
