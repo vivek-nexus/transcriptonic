@@ -1,3 +1,7 @@
+// @ts-check
+/// <reference path="../types/chrome.d.ts" />
+/// <reference path="../types/index.js" />
+
 document.addEventListener("DOMContentLoaded", function () {
     const webhookUrlInput = document.querySelector("#webhook-url")
     const saveButton = document.querySelector("#save-webhook")
@@ -5,50 +9,54 @@ document.addEventListener("DOMContentLoaded", function () {
     const simpleWebhookBodyRadio = document.querySelector("#simple-webhook-body")
     const advancedWebhookBodyRadio = document.querySelector("#advanced-webhook-body")
 
-    // Initially disable the save button
-    saveButton.disabled = true
+    if (saveButton instanceof HTMLButtonElement && webhookUrlInput instanceof HTMLInputElement && autoPostCheckbox instanceof HTMLInputElement && simpleWebhookBodyRadio instanceof HTMLInputElement && advancedWebhookBodyRadio instanceof HTMLInputElement) {
+        // Initially disable the save button
+        saveButton.disabled = true
 
-    // Load saved webhook URL, auto-post setting, and webhook body type
-    chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting", "webhookBodyType"], function (result) {
-        if (result.webhookUrl) {
-            webhookUrlInput.value = result.webhookUrl
-            saveButton.disabled = !webhookUrlInput.checkValidity()
-        }
-        // Set checkbox state, default to true if not set
-        autoPostCheckbox.checked = result.autoPostWebhookAfterMeeting !== false
-        // Set radio button state, default to simple if not set
-        if (result.webhookBodyType === "advanced") {
-            advancedWebhookBodyRadio.checked = true
-        } else {
-            simpleWebhookBodyRadio.checked = true
-        }
-    })
+        // Load saved webhook URL, auto-post setting, and webhook body type
+        chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting", "webhookBodyType"], function (resultSyncUntyped) {
+            const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
 
-    // Handle URL input changes
-    webhookUrlInput.addEventListener("input", function () {
-        saveButton.disabled = !webhookUrlInput.value || !webhookUrlInput.checkValidity()
-    })
+            if (resultSync.webhookUrl) {
+                webhookUrlInput.value = resultSync.webhookUrl
+                saveButton.disabled = !webhookUrlInput.checkValidity()
+            }
+            // Set checkbox state, default to true if not set
+            autoPostCheckbox.checked = resultSync.autoPostWebhookAfterMeeting !== false
+            // Set radio button state, default to simple if not set
+            if (resultSync.webhookBodyType === "advanced") {
+                advancedWebhookBodyRadio.checked = true
+            } else {
+                simpleWebhookBodyRadio.checked = true
+            }
+        })
 
-    // Save webhook URL, auto-post setting, and webhook body type
-    saveButton.addEventListener("click", async function () {
-        const webhookUrl = webhookUrlInput.value
-        if (webhookUrl && webhookUrlInput.checkValidity()) {
-            // Request runtime permission for the webhook URL
-            requestWebhookAndNotificationPermission(webhookUrl).then(() => {
-                // Save webhook URL and settings
-                chrome.storage.sync.set({
-                    webhookUrl: webhookUrl,
-                    autoPostWebhookAfterMeeting: autoPostCheckbox.checked,
-                    webhookBodyType: advancedWebhookBodyRadio.checked ? "advanced" : "simple"
-                }, function () {
-                    alert("Webhook settings saved!")
+        // Handle URL input changes
+        webhookUrlInput.addEventListener("input", function () {
+            saveButton.disabled = !webhookUrlInput.value || !webhookUrlInput.checkValidity()
+        })
+
+        // Save webhook URL, auto-post setting, and webhook body type
+        saveButton.addEventListener("click", async function () {
+            const webhookUrl = webhookUrlInput.value
+            if (webhookUrl && webhookUrlInput.checkValidity()) {
+                // Request runtime permission for the webhook URL
+                requestWebhookAndNotificationPermission(webhookUrl).then(() => {
+                    // Save webhook URL and settings
+                    chrome.storage.sync.set({
+                        webhookUrl: webhookUrl,
+                        autoPostWebhookAfterMeeting: autoPostCheckbox.checked,
+                        webhookBodyType: advancedWebhookBodyRadio.checked ? "advanced" : "simple"
+                    }, function () {
+                        alert("Webhook settings saved!")
+                    })
+                }).catch((error) => {
+                    alert("Fine! No webhooks for you!")
+                    console.error("Webhook permission error:", error)
                 })
-            }).catch((error) => {
-                alert("Fine! No webhooks for you!")
-                console.error("Webhook permission error:", error)
-            })
-        }
-    })
+            }
+        })
+    }
 
     // Initial load of transcripts
     loadTranscripts()
@@ -75,7 +83,7 @@ function requestWebhookAndNotificationPermission(url) {
                 permissions: ["notifications"]
             }).then((granted) => {
                 if (granted) {
-                    resolve()
+                    resolve("Permission granted")
                 } else {
                     reject(new Error("Permission denied"))
                 }
@@ -92,80 +100,97 @@ function requestWebhookAndNotificationPermission(url) {
 function loadTranscripts() {
     const meetingsTable = document.querySelector("#transcripts-table")
 
-    chrome.storage.local.get(["meetings"], function (result) {
+    chrome.storage.local.get(["meetings"], function (resultLocalUntyped) {
+        const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
         // Clear existing content
-        meetingsTable.innerHTML = ""
+        if (meetingsTable) {
+            meetingsTable.innerHTML = ""
 
-        if (result.meetings && result.meetings.length > 0) {
-            // Loop through the array in reverse order to list latest meeting first
-            for (let i = result.meetings.length - 1; i >= 0; i--) {
-                const meeting = result.meetings[i]
-                const timestamp = new Date(meeting.meetingStartTimestamp).toLocaleString()
-                const durationString = getDuration(meeting.meetingStartTimestamp, meeting.meetingEndTimestamp)
 
-                const row = document.createElement("tr")
-                row.innerHTML = `
+            if (resultLocal.meetings && resultLocal.meetings.length > 0) {
+                // Loop through the array in reverse order to list latest meeting first
+                for (let i = resultLocal.meetings.length - 1; i >= 0; i--) {
+                    const meeting = resultLocal.meetings[i]
+                    const timestamp = new Date(meeting.meetingStartTimestamp).toLocaleString()
+                    const durationString = getDuration(meeting.meetingStartTimestamp, meeting.meetingEndTimestamp)
+
+                    const row = document.createElement("tr")
+                    row.innerHTML = `
                     <td>${meeting.title}</td>
                     <td>${timestamp} &nbsp; &#9679; &nbsp; ${durationString}</td>
                     <td>
                         ${(
-                        () => {
-                            switch (meeting.webhookPostStatus) {
-                                case "successful":
-                                    return `<span class="status-success">Successful</span>`
-                                case "failed":
-                                    return `<span class="status-failed">Failed</span>`
-                                case "new":
-                                    return `<span class="status-new">New</span>`
-                                default:
-                                    return `<span class="status-new">Unknown</span>`
+                            () => {
+                                switch (meeting.webhookPostStatus) {
+                                    case "successful":
+                                        return `<span class="status-success">Successful</span>`
+                                    case "failed":
+                                        return `<span class="status-failed">Failed</span>`
+                                    case "new":
+                                        return `<span class="status-new">New</span>`
+                                    default:
+                                        return `<span class="status-new">Unknown</span>`
+                                }
                             }
-                        }
-                    )()}
+                        )()}
                     </td>
                     <td style="min-width: 96px;">
                         <button class="post-button" data-index="${i}">${meeting.webhookPostStatus === "new" ? `Post` : `Repost`}</button>
                     </td>
                 `
-                meetingsTable.appendChild(row)
+                    meetingsTable.appendChild(row)
 
-                // Add event listener to the post button
-                const button = row.querySelector(".post-button")
-                button.addEventListener("click", function () {
-                    chrome.storage.sync.get(["webhookUrl"], function (result) {
-                        if (result.webhookUrl) {
-                            // Disable button and update text
-                            button.disabled = true
-                            button.textContent = meeting.webhookPostStatus === "new" ? "Posting..." : "Reposting..."
+                    // Add event listener to the post button
+                    const button = row.querySelector(".post-button")
+                    if (button instanceof HTMLButtonElement) {
+                        button.addEventListener("click", function () {
+                            chrome.storage.sync.get(["webhookUrl"], function (resultSyncUntyped) {
+                                const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+                                if (resultSync.webhookUrl) {
+                                    // Disable button and update text
+                                    button.disabled = true
+                                    button.textContent = meeting.webhookPostStatus === "new" ? "Posting..." : "Reposting..."
 
-                            // Send message to background script to post webhook
-                            const index = parseInt(button.getAttribute("data-index"))
-                            chrome.runtime.sendMessage({
-                                type: "retry_webhook_at_index",
-                                index: index
-                            }, response => {
-                                loadTranscripts()
-                                if (response.success) {
-                                    alert("Posted successfully!")
+                                    // Send message to background script to post webhook
+                                    const index = parseInt(button.getAttribute("data-index") ?? "-1")
+                                    /** @type {ExtensionMessage} */
+                                    const message = {
+                                        type: "retry_webhook_at_index",
+                                        index: index
+                                    }
+                                    chrome.runtime.sendMessage(message, (responseUntyped) => {
+                                        const response = /** @type {ExtensionResponse} */ (responseUntyped)
+                                        loadTranscripts()
+                                        if (response.success) {
+                                            alert("Posted successfully!")
+                                        }
+                                        else {
+                                            console.error(response.message)
+                                        }
+                                    })
+                                }
+                                else {
+                                    alert("Please provide a webhook URL")
                                 }
                             })
-                        }
-                        else {
-                            alert("Please provide a webhook URL")
-                        }
-                    })
-                })
+                        })
+                    }
+                }
             }
-        }
-        else {
-            meetingsTable.innerHTML = `<tr><td colspan="4">Your next meeting will show up here</td></tr>`
+            else {
+                meetingsTable.innerHTML = `<tr><td colspan="4">Your next meeting will show up here</td></tr>`
+            }
         }
     })
 }
 
 // Format duration between two timestamps, specified in milliseconds elapsed since the epoch
+/**
+ * @param {string} meetingStartTimestamp - ISO timestamp
+ * @param {string} meetingEndTimestamp - ISO timestamp
+ */
 function getDuration(meetingStartTimestamp, meetingEndTimestamp) {
-    const duration = new Date(meetingEndTimestamp) - new Date(meetingStartTimestamp)
+    const duration = new Date(meetingEndTimestamp).getTime() - new Date(meetingStartTimestamp).getTime()
     const durationMinutes = Math.round(duration / (1000 * 60))
     const durationHours = Math.floor(durationMinutes / 60)
     const remainingMinutes = durationMinutes % 60

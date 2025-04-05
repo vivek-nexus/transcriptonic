@@ -1,3 +1,8 @@
+// @ts-check
+/// <reference path="../types/chrome.d.ts" />
+/// <reference path="../types/index.js" />
+
+/** @type {Intl.DateTimeFormatOptions} */
 const timeFormat = {
     year: "numeric",
     month: "2-digit",
@@ -8,7 +13,8 @@ const timeFormat = {
 }
 
 
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendResponse) {
+    const message = /** @type {ExtensionMessage} */ (messageUnTyped)
     console.log(message.type)
 
     if (message.type == "new_meeting_started") {
@@ -29,22 +35,42 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     }
 
     if (message.type == "download_transcript_at_index") {
-        // Download the requested item
-        downloadTranscript(message.index, false).then(() => {
-            sendResponse({ success: true })
-        })
+        if (message.index) {
+            // Download the requested item
+            downloadTranscript(message.index, false).then(() => {
+                /** @type {ExtensionResponse} */
+                const response = { success: true }
+                sendResponse(response)
+            })
+        }
+        else {
+            /** @type {ExtensionResponse} */
+            const response = { success: false, message: "No index provided" }
+            sendResponse(response)
+        }
     }
 
     if (message.type == "retry_webhook_at_index") {
-        // Handle webhook retry
-        postTranscriptToWebhook(message.index)
-            .then(() => {
-                sendResponse({ success: true })
-            })
-            .catch(error => {
-                console.error("Webhook retry failed:", error)
-                sendResponse({ success: false, error: error.message })
-            })
+        if (message.index) {
+            // Handle webhook retry
+            postTranscriptToWebhook(message.index)
+                .then(() => {
+                    /** @type {ExtensionResponse} */
+                    const response = { success: true }
+                    sendResponse(response)
+                })
+                .catch(error => {
+                    console.error("Webhook retry failed:", error)
+                    /** @type {ExtensionResponse} */
+                    const response = { success: false, message: error.message }
+                    sendResponse(response)
+                })
+        }
+        else {
+            /** @type {ExtensionResponse} */
+            const response = { success: false, message: "No index provided" }
+            sendResponse(response)
+        }
     }
 
     if (message.type == "recover_last_meeting") {
@@ -53,7 +79,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         }).catch((error) => {
             // Fails if transcript is empty or webhook request fails
             console.error("Recovery process failed:", error)
-            sendResponse({ success: false, error: error.message })
+            /** @type {ExtensionResponse} */
+            const response = { success: false, message: error.message }
+            sendResponse(response)
         })
     }
     return true
@@ -61,8 +89,10 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 // Download transcript if meeting tab is closed
 chrome.tabs.onRemoved.addListener(function (tabid) {
-    chrome.storage.local.get(["meetingTabId"], function (data) {
-        if (tabid == data.meetingTabId) {
+    chrome.storage.local.get(["meetingTabId"], function (resultLocalUntyped) {
+        const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
+
+        if (tabid == resultLocal.meetingTabId) {
             console.log("Successfully intercepted tab close")
 
             downloadAndPostWebhook().finally(() => {
@@ -76,7 +106,9 @@ chrome.tabs.onRemoved.addListener(function (tabid) {
 // Listen for extension updates
 chrome.runtime.onUpdateAvailable.addListener(() => {
     // Check if there is an active meeting
-    chrome.storage.local.get(["meetingTabId"], function (result) {
+    chrome.storage.local.get(["meetingTabId"], function (resultUntyped) {
+        const result = /** @type {ResultLocal} */ (resultUntyped)
+
         if (result.meetingTabId) {
             // There is an active meeting, defer the update
             chrome.storage.local.set({ isDeferredUpdatedAvailable: true }, function () {
@@ -94,12 +126,15 @@ chrome.runtime.onUpdateAvailable.addListener(() => {
 // Fails if transcript is empty or webhook request fails
 function downloadAndPostWebhook() {
     return new Promise((resolve, reject) => {
-        chrome.storage.local.get(["transcript", "chatMessages"], function (resultLocal) {
+        chrome.storage.local.get(["transcript", "chatMessages", "meetings"], function (resultLocalUntyped) {
+            const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
             // Check if at least one of transcript or chatMessages exist. To prevent downloading empty transcripts.
-            if ((resultLocal.transcript != "") || (resultLocal.chatMessages != "")) {
-                processTranscript().then(() => {
-                    chrome.storage.local.get(["meetings"], function (resultLocal) {
-                        chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (resultSync) {
+            if ((resultLocal.transcript.length > 0) || (resultLocal.chatMessages.length > 0)) {
+                processMeeting().then(() => {
+                    chrome.storage.local.get(["transcript", "chatMessages", "meetings"], function (resultLocalUntyped) {
+                        const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
+                        chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (resultSyncUntyped) {
+                            const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
                             // Create an array of promises to execute in parallel
                             const promises = []
 
@@ -121,7 +156,7 @@ function downloadAndPostWebhook() {
                             // First promise will always resolve, second one will fail if webhook request fails
                             Promise.all(promises)
                                 .then(() => {
-                                    resolve()
+                                    resolve("Meeting processing complete")
                                 })
                                 .catch(error => {
                                     console.error("Operation failed:", error)
@@ -139,29 +174,32 @@ function downloadAndPostWebhook() {
 }
 
 // Process transcript and chat messages of the meeting that just ended from storage, format them into strings, and save as a new entry in meetings (keeping last 10)
-function processTranscript() {
+function processMeeting() {
     return new Promise((resolve) => {
         chrome.storage.local.get([
             "transcript",
             "chatMessages",
             "meetingTitle",
             "meetingStartTimestamp",
-        ], function (result) {
+        ], function (resultUntyped) {
+            const result = /** @type {ResultLocal} */ (resultUntyped)
+
 
             // Create new transcript entry
+            /** @type {Meeting} */
             const newMeetingEntry = {
                 title: result.meetingTitle || "Google Meet call",
                 meetingStartTimestamp: result.meetingStartTimestamp,
-                meetingEndTimestamp: Date.now(),
-                // Backward compatible chrome storage variable transcript. One of the keys is changed from "personTranscript" to "transcriptText"
+                meetingEndTimestamp: new Date().toISOString(),
                 transcript: result.transcript,
                 chatMessages: result.chatMessages,
                 webhookPostStatus: "new"
             }
 
             // Get existing recent transcripts and update
-            chrome.storage.local.get(["meetings"], function (storageData) {
-                let meetings = storageData.meetings || []
+            chrome.storage.local.get(["meetings"], function (resultLocalUntyped) {
+                const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
+                let meetings = resultLocal.meetings || []
                 meetings.push(newMeetingEntry)
 
                 // Keep only last 10 transcripts
@@ -172,7 +210,7 @@ function processTranscript() {
                 // Save updated recent transcripts
                 chrome.storage.local.set({ meetings: meetings }, function () {
                     console.log("Meeting data updated")
-                    resolve()
+                    resolve("Meeting processed")
                 })
             })
         })
@@ -181,16 +219,28 @@ function processTranscript() {
 
 
 
+/**
+ * @param {number} index
+ * @param {boolean} webhookEnabled
+ */
 function downloadTranscript(index, webhookEnabled) {
-    return new Promise((resolve) => {
-        chrome.storage.local.get(["meetings"], function (result) {
-            if (result.meetings && result.meetings[index]) {
-                const meeting = result.meetings[index]
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(["meetings"], function (resultLocalUntyped) {
+            const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
+
+            if (resultLocal.meetings && resultLocal.meetings[index]) {
+                const meeting = resultLocal.meetings[index]
 
                 // Sanitise meeting title to prevent invalid file name errors
                 // https://stackoverflow.com/a/78675894
                 const invalidFilenameRegex = /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/gui
-                const sanitisedMeetingTitle = meeting.title.replaceAll(invalidFilenameRegex, "_")
+                let sanitisedMeetingTitle = ""
+                if (meeting.meetingTitle) {
+                    sanitisedMeetingTitle = meeting.meetingTitle.replaceAll(invalidFilenameRegex, "_")
+                }
+                else if (meeting.title) {
+                    sanitisedMeetingTitle = meeting.title.replaceAll(invalidFilenameRegex, "_")
+                }
 
                 // Format timestamp for human-readable filename
                 const timestamp = new Date(meeting.meetingStartTimestamp)
@@ -227,36 +277,43 @@ function downloadTranscript(index, webhookEnabled) {
 
                 // Download once blob is read
                 reader.onload = function (event) {
-                    const dataUrl = event.target.result
+                    if (event.target?.result) {
+                        const dataUrl = event.target.result
 
-                    // Create a download with Chrome Download API
-                    chrome.downloads.download({
-                        url: dataUrl,
-                        filename: fileName,
-                        conflictAction: "uniquify"
-                    }).then(() => {
-                        console.log("Transcript downloaded")
-                        // Increment anonymous transcript generated count to a Google sheet
-                        fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}&webhookEnabled=${webhookEnabled}`, {
-                            mode: "no-cors"
-                        })
-                        resolve()
-                    }).catch((err) => {
-                        console.error(err)
+                        // Create a download with Chrome Download API
                         chrome.downloads.download({
+                            // @ts-ignore
                             url: dataUrl,
-                            filename: "TranscripTonic/Transcript.txt",
+                            filename: fileName,
                             conflictAction: "uniquify"
+                        }).then(() => {
+                            console.log("Transcript downloaded")
+                            // Increment anonymous transcript generated count to a Google sheet
+                            fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}&webhookEnabled=${webhookEnabled}`, {
+                                mode: "no-cors"
+                            })
+                            resolve("Transcript downloaded successfully")
+                        }).catch((err) => {
+                            console.error(err)
+                            chrome.downloads.download({
+                                // @ts-ignore
+                                url: dataUrl,
+                                filename: "TranscripTonic/Transcript.txt",
+                                conflictAction: "uniquify"
+                            })
+                            console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
+                            // Logs anonymous errors to a Google sheet for swift debugging   
+                            fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
+                            // Increment anonymous transcript generated count to a Google sheet
+                            fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}&webhookEnabled=${webhookEnabled}`, {
+                                mode: "no-cors"
+                            })
+                            resolve("Transcript downloaded successfully with default file name")
                         })
-                        console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
-                        // Logs anonymous errors to a Google sheet for swift debugging   
-                        fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
-                        // Increment anonymous transcript generated count to a Google sheet
-                        fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}&webhookEnabled=${webhookEnabled}`, {
-                            mode: "no-cors"
-                        })
-                        resolve()
-                    })
+                    }
+                    else {
+                        reject(new Error("Failed to read blob"))
+                    }
                 }
             }
         })
@@ -264,11 +321,17 @@ function downloadTranscript(index, webhookEnabled) {
 }
 
 // Post transcript to webhook
+/**
+ * @param {number} index
+ */
 function postTranscriptToWebhook(index) {
     return new Promise((resolve, reject) => {
         // Get webhook URL and meetings
-        chrome.storage.local.get(["meetings"], function (resultLocal) {
-            chrome.storage.sync.get(["webhookUrl", "webhookBodyType"], function (resultSync) {
+        chrome.storage.local.get(["meetings"], function (resultLocalUntyped) {
+            const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
+            chrome.storage.sync.get(["webhookUrl", "webhookBodyType"], function (resultSyncUntyped) {
+                const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+
                 if (!resultSync.webhookUrl) {
                     reject(new Error("No webhook URL configured"))
                     return
@@ -316,7 +379,7 @@ function postTranscriptToWebhook(index) {
                     // Update success status
                     resultLocal.meetings[index].webhookPostStatus = "successful"
                     chrome.storage.local.set({ meetings: resultLocal.meetings }, function () {
-                        resolve()
+                        resolve("Webhook posted successfully")
                     })
                 }).catch(error => {
                     console.error(error)
@@ -346,6 +409,10 @@ function postTranscriptToWebhook(index) {
     })
 }
 
+
+/**
+ * @param {Transcript} transcript
+ */
 function getTranscriptString(transcript) {
     // Format transcript entries into string
     let transcriptString = ""
@@ -360,13 +427,17 @@ function getTranscriptString(transcript) {
     return transcriptString
 }
 
+
+/**
+ * @param {ChatMessages} chatMessages
+ */
 function getChatMessagesString(chatMessages) {
     // Format chat messages into string
     let chatMessagesString = ""
     if (chatMessages.length > 0) {
-        chatMessages.forEach(chatBlock => {
-            chatMessagesString += `${chatBlock.personName} (${new Date(chatBlock.timestamp).toLocaleString("default", timeFormat).toUpperCase()})\n`
-            chatMessagesString += chatBlock.chatMessageText
+        chatMessages.forEach(chatMessage => {
+            chatMessagesString += `${chatMessage.personName} (${new Date(chatMessage.timestamp).toLocaleString("default", timeFormat).toUpperCase()})\n`
+            chatMessagesString += chatMessage.chatMessageText
             chatMessagesString += "\n\n"
         })
     }
@@ -378,8 +449,10 @@ function clearTabIdAndApplyUpdate() {
         console.log("Meeting tab id cleared for next meeting")
 
         // Check if there's a deferred update
-        chrome.storage.local.get(["isDeferredUpdatedAvailable"], function (result) {
-            if (result.isDeferredUpdatedAvailable) {
+        chrome.storage.local.get(["isDeferredUpdatedAvailable"], function (resultLocalUntyped) {
+            const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
+
+            if (resultLocal.isDeferredUpdatedAvailable) {
                 console.log("Applying deferred update")
                 chrome.storage.local.set({ isDeferredUpdatedAvailable: false }, function () {
                     chrome.runtime.reload()
