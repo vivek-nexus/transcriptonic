@@ -23,8 +23,7 @@ window.onload = function () {
   lastMeetingTranscriptLink.addEventListener("click", () => {
     chrome.storage.local.get(["meetings", "meetingStartTimestamp", "meetingStartTimeStamp"], function (result) {
       // Check if user ever attended a meeting
-      // Backward compatible chrome storage variable. Old name "meetingStartTimeStamp". 
-      if (result.meetingStartTimestamp || result.meetingStartTimeStamp) {
+      if (result.meetingStartTimestamp) {
         if (result.meetings && (result.meetings.length > 0)) {
 
           const meetingToDownload = result.meetings[result.meetings.length - 1]
