@@ -74,15 +74,16 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
     }
 
     if (message.type === "recover_last_meeting") {
-        downloadAndPostWebhook().then(() => {
-            sendResponse({ success: true })
-        }).catch((error) => {
-            // Fails if transcript is empty or webhook request fails
-            console.error("Recovery process failed:", error)
+        recoverLastMeeting().then((message) => {
             /** @type {ExtensionResponse} */
-            const response = { success: false, message: error.message }
+            const response = { success: true, message: message }
             sendResponse(response)
         })
+            .catch((error) => {
+                /** @type {ExtensionResponse} */
+                const response = { success: false, message: error }
+                sendResponse(response)
+            })
     }
     return true
 })
@@ -243,15 +244,7 @@ function downloadTranscript(index, webhookEnabled) {
 
                 // Format timestamp for human-readable filename
                 const timestamp = new Date(meeting.meetingStartTimestamp)
-                const formattedTimestamp = timestamp.toLocaleString("default", {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                    hour12: false
-                }).replace(/[\/:]/g, "-")
+                const formattedTimestamp = timestamp.toLocaleString("default", timeFormat).replace(/[\/:]/g, "-")
 
                 const fileName = `TranscripTonic/Transcript-${sanitisedMeetingTitle} at ${formattedTimestamp}.txt`
 
@@ -287,11 +280,12 @@ function downloadTranscript(index, webhookEnabled) {
                             conflictAction: "uniquify"
                         }).then(() => {
                             console.log("Transcript downloaded")
+                            resolve("Transcript downloaded successfully")
+
                             // Increment anonymous transcript generated count to a Google sheet
                             fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}&webhookEnabled=${webhookEnabled}`, {
                                 mode: "no-cors"
                             })
-                            resolve("Transcript downloaded successfully")
                         }).catch((err) => {
                             console.error(err)
                             chrome.downloads.download({
@@ -301,13 +295,14 @@ function downloadTranscript(index, webhookEnabled) {
                                 conflictAction: "uniquify"
                             })
                             console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
+                            resolve("Transcript downloaded successfully with default file name")
+
                             // Logs anonymous errors to a Google sheet for swift debugging   
                             fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
                             // Increment anonymous transcript generated count to a Google sheet
                             fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}&webhookEnabled=${webhookEnabled}`, {
                                 mode: "no-cors"
                             })
-                            resolve("Transcript downloaded successfully with default file name")
                         })
                     }
                     else {
@@ -399,7 +394,7 @@ function postTranscriptToWebhook(index) {
                                 // Handle notification click
                                 chrome.notifications.onClicked.addListener(function (clickedNotificationId) {
                                     if (clickedNotificationId === notificationId) {
-                                        chrome.tabs.create({ url: "webhooks.html" })
+                                        chrome.tabs.create({ url: "meetings.html" })
                                     }
                                 })
                             })
@@ -464,6 +459,46 @@ function clearTabIdAndApplyUpdate() {
                 chrome.storage.local.set({ isDeferredUpdatedAvailable: false }, function () {
                     chrome.runtime.reload()
                 })
+            }
+        })
+    })
+}
+
+function recoverLastMeeting() {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(["meetings", "meetingStartTimestamp"], function (resultLocalUntyped) {
+            const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
+            // Check if user ever attended a meeting
+            if (resultLocal.meetingStartTimestamp) {
+                if (resultLocal.meetings && (resultLocal.meetings.length > 0)) {
+                    const meetingToDownload = resultLocal.meetings[resultLocal.meetings.length - 1]
+
+                    // Last meeting was not processed for some reason. Need to recover that data, process and download it.
+                    if (resultLocal.meetingStartTimestamp !== meetingToDownload.meetingStartTimestamp) {
+                        // Silent failure if last meeting is an empty meeting
+                        downloadAndPostWebhook().then(() => {
+                            resolve("Recovered last meeting to the best possible extent")
+                        }).catch((error) => {
+                            // Fails if transcript is empty or webhook request fails
+                            reject("Empty meeting or webhook request failed")
+                        })
+                    }
+                    else {
+                        resolve("No recovery needed")
+                    }
+                }
+                // First meeting itself ended in a disaster. Need to recover that data, process and download it.
+                else {
+                    downloadAndPostWebhook().then(() => {
+                        resolve("Recovered last meeting to the best possible extent")
+                    }).catch((error) => {
+                        // Fails if transcript is empty or webhook request fails
+                        reject("Empty meeting or webhook request failed")
+                    })
+                }
+            }
+            else {
+                reject("No meetings found. May be attend one?")
             }
         })
     })

@@ -3,13 +3,45 @@
 /// <reference path="../types/index.js" />
 
 document.addEventListener("DOMContentLoaded", function () {
+    const webhookUrlForm = document.querySelector("#webhook-url-form")
     const webhookUrlInput = document.querySelector("#webhook-url")
     const saveButton = document.querySelector("#save-webhook")
     const autoPostCheckbox = document.querySelector("#auto-post-webhook")
     const simpleWebhookBodyRadio = document.querySelector("#simple-webhook-body")
     const advancedWebhookBodyRadio = document.querySelector("#advanced-webhook-body")
+    const recoverLastMeetingButton = document.querySelector("#recover-last-meeting")
 
-    if (saveButton instanceof HTMLButtonElement && webhookUrlInput instanceof HTMLInputElement && autoPostCheckbox instanceof HTMLInputElement && simpleWebhookBodyRadio instanceof HTMLInputElement && advancedWebhookBodyRadio instanceof HTMLInputElement) {
+    if (recoverLastMeetingButton instanceof HTMLButtonElement) {
+        recoverLastMeetingButton.addEventListener("click", function () {
+            /** @type {ExtensionMessage} */
+            const message = {
+                type: "recover_last_meeting",
+            }
+            chrome.runtime.sendMessage(message, function (responseUntyped) {
+                const response = /** @type {ExtensionResponse} */ (responseUntyped)
+                if (response.success) {
+                    if (response.message === "No recovery needed") {
+                        alert("Nothing to recover—you're on top of the world!")
+                    }
+                    else {
+                        alert("Last meeting recovered successfully!")
+                        loadTranscripts()
+                    }
+                }
+                else {
+                    if (response.message === "No meetings found. May be attend one?") {
+                        alert(response.message)
+                    }
+                    else {
+                        alert("Could not recover last meeting")
+                        console.error(response.message)
+                    }
+                }
+            })
+        })
+    }
+
+    if (saveButton instanceof HTMLButtonElement && webhookUrlForm instanceof HTMLFormElement && webhookUrlInput instanceof HTMLInputElement && autoPostCheckbox instanceof HTMLInputElement && simpleWebhookBodyRadio instanceof HTMLInputElement && advancedWebhookBodyRadio instanceof HTMLInputElement) {
         // Initially disable the save button
         saveButton.disabled = true
 
@@ -37,7 +69,8 @@ document.addEventListener("DOMContentLoaded", function () {
         })
 
         // Save webhook URL, auto-post setting, and webhook body type
-        saveButton.addEventListener("click", async function () {
+        webhookUrlForm.addEventListener("submit", function (e) {
+            e.preventDefault()
             const webhookUrl = webhookUrlInput.value
             if (webhookUrl && webhookUrlInput.checkValidity()) {
                 // Request runtime permission for the webhook URL
@@ -48,13 +81,33 @@ document.addEventListener("DOMContentLoaded", function () {
                         autoPostWebhookAfterMeeting: autoPostCheckbox.checked,
                         webhookBodyType: advancedWebhookBodyRadio.checked ? "advanced" : "simple"
                     }, function () {
-                        alert("Webhook settings saved!")
+                        alert("Webhook URL saved!")
                     })
                 }).catch((error) => {
                     alert("Fine! No webhooks for you!")
                     console.error("Webhook permission error:", error)
                 })
             }
+        })
+
+        // Auto save auto-post setting
+        autoPostCheckbox.addEventListener("change", function () {
+            // Save webhook URL and settings
+            chrome.storage.sync.set({
+                autoPostWebhookAfterMeeting: autoPostCheckbox.checked,
+            }, function () { })
+        })
+
+        // Auto save webhook body type
+        simpleWebhookBodyRadio.addEventListener("change", function () {
+            // Save webhook URL and settings
+            chrome.storage.sync.set({ webhookBodyType: "simple" }, function () { })
+        })
+
+        // Auto save webhook body type
+        advancedWebhookBodyRadio.addEventListener("change", function () {
+            // Save webhook URL and settings
+            chrome.storage.sync.set({ webhookBodyType: "advanced" }, function () { })
         })
     }
 
@@ -134,25 +187,52 @@ function loadTranscripts() {
                             }
                         )()}
                     </td>
-                    <td style="min-width: 96px;">
-                        <button class="post-button" data-index="${i}">${meeting.webhookPostStatus === "new" ? `Post` : `Repost`}</button>
+                    <td style="min-width: 128px; display: flex; gap: 1rem; align-content: end;">
+                        <button class="download-button" data-index="${i}">
+                            <img src="./icons/download.svg" alt="Download this meeting transcript">
+                        </button>
+                        <button class="post-button" data-index="${i}">
+                            ${meeting.webhookPostStatus === "new" ? `Post` : `Repost`}
+                            <img src="./icons/webhook.svg" alt="" width="16px">
+                        </button>
                     </td>
                 `
                     meetingsTable.appendChild(row)
 
-                    // Add event listener to the post button
-                    const button = row.querySelector(".post-button")
-                    if (button instanceof HTMLButtonElement) {
-                        button.addEventListener("click", function () {
+                    // Add event listener to the webhook post button
+                    const downloadButton = row.querySelector(".download-button")
+                    if (downloadButton instanceof HTMLButtonElement) {
+                        downloadButton.addEventListener("click", function () {
+                            // Send message to background script to post webhook
+                            const index = parseInt(downloadButton.getAttribute("data-index") ?? "-1")
+                            /** @type {ExtensionMessage} */
+                            const message = {
+                                type: "download_transcript_at_index",
+                                index: index
+                            }
+                            chrome.runtime.sendMessage(message, (responseUntyped) => {
+                                const response = /** @type {ExtensionResponse} */ (responseUntyped)
+                                loadTranscripts()
+                                if (!response.success) {
+                                    alert("Could not download transcript")
+                                }
+                            })
+                        })
+                    }
+
+                    // Add event listener to the webhook post button
+                    const webhookPostButton = row.querySelector(".post-button")
+                    if (webhookPostButton instanceof HTMLButtonElement) {
+                        webhookPostButton.addEventListener("click", function () {
                             chrome.storage.sync.get(["webhookUrl"], function (resultSyncUntyped) {
                                 const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
                                 if (resultSync.webhookUrl) {
                                     // Disable button and update text
-                                    button.disabled = true
-                                    button.textContent = meeting.webhookPostStatus === "new" ? "Posting..." : "Reposting..."
+                                    webhookPostButton.disabled = true
+                                    webhookPostButton.textContent = meeting.webhookPostStatus === "new" ? "Posting..." : "Reposting..."
 
                                     // Send message to background script to post webhook
-                                    const index = parseInt(button.getAttribute("data-index") ?? "-1")
+                                    const index = parseInt(webhookPostButton.getAttribute("data-index") ?? "-1")
                                     /** @type {ExtensionMessage} */
                                     const message = {
                                         type: "retry_webhook_at_index",

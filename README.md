@@ -59,14 +59,17 @@ This could happen when:
 3. Any unexpected events like network drop, browser crashes etc.
 
 When this happens, it might be possible to recover the transcript, but recovery should be done before starting another meeting.
-- Open the extension and click on "Download last meeting transcript". TranscripTonic will try and recover the last meeting transcript to the best possible extent.
-- TranscripTonic will also attempt to auto-recover any missed transcripts, whenever a new meeting starts.
+- Open the extension and click on "last 10 meetings". Click on "Recover last meeting".
+- TranscripTonic will also attempt to auto-recover any missed transcripts, just before a new meeting starts.
 
 <br />
 <br />
 
 # Privacy policy
 TranscripTonic Chrome extension does not collect any information from users in any manner, except anonymous errors and transcript download timestamp. All processing/transcript storage happens within the user's Chrome browser and does not leave the device.
+
+<br />
+<br />
 
 # Notice
 The transcript may not always be accurate and is only intended to aid in improving productivity. It is the responsibility of the user to ensure they comply with any applicable laws/rules.

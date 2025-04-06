@@ -58,7 +58,7 @@ let canUseAriaBasedTranscriptSelector = true
 Promise.race([
   recoverLastMeeting(),
   new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('Recovery timed out')), 1000)
+    setTimeout(() => reject(new Error('Recovery timed out')), 2000)
   )
 ]).
   catch((error) => {
@@ -665,54 +665,17 @@ async function checkExtensionStatus() {
 
 function recoverLastMeeting() {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.get(["meetings", "meetingStartTimestamp", "meetingStartTimeStamp"], function (resultLocalUntyped) {
-      const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
-      // Check if user ever attended a meeting
-      if (resultLocal.meetingStartTimestamp) {
-        if (resultLocal.meetings && (resultLocal.meetings.length > 0)) {
-          const meetingToDownload = resultLocal.meetings[resultLocal.meetings.length - 1]
-
-          // Last meeting was not processed for some reason. Need to recover that data, process and download it.
-          if (resultLocal.meetingStartTimestamp !== meetingToDownload.meetingStartTimestamp) {
-            // Silent failure if last meeting is an empty meeting
-            /** @type {ExtensionMessage} */
-            const message = {
-              type: "recover_last_meeting",
-            }
-            chrome.runtime.sendMessage(message, function (responseUntyped) {
-              const response = /** @type {ExtensionResponse} */ (responseUntyped)
-              if (response.success) {
-                resolve("Recovered last meeting to the best possible extent")
-                return
-              }
-              else {
-                resolve("Could not recover. Last meeting was likely empty.")
-                return
-              }
-            })
-          }
-          else {
-            resolve("No recovery needed")
-          }
-        }
-        // First meeting itself ended in a disaster. Need to recover that data, process and download it. Also handle recoveries of versions where "meetingStartTimeStamp" was used, because result.meetings will always be undefined in those versions.
-        else {
-          /** @type {ExtensionMessage} */
-          const message = {
-            type: "recover_last_meeting",
-          }
-          chrome.runtime.sendMessage(message, function (responseUntyped) {
-            const response = /** @type {ExtensionResponse} */ (responseUntyped)
-            if (response.success) {
-              resolve("Recovered last meeting to the best possible extent")
-              return
-            }
-            else {
-              reject("Could not recover. Last meeting was likely empty.")
-              return
-            }
-          })
-        }
+    /** @type {ExtensionMessage} */
+    const message = {
+      type: "recover_last_meeting",
+    }
+    chrome.runtime.sendMessage(message, function (responseUntyped) {
+      const response = /** @type {ExtensionResponse} */ (responseUntyped)
+      if (response.success) {
+        resolve("Last meeting recovered successfully or recovery not needed")
+      }
+      else {
+        reject(response.message)
       }
     })
   })
