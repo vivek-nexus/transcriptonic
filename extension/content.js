@@ -112,6 +112,9 @@ checkExtensionStatus().then(() => {
   })
 })
 
+/**
+ * @param {number} uiType
+ */
 function meetingRoutines(uiType) {
   const meetingEndIconData = {
     selector: "",
@@ -288,8 +291,11 @@ function meetingRoutines(uiType) {
 
 //*********** CALLBACK FUNCTIONS **********//
 // Callback function to execute when transcription mutations are observed. 
-function transcriptMutationCallback(mutationsList, observer) {
-  mutationsList.forEach(mutation => {
+/**
+ * @param {MutationRecord[]} mutationsList
+ */
+function transcriptMutationCallback(mutationsList) {
+  mutationsList.forEach(() => {
     try {
       // CRITICAL DOM DEPENDENCY. Get all people in the transcript
       const people = canUseAriaBasedTranscriptSelector
@@ -392,8 +398,11 @@ function transcriptMutationCallback(mutationsList, observer) {
 }
 
 // Callback function to execute when chat messages mutations are observed. 
-function chatMessagesMutationCallback(mutationsList, observer) {
-  mutationsList.forEach(mutation => {
+/**
+ * @param {MutationRecord[]} mutationsList
+ */
+function chatMessagesMutationCallback(mutationsList) {
+  mutationsList.forEach(() => {
     try {
       // CRITICAL DOM DEPENDENCY. Get all people in the transcript
       const chatMessagesElement = document.querySelector(`div[aria-live="polite"].Ge9Kpc`)
@@ -460,6 +469,9 @@ function pushBufferToTranscript() {
 }
 
 // Pushes object to array only if it doesn't already exist. chatMessage is checked for substring since some trailing text(keep Pin message) is present from a button that allows to pin the message.
+/**
+ * @param {ChatMessage} chatBlock
+ */
 function pushUniqueChatBlock(chatBlock) {
   const isExisting = chatMessages.some(item =>
     item.personName == chatBlock.personName &&
@@ -473,6 +485,10 @@ function pushUniqueChatBlock(chatBlock) {
 }
 
 // Saves specified variables to chrome storage. Optionally, can send message to background script to download, post saving.
+/**
+ * @param {Array<"transcript" | "meetingTitle" | "meetingStartTimestamp" | "chatMessages">} keys
+ * @param {boolean} sendDownloadMessage
+ */
 function overWriteChromeStorage(keys, sendDownloadMessage) {
   const objectToSave = {}
   // Hard coded list of keys that are accepted
@@ -517,6 +533,10 @@ function updateMeetingTitle() {
 }
 
 // Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the upper parents. 
+/**
+ * @param {string} selector
+ * @param {string | RegExp} text
+ */
 function selectElements(selector, text) {
   var elements = document.querySelectorAll(selector)
   return Array.prototype.filter.call(elements, function (element) {
@@ -525,7 +545,11 @@ function selectElements(selector, text) {
 }
 
 // Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change
-const waitForElement = async (selector, text) => {
+/**
+ * @param {string} selector
+ * @param {string | RegExp} [text]
+ */
+async function waitForElement(selector, text) {
   if (text) {
     // loops for every animation frame change, until the required element is found
     while (!Array.from(document.querySelectorAll(selector)).find(element => element.textContent === text)) {
@@ -542,6 +566,9 @@ const waitForElement = async (selector, text) => {
 }
 
 // Shows a responsive notification of specified type and message
+/**
+ * @param {ExtensionStatusJSON} extensionStatusJSON
+ */
 function showNotification(extensionStatusJSON) {
   // Banner CSS
   let html = document.querySelector("html")
@@ -601,6 +628,10 @@ const commonCSS = `background: rgb(255 255 255 / 10%);
 
 
 // Logs anonymous errors to a Google sheet for swift debugging   
+/**
+ * @param {string} code
+ * @param {any} err
+ */
 function logError(code, err) {
   fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=${code}&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
 }

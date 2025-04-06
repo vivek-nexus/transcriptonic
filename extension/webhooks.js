@@ -116,7 +116,7 @@ function loadTranscripts() {
 
                     const row = document.createElement("tr")
                     row.innerHTML = `
-                    <td>${meeting.title}</td>
+                    <td>${meeting.meetingTitle || meeting.title || ""}</td>
                     <td>${timestamp} &nbsp; &#9679; &nbsp; ${durationString}</td>
                     <td>
                         ${(

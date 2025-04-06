@@ -130,7 +130,7 @@ function downloadAndPostWebhook() {
             const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
             // Check if at least one of transcript or chatMessages exist. To prevent downloading empty transcripts.
             if ((resultLocal.transcript.length > 0) || (resultLocal.chatMessages.length > 0)) {
-                processMeeting().then(() => {
+                processLastMeeting().then(() => {
                     chrome.storage.local.get(["transcript", "chatMessages", "meetings"], function (resultLocalUntyped) {
                         const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
                         chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (resultSyncUntyped) {
@@ -174,7 +174,7 @@ function downloadAndPostWebhook() {
 }
 
 // Process transcript and chat messages of the meeting that just ended from storage, format them into strings, and save as a new entry in meetings (keeping last 10)
-function processMeeting() {
+function processLastMeeting() {
     return new Promise((resolve) => {
         chrome.storage.local.get([
             "transcript",
@@ -316,6 +316,9 @@ function downloadTranscript(index, webhookEnabled) {
                     }
                 }
             }
+            else {
+                reject(new Error("Meeting at specified index not found"))
+            }
         })
     })
 }
@@ -344,66 +347,72 @@ function postTranscriptToWebhook(index) {
 
                 const meeting = resultLocal.meetings[index]
 
-                let webhookData
-                if (resultSync.webhookBodyType === "advanced") {
-                    webhookData = {
-                        meetingTitle: meeting.title,
-                        meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toISOString(),
-                        meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toISOString(),
-                        transcript: meeting.transcript,
-                        chatMessages: meeting.chatMessages
+                if (meeting) {
+                    /** @type {WebhookBody} */
+                    let webhookData
+                    if (resultSync.webhookBodyType === "advanced") {
+                        webhookData = {
+                            meetingTitle: meeting.meetingTitle || meeting.title || "",
+                            meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toISOString(),
+                            meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toISOString(),
+                            transcript: meeting.transcript,
+                            chatMessages: meeting.chatMessages
+                        }
                     }
+                    else {
+                        webhookData = {
+                            meetingTitle: meeting.meetingTitle || meeting.title || "",
+                            meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
+                            meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
+                            transcript: getTranscriptString(meeting.transcript),
+                            chatMessages: getChatMessagesString(meeting.chatMessages)
+                        }
+                    }
+
+                    // Post to webhook
+                    fetch(resultSync.webhookUrl, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(webhookData)
+                    }).then(response => {
+                        if (!response.ok) {
+                            throw new Error("Webhook request failed")
+                        }
+                    }).then(() => {
+                        // Update success status
+                        resultLocal.meetings[index].webhookPostStatus = "successful"
+                        chrome.storage.local.set({ meetings: resultLocal.meetings }, function () {
+                            resolve("Webhook posted successfully")
+                        })
+                    }).catch(error => {
+                        console.error(error)
+                        // Update failure status
+                        resultLocal.meetings[index].webhookPostStatus = "failed"
+                        chrome.storage.local.set({ meetings: resultLocal.meetings }, function () {
+                            // Create notification and open webhooks page
+                            chrome.notifications.create({
+                                type: "basic",
+                                iconUrl: "icon.png",
+                                title: "Could not post webhook!",
+                                message: "Click to view status and retry or check URL"
+                            }, function (notificationId) {
+                                // Handle notification click
+                                chrome.notifications.onClicked.addListener(function (clickedNotificationId) {
+                                    if (clickedNotificationId === notificationId) {
+                                        chrome.tabs.create({ url: "webhooks.html" })
+                                    }
+                                })
+                            })
+
+                            reject(error)
+                        })
+                    })
                 }
                 else {
-                    webhookData = {
-                        meetingTitle: meeting.title,
-                        meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
-                        meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
-                        transcript: getTranscriptString(meeting.transcript),
-                        chatMessages: getChatMessagesString(meeting.chatMessages)
-                    }
+                    reject(new Error("Meeting at specified index not found"))
                 }
-
-                // Post to webhook
-                fetch(resultSync.webhookUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(webhookData)
-                }).then(response => {
-                    if (!response.ok) {
-                        throw new Error("Webhook request failed")
-                    }
-                }).then(() => {
-                    // Update success status
-                    resultLocal.meetings[index].webhookPostStatus = "successful"
-                    chrome.storage.local.set({ meetings: resultLocal.meetings }, function () {
-                        resolve("Webhook posted successfully")
-                    })
-                }).catch(error => {
-                    console.error(error)
-                    // Update failure status
-                    resultLocal.meetings[index].webhookPostStatus = "failed"
-                    chrome.storage.local.set({ meetings: resultLocal.meetings }, function () {
-                        // Create notification and open webhooks page
-                        chrome.notifications.create({
-                            type: "basic",
-                            iconUrl: "icon.png",
-                            title: "Could not post webhook!",
-                            message: "Click to view status and retry or check URL"
-                        }, function (notificationId) {
-                            // Handle notification click
-                            chrome.notifications.onClicked.addListener(function (clickedNotificationId) {
-                                if (clickedNotificationId === notificationId) {
-                                    chrome.tabs.create({ url: "webhooks.html" })
-                                }
-                            })
-                        })
-
-                        reject(error)
-                    })
-                })
             })
         })
     })
@@ -411,7 +420,7 @@ function postTranscriptToWebhook(index) {
 
 
 /**
- * @param {Transcript} transcript
+ * @param {TranscriptBlock[]} transcript
  */
 function getTranscriptString(transcript) {
     // Format transcript entries into string
@@ -429,7 +438,7 @@ function getTranscriptString(transcript) {
 
 
 /**
- * @param {ChatMessages} chatMessages
+ * @param {ChatMessage[]} chatMessages
  */
 function getChatMessagesString(chatMessages) {
     // Format chat messages into string
