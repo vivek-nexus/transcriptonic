@@ -88,11 +88,11 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
 })
 
 // Download transcript if meeting tab is closed
-chrome.tabs.onRemoved.addListener(function (tabid) {
+chrome.tabs.onRemoved.addListener(function (tabId) {
     chrome.storage.local.get(["meetingTabId"], function (resultLocalUntyped) {
         const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
 
-        if (tabid === resultLocal.meetingTabId) {
+        if (tabId === resultLocal.meetingTabId) {
             console.log("Successfully intercepted tab close")
 
             downloadAndPostWebhook().finally(() => {
@@ -130,7 +130,7 @@ function downloadAndPostWebhook() {
             const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
             // Check if at least one of transcript or chatMessages exist. To prevent downloading empty transcripts.
             if ((resultLocal.transcript.length > 0) || (resultLocal.chatMessages.length > 0)) {
-                processLastMeeting().then(() => {
+                processLastMeetingFromStorage().then(() => {
                     chrome.storage.local.get(["transcript", "chatMessages", "meetings"], function (resultLocalUntyped) {
                         const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
                         chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (resultSyncUntyped) {
@@ -153,7 +153,6 @@ function downloadAndPostWebhook() {
                             }
 
                             // Execute all promises in parallel
-                            // First promise will always resolve, second one will fail if webhook request fails
                             Promise.all(promises)
                                 .then(() => {
                                     resolve("Meeting processing complete")
@@ -174,7 +173,7 @@ function downloadAndPostWebhook() {
 }
 
 // Process transcript and chat messages of the meeting that just ended from storage, format them into strings, and save as a new entry in meetings (keeping last 10)
-function processLastMeeting() {
+function processLastMeetingFromStorage() {
     return new Promise((resolve) => {
         chrome.storage.local.get([
             "transcript",
@@ -323,7 +322,6 @@ function downloadTranscript(index, webhookEnabled) {
     })
 }
 
-// Post transcript to webhook
 /**
  * @param {number} index
  */
@@ -420,10 +418,10 @@ function postTranscriptToWebhook(index) {
 
 
 /**
+ * Format transcript entries into string
  * @param {TranscriptBlock[]} transcript
  */
 function getTranscriptString(transcript) {
-    // Format transcript entries into string
     let transcriptString = ""
     if (transcript.length > 0) {
         transcript.forEach(transcriptBlock => {
@@ -438,10 +436,10 @@ function getTranscriptString(transcript) {
 
 
 /**
+ * Format chat messages into string
  * @param {ChatMessage[]} chatMessages
  */
 function getChatMessagesString(chatMessages) {
-    // Format chat messages into string
     let chatMessagesString = ""
     if (chatMessages.length > 0) {
         chatMessages.forEach(chatMessage => {

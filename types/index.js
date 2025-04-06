@@ -1,12 +1,12 @@
 /**
- * @typedef {Object} TranscriptBlock
+ * @typedef {Object} TranscriptBlock - A chunk of transcript
  * @property {string} personName - name of the person speaking
  * @property {string} timestamp - ISO timestamp of when the message was spoken
  * @property {string} transcriptText - actual transcript text
  */
 
 /**
- * @typedef {Object} ChatMessage
+ * @typedef {Object} ChatMessage - A chat message
  * @property {string} personName - name of the person speaking
  * @property {string} timestamp - ISO timestamp of when the message was sent
  * @property {string} chatMessageText - actual message text
@@ -25,7 +25,7 @@
 
 // LOCAL CHROME STORAGE VARIABLES
 /**
- * @typedef {Object} ResultLocal
+ * @typedef {Object} ResultLocal - Local chrome storage
  * @property {ExtensionStatusJSON} extensionStatusJSON
  * @property {Meeting[]} meetings
  * @property {MeetingTabId} meetingTabId
@@ -64,7 +64,7 @@
  * @typedef {TranscriptBlock[]} Transcript - Transcript of the most recent meeting, dumped by content script
  */
 /**
- * @typedef {ChatMessage[]} ChatMessages - Chat messages captued during the most recent meeting, dumped by content script
+ * @typedef {ChatMessage[]} ChatMessages - Chat messages captured during the most recent meeting, dumped by content script
  */
 /**
  * @typedef {boolean} IsDeferredUpdatedAvailable - Whether the extension is deferred updated
@@ -75,7 +75,7 @@
 
 // SYNC CHROME STORAGE VARIABLES
 /**
- * @typedef {Object} ResultSync
+ * @typedef {Object} ResultSync - Sync chrome storage
  * @property {AutoPostWebhookAfterMeeting} autoPostWebhookAfterMeeting
  * @property {OperationMode} operationMode
  * @property {WebhookBodyType} webhookBodyType
@@ -98,13 +98,13 @@
 
 
 /** 
- * @typedef {Object} ExtensionMessage
+ * @typedef {Object} ExtensionMessage - Message sent by the calling script
  * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "retry_webhook_at_index" | "recover_last_meeting"} type - type of message
  * @property {number} [index] - index of the meeting to process
  */
 
 /** 
- * @typedef {Object} ExtensionResponse
+ * @typedef {Object} ExtensionResponse - Response sent by the called script
  * @property {boolean} success - whether the message was processed successfully
  * @property {string} [message] - message explaining success or failure
  */
