@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
     const message = /** @type {ExtensionMessage} */ (messageUnTyped)
     console.log(message.type)
 
-    if (message.type == "new_meeting_started") {
+    if (message.type === "new_meeting_started") {
         // Saving current tab id, to download transcript when this tab is closed
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
             const tabId = tabs[0].id
@@ -27,14 +27,14 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
         })
     }
 
-    if (message.type == "meeting_ended") {
+    if (message.type === "meeting_ended") {
         downloadAndPostWebhook().finally(() => {
             // Invalidate tab id since transcript is downloaded, prevents double downloading of transcript from tab closed event listener
             clearTabIdAndApplyUpdate()
         })
     }
 
-    if (message.type == "download_transcript_at_index") {
+    if (message.type === "download_transcript_at_index") {
         if (message.index) {
             // Download the requested item
             downloadTranscript(message.index, false).then(() => {
@@ -50,7 +50,7 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
         }
     }
 
-    if (message.type == "retry_webhook_at_index") {
+    if (message.type === "retry_webhook_at_index") {
         if (message.index) {
             // Handle webhook retry
             postTranscriptToWebhook(message.index)
@@ -73,7 +73,7 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
         }
     }
 
-    if (message.type == "recover_last_meeting") {
+    if (message.type === "recover_last_meeting") {
         downloadAndPostWebhook().then(() => {
             sendResponse({ success: true })
         }).catch((error) => {
@@ -92,7 +92,7 @@ chrome.tabs.onRemoved.addListener(function (tabid) {
     chrome.storage.local.get(["meetingTabId"], function (resultLocalUntyped) {
         const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
 
-        if (tabid == resultLocal.meetingTabId) {
+        if (tabid === resultLocal.meetingTabId) {
             console.log("Successfully intercepted tab close")
 
             downloadAndPostWebhook().finally(() => {

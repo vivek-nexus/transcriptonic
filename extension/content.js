@@ -81,14 +81,14 @@ checkExtensionStatus().then(() => {
     console.log("Extension status " + extensionStatusJSON.status)
 
     // Enable extension functions only if status is 200
-    if (extensionStatusJSON.status == 200) {
+    if (extensionStatusJSON.status === 200) {
       // NON CRITICAL DOM DEPENDENCY. Attempt to get username before meeting starts. Abort interval if valid username is found or if meeting starts and default to "You".
       waitForElement(".awLEm").then(() => {
         // Poll the element until the textContent loads from network or until meeting starts
         const captureUserNameInterval = setInterval(() => {
           if (!hasMeetingStarted) {
             const capturedUserName = document.querySelector(".awLEm")?.textContent
-            if (capturedUserName && (capturedUserName != "")) {
+            if (capturedUserName && (capturedUserName !== "")) {
               userName = capturedUserName
               clearInterval(captureUserNameInterval)
             }
@@ -169,7 +169,7 @@ function meetingRoutines(uiType) {
       // Click captions icon for non manual operation modes. Async operation.
       chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
-        if (resultSync.operationMode == "manual")
+        if (resultSync.operationMode === "manual")
           console.log("Manual mode selected, leaving transcript off")
         else
           captionsButton.click()
@@ -248,7 +248,7 @@ function meetingRoutines(uiType) {
     if (!isTranscriptDomErrorCaptured && !isChatMessagesDomErrorCaptured) {
       chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
-        if (resultSync.operationMode == "manual") {
+        if (resultSync.operationMode === "manual") {
           showNotification({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
         }
         else {
@@ -271,7 +271,7 @@ function meetingRoutines(uiType) {
         }
 
         // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
-        if ((personNameBuffer != "") && (transcriptTextBuffer != ""))
+        if ((personNameBuffer !== "") && (transcriptTextBuffer !== ""))
           pushBufferToTranscript()
         // Save to chrome storage and send message to download transcript from background script
         overWriteChromeStorage(["transcript", "chatMessages"], true)
@@ -316,7 +316,7 @@ function transcriptMutationCallback(mutationsList) {
 
           if (currentPersonName && currentTranscriptText) {
             // Starting fresh in a meeting or resume from no active transcript
-            if (beforeTranscriptText == "") {
+            if (beforeTranscriptText === "") {
               personNameBuffer = currentPersonName
               timestampBuffer = new Date().toISOString()
               beforeTranscriptText = currentTranscriptText
@@ -325,7 +325,7 @@ function transcriptMutationCallback(mutationsList) {
             // Some prior transcript buffer exists
             else {
               // New person started speaking 
-              if (personNameBuffer != currentPersonName) {
+              if (personNameBuffer !== currentPersonName) {
                 // Push previous person's transcript as a block
                 pushBufferToTranscript()
                 // Update buffers for next mutation and store transcript block timestamp
@@ -363,7 +363,7 @@ function transcriptMutationCallback(mutationsList) {
           // No transcript yet or the last person stopped speaking(and no one has started speaking next)
           console.log("No active transcript")
           // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
-          if ((personNameBuffer != "") && (transcriptTextBuffer != "")) {
+          if ((personNameBuffer !== "") && (transcriptTextBuffer !== "")) {
             pushBufferToTranscript()
           }
           // Update buffers for the next person in the next mutation
@@ -474,7 +474,7 @@ function pushBufferToTranscript() {
  */
 function pushUniqueChatBlock(chatBlock) {
   const isExisting = chatMessages.some(item =>
-    item.personName == chatBlock.personName &&
+    item.personName === chatBlock.personName &&
     chatBlock.chatMessageText.includes(item.chatMessageText)
   )
   if (!isExisting) {
@@ -589,7 +589,7 @@ function showNotification(extensionStatusJSON) {
     obj.style.display = "none"
   }, 5000)
 
-  if (extensionStatusJSON.status == 200) {
+  if (extensionStatusJSON.status === 200) {
     obj.style.cssText = `color: #2A9ACA; ${commonCSS}`
     text.innerHTML = extensionStatusJSON.message
   }

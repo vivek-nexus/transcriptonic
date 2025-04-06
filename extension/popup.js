@@ -17,13 +17,13 @@ window.onload = function () {
     const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
 
     if (autoModeRadio instanceof HTMLInputElement && manualModeRadio instanceof HTMLInputElement) {
-      if (resultSync.operationMode == undefined) {
+      if (resultSync.operationMode === undefined) {
         autoModeRadio.checked = true
       }
-      else if (resultSync.operationMode == "auto") {
+      else if (resultSync.operationMode === "auto") {
         autoModeRadio.checked = true
       }
-      else if (resultSync.operationMode == "manual") {
+      else if (resultSync.operationMode === "manual") {
         manualModeRadio.checked = true
       }
 
