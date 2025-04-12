@@ -54,7 +54,7 @@ let canUseAriaBasedTranscriptSelector = true
 
 
 
-// Attempt to recover last meeting, if any. Abort if it takes more than 1 second to prevent current meeting getting messed up.
+// Attempt to recover last meeting, if any. Abort if it takes more than 2 second to prevent current meeting getting messed up.
 Promise.race([
   recoverLastMeeting(),
   new Promise((_, reject) =>
@@ -502,6 +502,8 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
     objectToSave.chatMessages = chatMessages
 
   chrome.storage.local.set(objectToSave, function () {
+    // Helps people know that the extension is working smoothly in the background
+    pulseStatus()
     if (sendDownloadMessage) {
       /** @type {ExtensionMessage} */
       const message = {
@@ -511,6 +513,34 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
     }
   })
 }
+
+function pulseStatus() {
+  const statusCSS = `position: fixed;
+    top: 0px;
+    width: 100%;
+    height: 4px;
+    z-index: 100;
+    transition: background-color 0.3s ease-in
+  `
+
+  /** @type {HTMLDivElement | null}*/
+  let transcriptonicStatus = document.querySelector(`#transcriptonic-status`)
+  if (!transcriptonicStatus) {
+    let html = document.querySelector("html")
+    transcriptonicStatus = document.createElement("div")
+    transcriptonicStatus.setAttribute("id", "transcriptonic-status")
+    transcriptonicStatus.style.cssText = `background-color: #2A9ACA; ${statusCSS}`
+    html?.appendChild(transcriptonicStatus)
+  }
+  else {
+    transcriptonicStatus.style.cssText = `background-color: #2A9ACA; ${statusCSS}`
+  }
+
+  setTimeout(() => {
+    transcriptonicStatus.style.cssText = `background-color: transparent; ${statusCSS}`
+  }, 3000)
+}
+
 
 // Grabs updated meeting title, if available
 function updateMeetingTitle() {

@@ -19,21 +19,25 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             chrome.runtime.sendMessage(message, function (responseUntyped) {
                 const response = /** @type {ExtensionResponse} */ (responseUntyped)
+                loadTranscripts()
+                scrollTo({ top: 0, behavior: "smooth" })
                 if (response.success) {
                     if (response.message === "No recovery needed") {
                         alert("Nothing to recover—you're on top of the world!")
                     }
                     else {
                         alert("Last meeting recovered successfully!")
-                        loadTranscripts()
                     }
                 }
                 else {
                     if (response.message === "No meetings found. May be attend one?") {
                         alert(response.message)
                     }
+                    else if (response.message === "Empty transcript and empty chatMessages") {
+                        alert("Nothing to recover—you're on top of the world!")
+                    }
                     else {
-                        alert("Could not recover last meeting")
+                        alert("Could not recover last meeting!")
                         console.error(response.message)
                     }
                 }

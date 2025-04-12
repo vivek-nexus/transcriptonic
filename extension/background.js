@@ -137,16 +137,17 @@ function downloadAndPostWebhook() {
                         chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (resultSyncUntyped) {
                             const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
                             // Create an array of promises to execute in parallel
+                            /** @type {Promise<any>[]} */
                             const promises = []
 
                             // Promise to download transcript
                             const lastIndex = resultLocal.meetings.length - 1
-                            promises.push([
+                            promises.push(
                                 downloadTranscript(
                                     lastIndex,
                                     resultSync.webhookUrl && resultSync.autoPostWebhookAfterMeeting ? true : false
                                 )
-                            ])
+                            )
 
                             // Promise to post webhook if enabled
                             if (resultSync.autoPostWebhookAfterMeeting && resultSync.webhookUrl) {
@@ -371,7 +372,7 @@ function postTranscriptToWebhook(index) {
                         body: JSON.stringify(webhookData)
                     }).then(response => {
                         if (!response.ok) {
-                            throw new Error("Webhook request failed")
+                            throw new Error(`Webhook request failed: ${response.status} ${response.statusText}`)
                         }
                     }).then(() => {
                         // Update success status
@@ -389,7 +390,7 @@ function postTranscriptToWebhook(index) {
                                 type: "basic",
                                 iconUrl: "icon.png",
                                 title: "Could not post webhook!",
-                                message: "Click to view status and retry or check URL"
+                                message: "Click to view status and retry. Check console for more details."
                             }, function (notificationId) {
                                 // Handle notification click
                                 chrome.notifications.onClicked.addListener(function (clickedNotificationId) {
@@ -480,7 +481,7 @@ function recoverLastMeeting() {
                             resolve("Recovered last meeting to the best possible extent")
                         }).catch((error) => {
                             // Fails if transcript is empty or webhook request fails
-                            reject("Empty meeting or webhook request failed")
+                            reject(error)
                         })
                     }
                     else {
@@ -493,7 +494,7 @@ function recoverLastMeeting() {
                         resolve("Recovered last meeting to the best possible extent")
                     }).catch((error) => {
                         // Fails if transcript is empty or webhook request fails
-                        reject("Empty meeting or webhook request failed")
+                        reject(error)
                     })
                 }
             }
