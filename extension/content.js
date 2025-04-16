@@ -351,9 +351,6 @@ function transcriptMutationCallback(mutationsList) {
               }
             }
           }
-          else {
-            throw new Error("Person node not found within transcript DOM")
-          }
         }
         // No people found in transcript DOM
         else {
@@ -367,10 +364,6 @@ function transcriptMutationCallback(mutationsList) {
           personNameBuffer = ""
           transcriptTextBuffer = ""
         }
-      }
-      else {
-        throw new Error("Transcript main node not found in DOM")
-        // TODO: Should data be pushed to buffer?
       }
 
       // Logs to indicate that the extension is working
@@ -423,12 +416,6 @@ function chatMessagesMutationCallback(mutationsList) {
           // Lot of mutations fire for each message, pick them only once
           pushUniqueChatBlock(chatMessageBlock)
         }
-        else {
-          throw new Error("Person node not found in chat messages DOM")
-        }
-      }
-      else {
-        throw new Error("Chat messages element not found in DOM")
       }
     }
     catch (err) {
