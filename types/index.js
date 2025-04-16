@@ -1,13 +1,13 @@
 /**
  * @typedef {Object} TranscriptBlock A chunk of transcript
- * @property {string} personName name of the person speaking
- * @property {string} timestamp ISO timestamp of when the message was spoken
+ * @property {string} personName name of the person who spoke
+ * @property {string} timestamp ISO timestamp of when the words were spoken
  * @property {string} transcriptText actual transcript text
  */
 
 /**
  * @typedef {Object} ChatMessage A chat message
- * @property {string} personName name of the person speaking
+ * @property {string} personName name of the person who sent the message
  * @property {string} timestamp ISO timestamp of when the message was sent
  * @property {string} chatMessageText actual message text
  */
@@ -39,7 +39,7 @@
 /**
  * @typedef {Object} ExtensionStatusJSON
  * @property {number} status status of the extension
- * @property {string} message message of the extension
+ * @property {string} message message of the status
 */
 /**
  * @typedef {Object} Meeting
@@ -55,7 +55,7 @@
  * @typedef {number | null} MeetingTabId tab id of the meeting tab, captured when meeting starts. A valid values indicates that a meeting is in progress. Set to null once meeting ends and associated processing is complete.
  */
 /**
- * @typedef {string} MeetingStartTimestamp timestamp of when the most recent meeting started, dumped by content script
+ * @typedef {string} MeetingStartTimestamp ISO timestamp of when the most recent meeting started, dumped by content script
  */
 /**
  * @typedef {string} MeetingTitle title of the most recent meeting, dumped by content script
@@ -67,7 +67,7 @@
  * @typedef {ChatMessage[]} ChatMessages Chat messages captured during the most recent meeting, dumped by content script
  */
 /**
- * @typedef {boolean} IsDeferredUpdatedAvailable Whether the extension is deferred updated
+ * @typedef {boolean} IsDeferredUpdatedAvailable whether the extension has a deferred updated waiting to be applied
  */
 
 
@@ -105,6 +105,6 @@
 
 /** 
  * @typedef {Object} ExtensionResponse Response sent by the called script
- * @property {boolean} success whether the message was processed successfully
+ * @property {boolean} success whether the message was processed successfully as per the request
  * @property {string} [message] message explaining success or failure
  */

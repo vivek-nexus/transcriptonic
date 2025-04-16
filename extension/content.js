@@ -23,14 +23,12 @@ let transcript = []
 
 // Buffer variables to dump values, which get pushed to transcript array as transcript blocks, at defined conditions
 let personNameBuffer = "", transcriptTextBuffer = "", timestampBuffer = ""
-// Buffer variables for deciding when to push a transcript block
-let beforePersonName = "", beforeTranscriptText = ""
 
 // Chat messages array that holds one or more chat messages of the meeting
 /** @type {ChatMessage[]} */
 let chatMessages = []
 
-// Capture meeting start timestamp, stored in UNIX format
+// Capture meeting start timestamp, stored in ISO format
 let meetingStartTimestamp = new Date().toISOString()
 let meetingTitle = document.title
 
@@ -54,7 +52,7 @@ let canUseAriaBasedTranscriptSelector = true
 
 
 
-// Attempt to recover last meeting, if any. Abort if it takes more than 2 second to prevent current meeting getting messed up.
+// Attempt to recover last meeting, if any. Abort if it takes more than 2 seconds to prevent current meeting getting messed up.
 Promise.race([
   recoverLastMeeting(),
   new Promise((_, reject) =>
@@ -62,7 +60,7 @@ Promise.race([
   )
 ]).
   catch((error) => {
-    console.log(error)
+    console.error(error)
   }).
   finally(() => {
     // Save current meeting data to chrome storage once recovery is complete or is aborted
@@ -88,7 +86,7 @@ checkExtensionStatus().then(() => {
         const captureUserNameInterval = setInterval(() => {
           if (!hasMeetingStarted) {
             const capturedUserName = document.querySelector(".awLEm")?.textContent
-            if (capturedUserName && (capturedUserName !== "")) {
+            if (capturedUserName) {
               userName = capturedUserName
               clearInterval(captureUserNameInterval)
             }
@@ -111,6 +109,7 @@ checkExtensionStatus().then(() => {
     }
   })
 })
+
 
 /**
  * @param {number} uiType
@@ -175,7 +174,6 @@ function meetingRoutines(uiType) {
           captionsButton.click()
       })
 
-      // Allow captions to switch on. An attempt to reduce errors of missing transcript nodes.
       // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
       let transcriptTargetNode = document.querySelector(`div[role="region"][tabindex="0"]`)
       // For old captions UI
@@ -213,7 +211,7 @@ function meetingRoutines(uiType) {
       // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
       chatMessagesButton.click()
 
-      // Allow DOM to be updated and then register chatMessage mutation observer
+      // Allow DOM to be updated, close chat messages and then register chatMessage mutation observer
       waitForElement(`div[aria-live="polite"].Ge9Kpc`).then(() => {
         chatMessagesButton.click()
         // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
@@ -221,7 +219,6 @@ function meetingRoutines(uiType) {
           const chatMessagesTargetNode = document.querySelector(`div[aria-live="polite"].Ge9Kpc`)
 
           // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
-
           if (chatMessagesTargetNode) {
             chatMessagesObserver = new MutationObserver(chatMessagesMutationCallback)
             chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
@@ -231,6 +228,7 @@ function meetingRoutines(uiType) {
           }
         } catch (err) {
           console.error(err)
+          isChatMessagesDomErrorCaptured = true
           showNotification(extensionStatusJSON_bug)
 
           logError("002", err)
@@ -271,8 +269,9 @@ function meetingRoutines(uiType) {
         }
 
         // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
-        if ((personNameBuffer !== "") && (transcriptTextBuffer !== ""))
+        if ((personNameBuffer !== "") && (transcriptTextBuffer !== "")) {
           pushBufferToTranscript()
+        }
         // Save to chrome storage and send message to download transcript from background script
         overWriteChromeStorage(["transcript", "chatMessages"], true)
       })
@@ -316,10 +315,9 @@ function transcriptMutationCallback(mutationsList) {
 
           if (currentPersonName && currentTranscriptText) {
             // Starting fresh in a meeting or resume from no active transcript
-            if (beforeTranscriptText === "") {
+            if (transcriptTextBuffer === "") {
               personNameBuffer = currentPersonName
               timestampBuffer = new Date().toISOString()
-              beforeTranscriptText = currentTranscriptText
               transcriptTextBuffer = currentTranscriptText
             }
             // Some prior transcript buffer exists
@@ -329,7 +327,6 @@ function transcriptMutationCallback(mutationsList) {
                 // Push previous person's transcript as a block
                 pushBufferToTranscript()
                 // Update buffers for next mutation and store transcript block timestamp
-                beforeTranscriptText = currentTranscriptText
                 personNameBuffer = currentPersonName
                 timestampBuffer = new Date().toISOString()
                 transcriptTextBuffer = currentTranscriptText
@@ -344,8 +341,6 @@ function transcriptMutationCallback(mutationsList) {
                 }
                 // Update buffers for next mutation
                 transcriptTextBuffer = currentTranscriptText
-                timestampBuffer = new Date().toISOString()
-                beforeTranscriptText = currentTranscriptText
                 if (!canUseAriaBasedTranscriptSelector) {
                   // If a person is speaking for a long time, Google Meet does not keep the entire text in the spans. Starting parts are automatically removed in an unpredictable way as the length increases and TranscripTonic will miss them. So we force remove a lengthy transcript node in a controlled way. Google Meet will add a fresh person node when we remove it and continue transcription. TranscripTonic picks it up as a new person and nothing is missed.
                   if (currentTranscriptText.length > 250)
@@ -367,22 +362,13 @@ function transcriptMutationCallback(mutationsList) {
             pushBufferToTranscript()
           }
           // Update buffers for the next person in the next mutation
-          beforePersonName = ""
-          beforeTranscriptText = ""
           personNameBuffer = ""
           transcriptTextBuffer = ""
         }
       }
       else {
         throw new Error("Transcript main node not found in DOM")
-      }
-
-      // Logs to indicate that the extension is working
-      if (transcriptTextBuffer.length > 125) {
-        console.log(transcriptTextBuffer.slice(0, 50) + " ... " + transcriptTextBuffer.slice(-50))
-      }
-      else {
-        console.log(transcriptTextBuffer)
+        // TODO: Should data be pushed to buffer?
       }
     } catch (err) {
       console.error(err)
@@ -404,13 +390,13 @@ function transcriptMutationCallback(mutationsList) {
 function chatMessagesMutationCallback(mutationsList) {
   mutationsList.forEach(() => {
     try {
-      // CRITICAL DOM DEPENDENCY. Get all people in the transcript
+      // CRITICAL DOM DEPENDENCY
       const chatMessagesElement = document.querySelector(`div[aria-live="polite"].Ge9Kpc`)
       // Attempt to parse messages only if at least one message exists
       if (chatMessagesElement && chatMessagesElement.children.length > 0) {
         // CRITICAL DOM DEPENDENCY. Get the last message that was sent/received.
         const chatMessageElement = chatMessagesElement.lastChild
-        // CRITICAL DOM DEPENDENCY.
+        // CRITICAL DOM DEPENDENCY
         const personName = chatMessageElement?.firstChild?.firstChild?.textContent
         const timestamp = new Date().toISOString()
         // CRITICAL DOM DEPENDENCY. Some mutations will have some noisy text at the end, which is handled in pushUniqueChatBlock function.
@@ -492,14 +478,18 @@ function pushUniqueChatBlock(chatBlock) {
 function overWriteChromeStorage(keys, sendDownloadMessage) {
   const objectToSave = {}
   // Hard coded list of keys that are accepted
-  if (keys.includes("transcript"))
+  if (keys.includes("transcript")) {
     objectToSave.transcript = transcript
-  if (keys.includes("meetingTitle"))
+  }
+  if (keys.includes("meetingTitle")) {
     objectToSave.meetingTitle = meetingTitle
-  if (keys.includes("meetingStartTimestamp"))
+  }
+  if (keys.includes("meetingStartTimestamp")) {
     objectToSave.meetingStartTimestamp = meetingStartTimestamp
-  if (keys.includes("chatMessages"))
+  }
+  if (keys.includes("chatMessages")) {
     objectToSave.chatMessages = chatMessages
+  }
 
   chrome.storage.local.set(objectToSave, function () {
     // Helps people know that the extension is working smoothly in the background
@@ -515,7 +505,7 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
 }
 
 function pulseStatus() {
-  const statusCSS = `position: fixed;
+  const statusActivityCSS = `position: fixed;
     top: 0px;
     width: 100%;
     height: 4px;
@@ -524,20 +514,20 @@ function pulseStatus() {
   `
 
   /** @type {HTMLDivElement | null}*/
-  let transcriptonicStatus = document.querySelector(`#transcriptonic-status`)
-  if (!transcriptonicStatus) {
+  let activityStatus = document.querySelector(`#transcriptonic-status`)
+  if (!activityStatus) {
     let html = document.querySelector("html")
-    transcriptonicStatus = document.createElement("div")
-    transcriptonicStatus.setAttribute("id", "transcriptonic-status")
-    transcriptonicStatus.style.cssText = `background-color: #2A9ACA; ${statusCSS}`
-    html?.appendChild(transcriptonicStatus)
+    activityStatus = document.createElement("div")
+    activityStatus.setAttribute("id", "transcriptonic-status")
+    activityStatus.style.cssText = `background-color: #2A9ACA; ${statusActivityCSS}`
+    html?.appendChild(activityStatus)
   }
   else {
-    transcriptonicStatus.style.cssText = `background-color: #2A9ACA; ${statusCSS}`
+    activityStatus.style.cssText = `background-color: #2A9ACA; ${statusActivityCSS}`
   }
 
   setTimeout(() => {
-    transcriptonicStatus.style.cssText = `background-color: transparent; ${statusCSS}`
+    activityStatus.style.cssText = `background-color: transparent; ${statusActivityCSS}`
   }, 3000)
 }
 
