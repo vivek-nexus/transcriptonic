@@ -4,25 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TranscripTonic webhooks</title>
+    <title>TranscripTonic—Meetings</title>
     <style>
         @import url("https://fonts.googleapis.com/css2?family=SUSE:wght@400;700&display=swap");
 
         body {
             font-family: "SUSE", sans-serif;
-            padding: 0.5rem 1rem;
+            padding: 1.5rem 3rem;
             color: #C0C0C0;
             background: #071f29;
             font-size: 1rem;
         }
 
         h1 {
-            margin: 0.5rem 0rem;
+            margin: 0.5rem 0rem 1.5rem 0rem;
         }
 
         .grid-container {
             display: grid;
-            grid-template-columns: 1fr 2fr;
+            grid-template-columns: 2fr 1fr;
             gap: 2rem;
             align-items: start;
         }
@@ -34,19 +34,20 @@
         .card {
             grid-column: 1;
             background: rgba(255, 255, 255, 0.1);
-            padding: 1.5rem;
+            padding: 1.5rem 0rem;
             border-radius: 8px;
             margin-bottom: 1rem;
         }
 
         h2 {
+            margin-top: 0;
             margin-bottom: 1rem;
         }
 
         /* Custom scrollbar styling */
         ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
+            width: 8px;
+            height: 6px;
         }
 
         ::-webkit-scrollbar-track {
@@ -62,13 +63,39 @@
             background: #2A9ACA;
         }
 
+        .webhook-header {
+            padding: 1rem 1.5rem;
+            background: #2a9aca1a;
+            margin-bottom: 1.5rem;
+            margin-top: -1.5rem;
+
+            p {
+                margin: 0;
+            }
+        }
+
         .form-field {
+            padding: 0px 1.5rem;
+        }
+
+
+        /* .form-field:not(:last-of-type) {
             margin-bottom: 2rem;
+        } */
+
+        hr {
+            margin: 1.5rem 0rem;
+            border: 1px solid #2a9aca33;
+        }
+
+        .input-group {
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
         }
 
         label {
             display: block;
-            font-weight: bold;
             cursor: pointer;
         }
 
@@ -78,11 +105,10 @@
         }
 
         input[type="url"] {
-            margin-top: 0.5rem;
             width: 100%;
-            padding: 0.5rem;
+            padding: 0.45rem;
             border: 1px solid #2A9ACA;
-            border-radius: 4px;
+            border-radius: 4px 0px 0px 4px;
             background: rgba(255, 255, 255, 0.1);
             color: white;
             font-family: "SUSE", sans-serif;
@@ -91,15 +117,15 @@
 
         .checkbox-group {
             display: flex;
-            align-items: center;
             gap: 8px;
         }
 
         input[type="checkbox"] {
             margin: 0;
+            margin-top: 0.25rem;
             accent-color: #2A9ACA;
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             cursor: pointer;
         }
 
@@ -131,9 +157,17 @@
             cursor: pointer;
         }
 
+        #save-webhook {
+            border-radius: 0px 4px 4px 0px;
+        }
+
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        details {
+            padding: 0px 1.5rem;
         }
 
         details:first-of-type {
@@ -164,28 +198,39 @@
             white-space: pre;
         }
 
-        .notice {
-            color: #a0a0a0;
-            font-size: small;
+        .meetings-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #recover-last-meeting {
+            background: transparent;
+            color: #2A9ACA;
+            border: 1px solid #2A9ACA;
+            margin: 1rem 0;
+            padding: 0.25rem 0.5rem;
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 1rem;
-            background: rgba(255, 255, 255, 0.1);
+            background: #ffffff1a;
             border-radius: 8px;
         }
 
         th,
         td {
-            padding: 1rem;
+            padding: 1rem 1.5rem;
             text-align: left;
-            border-bottom: 1px solid rgba(42, 154, 202, 0.2);
+            border-bottom: 1px solid #2a9aca33;
         }
 
         th {
-            background: rgba(42, 154, 202, 0.1);
+            background: #2a9aca1a;
             font-weight: bold;
         }
 
@@ -204,35 +249,84 @@
             font-weight: bold
         }
 
+        .download-button {
+            background: transparent;
+            color: #2A9ACA;
+            border: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: end;
+        }
+
         .post-button {
             background: transparent;
             color: #2A9ACA;
             border: 1px solid #2A9ACA;
             padding: 0.25rem 0.5rem;
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
         }
     </style>
 </head>
 
 <body>
-    <h1>Webhooks</h1>
+    <h1>TranscripTonic</h1>
 
     <div class="grid-container">
         <div>
-            <h2>Webhook settings</h2>
+            <h2>Last 10 meetings</h2>
+            <div class="transcripts-section">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Meeting title</th>
+                            <th>Meeting start time and duration</th>
+                            <th>Webhook status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transcripts-table">
+                        <!-- Table content will be populated by JavaScript -->
+                    </tbody>
+                </table>
+
+                <button id="recover-last-meeting">Recover last meeting</button>
+            </div>
+        </div>
+
+        <div>
+            <h2>Webhooks</h2>
             <div class="card">
-                <div class="form-field">
-                    <label for="webhook-url">Webhook URL</label>
-                    <input type="url" id="webhook-url" placeholder="https://your-webhook-url.com">
+                <div class="webhook-header">
+                    <!-- <h3>Configure webhooks</h3> -->
+                    <p><b>Integrate TranscripTonic with your favourite tools</b></p>
                 </div>
 
-                <div class="form-field">
+                <form id="webhook-url-form" class="form-field">
+                    <label for="webhook-url">Webhook URL</label>
+                    <div class="input-group">
+                        <input type="url" id="webhook-url" placeholder="https://your-webhook-url.com">
+                        <button id="save-webhook">Save</button>
+                    </div>
+                </form>
+
+                <hr />
+
+                <form class="form-field">
                     <div class="checkbox-group">
                         <input type="checkbox" id="auto-post-webhook" checked>
-                        <label for="auto-post-webhook">Automatically post webhooks after each
-                            meeting</label>
+                        <label for="auto-post-webhook">
+                            Automatically post transcript after each
+                            meeting, to webhook URL
+                        </label>
                     </div>
-                </div>
-                <div class="form-field">
+                </form>
+
+                <hr />
+
+                <form class="form-field">
                     <div class="radio-item">
                         <input type="radio" name="webhook-body-type" id="simple-webhook-body" checked />
                         <label for="simple-webhook-body"><b>Simple webhook body</b>
@@ -246,10 +340,10 @@
                             <span class="sub-text">Raw data, suitable for code integrations</span>
                         </label>
                     </div>
-                </div>
-
-                <button id="save-webhook">Save</button>
+                </form>
             </div>
+
+
             <div class="card">
                 <details>
                     <summary>Sample webhook body (simple)</summary>
@@ -275,7 +369,7 @@
                             <pre>
 {
     "meetingTitle": "Team meeting",
-    "meetingStartTimestamp": "2024-01-15T15:00:00.000Z",
+    "meetingStartTimestamp": "2024-01-15T10:00:00.000Z",
     "meetingEndTimestamp": "2024-01-15T11:00:00.000Z",
     "transcript": [
         {
@@ -308,33 +402,9 @@
                 </details>
             </div>
         </div>
-
-        <div>
-            <h2>Last 10 meetings</h2>
-            <div class="transcripts-section">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Meeting title</th>
-                            <th>Meeting start time and duration</th>
-                            <th>Webhook status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transcripts-table">
-                        <!-- Table content will be populated by JavaScript -->
-                    </tbody>
-                </table>
-
-                <p class="notice">The transcript may not always be accurate and is only intended to aid in improving
-                    productivity.
-                    It is the
-                    responsibility of the user to ensure they comply with any applicable laws/rules.</p>
-            </div>
-        </div>
     </div>
 
-    <script src="webhooks.js"></script>
+    <script src="meetings.js"></script>
 </body>
 
 </html>

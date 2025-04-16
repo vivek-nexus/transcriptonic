@@ -1,58 +1,48 @@
-// Attempt to recover last meeting, if any. Abort if it takes more than 1 second to prevent current meeting getting messed up.
-Promise.race([
-  recoverLastMeeting(),
-  new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('Recovery timed out')), 1000)
-  )
-]).
-  catch((error) => {
-    console.log(error)
-  }).
-  finally(() => {
-    // Save current meeting data to chrome storage once recovery is complete or is aborted
-    overWriteChromeStorage(["meetingStartTimestamp", "meetingTitle", "transcript", "chatMessages"], false)
-  })
+// @ts-check
+/// <reference path="../types/chrome.d.ts" />
+/// <reference path="../types/index.js" />
+
 
 //*********** GLOBAL VARIABLES **********//
-const timeFormat = {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: true
-}
+/** @type {ExtensionStatusJSON} */
 const extensionStatusJSON_bug = {
   "status": 400,
   "message": `<strong>TranscripTonic encountered a new error</strong> <br /> Please report it <a href="https://github.com/vivek-nexus/transcriptonic/issues" target="_blank">here</a>.`
 }
+
 const reportErrorMessage = "There is a bug in TranscripTonic. Please report it at https://github.com/vivek-nexus/transcriptonic/issues"
+/** @type {MutationObserverInit} */
 const mutationConfig = { childList: true, attributes: true, subtree: true, characterData: true }
 
 // Name of the person attending the meeting
 let userName = "You"
+
 // Transcript array that holds one or more transcript blocks
-// Each transcript block (object) has personName, timestamp and transcriptText key value pairs
+/** @type {TranscriptBlock[]} */
 let transcript = []
+
 // Buffer variables to dump values, which get pushed to transcript array as transcript blocks, at defined conditions
-let personNameBuffer = "", transcriptTextBuffer = "", timestampBuffer = undefined
-// Buffer variables for deciding when to push a transcript block
-let beforePersonName = "", beforeTranscriptText = ""
-// Chat messages array that holds one or chat messages of the meeting
-// Each message block(object) has personName, timestamp and messageText key value pairs
+let personNameBuffer = "", transcriptTextBuffer = "", timestampBuffer = ""
+
+// Chat messages array that holds one or more chat messages of the meeting
+/** @type {ChatMessage[]} */
 let chatMessages = []
 
-// Capture meeting start timestamp, stored in UNIX format
-let meetingStartTimestamp = Date.now()
+// Capture meeting start timestamp, stored in ISO format
+let meetingStartTimestamp = new Date().toISOString()
 let meetingTitle = document.title
-// Capture invalid transcript and chat messages DOM element error for the first time
+
+// Capture invalid transcript and chatMessages DOM element error for the first time and silence for the rest of the meeting to prevent notification noise
 let isTranscriptDomErrorCaptured = false
 let isChatMessagesDomErrorCaptured = false
+
 // Capture meeting begin to abort userName capturing interval
 let hasMeetingStarted = false
+
 // Capture meeting end to suppress any errors
 let hasMeetingEnded = false
 
+/** @type {ExtensionStatusJSON} */
 let extensionStatusJSON
 
 let canUseAriaBasedTranscriptSelector = true
@@ -62,24 +52,48 @@ let canUseAriaBasedTranscriptSelector = true
 
 
 
+// Attempt to recover last meeting, if any. Abort if it takes more than 2 seconds to prevent current meeting getting messed up.
+Promise.race([
+  recoverLastMeeting(),
+  new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Recovery timed out')), 2000)
+  )
+]).
+  catch((error) => {
+    if (error !== "Empty transcript and empty chatMessages") {
+      console.error(error)
+    }
+  }).
+  finally(() => {
+    // Save current meeting data to chrome storage once recovery is complete or is aborted
+    overWriteChromeStorage(["meetingStartTimestamp", "meetingTitle", "transcript", "chatMessages"], false)
+  })
+
+
 
 
 //*********** MAIN FUNCTIONS **********//
 checkExtensionStatus().then(() => {
   // Read the status JSON
-  chrome.storage.local.get(["extensionStatusJSON"], function (result) {
-    extensionStatusJSON = result.extensionStatusJSON
+  chrome.storage.local.get(["extensionStatusJSON"], function (resultLocalUntyped) {
+    const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
+    extensionStatusJSON = resultLocal.extensionStatusJSON
     console.log("Extension status " + extensionStatusJSON.status)
 
     // Enable extension functions only if status is 200
-    if (extensionStatusJSON.status == 200) {
+    if (extensionStatusJSON.status === 200) {
       // NON CRITICAL DOM DEPENDENCY. Attempt to get username before meeting starts. Abort interval if valid username is found or if meeting starts and default to "You".
       waitForElement(".awLEm").then(() => {
         // Poll the element until the textContent loads from network or until meeting starts
         const captureUserNameInterval = setInterval(() => {
-          const captureUserName = document.querySelector(".awLEm").textContent
-          if (captureUserName != "") {
-            userName = captureUserName
+          if (!hasMeetingStarted) {
+            const capturedUserName = document.querySelector(".awLEm")?.textContent
+            if (capturedUserName) {
+              userName = capturedUserName
+              clearInterval(captureUserNameInterval)
+            }
+          }
+          else {
             clearInterval(captureUserNameInterval)
           }
         }, 100)
@@ -98,6 +112,10 @@ checkExtensionStatus().then(() => {
   })
 })
 
+
+/**
+ * @param {number} uiType
+ */
 function meetingRoutines(uiType) {
   const meetingEndIconData = {
     selector: "",
@@ -127,9 +145,11 @@ function meetingRoutines(uiType) {
   // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
   waitForElement(meetingEndIconData.selector, meetingEndIconData.text).then(() => {
     console.log("Meeting started")
-    chrome.runtime.sendMessage({ type: "new_meeting_started" }, function (response) {
-      console.log(response)
-    })
+    /** @type {ExtensionMessage} */
+    const message = {
+      type: "new_meeting_started"
+    }
+    chrome.runtime.sendMessage(message, function () { })
     hasMeetingStarted = true
 
 
@@ -137,7 +157,9 @@ function meetingRoutines(uiType) {
     // Pick up meeting name after a delay, since Google meet updates meeting name after a delay
     setTimeout(() => updateMeetingTitle(), 5000)
 
+    /** @type {MutationObserver} */
     let transcriptObserver
+    /** @type {MutationObserver} */
     let chatMessagesObserver
 
     // **** REGISTER TRANSCRIPT LISTENER **** //
@@ -146,14 +168,14 @@ function meetingRoutines(uiType) {
       const captionsButton = selectElements(captionsIconData.selector, captionsIconData.text)[0]
 
       // Click captions icon for non manual operation modes. Async operation.
-      chrome.storage.sync.get(["operationMode"], function (result) {
-        if (result.operationMode == "manual")
+      chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
+        const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+        if (resultSync.operationMode === "manual")
           console.log("Manual mode selected, leaving transcript off")
         else
           captionsButton.click()
       })
 
-      // Allow captions to switch on. An attempt to reduce errors of missing transcript nodes.
       // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
       let transcriptTargetNode = document.querySelector(`div[role="region"][tabindex="0"]`)
       // For old captions UI
@@ -162,16 +184,21 @@ function meetingRoutines(uiType) {
         canUseAriaBasedTranscriptSelector = false
       }
 
-      // Attempt to dim down the transcript
-      canUseAriaBasedTranscriptSelector
-        ? transcriptTargetNode.setAttribute("style", "opacity:0.2")
-        : transcriptTargetNode.childNodes[1].setAttribute("style", "opacity:0.2")
+      if (transcriptTargetNode) {
+        // Attempt to dim down the transcript
+        canUseAriaBasedTranscriptSelector
+          ? transcriptTargetNode.setAttribute("style", "opacity:0.2")
+          : transcriptTargetNode.children[1].setAttribute("style", "opacity:0.2")
 
-      // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
-      transcriptObserver = new MutationObserver(transcriptMutationCallback)
+        // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
+        transcriptObserver = new MutationObserver(transcriptMutationCallback)
 
-      // Start observing the transcript element and chat messages element for configured mutations
-      transcriptObserver.observe(transcriptTargetNode, mutationConfig)
+        // Start observing the transcript element and chat messages element for configured mutations
+        transcriptObserver.observe(transcriptTargetNode, mutationConfig)
+      }
+      else {
+        throw new Error("Transcript element not found in DOM")
+      }
     } catch (err) {
       console.error(err)
       isTranscriptDomErrorCaptured = true
@@ -186,7 +213,7 @@ function meetingRoutines(uiType) {
       // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
       chatMessagesButton.click()
 
-      // Allow DOM to be updated and then register chatMessage mutation observer
+      // Allow DOM to be updated, close chat messages and then register chatMessage mutation observer
       waitForElement(`div[aria-live="polite"].Ge9Kpc`).then(() => {
         chatMessagesButton.click()
         // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
@@ -194,11 +221,16 @@ function meetingRoutines(uiType) {
           const chatMessagesTargetNode = document.querySelector(`div[aria-live="polite"].Ge9Kpc`)
 
           // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
-          chatMessagesObserver = new MutationObserver(chatMessagesMutationCallback)
-
-          chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
+          if (chatMessagesTargetNode) {
+            chatMessagesObserver = new MutationObserver(chatMessagesMutationCallback)
+            chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
+          }
+          else {
+            throw new Error("Chat messages element not found in DOM")
+          }
         } catch (err) {
           console.error(err)
+          isChatMessagesDomErrorCaptured = true
           showNotification(extensionStatusJSON_bug)
 
           logError("002", err)
@@ -214,8 +246,9 @@ function meetingRoutines(uiType) {
 
     // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
     if (!isTranscriptDomErrorCaptured && !isChatMessagesDomErrorCaptured) {
-      chrome.storage.sync.get(["operationMode"], function (result) {
-        if (result.operationMode == "manual") {
+      chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
+        const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+        if (resultSync.operationMode === "manual") {
           showNotification({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
         }
         else {
@@ -238,8 +271,9 @@ function meetingRoutines(uiType) {
         }
 
         // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
-        if ((personNameBuffer != "") && (transcriptTextBuffer != ""))
+        if ((personNameBuffer !== "") && (transcriptTextBuffer !== "")) {
           pushBufferToTranscript()
+        }
         // Save to chrome storage and send message to download transcript from background script
         overWriteChromeStorage(["transcript", "chatMessages"], true)
       })
@@ -258,85 +292,87 @@ function meetingRoutines(uiType) {
 
 //*********** CALLBACK FUNCTIONS **********//
 // Callback function to execute when transcription mutations are observed. 
-function transcriptMutationCallback(mutationsList, observer) {
-  mutationsList.forEach(mutation => {
+/**
+ * @param {MutationRecord[]} mutationsList
+ */
+function transcriptMutationCallback(mutationsList) {
+  mutationsList.forEach(() => {
     try {
       // CRITICAL DOM DEPENDENCY. Get all people in the transcript
       const people = canUseAriaBasedTranscriptSelector
-        ? document.querySelector(`div[role="region"][tabindex="0"]`).children
-        : document.querySelector(".a4cQT").childNodes[1].firstChild.childNodes
+        ? document.querySelector(`div[role="region"][tabindex="0"]`)?.children
+        : document.querySelector(".a4cQT")?.childNodes[1]?.firstChild?.childNodes
 
-      /// In aria based selector case, the last people element is "Jump to bottom" button. So, pick up only if more than 1 element is available.
-      if (canUseAriaBasedTranscriptSelector ? (people.length > 1) : (people.length > 0)) {
-        // Get the last person
-        const person = canUseAriaBasedTranscriptSelector
-          ? people[people.length - 2]
-          : people[people.length - 1]
-        // CRITICAL DOM DEPENDENCY
-        const currentPersonName = person.childNodes[0].textContent
-        // CRITICAL DOM DEPENDENCY
-        const currentTranscriptText = person.childNodes[1].lastChild.textContent
+      if (people) {
+        /// In aria based selector case, the last people element is "Jump to bottom" button. So, pick up only if more than 1 element is available.
+        if (canUseAriaBasedTranscriptSelector ? (people.length > 1) : (people.length > 0)) {
+          // Get the last person
+          const person = canUseAriaBasedTranscriptSelector
+            ? people[people.length - 2]
+            : people[people.length - 1]
+          // CRITICAL DOM DEPENDENCY
+          const currentPersonName = person.childNodes[0].textContent
+          // CRITICAL DOM DEPENDENCY
+          const currentTranscriptText = person.childNodes[1].lastChild?.textContent
 
-        // Starting fresh in a meeting or resume from no active transcript
-        if (beforeTranscriptText == "") {
-          personNameBuffer = currentPersonName
-          timestampBuffer = new Date().toISOString()
-          beforeTranscriptText = currentTranscriptText
-          transcriptTextBuffer = currentTranscriptText
-        }
-        // Some prior transcript buffer exists
-        else {
-          // New person started speaking 
-          if (personNameBuffer != currentPersonName) {
-            // Push previous person's transcript as a block
-            pushBufferToTranscript()
-            // Update buffers for next mutation and store transcript block timestamp
-            beforeTranscriptText = currentTranscriptText
-            personNameBuffer = currentPersonName
-            timestampBuffer = new Date().toISOString()
-            transcriptTextBuffer = currentTranscriptText
-          }
-          // Same person speaking more
-          else {
-            if (canUseAriaBasedTranscriptSelector) {
-              // When the same person speaks for more than 30 min (approx), Meet drops very long transcript for current person and starts over, which is detected by current transcript string being significantly smaller than the previous one
-              if ((currentTranscriptText.length - transcriptTextBuffer.length) < -250) {
+          if (currentPersonName && currentTranscriptText) {
+            // Starting fresh in a meeting or resume from no active transcript
+            if (transcriptTextBuffer === "") {
+              personNameBuffer = currentPersonName
+              timestampBuffer = new Date().toISOString()
+              transcriptTextBuffer = currentTranscriptText
+            }
+            // Some prior transcript buffer exists
+            else {
+              // New person started speaking 
+              if (personNameBuffer !== currentPersonName) {
+                // Push previous person's transcript as a block
                 pushBufferToTranscript()
+                // Update buffers for next mutation and store transcript block timestamp
+                personNameBuffer = currentPersonName
+                timestampBuffer = new Date().toISOString()
+                transcriptTextBuffer = currentTranscriptText
+              }
+              // Same person speaking more
+              else {
+                if (canUseAriaBasedTranscriptSelector) {
+                  // When the same person speaks for more than 30 min (approx), Meet drops very long transcript for current person and starts over, which is detected by current transcript string being significantly smaller than the previous one
+                  if ((currentTranscriptText.length - transcriptTextBuffer.length) < -250) {
+                    pushBufferToTranscript()
+                  }
+                }
+                // Update buffers for next mutation
+                transcriptTextBuffer = currentTranscriptText
+                if (!canUseAriaBasedTranscriptSelector) {
+                  // If a person is speaking for a long time, Google Meet does not keep the entire text in the spans. Starting parts are automatically removed in an unpredictable way as the length increases and TranscripTonic will miss them. So we force remove a lengthy transcript node in a controlled way. Google Meet will add a fresh person node when we remove it and continue transcription. TranscripTonic picks it up as a new person and nothing is missed.
+                  if (currentTranscriptText.length > 250)
+                    person.remove()
+                }
               }
             }
-            // Update buffers for next mutation
-            transcriptTextBuffer = currentTranscriptText
-            timestampBuffer = new Date().toISOString()
-            beforeTranscriptText = currentTranscriptText
-            if (!canUseAriaBasedTranscriptSelector) {
-              // If a person is speaking for a long time, Google Meet does not keep the entire text in the spans. Starting parts are automatically removed in an unpredictable way as the length increases and TranscripTonic will miss them. So we force remove a lengthy transcript node in a controlled way. Google Meet will add a fresh person node when we remove it and continue transcription. TranscripTonic picks it up as a new person and nothing is missed.
-              if (currentTranscriptText.length > 250)
-                person.remove()
-            }
           }
         }
-      }
-      // No people found in transcript DOM
-      else {
-        // No transcript yet or the last person stopped speaking(and no one has started speaking next)
-        console.log("No active transcript")
-        // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
-        if ((personNameBuffer != "") && (transcriptTextBuffer != "")) {
-          pushBufferToTranscript()
+        // No people found in transcript DOM
+        else {
+          // No transcript yet or the last person stopped speaking(and no one has started speaking next)
+          console.log("No active transcript")
+          // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
+          if ((personNameBuffer !== "") && (transcriptTextBuffer !== "")) {
+            pushBufferToTranscript()
+          }
+          // Update buffers for the next person in the next mutation
+          personNameBuffer = ""
+          transcriptTextBuffer = ""
         }
-        // Update buffers for the next person in the next mutation
-        beforePersonName = ""
-        beforeTranscriptText = ""
-        personNameBuffer = ""
-        transcriptTextBuffer = ""
       }
+
+      // Logs to indicate that the extension is working
       if (transcriptTextBuffer.length > 125) {
         console.log(transcriptTextBuffer.slice(0, 50) + " ... " + transcriptTextBuffer.slice(-50))
       }
       else {
         console.log(transcriptTextBuffer)
       }
-      // console.log(transcript)
     } catch (err) {
       console.error(err)
       if (!isTranscriptDomErrorCaptured && !hasMeetingEnded) {
@@ -351,29 +387,35 @@ function transcriptMutationCallback(mutationsList, observer) {
 }
 
 // Callback function to execute when chat messages mutations are observed. 
-function chatMessagesMutationCallback(mutationsList, observer) {
-  mutationsList.forEach(mutation => {
+/**
+ * @param {MutationRecord[]} mutationsList
+ */
+function chatMessagesMutationCallback(mutationsList) {
+  mutationsList.forEach(() => {
     try {
-      // CRITICAL DOM DEPENDENCY. Get all people in the transcript
+      // CRITICAL DOM DEPENDENCY
       const chatMessagesElement = document.querySelector(`div[aria-live="polite"].Ge9Kpc`)
       // Attempt to parse messages only if at least one message exists
-      if (chatMessagesElement.children.length > 0) {
+      if (chatMessagesElement && chatMessagesElement.children.length > 0) {
         // CRITICAL DOM DEPENDENCY. Get the last message that was sent/received.
         const chatMessageElement = chatMessagesElement.lastChild
-        // CRITICAL DOM DEPENDENCY.
-        const personName = chatMessageElement.firstChild.firstChild.textContent
+        // CRITICAL DOM DEPENDENCY
+        const personName = chatMessageElement?.firstChild?.firstChild?.textContent
         const timestamp = new Date().toISOString()
         // CRITICAL DOM DEPENDENCY. Some mutations will have some noisy text at the end, which is handled in pushUniqueChatBlock function.
-        const chatMessageText = chatMessageElement.lastChild.lastChild.textContent
+        const chatMessageText = chatMessageElement?.lastChild?.lastChild?.textContent
 
-        const chatMessageBlock = {
-          "personName": personName === "You" ? userName : personName,
-          "timestamp": timestamp,
-          "chatMessageText": chatMessageText
+        if (personName && chatMessageText) {
+          /**@type {ChatMessage} */
+          const chatMessageBlock = {
+            "personName": personName === "You" ? userName : personName,
+            "timestamp": timestamp,
+            "chatMessageText": chatMessageText
+          }
+
+          // Lot of mutations fire for each message, pick them only once
+          pushUniqueChatBlock(chatMessageBlock)
         }
-
-        // Lot of mutations fire for each message, pick them only once
-        pushUniqueChatBlock(chatMessageBlock)
       }
     }
     catch (err) {
@@ -410,9 +452,12 @@ function pushBufferToTranscript() {
 }
 
 // Pushes object to array only if it doesn't already exist. chatMessage is checked for substring since some trailing text(keep Pin message) is present from a button that allows to pin the message.
+/**
+ * @param {ChatMessage} chatBlock
+ */
 function pushUniqueChatBlock(chatBlock) {
   const isExisting = chatMessages.some(item =>
-    item.personName == chatBlock.personName &&
+    item.personName === chatBlock.personName &&
     chatBlock.chatMessageText.includes(item.chatMessageText)
   )
   if (!isExisting) {
@@ -423,33 +468,78 @@ function pushUniqueChatBlock(chatBlock) {
 }
 
 // Saves specified variables to chrome storage. Optionally, can send message to background script to download, post saving.
+/**
+ * @param {Array<"transcript" | "meetingTitle" | "meetingStartTimestamp" | "chatMessages">} keys
+ * @param {boolean} sendDownloadMessage
+ */
 function overWriteChromeStorage(keys, sendDownloadMessage) {
   const objectToSave = {}
   // Hard coded list of keys that are accepted
-  if (keys.includes("transcript"))
+  if (keys.includes("transcript")) {
     objectToSave.transcript = transcript
-  if (keys.includes("meetingTitle"))
+  }
+  if (keys.includes("meetingTitle")) {
     objectToSave.meetingTitle = meetingTitle
-  if (keys.includes("meetingStartTimestamp"))
+  }
+  if (keys.includes("meetingStartTimestamp")) {
     objectToSave.meetingStartTimestamp = meetingStartTimestamp
-  if (keys.includes("chatMessages"))
+  }
+  if (keys.includes("chatMessages")) {
     objectToSave.chatMessages = chatMessages
+  }
 
   chrome.storage.local.set(objectToSave, function () {
+    // Helps people know that the extension is working smoothly in the background
+    pulseStatus()
     if (sendDownloadMessage) {
-      chrome.runtime.sendMessage({ type: "meeting_ended" }, function (response) {
-        console.log(response)
-      })
+      /** @type {ExtensionMessage} */
+      const message = {
+        type: "meeting_ended"
+      }
+      chrome.runtime.sendMessage(message, function () { })
     }
   })
 }
+
+function pulseStatus() {
+  const statusActivityCSS = `position: fixed;
+    top: 0px;
+    width: 100%;
+    height: 4px;
+    z-index: 100;
+    transition: background-color 0.3s ease-in
+  `
+
+  /** @type {HTMLDivElement | null}*/
+  let activityStatus = document.querySelector(`#transcriptonic-status`)
+  if (!activityStatus) {
+    let html = document.querySelector("html")
+    activityStatus = document.createElement("div")
+    activityStatus.setAttribute("id", "transcriptonic-status")
+    activityStatus.style.cssText = `background-color: #2A9ACA; ${statusActivityCSS}`
+    html?.appendChild(activityStatus)
+  }
+  else {
+    activityStatus.style.cssText = `background-color: #2A9ACA; ${statusActivityCSS}`
+  }
+
+  setTimeout(() => {
+    activityStatus.style.cssText = `background-color: transparent; ${statusActivityCSS}`
+  }, 3000)
+}
+
 
 // Grabs updated meeting title, if available
 function updateMeetingTitle() {
   try {
     // NON CRITICAL DOM DEPENDENCY
-    meetingTitle = document.querySelector(".u6vdEc").textContent
-    overWriteChromeStorage(["meetingTitle"], false)
+    const meetingTitleElement = document.querySelector(".u6vdEc")
+    if (meetingTitleElement?.textContent) {
+      meetingTitle = meetingTitleElement.textContent
+      overWriteChromeStorage(["meetingTitle"], false)
+    } else {
+      throw new Error("Meeting title element not found in DOM")
+    }
   } catch (err) {
     console.error(err)
 
@@ -460,6 +550,10 @@ function updateMeetingTitle() {
 }
 
 // Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the upper parents. 
+/**
+ * @param {string} selector
+ * @param {string | RegExp} text
+ */
 function selectElements(selector, text) {
   var elements = document.querySelectorAll(selector)
   return Array.prototype.filter.call(elements, function (element) {
@@ -468,7 +562,11 @@ function selectElements(selector, text) {
 }
 
 // Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change
-const waitForElement = async (selector, text) => {
+/**
+ * @param {string} selector
+ * @param {string | RegExp} [text]
+ */
+async function waitForElement(selector, text) {
   if (text) {
     // loops for every animation frame change, until the required element is found
     while (!Array.from(document.querySelectorAll(selector)).find(element => element.textContent === text)) {
@@ -485,6 +583,9 @@ const waitForElement = async (selector, text) => {
 }
 
 // Shows a responsive notification of specified type and message
+/**
+ * @param {ExtensionStatusJSON} extensionStatusJSON
+ */
 function showNotification(extensionStatusJSON) {
   // Banner CSS
   let html = document.querySelector("html")
@@ -505,7 +606,7 @@ function showNotification(extensionStatusJSON) {
     obj.style.display = "none"
   }, 5000)
 
-  if (extensionStatusJSON.status == 200) {
+  if (extensionStatusJSON.status === 200) {
     obj.style.cssText = `color: #2A9ACA; ${commonCSS}`
     text.innerHTML = extensionStatusJSON.message
   }
@@ -544,6 +645,10 @@ const commonCSS = `background: rgb(255 255 255 / 10%);
 
 
 // Logs anonymous errors to a Google sheet for swift debugging   
+/**
+ * @param {string} code
+ * @param {any} err
+ */
 function logError(code, err) {
   fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=${code}&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
 }
@@ -577,48 +682,17 @@ async function checkExtensionStatus() {
 
 function recoverLastMeeting() {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.get(["meetings", "meetingStartTimestamp", "meetingStartTimeStamp"], function (result) {
-      // Check if user ever attended a meeting
-      // Backward compatible chrome storage variable. Old name "meetingStartTimeStamp". 
-      if (result.meetingStartTimestamp || result.meetingStartTimeStamp) {
-        if (result.meetings && (result.meetings.length > 0)) {
-          const meetingToDownload = result.meetings[result.meetings.length - 1]
-
-          // Last meeting was not processed for some reason. Need to recover that data, process and download it.
-          if (result.meetingStartTimestamp !== meetingToDownload.meetingStartTimestamp) {
-            // Silent failure if last meeting is an empty meeting
-            chrome.runtime.sendMessage({
-              type: "recover_last_meeting",
-            }, function (response) {
-              if (response.success) {
-                resolve()
-                return
-              }
-              else {
-                resolve("Could not recover. Last meeting was likely empty.")
-                return
-              }
-            })
-          }
-          else {
-            resolve("No recovery needed")
-          }
-        }
-        // First meeting itself ended in a disaster. Need to recover that data, process and download it. Also handle recoveries of versions where "meetingStartTimeStamp" was used, because result.meetings will always be undefined in those versions.
-        else {
-          chrome.runtime.sendMessage({
-            type: "recover_last_meeting",
-          }, function (response) {
-            if (response.success) {
-              resolve()
-              return
-            }
-            else {
-              reject("Could not recover. Last meeting was likely empty.")
-              return
-            }
-          })
-        }
+    /** @type {ExtensionMessage} */
+    const message = {
+      type: "recover_last_meeting",
+    }
+    chrome.runtime.sendMessage(message, function (responseUntyped) {
+      const response = /** @type {ExtensionResponse} */ (responseUntyped)
+      if (response.success) {
+        resolve("Last meeting recovered successfully or recovery not needed")
+      }
+      else {
+        reject(response.message)
       }
     })
   })
