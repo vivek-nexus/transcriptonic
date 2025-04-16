@@ -35,7 +35,7 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
     }
 
     if (message.type === "download_transcript_at_index") {
-        if (message.index) {
+        if ((typeof message.index === "number") && (message.index >= 0)) {
             // Download the requested item
             downloadTranscript(message.index, false)
                 .then(() => {
@@ -51,13 +51,13 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
         }
         else {
             /** @type {ExtensionResponse} */
-            const response = { success: false, message: "No index provided" }
+            const response = { success: false, message: "Invalid index" }
             sendResponse(response)
         }
     }
 
     if (message.type === "retry_webhook_at_index") {
-        if (message.index) {
+        if ((typeof message.index === "number") && (message.index >= 0)) {
             // Handle webhook retry
             postTranscriptToWebhook(message.index)
                 .then(() => {
@@ -74,7 +74,7 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
         }
         else {
             /** @type {ExtensionResponse} */
-            const response = { success: false, message: "No index provided" }
+            const response = { success: false, message: "Invalid index" }
             sendResponse(response)
         }
     }
