@@ -60,7 +60,9 @@ Promise.race([
   )
 ]).
   catch((error) => {
-    console.error(error)
+    if (error !== "Empty transcript and empty chatMessages") {
+      console.error(error)
+    }
   }).
   finally(() => {
     // Save current meeting data to chrome storage once recovery is complete or is aborted
@@ -369,6 +371,14 @@ function transcriptMutationCallback(mutationsList) {
       else {
         throw new Error("Transcript main node not found in DOM")
         // TODO: Should data be pushed to buffer?
+      }
+
+      // Logs to indicate that the extension is working
+      if (transcriptTextBuffer.length > 125) {
+        console.log(transcriptTextBuffer.slice(0, 50) + " ... " + transcriptTextBuffer.slice(-50))
+      }
+      else {
+        console.log(transcriptTextBuffer)
       }
     } catch (err) {
       console.error(err)

@@ -11,6 +11,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const advancedWebhookBodyRadio = document.querySelector("#advanced-webhook-body")
     const recoverLastMeetingButton = document.querySelector("#recover-last-meeting")
 
+    // Initial load of transcripts
+    loadTranscripts()
+
+    // Reload transcripts when page becomes visible
+    document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") {
+            loadTranscripts()
+        }
+    })
+
     if (recoverLastMeetingButton instanceof HTMLButtonElement) {
         recoverLastMeetingButton.addEventListener("click", function () {
             /** @type {ExtensionMessage} */
@@ -111,23 +121,16 @@ document.addEventListener("DOMContentLoaded", function () {
         // Auto save webhook body type
         advancedWebhookBodyRadio.addEventListener("change", function () {
             // Save webhook URL and settings
-            chrome.storage.sync.set({ webhookBodyType: "advanced" }, function () { })
+            chrome.storage.sync.set({ webhookBodyType: advancedWebhookBodyRadio.checked ? "advanced" : "simple" }, function () { })
         })
     }
-
-    // Initial load of transcripts
-    loadTranscripts()
-
-    // Reload transcripts when page becomes visible
-    document.addEventListener("visibilitychange", function () {
-        if (document.visibilityState === "visible") {
-            loadTranscripts()
-        }
-    })
 })
 
 
 // Request runtime permission for webhook URL
+/**
+ * @param {string} url
+ */
 function requestWebhookAndNotificationPermission(url) {
     return new Promise((resolve, reject) => {
         try {
@@ -148,7 +151,7 @@ function requestWebhookAndNotificationPermission(url) {
                 reject(error)
             })
         } catch (error) {
-            reject(new Error("Invalid URL format"))
+            reject(error)
         }
     })
 }
@@ -173,7 +176,7 @@ function loadTranscripts() {
 
                     const row = document.createElement("tr")
                     row.innerHTML = `
-                    <td>${meeting.meetingTitle || meeting.title || ""}</td>
+                    <td>${meeting.meetingTitle || meeting.title || "Google Meet call"}</td>
                     <td>${timestamp} &nbsp; &#9679; &nbsp; ${durationString}</td>
                     <td>
                         ${(
@@ -207,7 +210,7 @@ function loadTranscripts() {
                     const downloadButton = row.querySelector(".download-button")
                     if (downloadButton instanceof HTMLButtonElement) {
                         downloadButton.addEventListener("click", function () {
-                            // Send message to background script to post webhook
+                            // Send message to background script to download text file
                             const index = parseInt(downloadButton.getAttribute("data-index") ?? "-1")
                             /** @type {ExtensionMessage} */
                             const message = {

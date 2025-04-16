@@ -14,11 +14,11 @@
 
 /**
  * @typedef {Object} WebhookBody
- * @property {string} meetingTitle
- * @property {string} meetingStartTimestamp
- * @property {string} meetingEndTimestamp
- * @property {TranscriptBlock[] | string} transcript
- * @property {ChatMessage[] | string} chatMessages
+ * @property {string} meetingTitle title of the meeting
+ * @property {string} meetingStartTimestamp ISO timestamp of when the meeting started
+ * @property {string} meetingEndTimestamp ISO timestamp of when the meeting ended
+ * @property {TranscriptBlock[] | string} transcript transcript as a formatted string or array containing transcript blocks from the meeting
+ * @property {ChatMessage[] | string} chatMessages chat messages as a formatted string or array containing chat messages from the meeting
  */
 
 
@@ -44,7 +44,7 @@
 /**
  * @typedef {Object} Meeting
  * @property {string | undefined} [meetingTitle] title of the meeting
- * @property {string | undefined} [title] title of the meeting (stored as "title" in v3.1.0 data)
+ * @property {string | undefined} [title] title of the meeting (this is older key for meetingTitle key, in v3.1.0)
  * @property {string} meetingStartTimestamp ISO timestamp of when the meeting started
  * @property {string} meetingEndTimestamp ISO timestamp of when the meeting ended
  * @property {TranscriptBlock[]} transcript array containing transcript blocks from the meeting
