@@ -261,7 +261,7 @@ function downloadTranscript(index, isWebhookEnabled) {
                 const timestamp = new Date(meeting.meetingStartTimestamp)
                 const formattedTimestamp = timestamp.toLocaleString("default", timeFormat).replace(/[\/:]/g, "-")
 
-                const fileName = `TranscripTonic/Transcript-${sanitisedMeetingTitle} at ${formattedTimestamp}.txt`
+                const fileName = `WindsurfOnsiteDemo/Transcript-${sanitisedMeetingTitle} at ${formattedTimestamp}.txt`
 
 
                 // Format transcript and chatMessages content
@@ -271,7 +271,7 @@ function downloadTranscript(index, isWebhookEnabled) {
 
                 // Add branding
                 content += "\n\n---------------\n"
-                content += "Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)"
+                content += "Transcript saved using WindsurfOnsiteDemo Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)"
                 content += "\n---------------"
 
                 const blob = new Blob([content], { type: "text/plain" })
@@ -306,10 +306,10 @@ function downloadTranscript(index, isWebhookEnabled) {
                             chrome.downloads.download({
                                 // @ts-ignore
                                 url: dataUrl,
-                                filename: "TranscripTonic/Transcript.txt",
+                                filename: "WindsurfOnsiteDemo/Transcript.txt",
                                 conflictAction: "uniquify"
                             })
-                            console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
+                            console.log("Invalid file name. Transcript downloaded to WindsurfOnsiteDemo directory with simple file name.")
                             resolve("Transcript downloaded successfully with default file name")
 
                             // Logs anonymous errors to a Google sheet for swift debugging   

@@ -7,10 +7,10 @@
 /** @type {ExtensionStatusJSON} */
 const extensionStatusJSON_bug = {
   "status": 400,
-  "message": `<strong>TranscripTonic encountered a new error</strong> <br /> Please report it <a href="https://github.com/vivek-nexus/transcriptonic/issues" target="_blank">here</a>.`
+  "message": `<strong>WindsurfOnsiteDemo encountered a new error</strong> <br /> Please report it <a href="https://github.com/vivek-nexus/transcriptonic/issues" target="_blank">here</a>.`
 }
 
-const reportErrorMessage = "There is a bug in TranscripTonic. Please report it at https://github.com/vivek-nexus/transcriptonic/issues"
+const reportErrorMessage = "There is a bug in WindsurfOnsiteDemo. Please report it at https://github.com/vivek-nexus/transcriptonic/issues"
 /** @type {MutationObserverInit} */
 const mutationConfig = { childList: true, attributes: true, subtree: true, characterData: true }
 
@@ -249,7 +249,7 @@ function meetingRoutines(uiType) {
       chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
         if (resultSync.operationMode === "manual") {
-          showNotification({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
+          showNotification({ status: 400, message: "<strong>WindsurfOnsiteDemo is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
         }
         else {
           showNotification(extensionStatusJSON)
@@ -344,7 +344,7 @@ function transcriptMutationCallback(mutationsList) {
                 // Update buffers for next mutation
                 transcriptTextBuffer = currentTranscriptText
                 if (!canUseAriaBasedTranscriptSelector) {
-                  // If a person is speaking for a long time, Google Meet does not keep the entire text in the spans. Starting parts are automatically removed in an unpredictable way as the length increases and TranscripTonic will miss them. So we force remove a lengthy transcript node in a controlled way. Google Meet will add a fresh person node when we remove it and continue transcription. TranscripTonic picks it up as a new person and nothing is missed.
+                  // If a person is speaking for a long time, Google Meet does not keep the entire text in the spans. Starting parts are automatically removed in an unpredictable way as the length increases and WindsurfOnsiteDemo will miss them. So we force remove a lengthy transcript node in a controlled way. Google Meet will add a fresh person node when we remove it and continue transcription. WindsurfOnsiteDemo picks it up as a new person and nothing is missed.
                   if (currentTranscriptText.length > 250)
                     person.remove()
                 }
@@ -658,7 +658,7 @@ function logError(code, err) {
 async function checkExtensionStatus() {
   // Set default value as 200
   chrome.storage.local.set({
-    extensionStatusJSON: { status: 200, message: "<strong>TranscripTonic is running</strong> <br /> Do not turn off captions" },
+    extensionStatusJSON: { status: 200, message: "<strong>WindsurfOnsiteDemo is running</strong> <br /> Do not turn off captions" },
   })
 
   // https://stackoverflow.com/a/42518434

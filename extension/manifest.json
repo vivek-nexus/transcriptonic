@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "TranscripTonic",
+  "name": "WindsurfOnsiteDemo",
   "version": "3.1.0",
-  "description": "Simple Google Meet transcripts. Private and open source.",
+  "description": "Real-time objection handling inside Google Meet. Built as a Windsurf demo to showcase how AI can power GTM workflows from within the browser.",
   "action": {
     "default_icon": "icon.png",
     "default_popup": "popup.html"
