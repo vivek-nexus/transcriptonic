@@ -658,26 +658,9 @@ function logError(code, err) {
 async function checkExtensionStatus() {
   // Set default value as 200
   chrome.storage.local.set({
-    extensionStatusJSON: { status: 200, message: "<strong>WindsurfOnsiteDemo is running</strong> <br /> Do not turn off captions" },
+    extensionStatusJSON: { status: 200, message: "<strong>WindsurfOnsiteDemo is running</strong> <br />" },
   })
-
-  // https://stackoverflow.com/a/42518434
-  await fetch(
-    "https://ejnana.github.io/transcripto-status/status-prod.json",
-    { cache: "no-store" }
-  )
-    .then((response) => response.json())
-    .then((result) => {
-      // Write status to chrome local storage
-      chrome.storage.local.set({ extensionStatusJSON: result }, function () {
-        console.log("Extension status fetched and saved")
-      })
-    })
-    .catch((err) => {
-      console.error(err)
-
-      logError("008", err)
-    })
+  // Remote fetch removed for demo branding consistency
 }
 
 function recoverLastMeeting() {
