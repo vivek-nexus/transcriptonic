@@ -47,10 +47,74 @@ let extensionStatusJSON
 
 let canUseAriaBasedTranscriptSelector = true
 
+// === TRANSCRIPT OVERLAY PANEL ===
+let transcriptOverlayDiv = null
 
+function ensureTranscriptOverlay() {
+  if (!transcriptOverlayDiv) {
+    transcriptOverlayDiv = document.createElement('div')
+    transcriptOverlayDiv.setAttribute('id', 'windsurf-transcript-overlay')
+    transcriptOverlayDiv.setAttribute('aria-live', 'polite')
+    transcriptOverlayDiv.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      min-width: 480px;
+      max-width: 80vw;
+      min-height: 64px;
+      max-height: 60vh;
+      background: rgba(20, 30, 40, 0.60);
+      color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+      padding: 2rem 2.5rem;
+      z-index: 2147483647;
+      font-family: 'Google Sans', Roboto, Arial, sans-serif;
+      font-size: 1.25rem;
+      line-height: 1.7;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+      opacity: 0.92;
+      transition: opacity 0.2s;
+      user-select: text;
+      overflow-y: auto;
+    `
+    transcriptOverlayDiv.innerHTML = `
+      <div style="display:flex;align-items:flex-start;gap:1rem;width:100%;">
+        <span style="margin-top:0.2em;flex-shrink:0;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f7b731" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/></svg>
+        </span>
+        <div style="flex:1;">
+          <div style="font-weight:600;font-size:1.18em;color:#fff;margin-bottom:0.3em;letter-spacing:0.01em;">Transcript</div>
+          <div id="windsurf-transcript-text" style="font-size:1.08em;color:#d6d6d6;line-height:1.7;max-width:100%;word-break:break-word;"></div>
+        </div>
+      </div>
+    `
+    document.body.appendChild(transcriptOverlayDiv)
+  }
+}
 
+function updateTranscriptOverlay(text) {
+  ensureTranscriptOverlay()
+  const textDiv = transcriptOverlayDiv.querySelector('#windsurf-transcript-text')
+  if (textDiv) {
+    textDiv.textContent = text
+  }
+  hideGoogleMeetTranscriptPane()
+}
 
-
+// Hide the original Google Meet transcript pane
+function hideGoogleMeetTranscriptPane() {
+  // Try both the classic and aria-based selectors
+  const classicPane = document.querySelector('.a4cQT');
+  if (classicPane) classicPane.style.display = 'none';
+  const ariaPane = document.querySelector('div[role="region"][tabindex="0"]');
+  if (ariaPane) ariaPane.style.display = 'none';
+}
 
 // Attempt to recover last meeting, if any. Abort if it takes more than 2 seconds to prevent current meeting getting messed up.
 Promise.race([
@@ -68,7 +132,6 @@ Promise.race([
     // Save current meeting data to chrome storage once recovery is complete or is aborted
     overWriteChromeStorage(["meetingStartTimestamp", "meetingTitle", "transcript", "chatMessages"], false)
   })
-
 
 
 
@@ -233,7 +296,7 @@ function meetingRoutines(uiType) {
           isChatMessagesDomErrorCaptured = true
           showNotification(extensionStatusJSON_bug)
 
-          logError("002", err)
+          logError("003", err)
         }
       })
     } catch (err) {
@@ -372,6 +435,12 @@ function transcriptMutationCallback(mutationsList) {
       }
       else {
         console.log(transcriptTextBuffer)
+      }
+      // === OVERLAY UPDATE ===
+      if (typeof transcriptTextBuffer === 'string' && transcriptTextBuffer.trim() !== '') {
+        updateTranscriptOverlay(transcriptTextBuffer)
+      } else {
+        updateTranscriptOverlay('')
       }
     } catch (err) {
       console.error(err)
