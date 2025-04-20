@@ -318,6 +318,116 @@ Windsurf does not replace the software engineer, leaving the developer in charge
 
 **Who can use this?**  
 Everyone. Command is included in the free tier. We are committed to always providing a Command functionality for free.
+**Popular Questions**  
+
+**What is Codeium?**  
+Codeium is the modern coding superpower, a code acceleration toolkit built on cutting‑edge AI technology. Currently, it has two main capabilities:  
+- **Autocomplete**: suggests the code you want to type, saving you time on everything from boilerplate to unit tests.  
+- **Search**: lets you query your repository with natural language.  
+
+**What programming languages do you support?**  
+Codeium’s performance is enabled by default for:  
+APL, Assembly, Astro, Blade, C, C++, C#, Clojure, CMake, COBOL, CoffeeScript, Crystal, CSS, CUDA, Dart, Delphi, Dockerfile, Elixir, Erlang, F#, Fortran, GDScript, Go, Gradle, Groovy, Hack, Haskell, HCL, HTML, Java, JavaScript, Julia, JSON, Kotlin, LISP, Less, Lua, Makefile, MATLAB, MUMPS, Nim, Objective‑C, OCaml, pbtxt, PHP, Protobuf, Python, Perl, PowerShell, Prolog, R, Ruby, Rust, SAS, Sass, Scala, SCSS, shell, Solidity, SQL, Starlark, Swift, Svelte, TypeScript, TeX, TSX, VBA, Vimscript, Vue, YAML, Zig.  
+(On other languages you can explicitly enable Codeium.)
+
+**Will this always be free?**  
+- **Individual developers**: Yes—our philosophy is that every developer should have these tools at no cost.  
+- We sustain this by offering paid Pro, Teams, and Enterprise tiers with additional features.
+
+**What is the Codeium Pro Tier?**  
+The Pro Tier gives you extra “juice” for your workflows:  
+- **Supercomplete**  
+- **Fast Autocomplete**  
+- Unlimited large‑model usage (GPT‑4o, Claude 3.5 Sonnet, Codeium large models)  
+- Expanded context‑awareness and reasoning for complex codebases  
+
+---
+
+**General**  
+
+**Why are you building the Windsurf extension?**  
+We believe every part of software development—from writing code and tests to reviewing PRs—can be accelerated by AI. Windsurf makes it seamless to turn ideas into code and iterate more efficiently.
+
+**Who should use this?**  
+Anyone with coding fundamentals—Windsurf doesn’t replace you, it empowers you. Always review and test AI‑generated code yourself.
+
+**Why am I getting bad results?**  
+- AI suggestions depend on context and training data.  
+- Try rephrasing prompts, breaking complex questions into smaller ones, or tweaking naming to get better results.
+
+**How is this different from GitHub Copilot, Tabnine, etc.?**  
+- **Latency & quality** on par with Copilot  
+- **Free** and supports more IDEs  
+- **More functionality** (e.g. Codeium Search)  
+- Built on a vertically integrated ML stack with deep developer feedback
+
+---
+
+**Feature Details**  
+
+**How does Autocomplete work?**  
+A large generative model understands your code and comments to predict what you’ll type next, backed by high‑performance serving infrastructure.
+
+**How does Windsurf Chat work?**  
+- Integrates open‑ended chat with IDE context  
+- Offers multiple models (in‑house Llama variants, GPT‑4o, Claude Sonnet)  
+- Zero‑data‑retention options for paid users, full privacy for self‑hosted  
+
+**How can you provide Windsurf Chat for free?**  
+We’re moving to our own models and infrastructure, allowing us to cover chat costs long‑term.
+
+**Who can use Command?**  
+Everyone—Command is free in all tiers, in Windsurf Editor, VSCode, JetBrains IDEs (more coming).
+
+**What model do you use for Command?**  
+Custom in‑house models, 3× faster than GPT‑4 Turbo.
+
+**What IDEs support Command?**  
+Windsurf Editor, VSCode, JetBrains IDEs (others soon).
+
+**What IDEs and languages have Windsurf Chat?**  
+Windsurf (Legacy mode), VSCode, JetBrains, Visual Studio, Eclipse, Xcode—supports any language, with CodeLens in common ones (Python, JS, TS, Java, Go, PHP).
+
+**What models are used?**  
+- **Autocomplete**: proprietary in‑house  
+- **Search**: local embeddings + in‑house store  
+- **Chat**: mix of proprietary and OpenAI (self‑hosted can use only in‑house)
+
+**How does Forge work?**  
+A Chrome extension that replaces GitHub’s code review UI with an AI‑enhanced workflow.
+
+**What browsers does Forge support?**  
+Officially Chrome (works in Chromium‑based too; Safari/Firefox coming).
+
+**What SCMs does Forge support?**  
+GitHub Free/Pro/Team/Enterprise Cloud (others coming).
+
+**When will AI review all my code?**  
+AI can’t fully review with perfect accuracy yet—Forge assists to make you a more capable reviewer.
+
+**How does Supercomplete work?**  
+It looks at code before and after your cursor to retroactively correct as you type.
+
+**How do I trigger Supercomplete?**  
+It triggers automatically alongside Autocomplete based on context.
+
+---
+
+**Personalization**  
+
+**How do I ask a question about my codebase in chat?**  
+Prefix with “In our codebase,” or “Answer for our codebase:” to force context retrieval.
+
+**How can I tell what parts of my codebase were considered?**  
+Click the “Read X context items” dropdown with the search‑glass icon.
+
+**Why does Refactor/Explain/Docstring lack context?**  
+Context support is coming soon for those actions.
+
+**How can I improve response quality?**  
+- Add your folder to the workspace  
+- Break up complex queries  
+- Clear chat history when switching topics  
 
 **Is Command included in the Enterprise and Teams tiers?**  
 Yes. Command joins Autocomplete and Chat as core features of Windsurf that are free for all users and available in all tiers.
@@ -449,7 +559,7 @@ ${contextSnippet}
 A question was just asked:
 “${question}”
 
-What are 2–4 concise, helpful talking points the rep can use to answer it?
+What are 2–4 concise, helpful talking points the rep can use to answer it.
 Respond only with bullet points.
 `.trim();
 
