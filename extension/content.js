@@ -416,7 +416,7 @@ But wait, how do we know the singularity hasn't already happened? But on a serio
 - Website: windsurf.com
 - Support: security@windsurf.com, Discord community
 - Enterprise: contact@windsurf.com`;
-  const systemPrompt = `You are the second brain of a windsurf.com sales rep! Your job is to give quick, informal, and helpful talking points for tough sales questions. The rep will read your answer aloud. The first agentic IDE, and then some. The Windsurf Editor is where the work of developers and AI truly flow together, allowing for a coding experience that feels like literal magic. Windsurf, Wave7, Cascade, do not refer to the sports of windsurf but to the company windsurf' (an AI IDE ). Do not mention you are an AI. Sometimes use informal language. Use the following Windsurf product information as reference:\n\n${context}`;
+  const systemPrompt = `You are the second brain of a windsurf.com sales rep! Your job is to give quick, informal, and helpful talking points for tough sales questions. The rep will read your answer aloud. The first agentic IDE, and then some. The Windsurf Editor is where the work of developers and AI truly flow together, allowing for a coding experience that feels like literal magic. Windsurf, Wave7, Cascade, do not refer to the sports of windsurf but to the company windsurf' (an AI IDE ). Do not mention you are an AI. Sometimes use informal language.\n\nIMPORTANT: Do not answer generic, irrelevant, or small-talk questions such as 'How are you doing today?' or 'What is the weather?', or any other non-sales, non-technical, or non-product questions. Only answer questions relevant to sales, technical, or product topics.\n\nUse the following Windsurf product information as reference:\n\n${context}`;
   const userPrompt = `Here is the latest transcript context (recent conversation):\n${contextSnippet}\n\nQuestion: ${question}\n\nTalking point:`;
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -462,13 +462,13 @@ async function updateTranscriptOverlay(text) {
     if (typeof text === 'string' && text.trim() !== '') {
       const sentences = text.split(/[.!?\n]/).map(s => s.trim()).filter(Boolean);
       for (let i = sentences.length - 1; i >= 0; i--) {
-        if (isHighSignalSalesQuestion(sentences[i])) {
+        if (isQuestion(sentences[i])) {
           question = sentences[i];
           break;
         }
       }
     }
-    // If a new high-signal question, or answer lock expired (7s since last answer)
+    // If a new question, or answer lock expired (7s since last answer)
     if (question && (question !== lastQuestion || (now - lastAnswerTimestamp > 7000))) {
       lastQuestion = question;
       textDiv.textContent = 'Generating talking point...';
@@ -1137,82 +1137,3 @@ function recoverLastMeeting() {
     })
   })
 }
-
-
-
-
-
-// CURRENT GOOGLE MEET TRANSCRIPT DOM. TO BE UPDATED.
-
-{/* <div class="a4cQT kV7vwc eO2Zfd" jscontroller="D1tHje" jsaction="bz0DVc:HWTqGc;E18dRb:lUFH9b;QBUr8:lUFH9b;stc2ve:oh3Xke" style="">
-  // CAPTION LANGUAGE SETTINGS. MAY OR MAY NOT HAVE CHILDREN
-  <div class="NmXUuc  P9KVBf" jscontroller="rRafu" jsaction="F41Sec:tsH52e;OmFrlf:xfAI6e(zHUIdd)"></div>
-  <div class="DtJ7e">
-    <span class="frX3lc-vlkzWd  P9KVBf"></span>
-    <div jsname="dsyhDe" class="iOzk7 uYs2ee " style="">
-      //PERSON 1
-      <div class="nMcdL bj4p3b" style="">
-        <div class="adE6rb M6cG9d">
-          <img alt="" class="Z6byG r6DyN" src="https://lh3.googleusercontent.com/a/some-url" data-iml="63197.699999999255">
-            <div class="KcIKyf jxFHg">Person 1</div>
-        </div>
-        <div jsname="YSxPC" class="bYevke wY1pdd" style="height: 27.5443px;">
-          <div jsname="tgaKEf" class="bh44bd VbkSUe">
-            <span>Some transcript text.</span>
-            <span>Some more text.</span></div>
-        </div>
-      </div>
-      //PERSON 2
-      <div class="nMcdL bj4p3b" style="">
-        <div class="adE6rb M6cG9d">
-          <img alt="" class="Z6byG r6DyN" src="https://lh3.googleusercontent.com/a/some-url" data-iml="63197.699999999255">
-            <div class="KcIKyf jxFHg">Person 2</div>
-        </div>
-        <div jsname="YSxPC" class="bYevke wY1pdd" style="height: 27.5443px;">
-          <div jsname="tgaKEf" class="bh44bd VbkSUe">
-            <span>Some transcript text.</span>
-            <span>Some more text.</span></div>
-        </div>
-      </div>
-    </div>
-    <div jsname="APQunf" class="iOzk7 uYs2ee" style="display: none;">
-    </div>
-  </div>
-  <div jscontroller="mdnBv" jsaction="stc2ve:MO88xb;QBUr8:KNou4c">
-  </div>
-</div> */}
-
-// CURRENT GOOGLE MEET CHAT MESSAGES DOM
-{/* <div jsname="xySENc" aria-live="polite" jscontroller="Mzzivb" jsaction="nulN2d:XL2g4b;vrPT5c:XL2g4b;k9UrDc:ClCcUe"
-  class="Ge9Kpc z38b6">
-  <div class="Ss4fHf" jsname="Ypafjf" tabindex="-1" jscontroller="LQRnv"
-    jsaction="JIbuQc:sCzVOd(aUCive),T4Iwcd(g21v4c),yyLnsd(iJEnyb),yFT8A(RNMM1e),Cg1Rgf(EZbOH)" style="order: 0;">
-    <div class="QTyiie">
-      <div class="poVWob">You</div>
-      <div jsname="biJjHb" class="MuzmKe">17:00</div>
-    </div>
-    <div class="beTDc">
-      <div class="er6Kjc chmVPb">
-        <div class="ptNLrf">
-          <div jsname="dTKtvb">
-            <div jscontroller="RrV5Ic" jsaction="rcuQ6b:XZyPzc" data-is-tv="false">Hello</div>
-          </div>
-          <div class="pZBsfc">Hover over a message to pin it<i class="google-material-icons VfPpkd-kBDsod WRc1Nb"
-              aria-hidden="true">keep</i></div>
-          <div class="MMfG3b"><span tooltip-id="ucc-17"></span><span data-is-tooltip-wrapper="true"><button
-                class="VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c Brnbv pFZkBd" jscontroller="soHxf"
-                jsaction="click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue; touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc; touchcancel:JMtRjd; focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;mlnRJb:fLiPzd"
-                jsname="iJEnyb" data-disable-idom="true" aria-label="Pin message" data-tooltip-enabled="true"
-                data-tooltip-id="ucc-17" data-tooltip-x-position="3" data-tooltip-y-position="2" role="button"
-                data-message-id="1714476309237">
-                <div jsname="s3Eaab" class="VfPpkd-Bz112c-Jh9lGc"></div>
-                <div class="VfPpkd-Bz112c-J1Ukfc-LhBDec"></div><i class="google-material-icons VfPpkd-kBDsod VjEpdd"
-                  aria-hidden="true">keep</i>
-              </button>
-              <div class="EY8ABd-OWXEXe-TAWMXe" role="tooltip" aria-hidden="true" id="ucc-17">Pin message</div>
-            </span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div> */}
