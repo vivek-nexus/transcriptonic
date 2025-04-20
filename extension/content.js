@@ -57,9 +57,9 @@ function ensureTranscriptOverlay() {
     transcriptOverlayDiv.setAttribute('aria-live', 'polite')
     transcriptOverlayDiv.style.cssText = `
       position: fixed;
-      top: 50%;
+      top: 4%; /* position near very top for minimal visibility */
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       min-width: 480px;
       max-width: 80vw;
       min-height: 64px;
