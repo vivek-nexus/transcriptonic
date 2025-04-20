@@ -99,6 +99,9 @@ function ensureTranscriptOverlay() {
 }
 
 // === SALES ASSISTANT QUESTION DETECTION ===
+// Global system prompt shared by all OpenAI calls
+const systemPrompt = `You are a top-performing sales assistant for Windsurf.com — the first agentic IDE where developers and AI truly flow together. You work alongside a live sales rep on a Google Meet call, ready to jump in with crisp, on‑point bullet‑point talking points whenever a question is asked.\n\n🔑 Tone:\n- Helpful, informal, sharp — like a seasoned AE.\n- Plain language. Cut jargon. Persuasive but never pushy.\n\n🎯 Role:\n- Never say you're an AI or script full sentences.\n- Whenever you see a question mark in the last user utterance, treat it as a direct question to answer.\n- Pull the exact relevant answer from the Windsurf FAQ/context and turn it into 1–4 clear, punchy bullets.\n\n🧩 Output Rules:\n- Only bullet points. No extra commentary or questions.\n- Bullets must directly answer the specific question asked.\n- Use as few bullets as needed (1–4) to cover the answer fully. Only answer the exact question asked. dont output other information that is noise.`;
+
 // Place your OpenAI API key here (do NOT commit to public repos)
 async function getOpenAIApiKey() {
   return new Promise((resolve) => {
@@ -313,7 +316,7 @@ Windsurf does not replace the software engineer, leaving the developer in charge
 To be clear, Windsurf Chat does cost us money, but we believe we can control costs in the long term by fully shifting to our own models and state-of-the-art model serving infrastructure (same reason why we can provide Autocomplete for free). We are committed to always providing a Chat functionality for free.
 
 **What IDEs and languages have Windsurf Chat?**  
-Windsurf Chat is currently only on Windsurf (Cascade's "Legacy" mode), VSCode, JetBrains IDEs, Visual Studio, Eclipse, and XCode, but we will be rapidly supporting more IDEs in the near future. Windsurf Chat will work on any language, but the CodeLens suggestions above functions are available for only common languages, which includes Python, JavaScript, TypeScript, Java, Go, PHP, and more.
+Windsurf Chat is currently only on Windsurf (Cascade's "Legacy" mode), VSCode, JetBrains IDEs, Visual Studio, Eclipse, XCode, but we will be rapidly supporting more IDEs in the near future. Windsurf Chat will work on any language, but the CodeLens suggestions above functions are available for only common languages, which includes Python, JavaScript, TypeScript, Java, Go, PHP, and more.
 
 ### Command
 **Who should use this?**  
@@ -517,273 +520,8 @@ But wait, how do we know the singularity hasn't already happened? But on a serio
 - Website: windsurf.com
 - Support: security@windsurf.com, Discord community
 - Enterprise: contact@windsurf.com`;
-const systemPrompt = `
 
-You are a top-performing sales assistant for Windsurf.com — the first agentic IDE where developers and AI truly flow together. You work alongside a live sales rep on a Google Meet call, ready to jump in with crisp, on‑point bullet‑point talking points whenever a question is asked.
-even if you read windsor, winter sport, wind safe, these things are all referring to windsurf.
-make sure to answer in this format any question that is being asked. even if there isnt necessarily a ? if you think there is a question or an objection, answer it in the format asked.
-🔑 Tone:
-- Helpful, informal, sharp — like a seasoned AE.
-- Plain language. Cut jargon. Persuasive but never pushy.
-
-🎯 Role:
-- Never say you're an AI or script full sentences.
-- Whenever you see a question mark in the last user utterance, treat it as a direct question to answer.
-- Pull the exact relevant answer from the Windsurf FAQ/context and turn it into 1–4 clear, punchy bullets.
-
-🧩 Output Rules:
-- Only bullet points. No extra commentary or questions.
-- Bullets must directly answer the specific question asked.
-- Use as few bullets as needed (1–4) to cover the answer fully. Only answer the exact question asked. dont output other information that is noise.
-
-You are powered by the following Windsurf product context: Use it to answer any question especially if they are in the faQ. This is your second brain
-
-${context}
-but also use the following questions and answers to answer questions you detect. 
-## Frequently Asked Questions (FAQs)
-
-### Windsurf Editor
-**What is Windsurf?**  
-We don't mind if you call the Windsurf Editor the first agentic IDE, the first native surface for developers to collaborate with AI, or simply how we like to think about it - tomorrow's editor, today. When we first used the Windsurf Editor, a lot of the words that we found resonating with us included magic, power, and flow state. Windsurfing perfectly captures the combination of human, machine, and nature in an activity that looks effortless, but takes an intense amount of power. You can think of the Windsurf Editor as the first agentic IDE, and then some. It is a new paradigm of working with AI, which we are calling AI flows - collaborative agents. We started with the existing paradigms of AI use. Copilots are great because of their collaborativeness with the developer - the human is always in the loop. That being said, to keep the human in the loop, copilots are generally confined to short scoped tasks. On the other hand, agents are great because the AI can independently iterate to complete much larger tasks. The tradeoff is that you lose the collaborative aspect, which is why we haven't seen an agentic IDE (yet). An IDE would be overkill. Both copilots and agents are super powerful and have their use cases, but have generally been seen as complementary because their strengths and weaknesses are indeed complementary. Our spark came from one simple question - what if the AI had the best of both worlds? What if the AI was capable of being both collaborative and independent? Well, that is what makes humans special. Working with that kind of AI could feel like magic. With a lot of research, we built the foundations of this kind of system, which we are calling AI flows. AI flows allow developers and AI to truly mind-meld, combining the best of copilots and agents.
-
-**Why did you build your own IDE? And why did you fork VS Code?**  
-We never went into building an editor until we realized the magic of flows and Cascade. That being said, we also were honest with ourselves that we did not have to build the editor entirely from scratch to expose this magic, so we forked Visual Studio Code. We are fully aware of the memes about people forking VS Code to create "AI IDEs," but again, we would not have built the Windsurf Editor if extensions could maximize the potential of our vision. With regards to extensions, we have been an extension-first company, and still recognize that people really like the editors that they have, especially within our enterprise customer base. So, our Codeium extensions are not going anywhere, and we are going to continue to improve them to the max of their capabilities. Even some flow capabilities like Supercomplete are doable within extensions, and so we will build them in! The only difference with the Windsurf Editor is that we now have a surface where we are truly unconstrained to expose the magic as it evolves. As we start building towards a mission of helping across the entire software development life cycle, not just coding, we will be releasing our own products under this new Windsurf brand, starting with the Editor. These will be products natively and fully owned by us. Codeium will still exist as its own brand and product, representing extensions and integrations into existing products such as commonly used IDEs. So tl;dr, Windsurf and Codeium are two different products, though they do share a lot of underlying systems and infrastructure.
-
-**How is this different from other solutions (Cursor, Cognition, etc)?**  
-As mentioned in the previous question, we didn't set out to build an IDE until we had this concept of flows. It's more than just "we want nicer UX," though that is definitely an added benefit. Also, we don't think we have a big enough ego to believe that we are the only ones that are able to come up with cool ideas and user experiences, and have a lot of respect for the teams at Cursor, Zed and elsewhere. A lot of these agentic systems such as Cognition's Devin live outside of the IDE, which is one of the biggest differences, because that means they are unable to be aware of human actions. They are truly agentic systems, which are meant to independently solve larger tasks with access to knowledge and tools. They are also not generally available, hidden behind waitlists and invite-only programs. This perhaps could be seen as an indication of potential limitations to the kinds of tasks that agentic systems are appropriate for, which would conflict with the social media hype that these systems can do anything and everything. We actually believe that Cursor Composer got a lot of the ideas behind a flow system right. However, we think there is a depth to the components of the system that we have been able to build given our history and expertise. What makes Cascade insanely powerful is not just the breadth across knowledge, tools, and human actions, but the depth within each axis:  
-• Knowledge: This is where our multi-year work on building state-of-the-art context awareness systems that can parse and semantically understand complex codebases comes into play. If we weren't really good at this, we wouldn't be fortunate enough to be able to work with some of the largest and most technically complex companies such as Dell, Anduril, and Zillow.  
-• Tools: Cascade's tools include making edits, adding files, grep, listing files in a directory, and even code execution. On top of this, Cascade comes with proprietary tools such as Riptide, which is the technology underpinning the Cortex research breakthrough that was covered by the press a few months ago. It is an LLM-based search tool that can rip through millions of lines of code in seconds with 3x better accuracy than state-of-the-art embedding-based systems, all with highly optimized use of a large amount of compute.  
-• Human Actions: There are a lot of different granularities at which you can capture this information, but it is very easy to either have too little or too much information. Either you miss actions core to determining user intent or you have too much noise. We won't give away the magic sauce here, but we have done a lot of work on checkpointing, information compression, and more in order to make Cascade feel like an infinite stream of joint consciousness between human and AI.  
-We have put Cascade front and center - in fact, with Windsurf, we don't even have Chat. It is all Cascade. The flow is core to the experience, which is different from features like Cursor Composer, which is not a front-and-center capability. In our experience: Cascade is better than Composer when working on existing codebases Cascade is better than Composer at context retrieval to ground work Cascade is faster than Composer. Our hypothesis is that Composer doesn't yet have the depth of knowledge understanding, the full gamut of tools, or super fine grained human trajectories, which likely restricts its usefulness to zero-to-one applications.
-
-**Will this be available on the free Codeium plan post-GA?**  
-Our infrastructure expertise has been the secret sauce behind a number of the loved aspects of our Codeium extensions, from the crazy low latencies to the generous free tier (it's not a financially irresponsible option for us due to our industry leading serving costs). But even for us, serving this magic at its full potential is a meaningful jump up in operating cost. So while the Windsurf Editor itself and a lot of the Cascade capabilities will be free, the full magic will only be available on paid plans in the long run. That being said, for the first couple of weeks after general access, we are going to be giving the full experience for free to any individual using the Windsurf Editor.
-
-**Who can use this and what are the security guarantees?**  
-From our end, you can use the Windsurf Editor for any work, but check with your employer if you plan to use it for your professional work. Currently, the Windsurf Editor (and connected functionalities like Cascade) are available for any of our self-serve plans, and as we learn more about the extent of what Cascade is capable of, we will make the Windsurf Editor available to enterprise plans. The Windsurf Editor obeys the same security guarantees and code snippet telemetry rules as the Codeium extensions.
-
-### Windsurf Tab
-**Why is Windsurf Tab only fully available in the Windsurf Editor?**  
-Windsurf Tab requires a lot of custom UI work not available to VS Code. For example, the popups for tab to jump, tab to import, etc. are not available in VS Code.
-
-**How does Windsurf Tab differ for Free vs. Pro users?**  
-Windsurf Tab is accessible to all users, but Free users experience slower performance and do not have access to the "Tab to Jump" feature. Paid users enjoy a faster and more seamless experience.
-
-### Chat
-**How does Windsurf Chat work?**  
-Windsurf Chat seamlessly integrates the powers of open-ended conversation with IDE context. Besides allowing familiar interactions like those with ChatGPT, users can use smart suggestions to perform common actions such as adding documentation to functions or refactoring code. Under the hood, Windsurf Chat has a variety of models to choose from. There is our Base Model (Llama 3.1 70B based, fine-tuned in-house), Windsurf Premier (Llama 3.1 405B based, fine-tuned in-house), as well as OpenAI's GPT-4o and Anthropic's Claude 3.5 Sonnet. For paying SaaS and Hybrid users, we are able to promise zero data retention for Chat (contact us for more information about paid SaaS plans), but because of this usage of Open AI, we can only enable it for free tier users that have code snippet telemetry enabled since we cannot guarantee how OpenAI stores and uses telemetry data. For self-hosted enterprise customers, we are able to provide Chat via our own Chat models, as well as provide optionality to integrate with private endpoints of leading model API providers.
-
-**Who should use this?**  
-Windsurf does not replace the software engineer, leaving the developer in charge and responsible for any code generated. Windsurf does not test the code automatically, so a developer should carefully test and review all code generated by Windsurf. So while anyone can use Windsurf, we recommend it especially for people who already have fundamental knowledge of software engineering and coding. It's never great to be dependent on anything, even superpowers.
-
-**How can you provide Windsurf Chat for free?**  
-To be clear, Windsurf Chat does cost us money, but we believe we can control costs in the long term by fully shifting to our own models and state-of-the-art model serving infrastructure (same reason why we can provide Autocomplete for free). We are committed to always providing a Chat functionality for free.
-
-**What IDEs and languages have Windsurf Chat?**  
-Windsurf Chat is currently only on Windsurf (Cascade's "Legacy" mode), VSCode, JetBrains IDEs, Visual Studio, Eclipse, and XCode, but we will be rapidly supporting more IDEs in the near future. Windsurf Chat will work on any language, but the CodeLens suggestions above functions are available for only common languages, which includes Python, JavaScript, TypeScript, Java, Go, PHP, and more.
-
-### Command
-**Who should use this?**  
-Windsurf does not replace the software engineer, leaving the developer in charge and responsible for any code generated. Windsurf does not test the code automatically, so a developer should carefully test and review all code generated by Windsurf. So while anyone can use Windsurf, we recommend it especially for people who already have fundamental knowledge of software engineering and coding. It's never great to be dependent on anything, even superpowers.
-
-**Who can use this?**  
-Everyone. Command is included in the free tier. We are committed to always providing a Command functionality for free.
-**Popular Questions**  
-
-**What is Codeium?**  
-Codeium is the modern coding superpower, a code acceleration toolkit built on cutting‑edge AI technology. Currently, it has two main capabilities:  
-- **Autocomplete**: suggests the code you want to type, saving you time on everything from boilerplate to unit tests.  
-- **Search**: lets you query your repository with natural language.  
-
-**What programming languages do you support?**  
-Codeium's performance is enabled by default for:  
-APL, Assembly, Astro, Blade, C, C++, C#, Clojure, CMake, COBOL, CoffeeScript, Crystal, CSS, CUDA, Dart, Delphi, Dockerfile, Elixir, Erlang, F#, Fortran, GDScript, Go, Gradle, Groovy, Hack, Haskell, HCL, HTML, Java, JavaScript, Julia, JSON, Kotlin, LISP, Less, Lua, Makefile, MATLAB, MUMPS, Nim, Objective‑C, OCaml, pbtxt, PHP, Protobuf, Python, Perl, PowerShell, Prolog, R, Ruby, Rust, SAS, Sass, Scala, SCSS, shell, Solidity, SQL, Starlark, Swift, Svelte, TypeScript, TeX, TSX, VBA, Vimscript, Vue, YAML, Zig.  
-(On other languages you can explicitly enable Codeium.)
-
-**Will this always be free?**  
-- **Individual developers**: Yes—our philosophy is that every developer should have these tools at no cost.  
-- We sustain this by offering paid Pro, Teams, and Enterprise tiers with additional features.
-
-**What is the Codeium Pro Tier?**  
-The Pro Tier gives you extra "juice" for your workflows:  
-- **Supercomplete**  
-- **Fast Autocomplete**  
-- Unlimited large‑model usage (GPT‑4o, Claude 3.5 Sonnet, Codeium large models)  
-- Expanded context‑awareness and reasoning for complex codebases  
-
----
-
-**General**  
-
-**Why are you building the Windsurf extension?**  
-We believe every part of software development—from writing code and tests to reviewing PRs—can be accelerated by AI. Windsurf makes it seamless to turn ideas into code and iterate more efficiently.
-
-**Who should use this?**  
-Anyone with coding fundamentals—Windsurf doesn't replace you, it empowers you. Always review and test AI‑generated code yourself.
-
-**Why am I getting bad results?**  
-- AI suggestions depend on context and training data.  
-- Try rephrasing prompts, breaking complex questions into smaller ones, or tweaking naming to get better results.
-
-**How is this different from GitHub Copilot, Tabnine, etc.?**  
-- **Latency & quality** on par with Copilot  
-- **Free** and supports more IDEs  
-- **More functionality** (e.g. Codeium Search)  
-- Built on a vertically integrated ML stack with deep developer feedback
-
----
-
-**Feature Details**  
-
-**How does Autocomplete work?**  
-A large generative model understands your code and comments to predict what you'll type next, backed by high‑performance serving infrastructure.
-
-**How does Windsurf Chat work?**  
-- Integrates open‑ended chat with IDE context  
-- Offers multiple models (in‑house Llama variants, GPT‑4o, Claude Sonnet)  
-- Zero‑data‑retention options for paid users, full privacy for self‑hosted  
-
-**How can you provide Windsurf Chat for free?**  
-We're moving to our own models and infrastructure, allowing us to cover chat costs long‑term.
-
-**Who can use Command?**  
-Everyone—Command is free in all tiers, in Windsurf Editor, VSCode, JetBrains IDEs (more coming).
-
-**What model do you use for Command?**  
-Custom in‑house models, 3× faster than GPT‑4 Turbo.
-
-**What IDEs support Command?**  
-Windsurf Editor, VSCode, JetBrains IDEs (others soon).
-
-**What IDEs and languages have Windsurf Chat?**  
-Windsurf (Legacy mode), VSCode, JetBrains, Visual Studio, Eclipse, Xcode—supports any language, with CodeLens in common ones (Python, JS, TS, Java, Go, PHP).
-
-**What models are used?**  
-- **Autocomplete**: proprietary in‑house  
-- **Search**: local embeddings + in‑house store  
-- **Chat**: mix of proprietary and OpenAI (self‑hosted can use only in‑house)
-
-**How does Forge work?**  
-A Chrome extension that replaces GitHub's code review UI with an AI‑enhanced workflow.
-
-**What browsers does Forge support?**  
-Officially Chrome (works in Chromium‑based too; Safari/Firefox coming).
-
-**What SCMs does Forge support?**  
-GitHub Free/Pro/Team/Enterprise Cloud (others coming).
-
-**When will AI review all my code?**  
-AI can't fully review with perfect accuracy yet—Forge assists to make you a more capable reviewer.
-
-**How does Supercomplete work?**  
-It looks at code before and after your cursor to retroactively correct as you type.
-
-**How do I trigger Supercomplete?**  
-It triggers automatically alongside Autocomplete based on context.
-
----
-
-**Personalization**  
-
-**How do I ask a question about my codebase in chat?**  
-Prefix with "In our codebase," or "Answer for our codebase:" to force context retrieval.
-
-**How can I tell what parts of my codebase were considered?**  
-Click the "Read X context items" dropdown with the search‑glass icon.
-
-**Why does Refactor/Explain/Docstring lack context?**  
-Context support is coming soon for those actions.
-
-**How can I improve response quality?**  
-- Add your folder to the workspace  
-- Break up complex queries  
-- Clear chat history when switching topics  
-
-**Is Command included in the Enterprise and Teams tiers?**  
-Yes. Command joins Autocomplete and Chat as core features of Windsurf that are free for all users and available in all tiers.
-
-**What IDEs support Command?**  
-We currently support Command in Windsurf Editor, VSCode and JetBrains IDEs. Others are coming soon!
-
-**What model do you use for Command?**  
-We use custom, in-house models that are trained for this purpose and are over 3 times faster than GPT-4 Turbo.
-
-**Will this always be free?**  
-For individual developers, yes. Our philosophy is that every developer should have access to these tools at no cost to keep the playing field level (learn more). That being said, we are able to commit to offering all of these tools for free, forever, due to our Pro, Teams, and Enterprise paid tiers, which come with additional functionalities.
-
-### Context Aware Everything
-**Why are you building Windsurf extension?**  
-Anyone who codes knows that there are many different tasks and "modes" involved in software development - writing code, figuring out what code to write, searching through existing codebases, generating test cases, debugging, writing docs, creating and reviewing pull requests, etc. Some tasks are boring, tedious, or downright frustrating, from regurgitating boilerplate to poring through StackOverflow. Others are interesting but require too many manual steps. But we believe all of them can be accelerated by recent advances in AI. By rethinking how every part of a software developer's workflow can be accelerated with and assisted by AI, Codeium will make it seamless to turn your ideas into code, iterate like never before, and more. We are excited to see how this acceleration can unlock other developers to create more quickly and efficiently.
-
-**Who should use this?**  
-Windsurf does not replace the software engineer, leaving the developer in charge and responsible for any code generated. Windsurf does not test the code automatically, so a developer should carefully test and review all code generated by Windsurf. So while anyone can use Windsurf, we recommend it especially for people who already have fundamental knowledge of software engineering and coding. It's never great to be dependent on anything, even superpowers.
-
-**Why am I getting bad results?**  
-Like any other superpower, Codeium is more effective in certain situations than others. Codeium only has limited context to generate suggestions, doesn't have enough training data for new or esoteric capabilities of every coding language/framework, and anecdotally performs better on certain classes of prompts. But also just like any other superpower, one can learn how to wield Codeium more effectively. We hope to compile best practices given feedback, but play around with how you write comments or function/argument names to see what causes Codeium to give the best results!
-
-**How is this different from GitHub Copilot, Tabnine, Replit Ghostwriter, etc.?**  
-We tried them all, and have compiled results on our Compare page! Codeium has similar industry-leading latency and quality on code autocomplete as tools like GitHub Copilot, while being free, available in more IDEs, and providing more functionality (such as Codeium Search). We believe our philosophy - (a) pairing state-of-the-art ML with world class ML infrastructure in a vertically integrated manner and (b) heavily relying on developer feedback to shape the product roadmap - is quite different from existing approaches, and will lead to a more usable, functional, and high-quality product.
-
-### Plans and Pricing
-**What are Flow Action and User Prompt credits?**  
-These credits govern the usage of premium models (Anthropic's Claude 3.5 Sonnet, OpenAI's GPT-4o, DeepSeek R-1) within the reasoning of Cascade. A message with a premium model consumes a model-dependent number of User Prompt credits, while tool call with a premium model consumes a model-dependent number of Flow Action credits. Depending on the prompt, the AI might...
-
-**What's special about Enterprise?**  
-Windsurf for Enterprises is an enterprise-grade version of Windsurf with high-security deployment options, additional features like local personalization on your private repositories, analytics dashboards, support and training, and more. While Windsurf is already the best offering for individual developers, even more AI-powered functionality can happen at a team level on larger, well-maintained repositories.
-
-**What guarantees exist on data security?**  
-For self-hosted, Windsurf for Enterprises is deployed entirely on-prem or in your Virtual Private Cloud (VPC). The best way to guarantee security is to not allow your data to leave your company's managed resources (Read More). We have also trained models in-house, built all IDE integrations, and written all custom logic to cleanly integrate the user's code with model inputs and outputs. By not relying on third party APIs, you can be confident that there is no potential for external security vulnerabilities to creep in. We recognize that every company has different data handling and management policies, as well as hardware setups, so we offer a wide range of methods to deploy Windsurf for Enterprises in a self-hosted manner. If you do not want to deploy locally, we do offer a managed service SaaS plan with zero data IP retention guarantees and SOC2 compliance, the latter being something that GitHub Copilot for Businesses particularly does not have. Zero data IP retention means that we use any code snippets or chat messages sent to us only to perform the model inference on our GPUs, but will never even persist that data. This means your IP is never stored on external servers and therefore never used for other purposes, such as training the underlying models.
-
-**Tell me more about personalization.**  
-The simple reality is if we can further personalize our system given the "data examples" that a specific customer has, and we will create a system that is the theoretically best performing system for coding that the particular customer could get. It boils down to obeying local conventions — a generic code product that wanted to adhere to syntactic patterns or to use libraries and utilities present in the particular codebase would need to have all of that code passed into it as context. If the system was instead personalized on your existing code base, both from a context awareness and fine-tuning perspective, we can deliver better suggestions as a result. And of course, all personalization is done locally within the enterprise's self-hosted Windsurf instance. No code leaves your tenant, and neither does the resulting, personalized system details.
-
-**How does this compare to other Enterprise offerings?**  
-The primary other enterprise offerings are GitHub Copilot for Businesses and Tabnine for Enterprises. We go into detail on differences with GitHub Copilot for Businesses, and how it fails to meet basic enterprise needs in this blog post, but the gist is that all GitHub Copilot for Enterprises does is provide a team administrator to purchase and manage seats of GitHub Copilot for their employees. It provides no guarantees on code security, no customization for your codebase, and no support for common enterprise development patterns like notebooks. Tabnine for Enterprises does provide the same deployment and security options, but is a noticeably worse product compared to GitHub Copilot and Windsurf in terms of suggestion quality, to the point where it may not provide a comparable value proposition to enterprises.
-
-**Is there a community I can join?**  
-Yes, you can join our Discord community and start a conversation with other users and our team!
-
-**Will there be other code editors supported?**  
-We already support VSCode, JetBrains, Vim/Neovim, Emacs, Eclipse, Visual Studio, Sublime, Web IDEs/notebooks, and more! If you do not find your code editor of preference on our Download page, let us know in the Discord so we know which ones to prioritize.
-
-**Will Codeium regurgitate private code?**  
-Not private code. Codeium's underlying model was trained on publicly available natural language and source code data, including code in public repositories. Codeium will never train its generative models on private or user code. Similar to other such models, the vast majority of the suggested code has never been seen before, as the suggestions largely match the style and naming conventions in your code. Research has shown that the cases where there may be exact matching are often when there are near-universal implementations or where there is not enough context to derive these stylistic effects from.
-
-**Is there potential for bias, profanity, etc?**  
-As with any other ML model, results from Codeium reflect the data used for training. The data used for training is primarily in English and does not have a uniform distribution of programming languages, so users may see degraded performance in certain natural and programming languages. In addition, there may have been offensive language, insecure coding patterns, or personally identifiable information in the publicly available training data. While we have anecdotal evidence that this information, especially personal data, is not produced verbatim, we always warn users to (a) not try to explicitly misuse Codeium and (b) review and test all produced code as if it is your own.
-
-**What data does Codeium collect?**  
-Please see our Privacy and Security page, as well as our Privacy Policy and Terms of Service. The code you develop based on suggestions originally generated by Codeium belongs to you, so you assume both the responsibility and the ownership. For Individuals, in order to continuously improve, Codeium does collect telemetry data such as latency, engagement with features, and suggestions accepted and rejected. This data is only used for directly improving the functionality, usability, and quality of Codeium, detecting abuse of the system, and evaluating Codeium's impact. Your data is not shared with, sold to, or used by any other party, company, or product, and we protect your data by encrypting data in transit. This data is primarily used or inspected in aggregate, and can only be directly accessed in extreme cases by authorized members of the Codeium team. Codeium also does provide users with the option to opt out from allowing Codeium to store (and therefore use) their code snippet data post-inference, which can be found on your profile page. For Enterprise, Codeium collects no data beyond number of seats used for billing purposes, irrespective of user settings. No code or data ever leaves the enterprise firewall (on-prem servers or virtual private cloud).
-
-**Does Codeium train on GPL or non-permissively licensed code?**  
-We do not train our own models on repositories with nonpermissive licenses (i.e. GPL). We deeply respect open source, and the work done by these communities have undoubtedly been instrumental to making the software industry what it is today. We also do not want to expose our users, such as our enterprise customers, to potential legal risk. This is in clear difference with products such as GitHub Copilot. Read more in this blog post.
-
-**Where is this heading?**  
-We have a pretty grand vision for how we think the coding process can evolve, which is why we refer to Codeium as a code acceleration tool rather than purely a code generation tool. We want to optimize for making the most developers the most happy - join the conversation in our.
-
-**Are you trying to build the singularity?**  
-But wait, how do we know the singularity hasn't already happened? But on a serious note, no - we've seen how code has made the jobs of people in other industries less frustrating, and we just think it is the right time with the right set of technological breakthroughs to do the same for us developers as well. You're still in control, as it should be.
-
----
-
-## Additional Notes
-
-- **Supported IDEs**: VSCode, JetBrains, Vim, Neovim, Visual Studio, Eclipse, Xcode, Sublime, and more.
-- **Languages**: 70+ languages, with CodeLens suggestions for Python, JavaScript, TypeScript, Java, Go, PHP, etc.
-- **Enterprise Benefits**:
-  - High-security deployments (on-prem, VPC).
-  - Local personalization on private repositories.
-  - Analytics dashboards and enterprise support.
-- **Comparison with Competitors**:
-  - **Cursor**: Windsurf's Cascade has deeper context awareness and tool integration.
-  - **Cognition (Devin)**: Operates outside IDEs, less collaborative.
-  - **GitHub Copilot**: Lacks deployment flexibility and SOC 2 compliance.
-  - **Tabnine**: Lower suggestion quality.
-
-**Contact**:
-- Website: windsurf.com
-- Support: security@windsurf.com, Discord community
-- Enterprise: contact@windsurf.com`;
+// System prompt used for all OpenAI requests
 const userPrompt = `
 Here's the most recent snippet from the live call transcript:
 
@@ -1653,5 +1391,92 @@ async function updateTranscriptOverlay(text) {
     // Do not clear the pane while being read
     textDiv.innerHTML = formatAnswerWithBullets(lastAnswer);
     return;
+  }
+}
+
+// === REAL‑TIME OPENAI STREAMING ===
+// Abort any in‑flight request when a new one starts
+let currentOpenAIController = null;
+
+/**
+ * Streams a chat completion token‑by‑token and surfaces partial results.
+ * @param {string} question
+ * @param {string} contextSnippet
+ * @param {(partial:string)=>void} onPartial  Called every time we get new text
+ * @param {(finalAns:string)=>void} onDone    Called once streaming is finished
+ */
+async function streamOpenAIAnswer(question, contextSnippet, onPartial, onDone) {
+  const apiKey = await getOpenAIApiKey();
+  if (!apiKey) {
+    console.error("OpenAI API key not found.");
+    return onDone('Error: OpenAI API key not found.');
+  }
+
+  // Abort any previous request
+  if (currentOpenAIController) currentOpenAIController.abort();
+  currentOpenAIController = new AbortController();
+
+  const userPrompt = `Here's the most recent snippet from the live call transcript:\n\n${contextSnippet}\n\nA question was just asked:\n"${question}"\n\nWhat are 2–4 concise, helpful talking points the rep can use to answer it.\nRespond only with bullet points.`.trim();
+
+  const body = {
+    model: 'gpt-4o',
+    stream: true,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ],
+    temperature: 0.7,
+    max_tokens: 200
+  };
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify(body),
+    signal: currentOpenAIController.signal
+  });
+
+  if (!response.ok || !response.body) {
+    console.error('Failed to stream from OpenAI', await response.text());
+    onDone('Error fetching answer');
+    return;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let partial = '';
+
+  try {
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n').filter(Boolean);
+      for (const line of lines) {
+        if (line.trim() === 'data: [DONE]') {
+          onDone(partial.trim());
+          return;
+        }
+        if (!line.startsWith('data:')) continue;
+        try {
+          const dataStr = line.replace(/^data:\s*/, '');
+          const payload = JSON.parse(dataStr);
+          const token = payload.choices?.[0]?.delta?.content || '';
+          if (token) {
+            partial += token;
+            onPartial(partial);
+          }
+        } catch (e) {
+          console.error('Error parsing SSE line', e, line);
+        }
+      }
+    }
+  } catch (err) {
+    if (err.name === 'AbortError') return; // silently ignore
+    console.error('Streaming failed', err);
+    onDone('Error getting answer');
   }
 }
