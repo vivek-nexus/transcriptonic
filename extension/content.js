@@ -120,38 +120,10 @@ let answerTimer = null;
 let lastAnswerTimestamp = 0;
 
 // High-signal sales keywords/phrases for filtering
-const SALES_KEYWORDS = [
-  'pricing', 'price', 'cost', 'expensive', 'cheap', 'trial', 'demo', 'different', 'difference', 'compare', 'support', 'integrate', 'integration', 'onboarding', 'setup', 'compliance', 'security', 'enterprise', 'data', 'ROI', 'value', 'features', 'roadmap', 'scal(e|ing|ability)', 'api', 'plugin', 'team', 'workflow', 'automation', 'contract', 'renew', 'cancel', 'guarantee', 'risk', 'training', 'custom', 'SLA', 'uptime', 'downtime', 'migration', 'adoption', 'pilot', 'POC', 'proof', 'reference', 'case study', 'customer', 'user', 'industry', 'regulation', 'privacy', 'GDPR', 'SOC2', 'HIPAA', 'access', 'permission', 'admin', 'billing', 'invoice', 'payment', 'credit', 'discount', 'offer', 'deal', 'negotiat', 'terms', 'conditions', 'legal', 'contract', 'agreement', 'duration', 'timeline', 'launch', 'rollout', 'release', 'update', 'upgrade', 'downgrade', 'limit', 'quota', 'restriction', 'cap', 'scale', 'expand', 'grow', 'future', 'plan', 'roadmap', 'feedback', 'bug', 'issue', 'problem', 'fix', 'help', 'support', 'contact', 'reach', 'email', 'phone', 'call', 'meeting', 'demo', 'presentation', 'webinar', 'training', 'guide', 'tutorial', 'documentation', 'manual', 'instructions', 'how', 'why', 'what', 'who', 'when', 'where'
-];
+// const SALES_KEYWORDS = [...]; // (deleted)
 
 // Helper: Is this a high-signal sales question?
-function isHighSignalSalesQuestion(text) {
-  if (!isQuestion(text)) return false;
-  const lower = text.toLowerCase();
-  // Must contain a sales keyword or be at least 6 words
-  return SALES_KEYWORDS.some(k => lower.includes(k)) || lower.split(/\s+/).length >= 6;
-}
-
-// Loads and formats the Windsurf product context for OpenAI
-async function getWindsurfProductContext() {
-  if (!windsurfContext) {
-    try {
-      const resp = await fetch(chrome.runtime.getURL('extension/windsurf_com_content.txt'));
-      windsurfContext = await resp.text();
-    } catch (e) {
-      windsurfContext = '';
-    }
-  }
-  // --- Curate and deduplicate context ---
-  // Only keep the most relevant and unique lines (remove duplicates, blank lines, extra menus/footers)
-  const lines = windsurfContext.split(/\r?\n/)
-    .map(l => l.trim())
-    .filter((l, i, arr) => l && arr.indexOf(l) === i && l.length > 2)
-    .filter(l => !/^(Mailmail|Instagraminstagram|Tiktoktiktok|Twittertwitter|Discorddiscord|LinkedInlinkedin|Redditreddit|YouTubeyoutube|Footer|Built to keep you in flow state\.|[\[\] Let's surf ]|Product|Company|Resources|Capabilities|Pricing|Enterprise|Download|Support|Docs|Changelog|Releases|FAQ|Media Kit|Referrals|Feature Requests|Windsurf Directory|Connect|Contact|Events|Hackathons|Community|Students)$/i.test(l));
-  // Optionally, select only the top N lines or key sections for brevity
-  const curated = lines.slice(0, 80).join('\n'); // adjust N as needed
-  return curated;
-}
+// function isHighSignalSalesQuestion(text) { ... } // (deleted)
 
 async function getOpenAIAnswer(question, contextSnippet) {
   const apiKey = await getOpenAIApiKey();
@@ -521,14 +493,12 @@ async function updateTranscriptOverlay(text) {
     let question = '';
     if (typeof text === 'string' && text.trim() !== '') {
       const sentences = text.split(/[.!?\n]/).map(s => s.trim()).filter(Boolean);
-      for (let i = sentences.length - 1; i >= 0; i--) {
-        if (isHighSignalSalesQuestion(sentences[i])) {
-          question = sentences[i];
-          break;
-        }
+      // Use the last non-empty sentence as the question
+      if (sentences.length > 0) {
+        question = sentences[sentences.length - 1];
       }
     }
-    // If a new high-signal question, or answer lock expired (7s since last answer)
+    // If a new question, or answer lock expired (7s since last answer)
     if (question && (question !== lastQuestion || (now - lastAnswerTimestamp > 7000))) {
       lastQuestion = question;
       textDiv.textContent = '  ';
@@ -548,7 +518,7 @@ async function updateTranscriptOverlay(text) {
           }
         }, 7000);
       }).catch(() => {
-        textDiv.innerHTML = 'Error getting answer.';
+        textDiv.innerHTML = '<span style="color:orange">Error getting answer.</span>';
       });
     } else if (lastAnswer && lastQuestion && (now - lastAnswerTimestamp < 7000)) {
       textDiv.innerHTML = formatAnswerWithBullets(lastAnswer);
@@ -1211,82 +1181,3 @@ function recoverLastMeeting() {
     })
   })
 }
-
-
-
-
-
-// CURRENT GOOGLE MEET TRANSCRIPT DOM. TO BE UPDATED.
-
-{/* <div class="a4cQT kV7vwc eO2Zfd" jscontroller="D1tHje" jsaction="bz0DVc:HWTqGc;E18dRb:lUFH9b;QBUr8:lUFH9b;stc2ve:oh3Xke" style="">
-  // CAPTION LANGUAGE SETTINGS. MAY OR MAY NOT HAVE CHILDREN
-  <div class="NmXUuc  P9KVBf" jscontroller="rRafu" jsaction="F41Sec:tsH52e;OmFrlf:xfAI6e(zHUIdd)"></div>
-  <div class="DtJ7e">
-    <span class="frX3lc-vlkzWd  P9KVBf"></span>
-    <div jsname="dsyhDe" class="iOzk7 uYs2ee " style="">
-      //PERSON 1
-      <div class="nMcdL bj4p3b" style="">
-        <div class="adE6rb M6cG9d">
-          <img alt="" class="Z6byG r6DyN" src="https://lh3.googleusercontent.com/a/some-url" data-iml="63197.699999999255">
-            <div class="KcIKyf jxFHg">Person 1</div>
-        </div>
-        <div jsname="YSxPC" class="bYevke wY1pdd" style="height: 27.5443px;">
-          <div jsname="tgaKEf" class="bh44bd VbkSUe">
-            <span>Some transcript text.</span>
-            <span>Some more text.</span></div>
-        </div>
-      </div>
-      //PERSON 2
-      <div class="nMcdL bj4p3b" style="">
-        <div class="adE6rb M6cG9d">
-          <img alt="" class="Z6byG r6DyN" src="https://lh3.googleusercontent.com/a/some-url" data-iml="63197.699999999255">
-            <div class="KcIKyf jxFHg">Person 2</div>
-        </div>
-        <div jsname="YSxPC" class="bYevke wY1pdd" style="height: 27.5443px;">
-          <div jsname="tgaKEf" class="bh44bd VbkSUe">
-            <span>Some transcript text.</span>
-            <span>Some more text.</span></div>
-        </div>
-      </div>
-    </div>
-    <div jsname="APQunf" class="iOzk7 uYs2ee" style="display: none;">
-    </div>
-  </div>
-  <div jscontroller="mdnBv" jsaction="stc2ve:MO88xb;QBUr8:KNou4c">
-  </div>
-</div> */}
-
-// CURRENT GOOGLE MEET CHAT MESSAGES DOM
-{/* <div jsname="xySENc" aria-live="polite" jscontroller="Mzzivb" jsaction="nulN2d:XL2g4b;vrPT5c:XL2g4b;k9UrDc:ClCcUe"
-  class="Ge9Kpc z38b6">
-  <div class="Ss4fHf" jsname="Ypafjf" tabindex="-1" jscontroller="LQRnv"
-    jsaction="JIbuQc:sCzVOd(aUCive),T4Iwcd(g21v4c),yyLnsd(iJEnyb),yFT8A(RNMM1e),Cg1Rgf(EZbOH)" style="order: 0;">
-    <div class="QTyiie">
-      <div class="poVWob">You</div>
-      <div jsname="biJjHb" class="MuzmKe">17:00</div>
-    </div>
-    <div class="beTDc">
-      <div class="er6Kjc chmVPb">
-        <div class="ptNLrf">
-          <div jsname="dTKtvb">
-            <div jscontroller="RrV5Ic" jsaction="rcuQ6b:XZyPzc" data-is-tv="false">Hello</div>
-          </div>
-          <div class="pZBsfc">Hover over a message to pin it<i class="google-material-icons VfPpkd-kBDsod WRc1Nb"
-              aria-hidden="true">keep</i></div>
-          <div class="MMfG3b"><span tooltip-id="ucc-17"></span><span data-is-tooltip-wrapper="true"><button
-                class="VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c Brnbv pFZkBd" jscontroller="soHxf"
-                jsaction="click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue; touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc; touchcancel:JMtRjd; focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;mlnRJb:fLiPzd"
-                jsname="iJEnyb" data-disable-idom="true" aria-label="Pin message" data-tooltip-enabled="true"
-                data-tooltip-id="ucc-17" data-tooltip-x-position="3" data-tooltip-y-position="2" role="button"
-                data-message-id="1714476309237">
-                <div jsname="s3Eaab" class="VfPpkd-Bz112c-Jh9lGc"></div>
-                <div class="VfPpkd-Bz112c-J1Ukfc-LhBDec"></div><i class="google-material-icons VfPpkd-kBDsod VjEpdd"
-                  aria-hidden="true">keep</i>
-              </button>
-              <div class="EY8ABd-OWXEXe-TAWMXe" role="tooltip" aria-hidden="true" id="ucc-17">Pin message</div>
-            </span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div> */}
