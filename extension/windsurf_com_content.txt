@@ -1,0 +1,4810 @@
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Codeium is now Windsurf
+Introducing the Windsurf Editor
+The new purpose-built IDE to harness magic
+
+
+Download the Windsurf Editor
+
+Explore features
+windsurf IDE
+“
+Every single one of these engineers has to spend literally just one day making projects with Windsurf and it will be like they strapped on rocket boosters.
+
+”
+Garry Tan
+Garry Tan,
+
+President & CEO
+
+Y combinator logo
+Cascade dotted logoWindsurf dotted logo
+An AI editor that doesn't just meet your needs, it anticipates them
+
+The editor stays 10 steps ahead — fixing test failures before you even write the test, resolving issues before they surface, and keeping you in flow.
+
+Features
+
+The Windsurf Editor
+
+How it works
+
+Windsurf's Agent - Cascade
+
+Cascade, an agent that codes, fixes and thinks 10 steps ahead
+
+Built to keep you in flow by understanding your intent and handling the complex codebases so you can focus on the fun stuff.
+
+Explore Cascade features
+
+windsurf asset
+
+Click to Play!
+
+Tab Tab Tab to production
+
+One key, unlimited power. Windsurf Tab tracks your command history, clipboard, and Cascade actions to give you smarter, more relevant suggestions.
+
+Explore Windsurf Tab features
+
+windsurf asset
+
+Click to Play!
+
+Build, iterate and ship apps all in one workflow
+
+Preview as you build, deploy when you're ready — all from within Windsurf. No jumping between tabs, no broken flow.
+
+Read more
+
+windsurf asset
+
+Click to Play!
+
+One editor. Unlimited superpowers.
+Memories
+
+Cascade will remember important things about your codebase and workflow.
+
+Rules
+
+Refresh
+
+# Front end
+
+- Follow Next.js patterns
+
+Memories
+
+Search memories
+Codebase Structure
+
+#codebase_structure #typescript
+
+Lint Fixing
+
+Cascade will automatically detect and fix lint errors that it generates.
+
+4 new linter errors
+
+Auto-fix on
+Edited
+
+panel.ts
+0 new linter errors found
+
+MCP Support
+
+Enhance your AI workflows by connecting custom tools and services. Access curated MCP servers in Windsurf settings for one click set-up.
+
+Figma
+
+Slack
+
+Stripe
+
+Sequential Thinking
+
+MCP Server Templates
+
+GitHub
+
+Add server +
+
+PostgresSQL
+
+Add server +
+
+Playwright
+
+Add server +
+
+Neon
+
+Add server +
+
+Figma
+
+Configure
+
+Slack
+
+Configure
+
+Drag & Drop Images
+
+Build your designs instantly by dropping an image into Cascade.
+
+Profile
+Drag & Drop Image
+Build out my designs
+Terminal Command
+
+Don't remember a terminal command? Just ⌘+I in terminal to stay in flow.
+
+Problems Output
+
+Terminal
+...
+yashmittal@Mac portfolio %
+
+Create a compressed archive of this directory
+Windsurf Fast
+Continue My Work
+
+Cascade keeps track of your actions so you can just tell it to continue what you’re doing.
+
+Continue my work
+Edited
+
+Navbar.tsx
+Edited
+
+Dropdown.tsx
+Turbo
+
+Turn on Turbo mode in settings to allow Cascade to auto-execute terminal commands.
+
+Turbo
+
+Edited
+
+Ran Terminal Command
+
+Created
+
+Ran Preview
+
+Searched nextjs.org
+
+Deployed app
+
+This is just the tip of the iceberg. It only gets better.
+
+Explore Windsurf features
+Windsurf is Enterprise ready
+40-200%
+increase in developer productivity
+Decreasing PR cycle times, maintaining code standards, increasing flow state.
+
+4-9x
+decrease in onboarding time
+Speeding up time to productivity, eliminating knowledge silos, increasing resource flexibility.
+
+1,000+
+Enterprise customers
+Enterprise first solution built with scale, security, and analytics in mind.
+
+Bring Windsurf to your company
+View case studies
+What we’ve been up to
+Image for Windsurf Wave 7
+product
+
+Windsurf Wave 7
+Introducing Wave 7, our seventh batch of updates to the Windsurf Editor.
+
+Apr 9, 2025
+
+4 min read
+
+Image for The Next Chapter: Renaming to Windsurf
+company
+
+The Next Chapter: Renaming to Windsurf
+Announcing the renaming of Codeium to Windsurf
+
+Apr 4, 2025
+
+2 min read
+
+Image for Windsurf Wave 6
+product
+
+Windsurf Wave 6
+Introducing Wave 6, our sixth batch of updates to the Windsurf Editor.
+
+Apr 2, 2025
+
+7 min read
+
+windsurf-logo
+[ Let's surf ]
+
+Experience a true flow state
+
+
+Download the Windsurf Editor
+
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+Windsurf Editor | Windsurf (formerly Codeium)
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+windsurf-logo
+Built to keep you in flow state
+The first agentic IDE, and then some. The Windsurf Editor is where the work of developers and AI truly flow together, allowing for a coding experience that feels like literal magic.
+
+
+Download the Windsurf Editor
+
+See all download options
+
+The Windsurf Editor is built for the way AI is meant to work with humans. Everything you love in Windsurf extensions and more, with unmatched performance and a user experience that keeps you in the flow.
+
+Read docs
+What makes the Windsurf Editor the first AI agentic IDE, and then some?
+
+Flows - the way humans are meant to work with AI
+Flows = Agents + Copilots
+The Windsurf Editor is powered by an AI that can both collaborate with you like a Copilot and tackle complex tasks independently like an Agent. The AI is completely in sync with you, every step of the way.
+
+Flows
+Flows allow the dev and AI to operate on the same state at all times, creating a mind-meld experience beyond just an assistant.
+
+Learn more about AI flows
+Introducing the flow evolution of Chat
+
+Cascade
+Cascade combines deep codebase understanding, a breadth of advanced tools, and a real-time awareness of your actions into a powerful, seamless, and collaborative flow. It is the most powerful way to code with AI.
+
+Full contextual awareness
+
+Deep contextual awareness allows you to run Cascade on production codebases and still get relevant suggestions.
+
+Suggest and run commands
+
+Pick up where you left off
+
+Multi-file editing
+
+Cascade lets you build and refine complex codebases with ease.
+
+Multi-file multi-edit capability. Deep contextual awareness. Terminal command suggestions. LLM-based search tools that outperform embeddings. Implicit reasoning of your actions in the text editor. Blazing fast latency. All in one magical experience.
+
+Explore the full potential of Cascade
+windsurf
+Windsurf Previews. See it. Shape it. Ship it.
+See your website live in the IDE, click on any element, and let Cascade reshape it instantly—exactly how you want
+
+
+Send Element
+Send Errors (4)
+Once your app is ready, hit 'Deploy' and push it live — no context switching
+
+From preview to production - without ever leaving Windsurf
+
+https://my-app.windsurf.build
+
+Deploy App
+Building...
+Deploying
+
+Click to Play!
+
+Not just the best AI-powered editor, but the best editor — period
+
+The possibilities are literally endlessss
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+And here's the best part
+
+Get free Cascade credits and Pro features on download
+50 User Prompt credits
+200 Flow Action credits
+Premium large models
+
+Unlimited access to Supercomplete
+
+Increased indexing limits
+
+Fast autocomplete speed
+
+Check out all Pro base features
+windsurf-logo
+[ Let's surf ]
+
+Experience a true flow state
+
+
+Download the Windsurf Editor
+
+Frequently Asked Questions
+
+
+What is Windsurf?
+We don't mind if you call the Windsurf Editor the first agentic IDE, the first native surface for developers to collaborate with AI, or simply how we like to think about it - tomorrow’s editor, today.
+
+When we first used the Windsurf Editor, a lot of the words that we found resonating with us included magic, power, and flow state. Windsurfing perfectly captures the combination of human, machine, and nature in an activity that looks effortless, but takes an intense amount of power.
+
+You can think of the Windsurf Editor as the first agentic IDE, and then more. It is a new paradigm of working with AI, which we are calling AI flows - collaborative agents.
+
+We started with the existing paradigms of AI use. Copilots are great because of their collaborativeness with the developer - the human is always in the loop. That being said, to keep the human in the loop, copilots are generally confined to short scoped tasks. On the other hand, agents are great because the AI can independently iterate to complete much larger tasks. The tradeoff is that you lose the collaborative aspect, which is why we haven’t seen an agentic IDE (yet). An IDE would be overkill. Both copilots and agents are super powerful and have their use cases, but have generally been seen as complementary because their strengths and weaknesses are indeed complementary.
+
+Our spark came from one simple question - what if the AI had the best of both worlds? What if the AI was capable of being both collaborative and independent? Well, that is what makes humans special. Working with that kind of AI could feel like magic.
+
+With a lot of research, we built the foundations of this kind of system, which we are calling AI flows. AI flows allow developers and AI to truly mind-meld, combining the best of copilots and agents.
+
+Understand AI flows even more here.
+
+
+Why did you build your own IDE? And why did you fork VS Code?
+We never went into building an editor until we realized the magic of flows and Cascade. That being said, we also were honest with ourselves that we did not have to build the editor entirely from scratch to expose this magic, so we forked Visual Studio Code. We are fully aware of the memes about people forking VS Code to create “AI IDEs,” but again, we would not have built the Windsurf Editor if extensions could maximize the potential of our vision.
+
+With regards to extensions, we have been an extension-first company, and still recognize that people really like the editors that they have, especially within our enterprise customer base. So, our Codeium extensions are not going anywhere, and we are going to continue to improve them to the max of their capabilities. Even some flow capabilities like Supercomplete are doable within extensions, and so we will build them in! The only difference with the Windsurf Editor is that we now have a surface where we are truly unconstrained to expose the magic as it evolves.
+
+As we start building towards a mission of helping across the entire software development life cycle, not just coding, we will be releasing our own products under this new Windsurf brand, starting with the Editor. These will be products natively and fully owned by us. Codeium will still exist as its own brand and product, representing extensions and integrations into existing products such as commonly used IDEs. So tl;dr, Windsurf and Codeium are two different products, though they do share a lot of underlying systems and infrastructure.
+
+
+How is this different from other solutions (Cursor, Cognition, etc)?
+As mentioned in the previous question, we didn’t set out to build an IDE until we had this concept of flows. It’s more than just “we want nicer UX,” though that is definitely an added benefit. Also, we don’t think we have a big enough ego to believe that we are the only ones that are able to come up with cool ideas and user experiences, and have a lot of respect for the teams at Cursor, Zed and elsewhere.
+
+A lot of these agentic systems such as Cognition’s Devin live outside of the IDE, which is one of the biggest differences, because that means they are unable to be aware of human actions. They are truly agentic systems, which are meant to independently solve larger tasks with access to knowledge and tools. They are also not generally available, hidden behind waitlists and invite-only programs. This perhaps could be seen as an indication of potential limitations to the kinds of tasks that agentic systems are appropriate for, which would conflict with the social media hype that these systems can do anything and everything.
+
+We actually believe that Cursor Composer got a lot of the ideas behind a flow system right. However, we think there is a depth to the components of the system that we have been able to build given our history and expertise. What makes Cascade insanely powerful is not just the breadth across knowledge, tools, and human actions, but the depth within each axis:
+
+• Knowledge: This is where our multi-year work on building state-of-the-art context awareness systems that can parse and semantically understand complex codebases comes into play. If we weren’t really good at this, we wouldn’t be fortunate enough to be able to work with some of the largest and most technically complex companies such as Dell, Anduril, and Zillow.
+
+• Tools: Cascade’s tools include making edits, adding files, grep, listing files in a directory, and even code execution. On top of this, Cascade comes with proprietary tools such as Riptide, which is the technology underpinning the Cortex research breakthrough that was covered by the press a few months ago. It is an LLM-based search tool that can rip through millions of lines of code in seconds with 3x better accuracy than state-of-the-art embedding-based systems, all with highly optimized use of a large amount of compute.
+
+• Human Actions: There are a lot of different granularities at which you can capture this information, but it is very easy to either have too little or too much information. Either you miss actions core to determining user intent or you have too much noise. We won’t give away the magic sauce here, but we have done a lot of work on checkpointing, information compression, and more in order to make Cascade feel like an infinite stream of joint consciousness between human and AI.
+
+We have put Cascade front and center - in fact, with Windsurf, we don’t even have Chat. It is all Cascade. The flow is core to the experience, which is different from features like Cursor Composer, which is not a front-and-center capability. In our experience: Cascade is better than Composer when working on existing codebases Cascade is better than Composer at context retrieval to ground work Cascade is faster than Composer.
+
+Our hypothesis is that Composer doesn’t yet have the depth of knowledge understanding, the full gamut of tools, or super fine grained human trajectories, which likely restricts its usefulness to zero-to-one applications.
+
+
+Will this be available on the free Codeium plan post-GA?
+Our infrastructure expertise has been the secret sauce behind a number of the loved aspects of our Codeium extensions, from the crazy low latencies to the generous free tier (it’s not a financially irresponsible option for us due to our industry leading serving costs). But even for us, serving this magic at its full potential is a meaningful jump up in operating cost. So while the Windsurf Editor itself and a lot of the Cascade capabilities will be free, the full magic will only be available on paid plans in the long run.
+
+That being said, for the first couple of weeks after general access, we are going to be giving the full experience for free to any individual using the Windsurf Editor.
+
+
+Who can use this and what are the security guarantees?
+From our end, you can use the Windsurf Editor for any work, but check with your employer if you plan to use it for your professional work. Currently, the Windsurf Editor (and connected functionalities like Cascade) are available for any of our self-serve plans, and as we learn more about the extent of what Cascade is capable of, we will make the Windsurf Editor available to enterprise plans. The Windsurf Editor obeys the same security guarantees and code snippet telemetry rules as the Codeium extensions.
+
+Available wherever you want it
+Mac
+
+
+Download for macOS
+
+Minimum Requirements:
+
+OS X Yosemite
+
+Linux
+
+
+Download for Linux
+
+Minimum Requirements:
+
+glibc >= 2.28, glibcxx >= 3.4.25 (e.g. Ubuntu >= 20.04)
+
+Windows
+
+
+Download for Windows
+
+Minimum Requirements:
+
+Windows 10 (64-bit)
+
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+DemoContainer
+
+Windsurf Plugins | Windsurf (formerly Codeium)
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Formerly known as Codeium Extensions
+
+Windsurf Plugins
+Bringing the coding superpower to VSCode, JetBrains and 40+ other editors
+
+Get Plugins
+The Windsurf plugins are loved by millions of developers
+VSCode
+2.57M
+
+JetBrains
+1.38M
+
+Chrome
+70.0K
+
+4.8K
+
+and 40+ more IDEs
+AutocompleteChatCommand
+Autocomplete
+Chat
+Command
+Generate new code faster than the speed of thought.
+Learn more about Autocomplete
+Windsurf Plugins let the world’s leading enterprises dream bigger
+Cascade, our agentic AI, is available on JetBrains IDEs
+Cascade brings autonomous, multi-file coding to IntelliJ IDEA, PyCharm, WebStorm, and more. Run commands, edit across files, and build entire projects — all through one prompt.
+
+Download JetBrains Plugin
+Explore features
+See Cascade in action on JetBrains IDEs
+Full contextual awareness
+Deep contextual awareness lets you run Cascade on production codebases and still get relevant suggestions
+
+
+Suggest and run commands
+Cascade suggests and executes the right commands for your task
+
+
+Read more about the Cascade on JetBrains release
+Windsurf Plugins vs Github Copilot
+The most intelligent AI code generation tool out there and we have the data to prove it
+
+Read more about the performance quality comparison here
+Windsurf
+Copilot
+VSCode marketplace rating
+JetBrains marketplace rating
+Number of IDEs
+40+
+~15
+Number of languages
+70+
+~40
+AI autocomplete and chat
+Full repo context awareness
+Deployment methods
+SaaS, on-prem, in-VPC
+SaaS only
+Download the Plugin in your favorite editor
+Installation time: 2 minutes
+
+See all editors
+Visual Studio Code
+Visual Studio Code
+
+IntelliJ IDEA
+IntelliJ IDEA
+
+PyCharm
+PyCharm
+
+Android Studio
+Android Studio
+
+WebStorm
+WebStorm
+
+Google Colab
+Google Colab
+
+Jupyter Notebook
+Jupyter Notebook
+
+Vim
+Vim
+
+Visual Studio
+Visual Studio
+
+Neovim
+Neovim
+
+Millions of developers trust Windsurf Plugins (formerly Codeium) for their daily work
+Codeium AI in DataSpell is driving me nuts. This is an absolutely mind-blowing free tool.
+Dinesh Kumar Roy
+
+@iDineshRoy
+
+AI will continue to transform the developer experience, so equip yourself with the best AI possible. Every individual, team, or company that codes will benefit from Codeium.
+Shawn “swyx” Wang
+
+@swyx
+
+We considered making our own generative AI model within our environment, but when we found Codeium, it was like seeing a big red “easy” button.
+Cy Sack
+
+Head of Business Systems, Anduril
+
+I am loving it. Able to increase my productivity by 60-70%.
+Sumeet Nagar
+
+Absolutely great. The answering time is very fast and the responses are spot on the majority of the time. I love it!
+Irian
+
+This is so GOOD that it’s SCARY!
+Rui Rei
+
+I started a Github Copilot trial a couple months ago because I thought it was the only solution available, but then I found Codeium. It has an equivalent, if not more extensive, feature-set and is free. Win-win.
+Andrew Tibbetts
+
+Great tool! I've installed in Visual Studio 2022 and in Visual Studio Code. It seems to understand my coding logic, and especially in Javascript, propose to me the code blocks that I'm going to write.
+Bruno Migliaretti
+
+Fantastic tool, I tried all the AI assistants I could find but this is by far the best. Quick to setup, easy to use, suggestions and written snippets relevant and a good basis to work with.
+Erik Timmermans
+
+I recently had the pleasure of using Codeium and I must say, it has completely transformed my coding experience. This app is a true gem for developers working in Python, Javascript, TypeScript, Java, Go, and beyond.
+Donny Rivera
+
+Codeium AI in DataSpell is driving me nuts. This is an absolutely mind-blowing free tool.
+Dinesh Kumar Roy
+
+@iDineshRoy
+
+AI will continue to transform the developer experience, so equip yourself with the best AI possible. Every individual, team, or company that codes will benefit from Codeium.
+Shawn “swyx” Wang
+
+@swyx
+
+We considered making our own generative AI model within our environment, but when we found Codeium, it was like seeing a big red “easy” button.
+Cy Sack
+
+Head of Business Systems, Anduril
+
+I am loving it. Able to increase my productivity by 60-70%.
+Sumeet Nagar
+
+Absolutely great. The answering time is very fast and the responses are spot on the majority of the time. I love it!
+Irian
+
+This is so GOOD that it’s SCARY!
+Rui Rei
+
+I started a Github Copilot trial a couple months ago because I thought it was the only solution available, but then I found Codeium. It has an equivalent, if not more extensive, feature-set and is free. Win-win.
+Andrew Tibbetts
+
+Great tool! I've installed in Visual Studio 2022 and in Visual Studio Code. It seems to understand my coding logic, and especially in Javascript, propose to me the code blocks that I'm going to write.
+Bruno Migliaretti
+
+Fantastic tool, I tried all the AI assistants I could find but this is by far the best. Quick to setup, easy to use, suggestions and written snippets relevant and a good basis to work with.
+Erik Timmermans
+
+I recently had the pleasure of using Codeium and I must say, it has completely transformed my coding experience. This app is a true gem for developers working in Python, Javascript, TypeScript, Java, Go, and beyond.
+Donny Rivera
+
+Using Github Copilot these days. But I’ve been more impressed with Codeium.
+Suzal SM
+
+@prameshbajra
+
+I like how simple Codeium is and that it doesn’t get in the way of development. It has made it effortless to write high quality log messages, even with a custom print format and logging module.
+Cameron Sinko
+
+Software Engineer, Andruil
+
+Codeium is very feature rich, and every bit as complete as its leading competitor.
+James Holt
+
+Codeium acts as an intelligent autocomplete, a code explainer, and a quick code generator to get you started. As a solo developer I find it invaluable. It also doesn’t regurgitate GPL code which is legally reassuring.
+Paul Bristow
+
+This is incredible. The code suggestion feature is my favorite part and improves my productivity significantly. I love it.
+gabor.deli
+
+I've been using Codeium for about a month now. I now have experienced at least a 50% increase in efficiency.
+Byran Fallin
+
+Lead Network Tools Admin, C Spire
+
+Great extension for VSCode! I use it daily to help with code suggestions and applying documentation to my functions. Very functional replacement for Copilot in my honest opinion.
+Tyler Buell
+
+Great tool and free for indiviual developers. I'm a senior developer of over 25 years and this is such a native part of my workflow now I'd be lost without it.
+Andy Jeffries
+
+Outstanding! I thoroughly tested Copilot, Replit, Tabnine, Cody and CodeWhisperer and none of them match the performance, accuracy, and intuitive operation of Codeium. I simply could not be happier with it.
+Andy Gee
+
+Codeium has an incredible awareness which continually surprises you. Since installing this for my team, we have been more efficient and productive. Really really useful, and highly recommended.
+David Moxon
+
+Using Github Copilot these days. But I’ve been more impressed with Codeium.
+Suzal SM
+
+@prameshbajra
+
+I like how simple Codeium is and that it doesn’t get in the way of development. It has made it effortless to write high quality log messages, even with a custom print format and logging module.
+Cameron Sinko
+
+Software Engineer, Andruil
+
+Codeium is very feature rich, and every bit as complete as its leading competitor.
+James Holt
+
+Codeium acts as an intelligent autocomplete, a code explainer, and a quick code generator to get you started. As a solo developer I find it invaluable. It also doesn’t regurgitate GPL code which is legally reassuring.
+Paul Bristow
+
+This is incredible. The code suggestion feature is my favorite part and improves my productivity significantly. I love it.
+gabor.deli
+
+I've been using Codeium for about a month now. I now have experienced at least a 50% increase in efficiency.
+Byran Fallin
+
+Lead Network Tools Admin, C Spire
+
+Great extension for VSCode! I use it daily to help with code suggestions and applying documentation to my functions. Very functional replacement for Copilot in my honest opinion.
+Tyler Buell
+
+Great tool and free for indiviual developers. I'm a senior developer of over 25 years and this is such a native part of my workflow now I'd be lost without it.
+Andy Jeffries
+
+Outstanding! I thoroughly tested Copilot, Replit, Tabnine, Cody and CodeWhisperer and none of them match the performance, accuracy, and intuitive operation of Codeium. I simply could not be happier with it.
+Andy Gee
+
+Codeium has an incredible awareness which continually surprises you. Since installing this for my team, we have been more efficient and productive. Really really useful, and highly recommended.
+David Moxon
+
+codeium logo
+[ Windsurf Plugins ]
+
+Your editor of choice. Supercharged.
+
+Get Plugins
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+Cascade | Windsurf (formerly Codeium)
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Introducing the flow evolution of Chat
+Cascade is the most powerful way to code with AI.
+
+// Available in the Windsurf Editor and JetBrains IDEs
+
+
+Cascade's agentic capabilities unlock a new level of collaboration between AI and human, making it the ultimate partner for complex coding workflows.
+
+Multi-file multi-edit capability
+
+Explaining code
+
+Deep contextual awareness
+
+LLM-based search tools
+
+Terminal Command suggestions
+
+Purpose build models
+
+Next intent prediction
+
+Multi-file multi-edit capability
+
+Explaining code
+
+Deep contextual awareness
+
+LLM-based search tools
+
+Terminal Command suggestions
+
+Purpose build models
+
+Next intent prediction
+
+Implicit reasoning of user actions
+
+Rapid application prototyping
+
+Searching code
+
+Scalable conversation history
+
+Multi-repo codebase awareness
+
+Iterative reasoning
+
+Implicit reasoning of user actions
+
+Rapid application prototyping
+
+Searching code
+
+Scalable conversation history
+
+Multi-repo codebase awareness
+
+Iterative reasoning
+
+The combination of knowledge, tools, and human actions allow for the AI to be fully collaborative and in sync with the developer, while also being armed to be as independently powerful as possible.
+Context-Awareness Engine
+
+Windsurf's Context-Awareness Engine integrates with all of your SCMs to build an unparalleled understanding of your codebase, giving you personalized suggestions that result in a 38% increase in code acceptance.
+
+Tools
+
+Cascade's tools include making edits, adding files, grep, listing files in a directory, code execution and a number of proprietary tools that have received press coverage.
+
+Human Actions
+
+Striking the right granularity and breadth of human actions is tough, but with refined checkpointing and compression, Cascade feels like a continuous stream of shared awareness between human and AI.
+
+Read more in-depth
+So what can you do with this tool?
+It's so powerful that you'll wonder what you can't do
+
+Cascade strengths
+
+Full contextual awareness
+
+Suggest and run commands
+
+Pick up where you left off
+
+Multi-file editing
+
+Cascade Features
+
+Web search
+Parse and chunk web pages and documentation to provide relevant, up-to-date context to Cascade.
+
+
+Image upload
+Upload images for Cascade to reference. Wireframes, Figma mockups, and any kind of screenshots are all fair game!
+
+
+Memories
+Memories can be manually or automatically defined, and are persisted as context to better align the Cascade's outputs with the user's preferences.
+
+
+Model Context Protocol (MCP)
+Unlock limitless possibilities with Model Context Protocol (MCP), empowering LLMs to seamlessly integrate with custom tools and services for enhanced productivity and innovation.
+
+See docs
+
+Explore these features for yourself by cloning the demo repo and trying the README tasks in the Windsurf Editor.
+
+Download the Windsurf Editor
+
+View repo
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+Windsurf Tab | Windsurf (formerly Codeium)
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Tab Tab Tab...Ship
+A single keystroke, limitless power, complete flow
+
+// The Windsurf Tab experience is even faster and more capable on Pro
+
+
+Download the Windsurf Editor
+
+
+The full power of Windsurf Tab is exclusive to the Windsurf Editor.
+Our IDE plugins include only the autocomplete action.
+
+Windsurf Tab: Many Actions, One Effortless Flow
+Autocomplete
+Generative code that saves you time and helps you ship products faster.
+
+Fast Autocomplete
+
+Inline FIM
+
+Supercomplete
+Predicts your next intent, not just your next line.
+
+Raw Supercomplete
+
+Updates to schema
+
+Typo sanitation
+
+Rename variables
+
+Automatically bind event handlers
+
+Tab can actually do even more than code changes...
+Tab to move your cursor. Tab to import your dependencies. Tab to glory.
+
+Tab to Jump
+Predict the location of your next edit and navigates you there with a tab keypress.
+
+
+Click to Play!
+
+Tab to Import
+Quickly add and update imports with a tab keypress.
+
+
+Click to Play!
+
+Terminal, Clipboard, Cascade — Seamlessly Integrated.
+Windsurf Tab directly accesses context from your terminal, allowing it to make smarter completions after printing logs, failing tests, and much more.
+Frequently Asked Questions
+
+
+Why is Windsurf Tab only fully available in the Windsurf Editor?
+Windsurf Tab requires a lot of custom UI work not available to VS Code. For example, the popups for tab to jump, tab to import, etc. are not available in VS Code.
+
+
+How does Windsurf Tab differ for Free vs. Pro users?
+Windsurf Tab is accessible to all users, but Free users experience slower performance and do not have access to the "Tab to Jump" feature. Paid users enjoy a faster and more seamless experience.
+
+Enter flow state faster with Windsurf Tab
+
+
+Download Windsurf
+
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+Chat | Windsurf (formerly Codeium)
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Windsurf Chat
+Windsurf Chat
+Your new AI-powered coding assistant that can write you code, answer your questions, and level up your productivity.
+
+// Only available in Windsurf Plugin
+
+Download plugins
+
+Windsurf Chat is the best code LLM on the market
+Leading Model Optionality
+
+Family of in-house models, open-source based models, and third-part API-based models. Get the best results possible.
+
+Trained with code specific tasks
+
+Crafted to excel with full and multi repository context awareness and backed by our state-of-the-art reasoning engine. Get grounded results.
+
+Broadest availability
+
+Fully functional across the widest range of IDEs. Get the results where you want.
+
+Better than ChatGPT at code-related questions
+
+Read more about how we made this conclusion
+Use cases
+Windsurf Chat redefines developer productivity by offering intuitive solutions for coding, troubleshooting, and team collaboration. Dive into its diverse use cases that illustrate how it can optimize every stage of your development process.
+
+Explain code
+
+Generate code
+
+Debugging
+
+Ask anything
+
+Apply code diff
+
+Features
+Windsurf Chat is designed to be a seamless extension to your editor, with features that help you focus on writing code without ever leaving your editor.
+
+The @ mentions
+Avoid copy-pasting code and help guide the AI to what you know to be relevant by referencing your functions, classes, files, directories, and repositories. Simply type “@” in the chat input box and refer to these entities by name.
+
+Read more
+
+Context Pinning
+Pin a function, class, file, directory, or repo, and Windsurf will pay extra attention to them for better context in Chat responses.
+
+Read more
+
+Inline Citations
+Windsurf's reasoning engine helps pull in the most relevant context from across your codebase to ground responses. With inline citations, you can trust the responses by clicking into inline links to see where Windsurf is pulling information from.
+
+
+Available for free in your favorite IDE
+Visual Studio Code
+JetBrains
+Neovim
+Visual Studio
+Vim
+Emacs
+Jupyter Notebook
+Chrome
+Google Colab
+Deepnote
+Databricks
+Xcode
+Sublime Text
+Eclipse
+IntelliJ IDEA
+PyCharm
+WebStorm
+GoLand
+PhpStorm
+CLion
+Android Studio
+See how Windsurf Chat stacks up to the competition
+Windsurf
+Windsurf
+
+Github Copilot
+Github Copilot
+
+Amazon Q
+Amazon Q
+
+Availability
+Visual Studio Code
+JetBrains
+Visual Studio
+Eclipse
+XCode
+Models
+Fast, code-biased models
+GPT-4 + Claude 3.5 Sonnet
+Llama 3.1 405B based code model
+Context
+Full Repository Context Awareness
+Multirepository Context Awareness
+@-mentions
+Context Pinning
+Custom Chat Context
+Inline Citations
+Features
+Code Lenses
+Highlight + Right Click for Shortcuts
+Conversation History
+Slash Commands
+Chat Insights
+Frequently Asked Questions
+
+
+How does Windsurf Chat work?
+Windsurf Chat seamlessly integrates the powers of open-ended conversation with IDE context. Besides allowing familiar interactions like those with ChatGPT, users can use smart suggestions to perform common actions such as adding documentation to functions or refactoring code. Under the hood, Windsurf Chat has a variety of models to choose from. There is our Base Model (Llama 3.1 70B based, fine-tuned in-house), Windsurf Premier (Llama 3.1 405B based, fine-tuned in-house), as well as OpenAI's GPT-4o and Anthropic's Claude 3.5 Sonnet. For paying SaaS and Hybrid users, we are able to promise zero data retention for Chat (contact us for more information about paid SaaS plans), but because of this usage of Open AI, we can only enable it for free tier users that have code snippet telemetry enabled since we cannot guarantee how OpenAI stores and uses telemetry data. For self-hosted enterprise customers, we are able to provide Chat via our own Chat models, as well as provide optionality to integrate with private endpoints of leading model API providers.
+
+
+Who should use this?
+Windsurf does not replace the software engineer, leaving the developer in charge and responsible for any code generated. Windsurf does not test the code automatically, so a developer should carefully test and review all code generated by Windsurf. So while anyone can use Windsurf, we recommend it especially for people who already have fundamental knowledge of software engineering and coding. It's never great to be dependent on anything, even superpowers.
+
+
+How can you provide Windsurf Chat for free?
+To be clear, Windsurf Chat does cost us money, but we believe we can control costs in the long term by fully shifting to our own models and state-of-the-art model serving infrastructure (same reason why we can provide Autocomplete for free). We are committed to always providing a Chat functionality for free.
+
+
+What IDEs and languages have Windsurf Chat?
+Windsurf Chat is currently only on Windsurf (Cascade's "Legacy" mode), VSCode, JetBrains IDEs, Visual Studio, Eclipse, and XCode, but we will be rapidly supporting more IDEs in the near future. Windsurf Chat will work on any language, but the CodeLens suggestions above functions are available for only common languages, which includes Python, JavaScript, TypeScript, Java, Go, PHP, and more.
+
+Try Windsurf Chat today
+Download plugin
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+Your subscription has expired!
+Please renew here
+3
+:
+07
+
+Command | Windsurf (formerly Codeium)
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Command
+Carry out in-line edits with ease.
+
+// Available in the Windsurf Editor and Windsurf Plugins
+
+
+Download the Windsurf Editor
+
+Want to use your own IDE?
+Download plugins
+
+Just tell it what you want.
+Simply open the command prompt (Ctrl + I or ⌘ + I) directly in the editor, enter a command, and watch the code write itself!
+
+Natural-language input
+
+Utilize natural-language input and seamless in-line editing to instruct and transform your code quickly and effectively.
+
+Specialized models & diff generation
+
+Leverage a specialized model for fast, high-quality diff generation that visualizes code comparisons.
+
+Code transformation & documentation
+
+Effortlessly create new components, fix multi-line bugs, refactor functions, and add contextual documentation to enhance your codebase.
+
+Type out explicit instructions and Command will generate the code for you. No more copy-pasting, no more switching between the editor, terminal and browser. Just type and go.
+Versatile and powerful
+We've worked hard to improve performance and iterate on feature feedback. The result is a streamlined experience powered by an unparalleled custom model that's four times faster than GPT-4.
+
+Read more
+
+Terminal Command
+Currently only available in Windsurf. We all know the pain of having to interrupt your workflow to search for the exact terminal command that you've forgotten. Use terminal command to describe what you want to do in natural language.
+
+Try in Windsurf
+
+Play Again
+
+Frequently Asked Questions
+
+
+Who should use this?
+Windsurf does not replace the software engineer, leaving the developer in charge and responsible for any code generated. Windsurf does not test the code automatically, so a developer should carefully test and review all code generated by Windsurf. So while anyone can use Windsurf, we recommend it especially for people who already have fundamental knowledge of software engineering and coding. It's never great to be dependent on anything, even superpowers.
+
+
+Who can use this?
+Everyone. Command is included in the free tier. We are committed to always providing a Command functionality for free.
+
+
+Is Command included in the Enterprise and Teams tiers?
+Yes. Command joins Autocomplete and Chat as core features of Windsurf that are free for all users and available in all tiers.
+
+
+What IDEs support Command?
+We currently support Command in Windsurf Editor, VSCode and JetBrains IDEs. Others are coming soon!
+
+
+What model do you use for Command?
+We use custom, in-house models that are trained for this purpose and are over 3 times faster than GPT-4 Turbo.
+
+
+Will this always be free?
+For individual developers, yes. Our philosophy is that every developer should have access to these tools at no cost to keep the playing field level (learn more).
+
+That being said, we are able to commit to offering all of these tools for free, forever, due to our Pro, Teams, and Enterprise paid tiers, which come with additional functionalities.
+
+Try Command today
+
+Download the Windsurf Editor
+
+Want to use your own IDE?
+Download plugins
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+Flows | Windsurf (formerly Codeium)
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Code flows smoother than your morning coffee
+We built a reasoning engine that enables seamless, real-time collaboration between the developer and AI, working together in perfect sync.
+
+// Experience a true flow state in the Windsurf Editor
+
+
+Download the Windsurf Editor
+
+Flows
+AI flows enable true human-AI unity with real time understanding of human actions.
+AI flows ensure that the AI always understands the context of your work, adapting instantly as you transition between tasks, so it can assist without needing to be brought up to speed or interrupt your focus.
+
+// Flows are fundamentally a new way of working with AI.
+
+How Humans work
+Before the year 2022, humans and keyboards worked in unison, and code development was done completely manually. Every single line of code was a direct result of human input.
+
+How Copilots work
+In 2022, LLM’s took the world by storm and Copilots were introduced to help humans complete set tasks. If you started typing out a line, it would suggest a completion. Or if you asked a question, you would receive an answer.
+
+How Agents work
+In early 2024, the world was introduced to the concept of Agents, which were meant to complete entire workflows autonomously through access to tools and advanced reasoning capabilities. However, early iterations resulted in unreasonable waiting periods and subpar output that took more time to review.
+
+How Flows work
+In November 2024, we introduced a new way of working with AI called Flows. This innovation syncs the developer’s actions with the AI in real time, enabling seamless, continuous collaboration where the AI adapts to the developer’s work without needing to be brought up to speed on the scope of the work.
+
+// Now for some cool demos of things AI flows allow
+
+Building has never been this easy
+Watch how AI flows power your workflow
+
+
+
+windsurf-logo
+[ Let's surf ]
+
+Experience a true flow state
+
+
+Download the Windsurf Editor
+
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+Your subscription has expired!
+Please renew here
+0
+:
+21
+
+Context Aware Everything | Windsurf (formerly Codeium)
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Context Aware Everything
+The most advanced code context collection and prompt building system, leading to higher quality, fewer hallucinations, and more trust.
+Download extension
+main.py
+email_utils.py
+db_client.py
+utils.py
+import argparse
+import db_client
+import utils
+import email_utils
+parser = argparse.ArgumentParser()
+parser.add_argument('--user_id', help='The user ID')
+def main():
+  # Parse the command line arguments
+  args = parser.parse_args()
+  user = db_client.get_user(args.user_id)
+  if not user:
+    print("User not found")
+    return
+  print(f"User {user.name} has {user.streak} days in a row")
+  email_id = utils.generate_email_uid(user.id)
+  # Send an email to the user
+  email_subject = "Welcome to Windsurf"
+  email_body = "Thank you for choosing Windsurf as your preferred AI development tool!"
+  email_status = email_utils.send_email(user.email, email_subject, email_body)
+  if email_status == 200:
+    print("Email sent successfully")
+  else:
+    print("Failed to send email")
+if __name__ == "__main__":
+  main()
+Windsurf's Context Engine generates better suggestions than any other AI dev tool
+Opened files context
+All your neighboring files are taken into account when providing autocomplete and chat suggestions
+
+Opened files context
+Repo wide context
+Your entire repository is taken into account when providing autocomplete and chat suggestions
+
+Repo wide context
+Read more about our Context Aware model
+A new way to search through your repo
+Windsurf Plugin's, formerly Codeium extensions, Search allows you to ask natural language questions to your codebase like 'Where do we do X?' or 'How does Y use Z?' without relying on knowing exactly what variables/files are called or dealing with complex Regex patterns.
+
+
+See what context was referenced
+You can see exactly what part of your code our Chat AI used as context to generate the response to your query. This allows you to tailor your queries to receive more accurate and relevant results.
+
+
+Context pinning
+Use context pinning to persist known relevant information to Windsurf's context awareness engine.
+
+Read more
+
+Frequently Asked Questions
+If you can't find what you're looking for, please join our Discord and someone from our team will help you
+
+
+Why are you building Windsurf extension?
+Anyone who codes knows that there are many different tasks and "modes" involved in software development - writing code, figuring out what code to write, searching through existing codebases, generating test cases, debugging, writing docs, creating and reviewing pull requests, etc. Some tasks are boring, tedious, or downright frustrating, from regurgitating boilerplate to poring through StackOverflow. Others are interesting but require too many manual steps. But we believe all of them can be accelerated by recent advances in AI. By rethinking how every part of a software developer's workflow can be accelerated with and assisted by AI, Codeium will make it seamless to turn your ideas into code, iterate like never before, and more. We are excited to see how this acceleration can unlock other developers to create more quickly and efficiently.
+
+
+Who should use this?
+Windsurf does not replace the software engineer, leaving the developer in charge and responsible for any code generated. Windsurf does not test the code automatically, so a developer should carefully test and review all code generated by Windsurf. So while anyone can use Windsurf, we recommend it especially for people who already have fundamental knowledge of software engineering and coding. It's never great to be dependent on anything, even superpowers.
+
+
+Why am I getting bad results?
+Like any other superpower, Codeium is more effective in certain situations than others. Codeium only has limited context to generate suggestions, doesn't have enough training data for new or esoteric capabilities of every coding language/framework, and anecdotally performs better on certain classes of prompts.
+
+But also just like any other superpower, one can learn how to wield Codeium more effectively. We hope to compile best practices given feedback, but play around with how you write comments or function/argument names to see what causes Codeium to give the best results!
+
+
+How is this different from GitHub Copilot, Tabnine, Replit Ghostwriter, etc.?
+We tried them all, and have compiled results on our Compare page ! Codeium has similar industry-leading latency and quality on code autocomplete as tools like GitHub Copilot, while being free, available in more IDEs, and providing more functionality (such as Codeium Search). We believe our philosophy - (a) pairing state-of-the-art ML with world class ML infrastructure in a vertically integrated manner and (b) heavily relying on developer feedback to shape the product roadmap - is quite different from existing approaches, and will lead to a more usable, functional, and high-quality product.
+
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Plans and Pricing
+Choose the perfect plan for your journey
+
+For Individuals
+For Organizations
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Free
+
+$0
+
+per month / forever
+
+Download
+Cascade credits:
+
+Free one-time trial gift on download: 50 premium model User Prompt and 200 premium model Flow Action credits
+5 premium model User Prompt credits
+5 premium model Flow Action credits
+Cannot purchase more premium model credits
+Access to Cascade Base model
+Pro
+
+Popular
+
+$15
+
+per month
+
+Select plan
+Cascade credits:
+
+500 premium model User Prompt credits
+1,500 premium model Flow Action credits
+Can purchase more premium model
+credits → $10 for 300 additional credits with monthly rollover
+Priority unlimited access to Cascade Base Model
+Pro Ultimate
+
+$60
+
+per month
+
+Select plan
+Cascade credits:
+
+Infinite premium model User Prompt credits
+3,000 premium model Flow Action credits
+Can purchase more premium model
+credits → $10 for 400 additional credits with monthly rollover
+Priority unlimited access to Cascade Base Model
+Teams
+
+Popular
+
+Up to 200 users
+
+$35
+
+per user / month
+
+Select plan
+Cascade credits:
+
+300 premium model User Prompt credits per user
+1,200 premium model Flow Action credits per user
+Credits can be pooled across users
+Can purchase more premium model
+credits → $99 for each 3,000 additional credits with monthly rollover
+Priority unlimited access to Cascade Base Model
+Teams Ultimate
+
+Up to 200 users
+
+$90
+
+per user / month
+
+Select plan
+Cascade credits:
+
+Infinite premium model User Prompt credits per user
+2,500 premium model Flow Action credits per user
+Credits can be pooled across users
+Can purchase more premium model
+credits → $99 for each 5,000 additional credits with monthly rollover
+Priority unlimited access to Cascade Base Model
+Enterprise SaaS
+
+Unlimited users
+
+Let's talk
+
+Contact us
+Cascade credits:
+
+Let's talk
+Free features:
+
+Unlimited access to GPT-4.1 and o4-mini models (free until April 21)
+Access to the Windsurf Editor
+Access to all Windsurf Plugins
+Unlimited slow Windsurf Tab speed
+Unlimited in-editor AI chats
+Unlimited AI command instructions
+No training non-permissive data
+Basic context awareness
+Limited indexing limits
+Attribution filtering
+Encryption in transit
+Model Context Protocol (MCP) integration
+Pro features:
+
+Everything in Free and
+
+Priority access to larger models:
+GPT-4o (1x credit usage)
+Claude Sonnet (1x credit usage)
+DeepSeek-R1 (0.5x credit usage)
+o3-mini (1x credit usage)
+Additional larger models
+Cascade on JetBrains
+Unlimited fast Windsurf Tab speed
+Expanded context lengths and advanced context awareness
+Increased indexing limits
+Higher limits on custom context and pinned context items
+Optional zero-data retention
+Pro Ultimate features:
+
+Everything in Pro and
+
+Priority support
+Teams features:
+
+Everything in Individual Pro and
+
+Organizational Analytics
+Seat management
+Automated zero data retention
+Increased indexing limits
+Basic context awareness
+Remote indexing + multi-repository indexing (opt-in)
+Forge (beta): AI code reviewer
+Note: DeepSeek-R1 and MCP integration are coming soon
+
+Teams Ultimate features:
+
+Everything in Teams
+
+Enterprise SaaS features:
+
+Everything in Teams Ultimate and
+
+SaaS, Hybrid, Airgapped (VPC or On-prem) deployment options
+Seat management, Organizational analytics, Analytics API
+Subteam analytics
+Live training and workshops with Windsurf experts
+Enterprise support portal access with documentation and ticketing
+Private codebase finetuning (optional)
+Attribution logs (optional)
+Audit logs (optional)
+
+Refer a friend to a paid plan to earn 500 flex credits
+
+Refer now
+Compare Plans and Features
+For Individuals
+For Organizations
+Cascade Usage
+Cascade User Prompt Credits
+Cascade Flow Action Credits
+Can purchase more premium credits
+Premium credits cost
+Features
+Unlimited Windsurf Tab
+In-editor AI chat assistant
+No training on non-permissive data
+Encryption in transit
+Model Context Protocol integration
+Priority access to GPT-4o, Claude Sonnet, DeepSeek-R1, o3-mini, etc.
+Fast Windsurf Tab speed
+Expanded context length and advanced context awareness
+Increased indexing limits
+Increased custom context limits
+Free
+
+$0/month
+
+Download
+5
+5
+N/A
+Pro
+
+$15/month
+
+Select plan
+500
+1,500
+$10 for additional 300 Flow Action and User Prompt credits
+Pro Ultimate
+
+$60/month
+
+Select plan
+Infinite
+3,000
+$10 for additional 400 Flow Action credits
+Frequently Asked Questions
+
+
+What are Flow Action and User Prompt credits?
+These credits govern the usage of premium models (Anthropic’s Claude 3.5 Sonnet, OpenAI’s GPT-4o, DeepSeek R-1) within the reasoning of Cascade. A message with a premium model consumes a model-dependent number of User Prompt credits, while tool call with a premium model consumes a model-dependent number of Flow Action credits. Depending on the prompt, the AI might not need to take any actions (i.e. explaining a block of code), while for others, the AI might need to take a series of actions.
+
+
+What happens if I run out of Flow Action or User Prompt credits?
+If you run out of User Prompt credits, you will automatically be switched to using the Cascade Base model for the prompts and actions (to save your Flow Action credits). If you run out of Flow Action credits, you will automatically be switched to our Legacy Chat mode, where the premium model will be used with the same contextual awareness that powers all of Codeium, except without any tool calls. Users always have the option to purchase more credits, and these additional credits can be used for either User Prompts or Flow Actions interchangeably. For example, if you purchase 300 credits for $10 on the Pro tier, you can use any slice of those for User Prompts versus Flow Actions.
+
+
+How can I check my usage?
+You can check out your usage in your plan tab in the profile. Usage is tracked in the Windsurf Editor under Windsurf Settings
+
+
+What happens to my unused credits for the month?
+Any of the additional purchased credits will get rolled over to the next month. Any of the credits that come with the base plan expire at the end of the usage month.
+
+
+Are credits consumed for Command and Chat in Windsurf Extensions (VS Code and JetBrains IDEs)?
+No, credits are only consumed for premium usage in Cascade. Windsurf extensions do not currently support Cascade.
+
+
+Can I still use Cascade on the Free plan?
+We give a limited number of premium model credits every month to Free users, but otherwise, you will have access to the Cascade Base models in Chat mode, Cascade will have access to all tools except for add/edit files.
+
+
+How can I control how many purchased credits to give to Flow Actions and User Prompts?
+These are automatically determined through use (used for whichever one you have fully utilized so far). We don’t require you to try to make a judgement call ahead of time.
+
+
+Where can I see my credit usage with Cascade?
+You can view your credit usage in the Windsurf Settings as well as in your website plan settings. You can learn more here.
+
+
+How do Flow Action and User Prompt credits for Team plans get divided?
+All Flow Action and User Prompt credits for a Team gets pooled together, and the additional credits (if purchased) also get placed in the pool.
+
+
+What forms of payment are accepted?
+We accept all major credit cards, Apple Pay, Cash App Pay, Google Pay, Link, WeChat Pay, and Alipay. You may need to disable your VPN to view the relevant payment methods for your region.
+
+
+Why did the cost of my subscription change?
+We've recently updated our billing process to comply with tax regulations in your region. As a result, you may notice an increase in your total subscription cost due to these newly added taxes.
+
+Rest assured, our base subscription price has not changed—the additional amount simply reflects the legally required tax. For a detailed breakdown of the charges, please refer to your invoice.
+
+Still have questions? Reach out to our support team.
+
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Plans and Pricing
+Choose the perfect plan for your journey
+
+For Individuals
+For Organizations
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Free
+
+$0
+
+per month / forever
+
+Download
+Cascade credits:
+
+Free one-time trial gift on download: 50 premium model User Prompt and 200 premium model Flow Action credits
+5 premium model User Prompt credits
+5 premium model Flow Action credits
+Cannot purchase more premium model credits
+Access to Cascade Base model
+Pro
+
+Popular
+
+$15
+
+per month
+
+Select plan
+Cascade credits:
+
+500 premium model User Prompt credits
+1,500 premium model Flow Action credits
+Can purchase more premium model
+credits → $10 for 300 additional credits with monthly rollover
+Priority unlimited access to Cascade Base Model
+Pro Ultimate
+
+$60
+
+per month
+
+Select plan
+Cascade credits:
+
+Infinite premium model User Prompt credits
+3,000 premium model Flow Action credits
+Can purchase more premium model
+credits → $10 for 400 additional credits with monthly rollover
+Priority unlimited access to Cascade Base Model
+Teams
+
+Popular
+
+Up to 200 users
+
+$35
+
+per user / month
+
+Select plan
+Cascade credits:
+
+300 premium model User Prompt credits per user
+1,200 premium model Flow Action credits per user
+Credits can be pooled across users
+Can purchase more premium model
+credits → $99 for each 3,000 additional credits with monthly rollover
+Priority unlimited access to Cascade Base Model
+Teams Ultimate
+
+Up to 200 users
+
+$90
+
+per user / month
+
+Select plan
+Cascade credits:
+
+Infinite premium model User Prompt credits per user
+2,500 premium model Flow Action credits per user
+Credits can be pooled across users
+Can purchase more premium model
+credits → $99 for each 5,000 additional credits with monthly rollover
+Priority unlimited access to Cascade Base Model
+Enterprise SaaS
+
+Unlimited users
+
+Let's talk
+
+Contact us
+Cascade credits:
+
+Let's talk
+Free features:
+
+Unlimited access to GPT-4.1 and o4-mini models (free until April 21)
+Access to the Windsurf Editor
+Access to all Windsurf Plugins
+Unlimited slow Windsurf Tab speed
+Unlimited in-editor AI chats
+Unlimited AI command instructions
+No training non-permissive data
+Basic context awareness
+Limited indexing limits
+Attribution filtering
+Encryption in transit
+Model Context Protocol (MCP) integration
+Pro features:
+
+Everything in Free and
+
+Priority access to larger models:
+GPT-4o (1x credit usage)
+Claude Sonnet (1x credit usage)
+DeepSeek-R1 (0.5x credit usage)
+o3-mini (1x credit usage)
+Additional larger models
+Cascade on JetBrains
+Unlimited fast Windsurf Tab speed
+Expanded context lengths and advanced context awareness
+Increased indexing limits
+Higher limits on custom context and pinned context items
+Optional zero-data retention
+Pro Ultimate features:
+
+Everything in Pro and
+
+Priority support
+Teams features:
+
+Everything in Individual Pro and
+
+Organizational Analytics
+Seat management
+Automated zero data retention
+Increased indexing limits
+Basic context awareness
+Remote indexing + multi-repository indexing (opt-in)
+Forge (beta): AI code reviewer
+Note: DeepSeek-R1 and MCP integration are coming soon
+
+Teams Ultimate features:
+
+Everything in Teams
+
+Enterprise SaaS features:
+
+Everything in Teams Ultimate and
+
+SaaS, Hybrid, Airgapped (VPC or On-prem) deployment options
+Seat management, Organizational analytics, Analytics API
+Subteam analytics
+Live training and workshops with Windsurf experts
+Enterprise support portal access with documentation and ticketing
+Private codebase finetuning (optional)
+Attribution logs (optional)
+Audit logs (optional)
+
+Refer a friend to a paid plan to earn 500 flex credits
+
+Refer now
+Compare Plans and Features
+For Individuals
+For Organizations
+Cascade Usage
+Cascade User Prompt Credits
+Cascade Flow Action Credits
+Can purchase more premium credits
+Premium credits cost
+Features
+Unlimited Windsurf Tab
+In-editor AI chat assistant
+No training on non-permissive data
+Encryption in transit
+Unlimited access to GPT-4o and Claude Sonnet
+Unlimited access to larger Codeium models
+Fast Windsurf Tab
+Expanded context length and advanced context awareness
+Increased indexing limits
+Increased custom context limits
+Multi repo indexing
+Seat management and invites
+Advanced personalization to your codebase
+Organization-wide zero day retention, guaranteed
+Enterprise Features
+SSO-SAML authentication
+SaaS, Hybrid, Airgapped (on-prem or VPC) deployments available
+Priority support via shared channel with Codeium team
+Kick off and training for your organization
+Enterprise support portal access with documentation and ticketing
+Teams
+
+$35/user/month
+
+Select plan
+300
+1200
+$99 for additional 3,000 Flow Action and User Prompt credits
+Teams Ultimate
+
+$90/user/month
+
+Select plan
+Infinite
+2500
+$99 for additional 5,000 Flow Action and User Prompt credits
+Enterprise
+
+Let's talk
+
+Contact us
+Let's talk
+Frequently Asked Questions
+
+
+What are Flow Action and User Prompt credits?
+These credits govern the usage of premium models (Anthropic’s Claude 3.5 Sonnet, OpenAI’s GPT-4o, DeepSeek R-1) within the reasoning of Cascade. A message with a premium model consumes a model-dependent number of User Prompt credits, while tool call with a premium model consumes a model-dependent number of Flow Action credits. Depending on the prompt, the AI might not need to take any actions (i.e. explaining a block of code), while for others, the AI might need to take a series of actions.
+
+
+What happens if I run out of Flow Action or User Prompt credits?
+
+How can I check my usage?
+
+What happens to my unused credits for the month?
+
+Are credits consumed for Command and Chat in Windsurf Extensions (VS Code and JetBrains IDEs)?
+
+Can I still use Cascade on the Free plan?
+
+How can I control how many purchased credits to give to Flow Actions and User Prompts?
+
+Where can I see my credit usage with Cascade?
+
+How do Flow Action and User Prompt credits for Team plans get divided?
+
+What forms of payment are accepted?
+
+Why did the cost of my subscription change?
+Still have questions? Reach out to our support team.
+
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+Windsurf for Enterprise | Windsurf (formerly Codeium)
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Windsurf (formerly Codeium) for Enterprise
+Wave 7: Cascade on JetBrains
+AI built for Enterprise Software Development
+Modernize your development team with AI to ship products faster, without the risk.
+
+
+Contact Us
+
+View Plans
+Elite teams choose Windsurf.
+25%
+increase in developer productivity
+Accelerate time to delivery by decreasing PR cycle times and reap the benefits of more developer output.
+
+4x
+decrease in onboarding time
+Set your org up for long term success, with less tech debt, more modern code, and more effective developers.
+
+1,000+
+Enterprise customers
+Enterprise first solution built with security, compliance, change management, and analytics in mind.
+
+Windsurf overview
+Writing test scripts
+
+Explaining code
+
+Unit test generation
+
+Code modernization
+
+Writing test scripts
+
+Explaining code
+
+Unit test generation
+
+Code modernization
+
+Writing test scripts
+
+Explaining code
+
+Unit test generation
+
+Code modernization
+
+Writing test scripts
+
+Explaining code
+
+Unit test generation
+
+Code modernization
+
+Code Reviews
+
+Documenting code
+
+Searching code
+
+Finding code smells
+
+Code Reviews
+
+Documenting code
+
+Searching code
+
+Finding code smells
+
+Code Reviews
+
+Documenting code
+
+Searching code
+
+Finding code smells
+
+Code Reviews
+
+Documenting code
+
+Searching code
+
+Finding code smells
+
+Translate code
+
+Enforcing coding standards
+
+Writing code
+
+Optimizing code
+
+Translate code
+
+Enforcing coding standards
+
+Writing code
+
+Optimizing code
+
+Translate code
+
+Enforcing coding standards
+
+Writing code
+
+Optimizing code
+
+Translate code
+
+Enforcing coding standards
+
+Writing code
+
+Optimizing code
+
+Language translation
+
+Refactoring code
+
+Debugging stack traces
+
+Language translation
+
+Refactoring code
+
+Debugging stack traces
+
+Language translation
+
+Refactoring code
+
+Debugging stack traces
+
+Language translation
+
+Refactoring code
+
+Debugging stack traces
+
+Products
+
+Windsurf Editor
+Windsurf Editor
+
+First of it's kind agentic IDE built and optimized for AI-native features.
+
+Codeium logo
+Windsurf Plugin
+
+For 70+ languages across 40+ IDEs such as VS Code, JetBrains, Eclipse, etc.
+
+Enterprise Grade Security
+Windsurf offers fully self-hosted deployment options. Including air-gapped deployments with zero third party dependencies. Your sensitive IP never leaves your network.
+
+Capabilities
+
+Cascade
+
+Autocomplete
+
+Chat
+
+Supercomplete
+
+Command
+
+Engine
+
+Context-Awareness Engine
+
+Build & trained in-house specifically for each function. Also provide access to popular models like GPT-4o and Claude 3.5 in certain scenarios.
+
+Purpose Built Models
+
+SCM Agnostic, builds an unparralleled understanding of your codebase leading to 38% increase in code acceptance.
+
+Tool Use
+
+Broadest and most powerful set of tools that the agent-like capabilities can use to independently reason on production codebases.
+
+Human Action Tracking
+
+Granular, real-time extraction of developer intent to complement knowledge and tools.
+
+Best in class ML infrastructure
+
+Windsurf's optimized ML infrastructure serves cutting edge models at high throughput and low-latency, which can improve GPU utilization by up to 97%.
+
+Case Studies
+Note: Some case studies may mention Codeium, which has since been rebranded as Windsurf.
+
+Image for DRW on Codeium
+enterprise
+
+DRW on Codeium
+DRW uses Codeium to boost developer productivity while safeguarding intellectual property.
+
+Jan 6, 2025
+
+3 min read
+
+Image for Codeium: JPMorgan Chase's Hall of Innovation
+industry
+
+Codeium: JPMorgan Chase's Hall of Innovation
+Codeium inducted into JPMorgan Chase Hall of Innovation for AI-powered development solutions.
+
+Oct 31, 2024
+
+2 min read
+
+Image for Zillow on Codeium
+enterprise
+
+Zillow on Codeium
+Zillow uses Codeium to accelerate their developers.
+
+Jul 17, 2024
+
+3 min read
+
+
+See all case studies
+As seen on
+How AI Can Help Accelerate Coding
+
+Oct 2, 2024
+
+Blog post centered image
+Caroline Hyde
+
+GitHub Copilot competitor Codeium raises $150M at a $1.25B valuation
+
+Aug 29, 2024
+
+Blog post centered image
+Kyle Wiggers
+
+This AI Coding Engine Can Process 100 Million Lines Of Code At Once
+
+Aug 13, 2024
+
+Blog post centered image
+Rashi Shrivastava
+
+Unbeatable security
+Your IP is Yours
+Our self-hosted deployment lets you run Windsurf in a fully air-gapped manner, with no code or data leaving your on-prem servers or virtual private cloud, even to us. If you prefer SaaS, you still get industry-leading security guarantees, including zero data retention and SOC2 compliance.
+
+SOC-2 Type 2 Compliant
+Read more about security
+Looking for our SOC-2 report?
+Request it here
+“Our code is important to us, and often strictly confidential, so SaaS solutions like GitHub Copilot and others were not viable options. We considered making our own generative AI model within our environment, but when we found Codeium, it was like seeing a big red ‘easy’ button.”
+Cy Sack
+Cy Sack
+
+Head of business systems, Anduril
+
+Anduril case study
+78% of developers reported creating the first version of code more quickly. Ship faster.
+40-60% of newly committed code is generated by Windsurf. Supercharge your developers.
+35% increase in code acceptance after personalization. You understand your code best.
+The only AI coding assistant with 5 star ratings on every single IDE marketplace.
+Check out Windsurf Plugin on VSCode marketplace
+Legal Compliance
+Worry-free code generation
+The legal ramifications of accidentally generating copyrighted code is immense.
+
+This is a serious risk, and we mitigate it on all fronts. Unlike other tools on the market, we never use non-permissively licensed code in our training data. While this proactive approach usually more than enough, we can also catch, flag, and attribute code generations that match on the back end.
+
+Attribution filtering, attribution logging, and audit logging are available in Enterprise plans today.
+
+Read more about attribution
+GitHub Copilot icon
+GitHub Copilot trains on non-permissive licenses
+See how Copilot regurgitates GPL code
+We’re built to handle the largest workloads in the world
+600K+
+active users on Windsurf SaaS
+
+100B+
+tokens processed per day
+
+23M+
+lines of code accepted each month
+
+Bring Windsurf to your company
+Personalization
+Hyper-personalized to your repo
+Windsurf started in GPU optimization services. We’ve since leveraged that expertise to provide the most accurate developer toolkit on the market.
+
+Locally host Windsurf's state of the art Context Awareness engine, personalized to your codebase. Your model and code never leave your tenant.
+
+Read more about context awareness
+The best AI coding assistant on the market and we can prove it.
+Codeium	Copilot	Tabnine	Amazon
+Detailed comparison	
+Read more
+Read more
+Read more
+VS Code rating	
+JetBrains rating	
+Enterprise pricing	
+Let's talk!*
+$39/mo
+$39/mo
+$20/mo
+Functionality	
+Single+multi line codegen
+In-IDE integrated chat and search
+Single+multi line codegen
+Single+multi line codegen
+Single+multi line codegen
+Supported IDEs	
+40+
+~7
+~14
+~3
+Supported languages	
+70+
+~29
+~50
+~15
+Security policies	
+SOC 2 Compliance
+No SOC 2 Compliance
+SOC 2 Compliance
+No SOC 2 Compliance
+Latency score	
+9/10
+7/10
+8/10
+5/10
+Suggestion quality score	
+9/10
+*Deployment dependent
+9/10
+2/10
+2/10
+Usage analytics
+
+See the ROI for yourself
+We use Windsurf to build Windsurf, and we strive to build tools that developers want to use. We’ve invested tremendous effort towards building detailed real-time analytics dashboards so that you can maximize the potential of your developer teams.
+
+Read more about Windsurf Analytics
+Windsurf Analytics Dashboard
+Learn how to actually measure productivity
+Enterprise leaders need tools that serve their team’s unique needs. Your product usage is unique, and your insights should reflect that.
+
+Read more
+"The feedback I hear over and over from engineers across our development teams is that they are ‘blown away’ at how Codeium completes their code, saving them time and cycles."
+- Kelly Honeycutt, Software Development Division Manager, Clearwater Analytics
+
+Platform agnostic
+Made for all developers
+Works on over 70 languages and is integrated where any of your developers need it - all popular standalone IDEs, Jupyter and Colab notebooks, and more!
+
+See all IDEs supported
+IDE Icons
+Deployment Options
+
+SaaS
+
+
+Self-Hosted
+
+
+Hybrid
+
+On-premise. Air gapped. Fully In-Tenant.
+Our highest performing, most secure offering. Your IP never leaves your on-prem servers or VPC, not even to us.
+
+Read more about Self-Hosted
+self-hosted Deployment Diagram
+Supercharge your developers today
+
+Contact Us
+
+View Plans
+Discover more about Windsurf Enterprise
+Image for DRW on Codeium
+enterprise
+
+DRW on Codeium
+DRW uses Codeium to boost developer productivity while safeguarding intellectual property.
+
+Jan 6, 2025
+
+3 min read
+
+Image for How Codeium Helps Onboarding
+industry
+
+How Codeium Helps Onboarding
+Minimizing developer onboarding time is critical for any serious enterprise.
+
+Nov 6, 2024
+
+6 min read
+
+Image for Codeium: JPMorgan Chase's Hall of Innovation
+industry
+
+Codeium: JPMorgan Chase's Hall of Innovation
+Codeium inducted into JPMorgan Chase Hall of Innovation for AI-powered development solutions.
+
+Oct 31, 2024
+
+2 min read
+
+Frequently Asked Questions
+
+What is special about Enterprise?
+Windsurf for Enterprises is an enterprise-grade version of Windsurf with high-security deployment options, additional features like local personalization on your private repositories, analytics dashboards, support and training, and more. While Windsurf is already the best offering for individual developers, even more AI-powered functionality can happen at a team level on larger, well-maintained repositories.
+
+
+What guarantees exist on data security?
+For self-hosted, Windsurf for Enterprises is deployed entirely on-prem or in your Virtual Private Cloud (VPC). The best way to guarantee security is to not allow your data to leave your company's managed resources (Read More). We have also trained models in-house, built all IDE integrations, and written all custom logic to cleanly integrate the user's code with model inputs and outputs. By not relying on third party APIs, you can be confident that there is no potential for external security vulnerabilities to creep in. We recognize that every company has different data handling and management policies, as well as hardware setups, so we offer a wide range of methods to deploy Windsurf for Enterprises in a self-hosted manner.
+
+If you do not want to deploy locally, we do offer a managed service SaaS plan with zero data IP retention guarantees and SOC2 compliance, the latter being something that GitHub Copilot for Businesses particularly does not have. Zero data IP retention means that we use any code snippets or chat messages sent to us only to perform the model inference on our GPUs, but will never even persist that data. This means your IP is never stored on external servers and therefore never used for other purposes, such as training the underlying models.
+
+
+Tell me more about personalization.
+The simple reality is if we can further personalize our system given the “data examples” that a specific customer has, and we will create a system that is the theoretically best performing system for coding that the particular customer could get.
+
+It boils down to obeying local conventions — a generic code product that wanted to adhere to syntactic patterns or to use libraries and utilities present in the particular codebase would need to have all of that code passed into it as context. If the system was instead personalized on your existing code base, both from a context awareness and fine-tuning perspective, we can deliver better suggestions as a result.
+
+And of course, all personalization is done locally within the enterprise's self-hosted Windsurf instance. No code leaves your tenant, and neither does the resulting, personalized system details.
+
+
+How does this compare to other Enterprise offerings?
+The primary other enterprise offerings are GitHub Copilot for Businesses and Tabnine for Enterprises.
+
+We go into detail on differences with GitHub Copilot for Businesses, and how it fails to meet basic enterprise needs in this blog post, but the gist is that all GitHub Copilot for Enterprises does is provide a team administrator to purchase and manage seats of GitHub Copilot for their employees. It provides no guarantees on code security, no customization for your codebase, and no support for common enterprise development patterns like notebooks.
+
+Tabnine for Enterprises does provide the same deployment and security options, but is a noticeably worse product compared to GitHub Copilot and Windsurf in terms of suggestion quality, to the point where it may not provide a comparable value proposition to enterprises.
+
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+Windsurf for Government | Windsurf (formerly Codeium)
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+AI built for Government Software Development
+Windsurf delivers secure, AI-powered coding solutions designed specifically for federal agencies, contractors, and system integrators. With FedRAMP High certification, our platform meets the strictest security and compliance standards, enabling government teams to modernize software development without risk.
+
+Accelerate development cycles, drive innovation, and optimize resources, all while ensuring compliance with federal IT requirements. Whether building new applications or eliminating tech debt, Windsurf empowers federal developers to write, review, and deploy code faster and more securely than ever before.
+
+Name
+
+Your name
+Email
+
+Your email address
+Job title
+
+Your job title
+Company name
+
+Company name
+Number of seats
+
+
+Select number of seats
+Message
+
+Your message...
+Request a demo
+department-of-defense-logofedramp-logo
+Windsurf is FedRAMP High authorized and DoD IL4 certified
+
+Strategic Partners in Federal Innovation
+WWT LogoCarahsoft LogoDH Tech Logo
+We collaborate with leading federal technology partners to ensure seamless procurement, deployment, and support for government agencies. Through our partnerships with WWT, Carahsoft, and DH Tech, we make it easier for federal teams to adopt and integrate Windsurf's AI-powered development tools while meeting stringent security and compliance requirements.
+
+Partnership blogs
+Note: Some blogs may reference Codeium, which has been rebranded to Windsurf.
+
+Image for Codeium: JPMorgan Chase's Hall of Innovation
+industry
+
+Codeium: JPMorgan Chase's Hall of Innovation
+Codeium inducted into JPMorgan Chase Hall of Innovation for AI-powered development solutions.
+
+Oct 31, 2024
+
+2 min read
+
+Image for Broadcom x Codeium
+industry
+
+Broadcom x Codeium
+Announcing Codeium on VMware Private AI by Broadcom.
+
+Aug 26, 2024
+
+2 min read
+
+Image for Dell x Codeium: Bringing GenAI Software On-prem
+industry
+
+Dell x Codeium: Bringing GenAI Software On-prem
+Announcing our partnership and work with Dell.
+
+Jan 24, 2024
+
+2 min read
+
+See all blogs
+As seen on
+Note: Some posts may reference Codeium, which has been rebranded to Windsurf.
+
+How AI Can Help Accelerate Coding
+
+Oct 2, 2024
+
+Blog post centered image
+Caroline Hyde
+
+GitHub Copilot competitor Codeium raises $150M at a $1.25B valuation
+
+Aug 29, 2024
+
+Blog post centered image
+Kyle Wiggers
+
+This AI Coding Engine Can Process 100 Million Lines Of Code At Once
+
+Aug 13, 2024
+
+Blog post centered image
+Rashi Shrivastava
+
+Supercharge your developers today
+Contact Sales
+View plans
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+Windsurf Editor Changelogs | Windsurf (formerly Codeium)
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Windsurf Editor Changelogs
+View Docs
+Follow us on
+Windsurf Next Changelogs
+v 1.6.5
+April 16, 2025
+o4-mini Available
+1.6.5 changelog banner
+New o4-mini models available and Free (Limited Time)
+Windsurf now supports the o4-mini medium and o4-mini high models, which are free for all users
+Usage in Windsurf is free for a limited time from April 16th to April 21st
+v 1.6.4
+April 14, 2025
+GPT 4.1 Available
+1.6.4 changelog banner
+New GPT 4.1 Model available and Free (Limited Time)
+Windsurf now supports the new GPT 4.1 model, which is free for all users
+Usage in Windsurf is free for a limited time from April 14th to April 21st
+April 9, 2025
+Cascade on JetBrains
+1.7.X changelog banner
+Cascade is now available on JetBrains IDEs
+See the full JetBrains Changelog
+Read the announcement here
+Codeium is Now Windsurf
+We are renaming our company to Windsurf & our extension product to Windsurf Plugin.
+Since the launch of our Windsurf Editor, we have captured what we are really building: combining human ingenuity and machine to result in experiences that feel and appear effortlessly powerful.
+v 1.6.3
+April 7, 2025
+Patch Fixes
+1.6.3 changelog banner
+Fixes
+Fixes to Commit Generation parsing on Windows
+UI Fixes to Rules
+Allow empty files on website deploy
+Better Deploys error visibility
+Ability to edit subdomain on website deploy
+Increased stability around MCP SSE connections
+Cascade bug fixes
+v 1.6.2
+April 3, 2025
+Patch Fixes
+1.6.2 changelog banner
+Fixes
+Fixes to "Remote - WSL" extension
+Minor UX fixes
+v 1.6.1
+April 2, 2025
+New Model
+1.6.1 changelog banner
+Deploys (Beta)
+Deploy your application with one prompt to Netlify under a windsurf.build domain
+Claim your application's URL via Netlify
+Once claimed, continue deploying to the same project as you make updates
+To deploy a new site or change your subdomain, just ask Cascade to deploy to a new subdomain
+Available to all users for all tiers, with more for paid plans
+Commit Message Generation (Beta)
+Generate commit messages with a click in the Source Control Panel
+Available to users on paid plans with no additional credit cost per use
+Improvements to Memories
+New memories tab in Cascade
+New ability to edit Cascade's generated memories, including the memory's title, content and tags
+New ability to search Cascade's generated memories
+User setting toggle for Auto-Generate Memories
+When enabled, Cascade will autonomously generate memories to remember important context
+When disabled, Cascade will only create memories when you explicitly ask in your prompt
+Improvements to Long Conversations
+Introduced Cascade table of contents of all past user messages, which appears on conversation scroll
+Table of contents enables the ability to revert or scroll to any past message
+Improved performance when interacting with long conversations
+Improvements to Windsurf Tab
+Jupyter Notebook Support for Windsurf Tab
+Additional context signals for Windsurf Tab, including in-IDE search
+New Mac Icons
+Two new application icons (Retro and Pixel Surf) are available for users on paid plans
+Misc
+Cascade new conversation screen now has a new toolbar for tools like MCP, Preview and Deployments.
+Cascade now supports SSE MCP servers in the JSON configuration
+Fixed "Open Cascade on Reload" setting so Cascade will be closed upon opening a new window when setting is disabled
+Cascade input is persisted across new conversation screen and an active conversation
+Refreshed terminal UI in Cascade, with increased visibility for the "Open terminal" button, which opens Cascade's terminal instance directly
+Underlined links are now clickable in Cascade and user messages
+New user setting to enable sound when Cascade is done running (beta)
+Fixes to "Remote - SSH" extension, including custom SSH binary path setting
+Merged changes from VS Code 1.97.0
+v 1.5.9
+March 25, 2025
+New Model
+1.5.9 changelog banner
+Gemini 2.5 Pro (Beta)
+Gemini 2.5 Pro is now available in beta!
+Gemini 2.5 Pro takes 1x user prompt credits on every message and 1x flow action credits on each tool call
+Available for users Free and Pro Plans
+Currently experiencing high-demand and working to increase capacity
+Fixes
+Fixes to "Remote - SSH" extension, including custom SSH binary path setting
+v 1.5.8
+March 24, 2025
+Patch Fixes
+1.5.8 changelog banner
+Fixes
+Fixes for Cascade, which now better respects User-Defined Memories
+Improvements for Browser Previews
+Fixes for a few Cascade layout issues impacting icons
+v 1.5.6
+March 18, 2025
+Windsurf Tab
+1.5.6 changelog banner
+New Windsurf Tab Experience
+Rolled up Autocomplete, Supercomplete, Tab to Jump, and Tab to Import into one experience called Windsurf Tab
+Windsurf Tab runs a larger and higher quality model, increasing contextual awareness, quality, and speed
+Context Improvements
+Completions now use more signals including recently viewed files, terminal commands and outputs, Cascade conversations
+Optional clipboard as context for completions (default off, opt-in via Advanced Settings)
+Expanded context length, including more signals to improve completions
+Quality Improvements
+Increased precision choosing between Autocompletes (insertions) and Supercompletes (edits)
+Higher recall and more than double the jump distances for Tab to Jump from previous versions
+Improved indenting and spacing for next-line suggestions
+Speed Improvements
+Added predictive triggers, leading to consecutive completions after your previous completion or tab to jump
+Increased server capacities and improved inference speeds
+Improved networking, leading to reduced network latencies
+Tab to Import shows quicker and applies more reliably
+Tab UX Improvements
+Accepted completions are highlighted green (can be disabled via Advanced Settings)
+Tab to Jump and Tab to Import widgets have a refreshed, more visible UI
+Tab to Jump and Tab to Import widgets are clickable
+Misc Improvements
+More reliable credit discounting for lint-fixing edits in auto-fix lint mode
+In-IDE Terminal commands are now used as context for Cascade
+The Tab key works to accept intellisense in the Debug Console
+Improved Cascade diff review UX
+Fixes to low credit warnings
+Fixes to Autocomplete Speed settings
+Improvements to Quick Settings dropdown
+Improved CPU and memory usage
+Add Neon database as a Model Context Protocol template
+v 1.4.6
+March 10, 2025
+Patch Fixes
+1.4.6 changelog banner
+Fixes
+Fixes crashes around MCP misconfiguration
+Fixes around web search for Sonnet 3.7
+Fixes for proxy settings
+v 1.4.4
+March 6, 2025
+Patch Fixes
+1.4.4 changelog banner
+Patch Fixes
+Fixes to Windsurf Previews where certain routes would not load.
+Fixes to open Cascade shortcuts (cmd/ctrl+shift+L)
+Re-added new settings configs to new settings panel (proxy settings, index size)
+v 1.4.3
+March 5, 2025
+Windsurf Previews, Auto-Linter, and new MCP servers
+1.4.3 changelog banner
+Windsurf Previews (Beta)
+Cascade will now let you preview locally run websites in your IDE or in your browser.
+You can select React and HTML element(s) within the preview to send to Cascade as context.
+This context will be included in your Cascade conversation so you no longer need to copy-paste or send screenshots.
+You can also send console errors to Cascade as context.
+A Windsurf Preview can be activated by asking Cascade to start your web application or through the Website tools icon in the toolbar above conversation input.
+A preview can be shown in the IDE or in a new browser on Chrome, Arc, and Chromium based browsers.
+Can be turned off via Windsurf Settings.
+Available to all plans and costs no credits.
+Cascade Auto-Linter
+Cascade now auto-lints proposed code changes it has made.
+If an output from a code edit proposes a lint error, Cascade will automatically fix it in a subsequent edit.
+Fixes to lints are available to all plans and the Cascade edit step to fix the lints costs no credits.
+For example, if Cascade made 4 lint errors in a step, Cascade will try to fix the 4 lint errors at no credit charge.
+Disclaimer: The LLM decides when its purely fixing lints and when to not charge a credit.
+Can be turned off via Windsurf Settings.
+Available to all plans.
+New MCP Server Integration
+You can now setup Cascade to make tool calls to trusted MCP servers.
+A list of common MCP servers can be found in the new Windsurf Settings Page.
+Brand new UX to make it easier to add and configure MCP servers.
+A user-configurable JSON is still available via the Settings page.
+Available to Pro and Pro Ultimate plans, with support to Teams and Enterprise plans coming soon.
+Tab-to-Import
+In-line suggestions to import the necessary dependencies when you write code.
+Windsurf will display a suggestion to import the necessary dependencies in your file.
+The suggestion can be accepted just like an auto-complete suggestion via tab.
+Available to all plans.
+Suggested Actions
+Cascade now gives suggested actions to help you complete your task.
+If Cascade asks a question or a set of next potential steps, you can select the one you want to proceed with with a suggested action.
+Available to all plans.
+Drag and Drop Files as Context
+Cascade now allows you to drag and drop files from the File Explorer into Cascade as context
+Works with all system file types.
+Available to all plans.
+Model Option Admin Control
+For teams and enterprise plans, admins can select which models are available to its team.
+As a member of a team, you will only see the models that are available to your team unless enabled by your admin.
+Improvements to Claude Sonnet 3.7
+Claude Sonnet 3.7 is now available as a new model in Command dropdown.
+Improvements to its performance and quality with respect to tool calls and flow actions.
+Support For Windows ARM
+Beta support for Windows ARM for Windsurf.
+Report feedback to codeium.com/support.
+Misc
+Brand new Quick Settings Panel UI and Advanced Settings View.
+Setting to allow Cascade to access .gitignore files.
+In-product support for user referrals.
+Windsurf directory - a curated list of example rules by the Windsurf team that can guide Cascade to better understand you and your codebase, resulting in higher quality responses. View the directory
+v 1.3.11
+March 3, 2025
+Patch Fixes
+1.3.11 changelog banner
+Fixes crashes due to permissions errors on Ubuntu 24.04
+v 1.3.10
+February 28, 2025
+Patch Fixes
+1.3.10 changelog banner
+Patch Fixes
+Improvements for Cascade credit usage for Claude 3.7 Sonnet
+Once updating, try running all future credits in a new conversation
+MCP fixes for incorrectly formatted MCP tools in JSON
+Better MCP Error Handling
+Fixes for some App Icon issues for Mac users
+Option for Cascade to view / edit .gitignore files
+v 1.3.9
+February 25, 2025
+Claude 3.7
+1.3.9 changelog banner
+New Cascade Models
+Cascade now has a new premium model available: Claude 3.7 Sonnet
+
+Takes 1.0 user prompt credits on every message and 1.0 flow action credits on each tool call
+Support for Claude 3.7 Sonnet ships with Thinking, with a 1.5x multiplier on credit cost.
+[ROLLING] Cascade supports GPT-4.5 as a beta model
+
+Due to costs, rate limits, and quality from early testing, we will be rolling it out to users incrementally.
+v 1.3.4
+February 14, 2025
+Patch Fixes
+1.3.4 changelog banner
+Fixes
+Some fixes for Cascade write tools
+Fixes some bugs around user message cancellation
+Fixes around enabling Cascade Base when low on credits
+Catches some error cases around auth entry login and surfaces error message to user
+v 1.3.3
+February 13, 2025
+Model Context Protocol, Custom App Icons, and Tab to Jump
+1.3.3 changelog banner
+Model Context Protocol
+Cascade now supports Model Context Protocol (MCP)
+You can setup your Cascade conversation to make tool calls to user-configured MCP servers
+You can setup MCP by clicking on the hammer in the Cascade input tool bar
+Available to all individual plans
+Every MCP tool call costs one flow action credit, regardless of the execution result
+New Customizable App Icons
+You can now change Windsurf's App Icon (Beta & Mac Only)
+Paying users can choose between Classic, Blueprint, Hand-drawn, and Valentine options
+Updates across entire operating-system, though a restart is required for a system-wide change to take effect
+Available to all paid user plans
+Customization coming to Windows and Linux soon
+Improvements to Completions
+Fully releasing Tab to Jump, an enhanced editor experience that predicts the location of your next edit and navigates you there with a tab keypress
+Background predictive completions for improved latencies
+Performance and quality improvements for supercomplete and autocomplete
+Cascade Turbo Mode
+Cascade has a revamped "Turbo Mode" that allows Cascade to auto-execute terminal commands, unless specified in deny-list
+Available to all individual plans
+Cascade Drag and Drop Image Support
+Cascade now allows you to drag and drop images into Cascade
+Works from system files or screenshots
+Credit Visibility
+Cascade now shows many credits an action took.
+You can see the number of credits consumed by mouse hovering over the completed action in Cascade.
+Misc
+Fixes to some bugs in Cascade terminal commands.
+Command steps now include information about the auto execute behavior.
+Fixed a bug where Cascade panel would always open on reload, even if the user disabled it in their settings
+You can @-mention terminal text with Cmd/Ctrl+L feature. New selection popup appears.
+All @docs options now show in a scrollable view instead of limiting the results.
+@docs now includes even more options including Vercel, Bun, Supabase, and more
+v 1.2.6
+February 5, 2025
+Patch Fixes
+1.2.6 changelog banner
+Fixes
+Fixed issues with partial credits when transitioning to flex credits
+v 1.2.5
+January 31, 2025
+Patch Fixes
+1.2.5 changelog banner
+Fixes
+Fixed tool calls errors, specifically around invalid tool calls by the model
+Fixed Web Search setting unavailable message option
+New Models
+Cascade now has a new premium model available: Gemini 2.0 Flash
+Gemini 2.0 Flash takes 0.25 user prompt credits on every message and 0.25 flow action credits on each tool call
+v 1.2.4
+January 31, 2025
+New Models: DeepSeek-R1, DeepSeek-V3 and o3-mini
+1.2.4 changelog banner
+Models
+Cascade now has new premium models available: DeepSeek-R1, Deepseek-V3 and o3-mini
+Deepseek-V3 and Deepseek-R1 are available to users on Pro and Pro Ultimate Plans
+Deepseek-V3 takes 0.25 user prompt credits on every message and 0.25 flow action credits on each tool call
+DeepSeek-R1 takes 0.5 user prompt credits on every message and 0.5 flow action credits on each tool call
+o3-mini is available to all users on paid plans
+o3-mini takes 1 user prompt credit on every message and 1 flow action credit on each tool call
+Fixes
+Further fixes to input lag in long Cascade conversations
+Fixed a bug where Cascade panel would always open on reload, even if the user disabled it in their settings
+@docs has more options to choose from
+Fixed Tab to Jump Quick Setting configuration
+Added support for drag and drop images into Cascade
+v 1.2.2
+January 24, 2025
+Quick Updates
+1.2.2 changelog banner
+Improvements
+Cascade Web search now includes the website description and uses page rank to determine relevance
+Improvements to Cascade Auto-Generated Memories (Beta)
+Fixes
+Fixed input lag in long Cascade conversations
+Increased precision when Cascade makes code edits
+Fixed issues around Cascade edits with .gitignore files
+Fixed Tab to Jump Quick Setting configuration
+v 1.2.1
+January 17, 2025
+Cascade Memories, Web Search and Docs
+1.2.1 changelog banner
+Web and Docs Search
+Cascade can now search the web! There are a couple of ways to use this:
+Automatically: Simply ask a query that needs a live internet search and Cascade will trigger web search automatically.
+URL Input: Paste in a URL and Cascade will use your URL as context (works well with blog posts, docs, articles, public GitHub files, etc.).
+@web: If you prefer to explicitly ask Cascade to search the web, use the @web command.
+@docs: Cascade can search through some popular documentation sites, including Windsurf's own help docs!
+Web tools like search and URL reading can be enabled and disabled via the Windsurf Settings panel in the bottom right of your status bar.
+A web search is 1 flow action credit and the resulting URL page reads are additional credits.
+Cascade Auto-Generated Memories
+Cascade can now automatically generate memories to retain context between conversations
+You can prompt Cascade to create a memory at any time if you want it to remember key context
+Memories are visible in the Memories Panel, which is accessible when Cascade makes a memory or through the command palette
+Memories can be deleted from the Memories Panel
+Memories do not cost any flow action credits to generate
+Improvements to Dev Container Support (Beta)
+Dev Container support for Windows is now in beta
+UI Tweaks to Dev Container workspace labels
+Registers a command to reopen the current Dev Container workspace locally, enabling a switch from Dev Container to local workspace
+"Attach to Running Container" Feature available for any Docker container
+Added functionality for streaming Dev Container CLI output in real-time to show progress
+Fixed buffer overflow issues
+Dev Containers respect remoteUser configuration from devcontainer.json and container metadata
+Fixes
+Fixed a bug where intellisense's auto-selected option would be sometimes be chosen incorrectly
+Fixed a bug where pressing Ctrl/Cmd + z after a diff hunk rejection would undo editor changes made immediately before the rejection
+Fixed a bug where rejecting the output of "Add docstring" breadcrumbs button would leave an extra newline
+Fixed a bug where in-editor diff decorations would not be correctly synced with Cascade after reverting to a past step
+Fixed a bug where renaming, moving, or deleting a file with an active Cascade diff would cause the changes overview popover to freeze on subsequent steps
+SSH Agent forwarding for Dev Containers on Mac and Linux
+Fixed bugs in Cascade's find tool, hopefully reducing errors in Cascade tool usage
+Performance improvements with Cascade and better visibility into errors
+Overall improvements to how Cascade will respect Rules and Auto-Generated Memories
+Fixed a rare bug where Reject All button in changes overview popover would revert all changes but not dispose of diff zones
+Fixed several sources of crashes that were preventing some users from authenticating
+Fixed a bug where using the at mention command in Cascade would crash the panel
+Misc
+Cascade can now run commands natively in the IDE's terminal
+Cascade now proceeds without stopping when editing unsaved files in write mode
+Performance upgrades to Supercomplete, with more expressive inline rendering capabilities
+Added a per-file button in the Problems Tab tree view (the default) to send the file's problems to Cascade as an @-mention
+Added an Explain And Fix Problem button in error hover popup, and a shortcut (⌘/Ctrl + shift + .), which opens a new Cascade conversation instructing Cascade to explain and fix the problem
+Windsurf OAuth App for GitHub
+Keyboard shortcuts for accepting/rejecting the focused hunk of a Cascade diff (⌥/Alt + Enter and ⌥/Alt + Shift + Backspace by default) are now shown on the focused hunk
+Auto-focus the first hunk when opening a file with a Cascade diff
+v 1.1.3
+January 9, 2025
+Patch Fixes
+1.1.3 changelog banner
+Fixes
+Fixed Cascade's Chat Mode sometimes not giving an "Apply" button
+Dev Container Stability Improvements
+Some Fixes for Cascade Flow Actions on Windows users
+v 1.1.2
+December 22, 2024
+Patch Fixes
+1.1.2 changelog banner
+Fixes
+Fixed text wrapping layout bugs in Cascade
+Fixed a bug where "Show Logs" did not read the correct path
+v 1.1.1
+December 19, 2024
+Quick Updates
+1.1.1 changelog banner
+Product Improvements
+Added a "Send to Cascade" button in the Problems tab
+Autocomplete and supercomplete show up regardless of intellisense.
+You can now see your plan on the Status Bar, with usage information on mouse hover
+Improvements to the onboarding flow
+Ability to download Windsurf Logs to help with support tickets
+Fixes
+Fixed a bug for Cascade unable to apply its proposed code edits in chat mode on Windows
+Fixes autocomplete speed slowdowns affecting some users
+Bug fixes and stability improvements
+v 1.1.0
+December 11, 2024
+Cascade Memories
+1.1.0 changelog banner
+Cascade Memories
+You can configure rules for Cascade Memories to follow. For example, you can use rules to specify if you want Cascade to respond in a certain language, communicate in a specific style, or use a specific API
+Rules can be found in the Windsurf Quick Settings panel by clicking on "Windsurf Settings" on the status bar
+Global rules are rules that will be applied to Cascade in all workspaces
+Workspace rules are rules that will be applied to Cascade in the current workspace
+More information can be found on our docs.
+Cascade Auto Run Commands
+Cascade can now automatically detect to run certain terminal commands if it deems safe to do. This option is checked off by default and can be enabled in the Settings page, accessible in the top right dropdown. This only affects Cascade responses by premium models
+Supports an allow list and deny list of commands for Cascade to run. Allow list always accept the command and deny list always requests for permission to run a command.
+More information can be found on our docs.
+Extensions
+WSL support is now in beta
+Bug fixes and improvements to devcontainer support, notably on Mac
+Updates to Windsurf Pyright
+Misc
+Added Cascade undo/redo for full-file accept/reject and workspace-wide accept/reject all
+One-time check to install Windsurf Pyright if Python found
+v 1.0.7
+December 7, 2024
+Patch Fixes
+1.0.7 changelog banner
+Misc
+Fixes for some crashes for some users
+Fixed bug where changing Cascade models would toggle the mode to Chat only
+v 1.0.6
+December 6, 2024
+Usage Transparency
+1.0.6 changelog banner
+Usage Transparency and Pricing
+Rolling out updated usage and pricing system for Windsurf. See pricing for details
+Quick settings panel now additionally shows current plan usage, with information on trial expiry, next refresh cycle, and links to upgrade
+Introduction of new "Legacy Chat" mode in Cascade that activates when users run out of Flow Credits. This mode is limited compared to Cascade's normal capabilities, but does not require any Flow Credits to use
+View Cascade usage in the settings panel. Learn more about viewing Cascade usage here.
+Cascade Image Uploads
+Cascade image uploads are no longer limited to 1MB
+Improved Language support for Python
+Added feature-rich language support for Python with Windsurf Pyright. Windsurf Pyright is a Pylance alternative
+Misc
+Importing from other VS Code-based IDEs now imports snippets alongside settings
+AI-related Keybindings can be viewed and configured in the quick settings panel
+Added clearer error messages and debug handling for users experiencing auth issues
+v 1.0.5
+November 27, 2024
+Image Upload
+1.0.5 changelog banner
+Upload Images to Cascade
+Cascade now supports uploading images on premium models
+Ask Cascade to build or tweak UI on image upload
+New keybindings
+Keybindings to navigate between changes in a Cascade diff (⌥/Alt + j and ⌥/Alt + k by default)
+Keybindings to navigate between files with Cascade diffs (⌥/Alt + h and ⌥/Alt + l by default)
+Misc
+Cascade panel open diff button now opens to the first change in the file
+Added option to control whether Cascade automatically opens created / edited files (enabled by default)
+Fixed minor autocomplete settings issues that affected some users
+New quick settings panel UI
+v 1.0.4
+November 21, 2024
+Cascade Explain & Fix Problem
+1.0.4 changelog banner
+Explain & fix problem
+Cascade will attempt to fix issues in the codebase
+Option appears on hover of the issue
+Import from Cursor
+Import settings and extensions
+Available via Command Palette or Reset Onboarding
+New keybindings
+Keybinding for accept all active diffs in a file (⌘/Ctrl + ⏎ by default)
+Keybinding to reject all active diffs in a file (⌘/Ctrl + ⌫ by default)
+⌘/ctrl + shift + L open new conversation in Cascade. It also copies selected terminal / editor text to new conversation
+Improved Command
+Improved Command experience in Jupyter notebooks
+Improved diff views
+Removes diffs in deleted files by Cascade
+Clearer cursor indication that text in a deleted text diff is selectable
+Misc
+Windsurf quick settings dismisses when clicking outside the panel
+Increased visibility of elements on onboarding for certain themes
+Fixed minor layout issues
+Added button to join Discord community
+Increased stability of Cascade panel over SSH
+Files edited / created by Cascade will automatically open in the background. If there is no active editor, then the first edited / created file will open as current active editor
+Added a link to changelog in the title bar dropdown menu. Also added changelog nudge on title bar, which will show after user updated the version
+v 1.0.3
+November 19, 2024
+Improvements & fixes
+1.0.3 changelog banner
+Minor fixes to Cascade
+v 1.0.2
+November 13, 2024
+Windsurf Launch
+1.0.2 changelog banner
+Windsurf General Release!
+Chat with Cascade, Codeium’s full repo-aware chat with ability to make multi-file edits
+Blazing fast Autocomplete, with fast mode
+Supercomplete, a new modality that predicts next intent
+Command, with a brand new UX, with an ability to do larger file diffs and modifications
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+15
+:
+00
+
+Windsurf logo
+Windsurf
+
+Log in
+
+Sign up
+Roadmap
+Feedback
+Boards
+Feature Requests
+
+Powered by Canny
+Feature Requests
+Short, descriptive title
+Details
+
+Any additional details…
+
+Cancel
+
+Create Post
+Search…
+Reduce flow-credit usage by automatically using Cascade Base to run tools that pull in context
+Using a model like Claude 3.7 Sonnet usese a lot of flow credits on tasks (like pulling in context) that can much cheaper be done using free models like Cascade Base or Deepseek V3 (once its tool usage gets better) Build in a feature to allow-list certain types of tool calls to automatically use Cascade Base instead of the selected, expensive, model. This would vastly reduce flow credit consumption by models like Claude 3.7 Sonnet
+22
+
+Roll-Over Half of the Remaining Credits to next month's flex credit
+It would be Nice to have atleast half of the remaining credits be rolled-over to next month
+11
+
+I often have to tell cascade to "continue"
+Ocassionally cascade will just stop performing a series of tasks. As an example, I'll ask it to write some tests for me. It'll write them, and then find some issues, fix those issues, and try again. Then it'll notice some more issues, tell me it's going to fix them, and then just fix them and stop. If I say "continue" it resumes the task. It's mostly annoying, but also breaks flow. If cascase is automatically running all of the tasks it's doing, I can task switch while it works to the result I want. But when I have to continually tell it to "keep going" I have to pay attention to it.
+34
+
+Roll-over of Pro Credits
+Unused Premium User Prompt Credits and Premium Flow Action Credits roll-over to the next month
+61
+
+Don't open cascade panel on launch
+Everytime I open my projects, the cascade sidebar is open by default, and takes 5-10 seconds to load before I can close it. Please add a setting to make this closed by default, especially when you open a project in Windsurf
+7
+·
+in progress
+
+
+Your credit system is ridiculous
+Your credit system is ridiculous, and it's stopping me (and probably may others) from using this. Just flat rate and give me access to all models with my own API key.
+20
+
+Bring your own API keys
+Choose which model Codeium uses and bring your own API keys
+47
+
+Let's Address the elephant in the room, before people start leaving in droves, becasue the truth is windsurf is a good product. But the pricing model needs a serious and overdue update
+Now, models are pulling context, using memory, using MCP, using global rules, solving lint errors... especially if you're coding typescript, you're absolutely cooked... i used 250 premium flow action credits in one day with 48 prompts. at this rate, ill have to buy 10$ credit add-ons every 7 days & it makes no sense at all! I get their business and pricing model, but it needs a serious update. we need 2500 credits on the pro plan at the very least for the same price to last a full month and get what we paid for... Assuming we are coding 8hrs a day. We also need to fix these models so they run less excessive loops in case they are not providing the correct answer. claude 3.7 can literally spend 20 flow actions doing the opposite of what i asked. this is very stress inducing and quite frustrating honnestly... This was always a thing, but with how complex the system has become now, with all the newer fetures, the models just blow through your usage... it's not nearly enough. when windsurf first came out, it was fine becasue, there were not as many tools, to use this many flow credits. But now it has made the app legit unusable, because my 15$ now lasts 15 days, its been two months in a row now. And we can either choose from the pro plan or the pro ultimate plan, which is a 50 dollars jump, and im pretty sure i could blow past 3000 flex credits without trying right now to be honnest, at least thats what using windsurf has been feeling like in the last 60 days give or take. -> I would give 1000 flex credits for 10$. 500 flow actions can easily be gone within a day or two, especially now, this add-on makes no sense at all... -> we need to either give more to the pro plan or make an entirely new tier in the middle like "wind-breaker Plan" that gives like 2500 credits and 1000 prompts for 25$ and 20$ for early birds. and 3000 flow actions for 60$ is ludacrous they should get between 4500 and 6000 for this much. its a vs code fork i believe, so its not like the app is super fast or anything and we are paying for that... we are strictly paying for advanced AI structures within a vs-like environment, so please make it right on that end and deliver on the only promise you made. -> Someone suggested to use cascade base model to pull context from files and pull from memory so the chosen model is only used for extensive work like MCP, problem solving and input/output. Maybe that would help with the whole problem. Right now windsurf is coming to a point where its unusable now and very stressful to use, because every single prompt im checking "How many flow actions has this used?". I am all for businesses generating revenue, but this pricing model needs to be addressed. This is a problem linked directly to the product value and fucntionality and its efficiency/value per price. this can quickly get out of control and make people leave in droves. which seems like its already starting. And frankly, i'm next. i don't want to be, because i have been here since the start and i genuinely liked the product at first. it was very good. If usage at the very least, isn't addressed by the team within the next month they probably won't do anything about it, so i'll leave for better options. there are at least 3 other options on par with windsurf if not better right now. cursor, vs code with cline, copilot etc, its a competitive market so i won't have trouble finding a new tool/extension. The waves updates are great, but if you're not addressing the elephant in the room, people will just leave, as right now it seems like, if you are just a regular developper with the usual tech stack and workload, you are paying a MONTHLY subscription for about 10-15 days of LOCKED usage. this is so bad this can really kill the product if most people can't use it past 15 days you know...
+12
+
+Documents as context
+Index pdf, .csv, .txt files
+7
+
+Larger context
+It is amazing to see Codeium understanding our full thoughts by increased context through the tabs.
+16
+
+Windsurf logo
+Windsurf
+
+Log in
+
+Sign up
+Roadmap
+Feedback
+Boards
+Feature Requests
+3377
+Roadmap
+
+Filters
+Planned
+
+Grok 3 as a model choice
+Feature Requests
+In Progress
+
+Don't open cascade panel on launch
+Feature Requests
+
+cascade isn;t working any more. `ErrorServer encountered error of type: resource_exhausted. Please try again later.`
+Feature Requests
+Complete
+
+Auto commit message
+Feature Requests
+
+Gemini 2.5 PRO
+Feature Requests
+
+support deepseek v3 0324
+Feature Requests
+
+Claude 3.7 Sonnet
+Feature Requests
+
+Add Claude 3.7 Sonnet
+Feature Requests
+
+Claude 3.7
+Feature Requests
+
+Excellent software, I'm canceling my subscription.
+Feature Requests
+
+Adding more open-source LLMs to your hosted offerings
+Feature Requests
+
+Please integrate DeepSeek v3 as it tops Sonnet on some major leaderboards in coding.
+Feature Requests
+
+Deepseek R1 + Sonnet internal agents
+Feature Requests
+
+Deepseek v3 support
+Feature Requests
+
+Use DeepSeek V3 as an unlimited Cascade Model(Pro)?
+Feature Requests
+
+PLEASE add deepseek v3
+Feature Requests
+
+Access to Deepseek.
+Feature Requests
+
+Add Deepseek R1 and V3
+Feature Requests
+
+add deepseek model
+Feature Requests
+
+Upgrade Cascade Base to Deepseek model
+Feature Requests
+
+Add DeepSeek v3, R1
+Feature Requests
+
+Add DeepSeek Models
+Feature Requests
+
+add deepseek v3
+Feature Requests
+
+add Deepseek api
+Feature Requests
+
+Deepseek R1
+Feature Requests
+
+typing lag after updating
+Feature Requests
+
+Deepseek support for premium
+Feature Requests
+
+Add DeepSeek-R1
+Feature Requests
+Powered by Canny
+
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Frequently Asked Questions
+Can't find the answer you're looking for? Reach out to our customer support team and we will get back to you as soon as possible.
+
+Popular Questions
+
+What is Codeium?
+Codeium is the modern coding superpower, a code acceleration toolkit built on cutting edge AI technology. Currently, Codeium has two main capabilities: Autocomplete, which suggests the code you want to type, saving you time on everything from boilerplate to unit tests, and Search, which helps you search through your repository using natural language questions. With easy integration into editors, we want you to focus on being the best software developer, not the best code monkey.
+
+
+What programming languages do you support?
+Codeium's performance is good (and enabled by default) for the following languages (alphabetical order): APL, Assembly, Astro, Blade, C, C++, C#, Clojure, CMake, COBOL, CoffeeScript, Crystal, CSS, CUDA, Dart, Delphi, Dockerfile, Elixir, Erlang, F#, Fortran, GDScript, Go, Gradle, Groovy, Hack, Haskell, HCL, HTML, Java, JavaScript, Julia, JSON, Kotlin, LISP, Less, Lua, Makefile, MATLAB, MUMPS, Nim, Objective-C, OCaml, pbtxt, PHP, Protobuf, Python, Perl, Powershell, Prolog, R, Ruby, Rust, SAS, Sass, Scala, SCSS, shell, Solidity, SQL, Starlark, Swift, Svelte, Typescript, TeX, TSX, VBA, Vimscript, Vue, YAML, Zig. On any other languages, you can explicitly enable Codeium.
+
+
+Will this always be free?
+For individual developers, yes. Our philosophy is that every developer should have access to these tools at no cost to keep the playing field level (learn more).
+
+That being said, we are able to commit to offering all of these tools for free, forever, due to our Pro, Teams, and Enterprise paid tiers, which come with additional functionalities.
+
+
+What is the Codeium Pro Tier?
+Our Pro Tier is for individual developers that just need a little more juice for their workflows.
+
+With our Pro Tier, you get access to a myriad of more powerful functionalities, such as Supercomplete, Fast Autocomplete, unlimited large model usage (GPT-4o, Claude 3.5 Sonnet, Codeium large models), and even massively increased context awareness and reasoning capabilities for your complex codebases.
+
+General
+
+Why are you building Windsurf extension?
+Anyone who codes knows that there are many different tasks and "modes" involved in software development - writing code, figuring out what code to write, searching through existing codebases, generating test cases, debugging, writing docs, creating and reviewing pull requests, etc. Some tasks are boring, tedious, or downright frustrating, from regurgitating boilerplate to poring through StackOverflow. Others are interesting but require too many manual steps. But we believe all of them can be accelerated by recent advances in AI. By rethinking how every part of a software developer's workflow can be accelerated with and assisted by AI, Codeium will make it seamless to turn your ideas into code, iterate like never before, and more. We are excited to see how this acceleration can unlock other developers to create more quickly and efficiently.
+
+
+Who should use this?
+Windsurf does not replace the software engineer, leaving the developer in charge and responsible for any code generated. Windsurf does not test the code automatically, so a developer should carefully test and review all code generated by Windsurf. So while anyone can use Windsurf, we recommend it especially for people who already have fundamental knowledge of software engineering and coding. It's never great to be dependent on anything, even superpowers.
+
+
+Why am I getting bad results?
+Like any other superpower, Codeium is more effective in certain situations than others. Codeium only has limited context to generate suggestions, doesn't have enough training data for new or esoteric capabilities of every coding language/framework, and anecdotally performs better on certain classes of prompts.
+
+But also just like any other superpower, one can learn how to wield Codeium more effectively. We hope to compile best practices given feedback, but play around with how you write comments or function/argument names to see what causes Codeium to give the best results!
+
+
+How is this different from GitHub Copilot, Tabnine, Replit Ghostwriter, etc.?
+We tried them all, and have compiled results on our Compare page ! Codeium has similar industry-leading latency and quality on code autocomplete as tools like GitHub Copilot, while being free, available in more IDEs, and providing more functionality (such as Codeium Search). We believe our philosophy - (a) pairing state-of-the-art ML with world class ML infrastructure in a vertically integrated manner and (b) heavily relying on developer feedback to shape the product roadmap - is quite different from existing approaches, and will lead to a more usable, functional, and high-quality product.
+
+Feature Details
+
+How does Autocomplete work?
+At the core, we're using a large generative machine learning model that is capable of understanding the context of your code and comments in order to generate suggestions on what you might want to type next. We have coupled this with state-of-the-art ML serving infrastructure to create a highly performant and scalable product. Codeium is not always right (there's always room for improvement!), but you will feel like you have superpowers with even just 10% of your work being assisted by Codeium.
+
+
+How does Windsurf Chat work?
+Windsurf Chat seamlessly integrates the powers of open-ended conversation with IDE context. Besides allowing familiar interactions like those with ChatGPT, users can use smart suggestions to perform common actions such as adding documentation to functions or refactoring code. Under the hood, Windsurf Chat has a variety of models to choose from. There is our Base Model (Llama 3.1 70B based, fine-tuned in-house), Windsurf Premier (Llama 3.1 405B based, fine-tuned in-house), as well as OpenAI's GPT-4o and Anthropic's Claude 3.5 Sonnet. For paying SaaS and Hybrid users, we are able to promise zero data retention for Chat (contact us for more information about paid SaaS plans), but because of this usage of Open AI, we can only enable it for free tier users that have code snippet telemetry enabled since we cannot guarantee how OpenAI stores and uses telemetry data. For self-hosted enterprise customers, we are able to provide Chat via our own Chat models, as well as provide optionality to integrate with private endpoints of leading model API providers.
+
+
+How can you provide Windsurf Chat for free?
+To be clear, Windsurf Chat does cost us money, but we believe we can control costs in the long term by fully shifting to our own models and state-of-the-art model serving infrastructure (same reason why we can provide Autocomplete for free). We are committed to always providing a Chat functionality for free.
+
+
+Who can use this?
+Everyone. Command is included in the free tier. We are committed to always providing a Command functionality for free.
+
+
+Is Command included in the Enterprise and Teams tiers?
+Yes. Command joins Autocomplete and Chat as core features of Windsurf that are free for all users and available in all tiers.
+
+
+What IDEs support Command?
+We currently support Command in Windsurf Editor, VSCode and JetBrains IDEs. Others are coming soon!
+
+
+What model do you use for Command?
+We use custom, in-house models that are trained for this purpose and are over 3 times faster than GPT-4 Turbo.
+
+
+What IDEs and languages have Windsurf Chat?
+Windsurf Chat is currently only on Windsurf (Cascade's "Legacy" mode), VSCode, JetBrains IDEs, Visual Studio, Eclipse, and XCode, but we will be rapidly supporting more IDEs in the near future. Windsurf Chat will work on any language, but the CodeLens suggestions above functions are available for only common languages, which includes Python, JavaScript, TypeScript, Java, Go, PHP, and more.
+
+
+What models are used?
+Autocomplete uses proprietary models trained in-house from scratch. There is no dependency on open-source models, OpenAI or other third party APIs, which allows our Enterprise offering to be completely self-contained. Codeium Search uses a small, local embedding model to generate the embeddings. The searches themselves are just queries over the resulting local embedding store. There are no third-party APIs used for Search. Codeium Chat currently uses a mix of our own proprietary Chat model and third party OpenAI APIs (for self-hosted enterprise customers, Chat is provided by our proprietary Chat model).
+
+
+How does Forge work?
+Under the hood, Forge is a Chrome extension that entirely replaces your Code Review experience with a new, more powerful AI-infused one. Throughout Forge, AI features are enabled to enhance your current review flow, while still allowing you to do a majority of the actions you would normally do while reviewing code.
+
+
+What browsers does Forge support?
+Currently, Forge is only officially supported in Google Chrome. Some users have been able to use it in Chromium-based browsers like Arc or Edge, but we are working on supporting other browsers like Safari and Firefox.
+
+
+What SCMs does Forge support?
+Forge is available on GitHub Free, GitHub Pro, GitHub Team, and GitHub Enterprise Cloud. Other SCMs are coming soon.
+
+
+When will AI just review all my code for me?
+In its current state, AI cannot entirely, independently review your code with unlimited accuracy, so we are not going to claim that Forge can. However, here at Codeium, we will continue to bring you the bleeding edge of what is possible with AI tools and, just like with Autocomplete and Codeium Chat, these tools will sit beside you to make you the most capable reviewer you can be.
+
+
+How does Supercomplete work?
+Supercomplete works in harmony with Autocomplete to maximize the flow state for developers. Supercomplete looks at the code both before and after your current cursor position and is able to retroactively correct code as you make new inline edits.
+
+
+How do I trigger Supercomplete?
+As you make changes to your code, you will find that sometimes you may trigger Autocomplete, and sometimes you may trigger Supercomplete.
+
+
+Who should use this?
+Developers of all shapes, sizes, and seniorities can benefit from the powers of Supercomplete!
+
+Personalization
+
+How do I ask a question about my codebase in chat?
+Just ask! The system will attempt to decide if you are asking a question that requires your codebase as context. If so, it will pull the relevant context before responding. If you find that it not answering about your codebase even if you want to, try to be more explicit that you are asking about your codebase. For example:
+"In our codebase, [question]"
+"Answer for our codebase: [question]"
+
+
+How can I tell what parts of my codebase considered when answering?
+For now, if it considered any items before responding, you will see a "Read X context items" dropdown with a searchglass icon. Click this to see a list of items that were considered by the AI. Note that although they were considered, not all of them are necessarily relevant to the final answer.
+
+We are working on including exact citations directly in the response.
+
+
+Why does Refactor/Explain/Docstring seem to not have context?
+At the moment, context is only used for regular chat messages. However, we'll be integrating it into the Refactor/ Explain/ Docstring actions soon!
+
+
+How can I improve the quality of responses?
+The Context Module is an actively developed feature. If it does not give you the answer you expect, here’s a few things to try:
+
+You must have a folder added to your workspace. This is how the Context Module knows what scope of files to consider.
+Treat it like a conversation! If the first answer is not what you were looking for, ask a follow up. It also does better if you break up a single complicated question into smaller ones.
+Conversely, if you are starting a new topic, try to clear your conversation history. If there are too many disparate topics in the same chat thread, the context retrieval quality will be worse.
+
+Enterprise
+
+What is special about Enterprise?
+Windsurf for Enterprises is an enterprise-grade version of Windsurf with high-security deployment options, additional features like local personalization on your private repositories, analytics dashboards, support and training, and more. While Windsurf is already the best offering for individual developers, even more AI-powered functionality can happen at a team level on larger, well-maintained repositories.
+
+
+What guarantees exist on data security?
+For self-hosted, Windsurf for Enterprises is deployed entirely on-prem or in your Virtual Private Cloud (VPC). The best way to guarantee security is to not allow your data to leave your company's managed resources (Read More). We have also trained models in-house, built all IDE integrations, and written all custom logic to cleanly integrate the user's code with model inputs and outputs. By not relying on third party APIs, you can be confident that there is no potential for external security vulnerabilities to creep in. We recognize that every company has different data handling and management policies, as well as hardware setups, so we offer a wide range of methods to deploy Windsurf for Enterprises in a self-hosted manner.
+
+If you do not want to deploy locally, we do offer a managed service SaaS plan with zero data IP retention guarantees and SOC2 compliance, the latter being something that GitHub Copilot for Businesses particularly does not have. Zero data IP retention means that we use any code snippets or chat messages sent to us only to perform the model inference on our GPUs, but will never even persist that data. This means your IP is never stored on external servers and therefore never used for other purposes, such as training the underlying models.
+
+
+Tell me more about personalization.
+The simple reality is if we can further personalize our system given the “data examples” that a specific customer has, and we will create a system that is the theoretically best performing system for coding that the particular customer could get.
+
+It boils down to obeying local conventions — a generic code product that wanted to adhere to syntactic patterns or to use libraries and utilities present in the particular codebase would need to have all of that code passed into it as context. If the system was instead personalized on your existing code base, both from a context awareness and fine-tuning perspective, we can deliver better suggestions as a result.
+
+And of course, all personalization is done locally within the enterprise's self-hosted Windsurf instance. No code leaves your tenant, and neither does the resulting, personalized system details.
+
+
+How does this compare to other Enterprise offerings?
+The primary other enterprise offerings are GitHub Copilot for Businesses and Tabnine for Enterprises.
+
+We go into detail on differences with GitHub Copilot for Businesses, and how it fails to meet basic enterprise needs in this blog post, but the gist is that all GitHub Copilot for Enterprises does is provide a team administrator to purchase and manage seats of GitHub Copilot for their employees. It provides no guarantees on code security, no customization for your codebase, and no support for common enterprise development patterns like notebooks.
+
+Tabnine for Enterprises does provide the same deployment and security options, but is a noticeably worse product compared to GitHub Copilot and Windsurf in terms of suggestion quality, to the point where it may not provide a comparable value proposition to enterprises.
+
+Next Steps
+
+Is there a community I can join?
+Yes, you can join our Discord community and start a conversation with other users and our team!
+
+
+Will there be other code editors supported?
+We already support VSCode, JetBrains, Vim/Neovim, Emacs, Eclipse, Visual Studio, Sublime, Web IDEs/notebooks, and more! If you do not find your code editor of preference on our Download page , let us know in the Discord so we know which ones to prioritize.
+
+Privacy & Ethics
+
+Will Codeium regurgitate private code?
+Not private code. Codeium's underlying model was trained on publicly available natural language and source code data, including code in public repositories. Codeium will never train its generative models on private or user code.
+
+Similar to other such models, the vast majority of the suggested code has never been seen before, as the suggestions largely match the style and naming conventions in your code. Research has shown that the cases where there may be exact matching are often when there are near-universal implementations or where there is not enough context to derive these stylistic effects from.
+
+
+Is there potential for bias, profanity, etc?
+As with any other ML model, results from Codeium reflect the data used for training. The data used for training is primarily in English and does not have a uniform distribution of programming languages, so users may see degraded performance in certain natural and programming languages. In addition, there may have been offensive language, insecure coding patterns, or personally identifiable information in the publicly available training data. While we have anecdotal evidence that this information, especially personal data, is not produced verbatim, we always warn users to (a) not try to explicitly misuse Codeium and (b) review and test all produced code as if it is your own.
+
+
+What data does Codeium collect?
+Please see our Privacy and Security page , as well as our Privacy Policy and Terms of Service . The code you develop based on suggestions originally generated by Codeium belongs to you, so you assume both the responsibility and the ownership.
+
+For Individuals, in order to continuously improve, Codeium does collect telemetry data such as latency, engagement with features, and suggestions accepted and rejected. This data is only used for directly improving the functionality, usability, and quality of Codeium, detecting abuse of the system, and evaluating Codeium's impact. Your data is not shared with, sold to, or used by any other party, company, or product, and we protect your data by encrypting data in transit. This data is primarily used or inspected in aggregate, and can only be directly accessed in extreme cases by authorized members of the Codeium team. Code data submitted by zero-data retention mode users will never be trained on.
+
+We want Codeium to be a product you can trust, and so any data collected will only be used to further increase Codeium's value to you. Codeium also does provide users with the option to opt out from allowing Codeium to store (and therefore use) their code snippet data post-inference, which can be found on your profile page.
+
+For Enterprise, Codeium collects no data beyond number of seats used for billing purposes, irrespective of user settings. No code or data ever leaves the enterprise firewall (on-prem servers or virtual private cloud).
+
+
+Does Codeium train on GPL or non-permissively licensed code?
+We do not train our own models on repositories with nonpermissive licenses (i.e. GPL). We deeply respect open source, and the work done by these communities have undoubtedly been instrumental to making the software industry what it is today. We also do not want to expose our users, such as our enterprise customers, to potential legal risk. This is in clear difference with products such as GitHub Copilot. Read more in this blog post.
+
+Long Term
+
+Where is this heading?
+We have a pretty grand vision for how we think the coding process can evolve, which is why we refer to Codeium as a code acceleration tool rather than purely a code generation tool. We want to optimize for making the most developers the most happy - join the conversation in our .
+
+
+Are you trying to build the singularity?
+But wait, how do we know the singularity hasn't already happened? But on a serious note, no - we've seen how code has made the jobs of people in other industries less frustrating, and we just think it is the right time with the right set of technological breakthroughs to do the same for us developers as well. You're still in control, as it should be.
+
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+Your subscription has expired!
+Please renew here
+12
+:
+56
+
+
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Security
+Table of Contents
+Certifications and Third-Party Assessments
+Deployment Options
+Data Flows
+Agentic Experience
+Contractors and Subcontractors
+Attribution and Compliance
+Client Security
+Codebase Indexing
+Zero Data Retention
+Account Deletion
+Vulnerability Disclosures
+Last updated: March 11, 2025
+
+We recognize that we handle important intellectual property for our customers, both individuals and enterprises, so we aim to be overly comprehensive and transparent with how we approach security and privacy throughout our development and deployment.
+
+Our prioritization of security & compliance has already instilled confidence in hundreds of thousands of developers and thousands of companies, including some of the world’s largest regulated enterprises. We plan to continue to maximize the value of our tools under any set of constraints that a customer may have.
+
+If at any point you identify potential vulnerabilities or have security-related questions, please contact us at security@windsurf.com.
+
+Certifications and Third-Party Assessments
+Codeium has SOC 2 Type II certification, and conducts annual third-party penetration testing (last completed on February 13, 2025). To receive copies of these documents, please fill out the form on our Trust Center.
+
+Codeium also has available FedRAMP High accreditation. While this is a requirement for working with federal agencies and government-adjacent enterprises, it is an important vote of confidence for all of our customers, even if they do not use our FedRAMP’d deployment. This is because FedRAMP requires a number of secure development and company practices that are not requirements for SOC 2 Type II compliance. These include:
+
+Code review process that highlights security impact of changes, enforces a requirement for number of reviewers, and other compliant procedures
+Company MDM in place with posture management and active EDR on all employee devices (S1)
+Zero trust VPN for access to remote resources
+OWASP ASVS Level 1 Compliance (includes tooling such as Snyk), with path to Level 2 and Level 3 compliance over time
+Training relevant developers for disaster recovery and information security contingency planning
+Both tabletop and functional vulnerability testing
+HIPAA compliance: In most cases, the data that a customer provides to us is not Personal Health Information (PHI) and does not need special compliance considerations in order to use our platform, even if you are a healthcare organization. This is particularly true for code, which does not carry any PHI itself. That said, our platform is maintained as HIPAA compliant and for significant implementations, we will entertain a Business Associate Agreement (BAA) to confirm HIPAA compliance.
+
+Deployment Options
+Unlike most AI tools, Codeium provides a variety of deployment options to match the security needs of any organization.
+
+On our cloud tiers (individual plans, teams plans, and Enterprise Cloud plans), any AI requests are processed and routed on servers managed by Codeium, and depending on the operation, may be executed on servers managed by Codeium or by one of our subprocessors. For any teams or enterprise plans, all inputs and outputs to these requests follow zero-data retention policies by default. For any individual plan, users can opt-in to zero-data retention mode from their profile page. A large fraction of individual users have zero-data retention mode enabled. Read more about zero-data retention mode below. Enterprises can enable functionalities that require data retention (ex. remote codebase indexing, memories, recipes, and web retrieval) or to functionalities that require subprocessors where we don’t have zero-data retention guarantees with (ex. web search and MCP servers on Cascade).
+
+On our Enterprise Hybrid tier, all functionalities that require data retention occur on a CPU-and-storage-only tenant that is managed by the customer. This component is provided as a Docker Compose application that can be deployed on an instance (EC2, GCE, Azure VM, on-prem) within the customer’s cloud or network. Any communication between the customer’s data-retaining instance and Codeium’s compute layer will only require outbound communication and is handled through a Cloudflare Tunnel Client to establish a persistent, secure tunnel between the two. Cloudflare handles client requests and forwards them through this daemon, eliminating the need to open firewall ports and allowing the customer’s origin to remain as secure and closed as possible.
+
+For both our Cloud and Hybrid tiers for enterprises, we offer multiple underlying deployments for the pieces managed by Codeium in order to meet requirements of various sectors and countries around data processing and residency:
+
+Standard: Servers managed by Codeium, located in the United States
+FedRAMP High: Servers managed in an AWS GovCloud through Palantir’s FedStart Program
+Zero trust VPN for access to remote resources
+EU: Servers managed by Codeium, located in Frankfurt, Germany
+On our Enterprise Self-hosted tier, all compute and data retention happens within a GPU-enabled tenant that is managed by the customer. The application is provided as a Docker Compose application or via Helm chart (for a Kubernetes deployment), and can be deployed within a customer’s private cloud (AWS, GCP, Azure) or on-prem datacenter. This tier supports connecting to a customer’s private trusted LLM-endpoint (ex. AWS Bedrock, Azure OpenAI, Google VertexAI). No traffic is ever routed past the customer’s firewalls except to this trusted endpoint. Even the installation and updates can be performed without a direct connection by locally downloading the images from Codeium’s container registry, uploading them to a private container registry, and performing deployment from that location. For full transparency, the Self-hosted tier, while providing maximum security, does not support a large number of Codeium’s cutting-edge products and capabilities, such as the Windsurf Editor or Cascade.
+
+On all Enterprise tiers, Codeium supports Single Sign-On (SSO) via SAML, such as Microsoft Entra, Okta, Google Workspaces, or another SAML-supporting identity provider.
+
+The most popular Enterprise deployment method is the Hybrid deployment to balance security needs on data retention with the ability to benefit from Codeium’s latest-and-greatest capabilities such as the Windsurf Editor and Cascade. If you are an organization that has more developers than the self-serve limit (200 developers), please [reach out](/contact/enterprise) to work with an account specialist to determine the proper deployment approach for your organization.
+
+Data Flows
+Note that most of the following details around our servers and infrastructure are relevant only to the Cloud and Hybrid deployments.
+
+The following are all causes for requests to be made to our servers:
+
+Passive Experience: For Autocomplete, Supercomplete, and tab-to-jump (i.e. passive predictive AI suggestions), a request is made on every keystroke to the Codeium servers.
+Instructive Experience: For Command and Chat (i.e. experiences that require the user to manually write out a prompt for the AI), a request is made on every user instruction.
+Agentic Experience: For Cascade (i.e. agentic experience where the AI can take multiple “steps” independently), requests are made on every triggering user instruction, every reasoning step the agent makes, and on most tool calls. See further information about the Agentic experience below.
+Real-time Personalization: Even without a trigger such as a keystroke or user prompt input, requests are made in the background to build context, understand developer intent, or scan for potential next steps.
+Ahead-of-time Personalization: To build state on the existing codebases and other data sources, requests are made to perform embedding computations.
+Within each of these requests, the client machine sends a combination of context, such as relevant snippets of code, recent actions taken within the editor, the conversation history (if relevant), and user-specified signals (ex. rules, memories, context pinning, etc). No single request contains entire codebases or large contiguous pieces of code data. Even for ahead-of-time personalization, any codebase parsing happens on the client machine and individual code snippets are sent to compute the embeddings so that the server is not receiving a single request with the entire codebase.
+
+This data is sent to our infrastructure on GCP, which pulls precomputed information from client-independent sources such as remote indexing and combines all of these to a model runner that may perform inference on our managed infrastructure or route the inputs to the appropriate inference provider. The result is then returned back to the client machine to be displayed to the user, while usage analytics (no code data, only usage metadata) are logged to BigQuery within our GCP instance. If on an individual plan without Zero-data retention mode, logs that may contain code snippets and user trajectories could also be stored.
+
+All data is encrypted via TLS between the client machine and our servers. We currently support only multitenant infrastructure and do not yet have a single-tenant option with our infrastructure.
+
+Agentic Experience
+Note that the agentic experience is only available on Cloud and Hybrid plans, currently only within the Windsurf Editor, not the IDE extensions.
+
+Since the term “agentic” is relatively overused, we will define what it means for Codeium’s products. We define “agentic” as a system that is capable of multi-step reasoning and actions through a sequence of interspersed calls to large language models and invoked “tools” (ex. grep, ls, embedding search, web search, edit file, add file, etc). This is differentiated to the more “assistant” or “copilot” style of AI systems, where there is guaranteed to be a maximum of a single large language model inference call before requiring human intervention to accept a suggestion or continue the conversation.
+
+Codeium’s current agent is named Cascade and can be classified as a “collaborative agent” as opposed to an “autonomous agent.” A collaborative agent operates on a surface that is visible and introspectable by the user, in our case the IDE surface, as opposed to an autonomous agent where the work happens asynchronously, perhaps on a remote machine. With a collaborative agent, a human is still entirely in the loop. The default behavior is that the collaborative agent can take multiple steps with safer tools (ex. grep, ls, embedding search, edit file, add file), but that the human has to explicitly approve actions such as terminal commands that could have side effects. Any state changes such as file edits are not immediately committed to the codebase, and require explicit review and acceptance by the user, maintaining the human-in-the-loop flow. This approach allows for much more capable AI systems while still maintaining the same levels of observability and human validation as “assistant” or “copilot” AI code assistants that have been widely adopted across companies of every size and industry.
+
+With this understanding, in many ways, the data being sent to the Codeium servers for agentic experiences is similar to that of the passive and instructive experiences. Under each turn of the agent, this data is sent to the user-specified third-party inference provider to determine what action the agent should take (see next paragraph). Once the action is taken, the results become part of the conversation history that is incorporated into the data sent as part of the next request to the Codeium servers for the next turn of the agent. This alternating reasoning and tool-based action pattern creates the agentic experience, which ends when the reasoning step determines that no further actions need to be taken at the time. At periodic intervals, a request is made to summarize and checkpoint earlier parts of the conversation to prevent an unbounded explosion in conversation history and to improve performance.
+
+Depending on the tool being called within the agentic step, a variety of actions could be taken:
+
+Some tools such as making code edits or performing an LLM-based search (Riptide) require additional model inferences and similar data is used as in the reasoning step.
+Many tools (ex. add file, grep, ls) will run a terminal command automatically using the client’s IDE’s native terminal. These are known, safe, constrained terminal commands with minimal, if any, side effects.
+Another tool suggests arbitrary terminal commands for the user to accept before being executed, which could include actions such as compilation, binary execution, infrastructure inspection, and more. These also use the client’s IDE’s native terminal. There are various modes for this tool, including an opt-in mode that will auto-run every command, independent of risk (unavailable for any Teams or Enterprise user), as well as controls to whitelist or blacklist various commands. By default, no suggested terminal command auto-runs for customer infrastructure security reasons.
+The web search tool is a Teams and Enterprise opt-in that constructs a search query that is sent to the Bing API to retrieve up-to-date website data. This query is derived from the user’s inputs, past conversation history, and potentially code data.
+Contractors and Subcontractors
+Depending on your choice of plan (and thus deployment), we may use some or all of the following subcontractors. In some cases we have listed contractors that form a part of our infrastructure but are not subcontractors with respect to our customers.
+
+Google Cloud Platform (GCP) Stores code data only if Cloud and relevant features are opted-in, sees code data: Usage analytics and logs are primarily hosted on GCP. These are located in the same region as the compute used for model inference. We also use GCP to host retained data under Enterprise Cloud plans if the opt-in has been selected for corresponding features (ex. remote indexing, organizational best practices, etc). This data retention happens in the customer tenant for the Enterprise Hybrid plans and therefore not within our instance of GCP.
+Crusoe Sees code data for inference: We manage Crusoe's compute for training some of our custom models, as well as hosting some of our custom models.
+Oracle Cloud Sees code data for inference: We manage Oracle Cloud's compute for training some of our custom models, as well as hosting some of our custom models. Our cluster in Frankfurt, Germany runs on Oracle Cloud.
+Palantir Sees code data for inference: We have utilized Palantir's FedStart program to achieve FedRAMP High accreditation, and serve our FedRAMP High customers through FedStart.
+AWS Sees code data for inference: We utilize AWS GovCloud within Palantir's FedStart program to serve our customer models for our FedRAMP High customers. We also leverage AWS Bedrock to serve some of Anthropic's models.
+OpenAI Sees code data for inference: We have a zero data retention agreement with OpenAI. Enterprise administrators can disable use of OpenAI models for their organization. We offer the optionality of using OpenAI's models for various AI requests. We may leverage OpenAI models independent of user selection for processing other tasks (e.g. for summarization).
+Anthropic Sees code data for inference: We offer the optionality of using Anthropic’s models for various AI requests. We may leverage Anthropic models independent of user selection for processing other tasks (e.g. for summarization). We have a zero data retention agreement with Anthropic. Team and Enterprise administrators can disable use of Anthropic models for their organization. Enterprise customers using our EU cluster will be utilizing Anthropic models served from an AWS Bedrock instance in Zurich, Switzerland. Enterprise customers using our FedRAMP environment will be utilizing Anthropic models served from an AWS Bedrock instance in an AWS GovCloud region.
+Google Cloud Vertex API Sees code data for inference: We offer the optionality of using Google Cloud Vertex API’s models for various AI requests. We may leverage these models independent of user selection for processing other tasks (e.g. for summarization). We have a zero data retention agreement with Google Vertex Cloud. Enterprise administrators can disable use of these models for their organization.
+xAI Sees code data for inference: We offer the optionality of using xAI’s models for various AI requests. We may leverage xAI’s models independent of user selection for processing other tasks (e.g. for summarization). We have a zero data retention agreement with xAI. Enterprise administrators can disable use of these models for their organization.
+Fireworks Sees code data for inference: We offer the optionality of using DeepSeek models for various AI requests. We have a zero data retention agreement with Fireworks. Enterprise administrators can enable use of these models for their organization.
+Bing API Sees text potentially derived from code data: Used for web search functionality. The search query that is sent to the Bing API to retrieve website data is derived from the user’s inputs, past conversation history, and potentially code data. We do not have a zero data retention agreement with Bing, so this must be explicitly enabled by Team and Enterprise administrators.
+Grafana Sees no code data: We use Grafana for logging and monitoring. These do not contain any code data.
+PagerDuty Sees no code data: We use PagerDuty for alerts and on call. This has no access to customer data of any form.
+Slack Sees no code data: We use Slack for internal communications. We may discuss logs of data for debugging purposes from users that are not using Zero-data retention mode.
+Google Workspace Sees no code data: We use Google Workspace for collaboration. We may discuss logs of data for debugging purposes from users that are not using Zero-data retention mode.
+Firebase Sees no code data: We use Firebase for customer authentication (without SSO). Firebase may contain some personal data (name, email address).
+Okta Sees no code data: We use Okta for internal identity and access management to maintain security of all internal systems. Okta does not have access to customer data of any form.
+Stripe Sees no code data: We use Stripe to handle billing. Stripe may contain your personal data (name, credit card, address), but cannot access code data.
+Vercel Sees no code data: We use Vercel to deploy our website. The website cannot access code data.
+Mintlify Sees no code data: We use Mintlify to deploy our docs site. The docs site cannot access code data.
+Zendesk Sees no code data unless provided by user: We use Zendesk for customer support. Zendesk has no direct access to code data or logs, but may store logs provided by users for debugging purposes.
+Retool May see code data if not on zero-data retention: We use Retool for dashboards to view usage analytics and aggregate statistics. We may expose logs of data for debugging purposes from users that are not using Zero-data retention mode.
+Metabase May see code data if not on zero-data retention: We use Metabase for dashboards to view usage analytics and aggregate statistics. We may expose logs of data for debugging purposes from users that are not using Zero-data retention mode.
+Tableau May see code data if not on zero-data retention: We use Tableau for dashboards to view usage analytics and aggregate statistics. We may expose logs of data for debugging purposes from users that are not using Zero-data retention mode.
+Salesforce Sees no code data: We use Salesforce for enterprise customer account management. Salesforce may contain personal data (ex. name, email), but cannot access code data.
+Hubspot Sees no code data: We use Hubspot for marketing efforts. Hubspot may contain personal data (ex. name, email) for marketing campaign purposes, but cannot access code data.
+Brevo Sees no code data: We use Brevo for email campaigns. Brevo cannot access code data.
+Attribution and Compliance
+You own all of the code generated by Codeium’s products, to the extent permitted by law.
+
+We recognize deeply the contribution of public open-source software to the progress of generative AI and the software industry at large. Within public code, there are various levels of licensing. While permissively licensed code can be used in other works, including commercially licensed works, non-permissively licensed code is not as forgiving.
+
+To the best of our ability, we have sanitized any of the public data that we use for training by removing any non-permissively licensed code, or code that is similar to the non-permissively licensed code via Jaccardian edit-distance. We recognize that for some of our models built on top of third-party large language models, we cannot make representations as to all the data that has been used to train the model overall as we are subject to the practices of the model builders. We also cannot make representations as to code generated by these models because of their intrinsic nondeterminism. This is why we have also built state-of-the-art attribution filtering that is run on every generation of autocomplete, command, or chat.
+
+Any generated code that is similar to non-permissively licensed code is intercepted and not shown to the user to minimize any chances of non-permissive code being accepted by an unaware user. We compute similarity via a line-by-line fuzzy matching algorithm of hashes of the lines of generated code against precomputed hashes of the corpus of existing public code, a more robust detection algorithm than naive multi-line exact string matching. This is done automatically, for any user on any Codeium plan. For enterprises, we are able to complement these technical solutions with industry-leading indemnity clauses to provide piece-of-mind from a compliance perspective.
+
+On our Enterprise Hybrid and Self-hosted deployments, we are able to further compliance by providing attribution logging of any of the generated code, even for matches the permissively licensed matches. Having a log of such snippets can further an enterprise’s comfort with generative AI from a compliance standpoint. This log is stored entirely within the component of Codeium that is hosted in the customer’s private tenant for these deployment methods, an advantage of these non-Cloud deployment methods.
+
+We also provide audit logs for the Enterprise Hybrid and Self-hosted deployments. Today, this means that every accepted autocomplete suggestion and every chat conversation is logged to a database so that the enterprise can have a trail of AI generations for potential audit purposes. Again, these logs are stored entirely within the component of Codeium that is hosted in the customer’s private tenant. With both attribution and audit logs, there is still zero data retention of code snippets or code-derived data within Codeium’s servers or subprocessors.
+
+Client Security
+The Codeium extensions are proprietary extensions into various existing IDE platforms, such as Visual Studio Code, the JetBrains Suite, Eclipse, and more. To see the full list of IDE platforms supported, please visit our download page.
+
+The Windsurf Editor is a fork of the open-source Visual Studio Code (VS Code), maintained by Microsoft. We regularly merge the upstream `microsoft/vscode` codebase into the Windsurf Editor fork to incorporate general updates and upstream security patches. On top of this, we will immediately cherry-pick and high-severity security related patch in the upstream Visual Studio Code codebase and release a new version of the Windsurf Editor immediately. You can check which version of VS Code that your Windsurf Editor version is based on by clicking "Windsurf > About Windsurf" in the app, and refer to Visual Studio Code’s GitHub security page to be aware of any corresponding security advisories.
+
+For both the Codeium extensions and the Windsurf Editor, we make requests to the following domains as part of our Cloud and Hybrid deployments. If you're behind a corporate proxy, please whitelist these domains to ensure that our products work correctly.
+
+server.codeium.com: Used for most API requests.
+web-backend.codeium.com: Used for requests from the Codeium website.
+inference.codeium.com: Used for certain inference requests.
+codeiumdata.com, *.codeiumdata.com: Used to host language server and Windsurf downloads.
+Codebase Indexing
+Codeium allows for a personalized experience by offering indexing of private codebases to be used at inference time to retrieve potentially relevant snippets of code from across the codebases, which are then appended to the original request to further ground the LLM’s responses.
+
+There are multiple forms of codebase indexing offered by Codeium. In general, codebase indexing is done upon an abstract syntax tree (AST) representation of the codebase, which provides superior performance than file-level indexing or naive chunking, especially with large files seen in enterprise work. This is because each indexed “entity” is a semantic block of code (ex. function, method, class, etc) as opposed to an entire file which may contain multiple semantic blocks or an arbitrary chunk of code that could contain many parts (or just a subset) or a single semantic block. This does not change much from a codebase security perspective, but it is important context for how we’ve architected the system.
+
+The first method is local indexing, where the repository in the editor workspace is preprocessed (up to a fixed, configurable number of files to prevent memory issues). For this preprocessing, Codeium’s client on the user’s machine generates the AST representation of the codebase, chunks the code according to the AST representation, passes these chunks independently to our server to compute the embedding, and then receives and stores the computed embedding with a pointer (file path, line range) to the code snippet within a custom vector store index on the user’s machine. Files and subdirectories specified by .gitignore or.codeiumignore are ignored by the embedding service. As code changes are made, a background process at regular intervals makes the corresponding changes to the AST are made and the corresponding embeddings are recomputed and updated so that an accurate representation of the codebase is reflected.
+
+The second is remote indexing. The benefits of remote indexing are (a) to store an index for a larger codebase, which might be too large for the user’s client machine and (b) provide the user context from repositories other than the one currently active in their IDE. For remote indexing, a read-access token to the repository is provided to the Codeium’s embedding service (hosted by Codeium for Cloud and part of the customer’s private deployment for Hybrid and self-hosted), but otherwise the preprocessing is generally equivalent as with a local index, except there is no limit to the number of files as the index is stored on the server side as opposed to client side. The other difference is that the original code entity is stored with the corresponding embedding vector since the raw code may not be available on the user’s machine. For Cloud deployments, as this does require retention of code snippets and code-derived information, it is required for code-snippet telemetry to be turned on or explicit admin enablement of this capability. When we do store this information, it is securely encrypted at rest. The remote index can be updated at a frequency specified by the administrator on the indexing control page. For Hybrid and Self-hosted deployments, this is not an issue as these indexes are stored in the component of the deployment that lives in the customer’s private tenant (the “data plane”). This is a major advantage for the Hybrid deployment over hosted solutions, both Codeium’s Cloud deployment and pretty much every other major AI code assistant, as it provides maximal personalization and value (as well as future proofs for any other personalization features that require data retention) while not having any code snippets or code-derived information being retained on Codeium servers or subprocessors.
+
+At inference, we compute an embedding, and then use nearest neighbor search across both the local index and remote index to capture both any local changes to the codebase and any relevant code in other repositories, respectively.
+
+Zero Data Retention
+Zero-data retention mode is a mode that guarantees that code or code-derived data is never serialized and stored in plaintext at our servers or by our subprocessors. Zero-data retention mode is the default for any user on a team or enterprise plan and can be enabled by any individual from their profile page. This automated zero-data retention guarantee is what allows us to be trusted by the largest Fortune 500 organizations with enterprise-wide rollouts, even in highly regulated environments, so we naturally treat it as a critical promise to our users.
+
+With zero-data retention mode enabled, code data is not persisted at our servers or by any of our subprocessors. The code data is still visible to our servers in memory for the lifetime of the request, and may exist for a slightly longer period (on the order of minutes to hours) for prompt caching The code data submitted by zero-data retention mode users will never be trained on. Again, zero-data retention mode is on by default for teams and enterprise customers.
+
+That said, For cloud implementations only (not hybrid or self-hosted), we may store profile data for authentication and to operate the service for you, and we may store inputs if flagged as potentially violating our Acceptable Use Policy.
+
+Account Deletion
+You can delete your account at any point from your profile.
+
+Vulnerability Disclosures
+If you believe you have found a vulnerability in Windsurf, please email us at security@windsurf.com.
+
+We commit to acknowledging legitimate vulnerability reports within 5 business days, and addressing them as soon as we are able to. Critical incidents will be communicated via email to all users.
+
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+About | Windsurf (formerly Codeium)
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Our Mission
+Individuals have not hit the limits of their potential. Groups of individuals are even farther from their potential. Step by step, we do the hard work to deliver working products that empower everyone to continuously dream bigger, even in the most complex scenarios. We let every individual dream bigger. We let every organization dream bigger. We dream bigger.
+
+Windsurf Live
+Windsurf (formerly Codeium) has been developed by a team of researchers and engineers to build the future of software development. We realized that the combination of recent advances in generative models and our world-class optimized deep learning serving software could provide users with top quality AI-based products at the lowest possible costs (or ideally, free!).
+
+The result of that realization is Windsurf.
+
+Our investors
+Kleiner Perkins
+General Catalyst
+Greenoaks
+Founders Fund
+Our team is growing fast
+Interested in joining us? We're always looking for talented people who share our vision
+
+View open positions
+Learn more about our Company through our blogs
+Image for What Will Harvard Business School Write?
+company
+
+What Will Harvard Business School Write?
+History is written by the victors.
+
+Sep 25, 2024
+
+3 min read
+
+Image for Culture: Be Valuable, Not Right
+company
+
+Culture: Be Valuable, Not Right
+A little bit about our origin story and staying honest with ourselves.
+
+Jul 26, 2024
+
+5 min read
+
+Image for Our Cultural Principles
+company
+
+Our Cultural Principles
+What makes Codeium, Codeium?
+
+Jun 7, 2024
+
+7 min read
+
+Windsurf in the News
+Note: Some posts may reference Codeium, which has been rebranded to Windsurf.
+
+How AI Can Help Accelerate Coding
+
+Oct 2, 2024
+
+Blog post centered image
+Caroline Hyde
+
+GitHub Copilot competitor Codeium raises $150M at a $1.25B valuation
+
+Aug 29, 2024
+
+Blog post centered image
+Kyle Wiggers
+
+This AI Coding Engine Can Process 100 Million Lines Of Code At Once
+
+Aug 13, 2024
+
+Blog post centered image
+Rashi Shrivastava
+
+Next Billion-Dollar Startups 2024
+
+Aug 13, 2024
+
+Blog post centered image
+Amy Feldman
+
+Codeium ranks at the top for satisfaction and productivity in 2024 Stack Overflow survey
+
+May 29, 2024
+
+Blog post centered image
+Erin Yepis
+
+Exponential Baby! Navigating The AI Convergence Of Tech With Nvidia
+
+May 11, 2024
+
+Blog post centered image
+Sandy Carter
+
+Codeium Is Included in the Forbes 2024 AI 50 List
+
+Apr 11, 2024
+
+Blog post centered image
+Kenrick Cai
+
+Codeium Is Valued at $500 Million in Financing Round
+
+Jan 30, 2024
+
+Blog post centered image
+Katie Roof
+
+Windsurf on Podcasts and at Conferences
+Note: Some posts may reference Codeium, which has been rebranded to Windsurf.
+
+Beyond the Hype
+Kevin Hou
+
+Jan 26, 2025
+
+Blog post centered image
+Syntax FM
+Varun Mohan, Kevin Hou
+
+Jan 22, 2025
+
+Blog post centered image
+This Week in Startups
+Varun Mohan
+
+Dec 20, 2024
+
+Blog post centered image
+Latent Space Podcast
+Varun Mohan, Anshul Ramachandran
+
+Dec 13, 2024
+
+Blog post centered image
+Grit Podcast
+Varun Mohan
+
+Nov 18, 2024
+
+Blog post centered image
+Hunters and Unicorns
+Varun Mohan
+
+Oct 16, 2024
+
+Blog post centered image
+Hunters and Unicorns
+Gardner Johnson
+
+Sep 24, 2024
+
+Blog post centered image
+The Prof G Pod
+Varun Mohan, Jeff Wang
+
+Aug 4, 2024
+
+Blog post centered image
+AI Engineer World's Fair 2024
+Kevin Hou
+
+Jul 31, 2024
+
+Blog post centered image
+The Artifical Intelligence Podcast
+Varun Mohan
+
+Jul 22, 2024
+
+Blog post centered image
+DealMakers Podcast
+Varun Mohan
+
+Jun 27, 2024
+
+Blog post centered image
+Talent & Growth Podcast
+Varun Mohan
+
+Jun 24, 2024
+
+Blog post centered image
+JSNation Conference 2024
+Kevin Hou
+
+Jun 21, 2024
+
+Blog post centered image
+Techstrong TV Podcast
+Varun Mohan
+
+May 28, 2024
+
+Blog post centered image
+Gradient Dissent Podcast
+Varun Mohan
+
+May 23, 2024
+
+Blog post centered image
+Infinite ML Podcast
+Varun Mohan
+
+Apr 2, 2024
+
+Blog post centered image
+MongoDB Podcast
+Kevin Hou
+
+Mar 5, 2024
+
+Blog post centered image
+SyntaxFM Podcast
+Kevin Hou
+
+Feb 9, 2024
+
+Blog post centered image
+Metis Strategy Podcast
+Varun Mohan
+
+Feb 1, 2024
+
+Blog post centered image
+Dell: The Partner Connection
+Anshul Ramachandran
+
+Dec 23, 2023
+
+Blog post centered image
+MLOps Community Podcast
+Varun Mohan
+
+Dec 12, 2023
+
+Blog post centered image
+VOICE & AI
+Anshul Ramachandran
+
+Sep 6, 2023
+
+Blog post centered image
+Open Source Startup Podcast
+Varun Mohan
+
+Aug 29, 2023
+
+Blog post centered image
+Software Engineering Daily Podcast
+Varun Mohan
+
+Aug 24, 2023
+
+Blog post centered image
+NVIDIA AI Podcast
+Varun Mohan, Jeff Wang
+
+Jul 26, 2023
+
+Blog post centered image
+Practical AI Podcast
+Varun Mohan, Anshul Ramachandran
+
+Jul 5, 2023
+
+Blog post centered image
+LLM Avalanche
+Anshul Ramachandran
+
+Jun 23, 2023
+
+Blog post centered image
+Latent Space Podcast
+Varun Mohan
+
+Mar 2, 2023
+
+Blog post centered image
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+
+Windsurf Wave 7
+Free unlimited GPT-4.1 and o4-mini from April 14 to 21
+Windsurf Logo
+Products
+Capabilities
+Engines
+Pricing
+Enterprise
+Resources
+Company
+Download
+
+Blog
+
+Windsurf Wave 7
+Windsurf Wave 7
+Written by
+By Windsurf Team
+
+Published on
+Apr 9, 2025
+
+4 min read
+
+
+Wave 7 marks a very special moment for us as a company, but more on that a little later. The only product announcement in Wave 7 is that we have brought the agentic Cascade experience via plugin to the JetBrains IDEs - IntelliJ IDEA, WebStorm, PyCharm, GoLand, and so many more.
+
+Cascade on JetBrains
+Similarly to Tab in Wave 5, Cascade on JetBrains is such a monumental step forward that it warranted its own Wave. We are now the only leading AI-powered code assistant platform to have a truly agentic experience available in a JetBrains plugin. Not just Autocomplete, Chat, and Command (all of which have existed for a while on our highly-used and highly-rated JetBrains plugin), but a truly industry leading experience.
+
+
+Click to Play!
+
+
+Especially in the enterprise setting, Visual Studio Code and the JetBrains suite are the most commonly used IDEs, easily supporting the majority of all developers globally. Each IDE has their own benefits, but the JetBrains suite specifically has a lot of language-specific and enterprise-focused benefits that make it suboptimal to switch away. One of our core beliefs is that we should try to give the best experience we possibly can to as many developers as we possibly can, and so while the Windsurf Editor is a VSCode fork, from day one we have been thinking about how we could bring the same experience to the JetBrains IDEs so that these developers don’t have to pick between the best AI experience and the best IDE for their language and stack.
+
+Unlike VSCode, where the limited set of APIs exposed to extensions restricted our ability to create a great agentic experience via our VSCode extension (thus prompting the fork of VSCode into the Windsurf Editor), the JetBrains suite has a much richer set of customizability and configurability.
+
+In this Beta launch of Cascade in JetBrains, we are releasing Cascade as it looked like in our original Windsurf Editor Launch - there is Write, Chat and Legacy Modes with all the tools that you’ve come to love in Cascade, access to premium models, a Terminal integration, and a Plan Info widget for billing information.
+
+
+Click to Play!
+
+
+Notably, there are a number of features within Cascade that have been introduced post-original-launch that we will be introducing in future Waves to JetBrains: MCP, Memories, Rules, the evergreen toolbar, Previews & Deploys, and more. Separately from Cascade, we have also not yet brought the full Tab experience to JetBrains, so the passive experience is currently just a powerful, context-aware Autocomplete. As the original launch of the Windsurf Editor showed us, this Beta launch is still going to be a massive step function over the status quo single-LLM-call experiences, so hold tight for the newer features!
+
+We also do want to call out that the JetBrains team themselves have been fantastic partners in figuring out the optimal ways to bring the same UX we have on the Windsurf Editor to our JetBrains plugin, and we look forward to continuing our partnership with them towards our shared mission of bringing the best development experiences to every developer possible.
+
+With Cascade on JetBrains, we truly believe that we are the optimal choice for any enterprise that has a mix of IDEs in use. We already have an industry-leading AI native experience in the Windsurf Editor, and now even non-VSCode users have a truly agentic experience, making us a single vendor that can provide the best that AI has to offer to every developer in the organization. Reach out to us!
+
+It’s All Windsurf Now
+Now for the special moment that we teased at the top…
+
+With Cascade on JetBrains, we recognize that naming has gotten a little confusing, to put it lightly. The Windsurf Editor has an agentic experience called Cascade which is now available on a JetBrains plugin that is called a Codeium extension.
+
+It is time we simplify some of this naming, and so, perhaps to very little surprise, we are going to be consolidating on the name “Windsurf” as opposed to “Codeium” moving forwards. Our AI-native editor will be called the Windsurf Editor and our extensions into existing IDEs, such as the JetBrains suite (among many), will be called the Windsurf Plugins. Even more products to come.
+
+Besides moving on from the frequent misspellings of "Codeium," we do believe that "Windsurf" better captures the essence of what we want to provide through our products - incredibly powerful combinations of human and machine that also feel like being in flow state. We already provide value beyond just the process of writing code, so Codeium has become a more limiting and non-representative name with time.
+
+After 2.5 years of going by Codeium, this is a new chapter for us, one that we are incredibly excited about.
+
+Surf’s up.
+
+Get Cascade for JetBrains
+Table of contents
+Cascade on JetBrains
+It’s All Windsurf Now
+Explore more
+Image for Changelist: March 2025
+product
+
+Changelist: March 2025
+Codeium updates from March 2025!
+
+Apr 11, 2025
+
+4 min read
+
+Image for The Next Chapter: Renaming to Windsurf
+company
+
+The Next Chapter: Renaming to Windsurf
+Announcing the renaming of Codeium to Windsurf
+
+Apr 4, 2025
+
+2 min read
+
+Image for Windsurf Wave 6
+product
+
+Windsurf Wave 6
+Introducing Wave 6, our sixth batch of updates to the Windsurf Editor.
+
+Apr 2, 2025
+
+7 min read
+
+Stay up to date on the latest Windsurf news
+Email address
+Enter your email
+
+Subscribe
+Please enter a valid email address
+
+Footer
+Windsurf Logo
+Built to keep you in flow state.
+
+Mailmail
+Instagraminstagram
+Tiktoktiktok
+Twittertwitter
+Discorddiscord
+LinkedInlinkedin
+Redditreddit
+YouTubeyoutube
+Product
+Windsurf Editor
+Windsurf Plugins
+Pricing
+Windsurf for Enterprise
+Capabilities
+Cascade
+Tab
+Chat
+Command
+Company
+About Us
+Blog
+Careers
+Compare
+Contact
+Partnerships
+Terms of Service
+Privacy Policy
+Security
+Windsurf for Government
+Resources
+Docs
+Changelog
+Releases
+FAQ
+Support
+Media Kit
+Referrals
+Feature Requests
+Windsurf Directory
+Connect
+Contact
+Events
+Hackathons
+Community
+Students
+© 2025 Exafunction, Inc. All rights reserved.
+We’re honored to be recognized on the 2025 Forbes AI 50 list, our second consecutive appearance. It’s just the beginning, but a meaningful nod to the momentum we’re building with developers everywhere. Since last year, Windsurf has grown, bringing trusted tools to individual developers and Fortune 500 teams alike. Powering billions of lines of AI-assisted code, our mission remains steady: helping developers build better software, faster.
+
+Some highlights from the journey so far :
+
+Scaled Windsurf, the first agentic IDE, launched in 2024 and now used by hundreds of thousands of developers worldwide
+
+Achieved FedRAMP High, becoming the first AI coding assistant to meet this bar, enabling secure, compliant AI development across federal contractors, agencies, and highly regulated industries
+
+Introduced Cascade and AI Flows, bringing agentic workflows into coding, enabling developers to go from idea to working software with deep codebase understanding and smart intent modeling
+
+Raised a $150M Series C at a $1.25B valuation, led by General Catalyst with continued support from Kleiner Perkins and Greenoaks
+
+Recognized in JPMC’s Hall of Innovation, with additional acknowledgment from Gartner, Stack Overflow, and other industry benchmarks for widespread enterprise adoption
+
+And that’s just a glimpse. There’s much more ahead as we continue shaping what AI-native development looks like.
+
+"We built Windsurf to empower every developer — not replace them," said Varun Mohan, CEO of Windsurf. "Recognition from Forbes reinforces our belief that the future of building with AI lies in intuitive, secure, and deeply integrated experiences."
+
+The Forbes AI 50 list highlights the most promising private companies applying artificial intelligence to real-world challenges. Forbes, alongside Sequoia Capital and Meritech Capital, evaluates submissions across technical innovation, business growth, and AI application. This year’s recognition reinforces our belief: the future of software development isn’t just AI-powered — it’s AI-native.
+
+The Next Chapter: Renaming to Windsurf
+Written by
+By Windsurf Team
+
+Published on
+Apr 4, 2025
+
+2 min read
+
+
+We first began as Exafunction in 2021, focused on optimizing GPU workloads to unlock the potential of deep learning. By 2022, we saw a clearer vision and rebranded to Codeium, integrating vertically into the application layer to bring AI-powered coding extensions to every IDE possible. Fast forward a little bit, and it's November 2024, the month we launched the Windsurf Editor, the first agentic IDE.
+
+Now, we know you’ve seen this timeline before, but here’s the point. We’ve always been on this path of evolution, constantly innovating to meet the demands of technology. But, with the Windsurf Editor, it was different. It wasn’t just another product release. It was a turning point, uniquely redefining who we are as a company and what we could really bring to developers everywhere.
+
+So, what’s changing now? Today, we are proud to officially rebrand our company to Windsurf. From individual developers to enterprise customers, we’ve already reached more than hundreds of thousands of users who’ve embraced the magic of the Editor. With the original launch of the Editor, we not only saw the power of the “agentic”, but also a glimpse of what we, as a company, can offer beyond just helping to write code.
+
+What's Next?
+In many ways this transition was inevitable. After all, the majority of you already recognize us more frequently as Windsurf as compared to Codeium. And, while Codeium felt like the right name at the start of this journey, Windsurf truly reflects the totality of where we’re headed: combining human and machine to result in experiences that feel and appear effortlessly powerful. As the community grows and our mission renews, we’re excited to:
+
+Continue iterating on our flagship product, the Windsurf Editor, wave by wave
+
+Rebrand the original Codeium Extensions to the “Windsurf Plugins”
+
+Introduce new products under the Windsurf ecosystem
+
+In just a few months, the Windsurf Editor has made a real “splash”, showing developers what’s possible with AI-assisted coding. Now, as Windsurf the company, we’re ready to bring the next “wave” of what AI can do for the future of software development. Surf’s up and enjoy the ride!
+
