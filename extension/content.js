@@ -448,15 +448,6 @@ Your job is to generate **bullet-point talking points** — not a script — tha
 🎯 Your role:
 - Do **not** mention that you are an AI.
 - Do **not** script full sentences.
-- Do **not** respond to small talk or non-sales questions.
-- Only answer **sales, technical, or product** questions related to:
-  - Pricing
-  - Competitive differentiation
-  - Onboarding
-  - Security & compliance
-  - Architecture / integrations
-  - Performance / productivity
-  - Features like Cascade, Flows, Tab, or Riptide
 
 ---
 
@@ -504,7 +495,7 @@ Respond only with bullet points.
     })
   });
   const data = await response.json();
-  return data.choices?.[0]?.message?.content?.trim() || 'No answer available.';
+  return data.choices?.[0]?.message?.content?.trim() || ' ';
 }
 
 // Helper: Detect if a string is a question (basic version)
@@ -540,61 +531,75 @@ async function updateTranscriptOverlay(text) {
     // If a new high-signal question, or answer lock expired (7s since last answer)
     if (question && (question !== lastQuestion || (now - lastAnswerTimestamp > 7000))) {
       lastQuestion = question;
-      textDiv.textContent = 'Generating talking point...';
+      textDiv.textContent = '  ';
       const contextSnippet = getRecentTranscriptContext(text);
       getOpenAIAnswer(question, contextSnippet).then(answer => {
         lastAnswer = answer;
         lastAnswerTimestamp = Date.now();
-        textDiv.textContent = answer;
+        textDiv.innerHTML = formatAnswerWithBullets(answer);
         // Start lockout timer
         if (answerTimer) clearTimeout(answerTimer);
         answerTimer = setTimeout(() => {
           // Only clear if no new question has come in
           if (Date.now() - lastAnswerTimestamp >= 7000) {
-            textDiv.textContent = '';
+            textDiv.innerHTML = '';
             lastQuestion = '';
             lastAnswer = '';
           }
         }, 7000);
       }).catch(() => {
-        textDiv.textContent = 'Error getting answer.';
+        textDiv.innerHTML = 'Error getting answer.';
       });
     } else if (lastAnswer && lastQuestion && (now - lastAnswerTimestamp < 7000)) {
-      textDiv.textContent = lastAnswer;
+      textDiv.innerHTML = formatAnswerWithBullets(lastAnswer);
     } else {
-      textDiv.textContent = '';
+      textDiv.innerHTML = '';
     }
   }
   hideGoogleMeetTranscriptPane();
 }
 
-// Hide the original Google Meet transcript pane
-function hideGoogleMeetTranscriptPane() {
-  // Try both the classic and aria-based selectors
-  const classicPane = document.querySelector('.a4cQT');
-  if (classicPane) classicPane.style.display = 'none';
-  const ariaPane = document.querySelector('div[role="region"][tabindex="0"]');
-  if (ariaPane) ariaPane.style.display = 'none';
+// Helper: Format answer with beautiful bullets
+function formatAnswerWithBullets(answer) {
+  // Split into lines and detect bullets
+  const lines = answer.split(/\n|\r/).map(l => l.trim()).filter(Boolean);
+  const bullets = lines.filter(l => /^[-•]\s+/.test(l));
+  if (bullets.length > 0) {
+    // Render bullet points as <ul><li>...</li></ul>
+    const bulletHtml = bullets.map(l => `<li>${l.replace(/^[-•]\s+/, '')}</li>`).join('');
+    return `<ul class="windsurf-bullets">${bulletHtml}</ul>`;
+  } else {
+    // No bullets, render as paragraph
+    return `<div>${answer}</div>`;
+  }
 }
 
-// Attempt to recover last meeting, if any. Abort if it takes more than 2 seconds to prevent current meeting getting messed up.
-Promise.race([
-  recoverLastMeeting(),
-  new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('Recovery timed out')), 2000)
-  )
-]).
-  catch((error) => {
-    if (error !== "Empty transcript and empty chatMessages") {
-      console.error(error)
-    }
-  }).
-  finally(() => {
-    // Save current meeting data to chrome storage once recovery is complete or is aborted
-    overWriteChromeStorage(["meetingStartTimestamp", "meetingTitle", "transcript", "chatMessages"], false)
-  })
-
-
+// Add overlay bullet CSS
+const windsurfBulletStyle = document.createElement('style');
+windsurfBulletStyle.innerHTML = `
+#windsurf-transcript-overlay ul.windsurf-bullets {
+  margin: 0.5em 0 0.5em 0.8em;
+  padding-left: 1.2em;
+  list-style: disc inside;
+  color: #fff;
+  font-size: 1.15em;
+  line-height: 1.7;
+}
+#windsurf-transcript-overlay ul.windsurf-bullets li {
+  margin-bottom: 0.25em;
+  padding-left: 0;
+  text-indent: 0;
+  font-family: "Google Sans", Roboto, Arial, sans-serif;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+#windsurf-transcript-overlay div, #windsurf-transcript-overlay ul {
+  font-family: "Google Sans", Roboto, Arial, sans-serif;
+  color: #fff;
+}
+`;
+document.head.appendChild(windsurfBulletStyle);
 
 //*********** MAIN FUNCTIONS **********//
 checkExtensionStatus().then(() => {
