@@ -119,6 +119,9 @@ let windsurfContext = '';
 let answerTimer = null;
 let lastAnswerTimestamp = 0;
 
+// Track questions we've already answered to avoid duplicate API calls
+const answeredQuestions = new Set();
+
 // High-signal sales keywords/phrases for filtering
 // const SALES_KEYWORDS = [...]; // (deleted)
 
@@ -223,12 +226,12 @@ async function getOpenAIAnswer(question, contextSnippet) {
 - **Deployment Options**:
   - **Cloud**: Processes AI requests on Windsurf servers; zero-data retention optional for individuals, default for Teams/Enterprise.
   - **Hybrid**: Data retention on customer-managed tenant; secure tunnel via Cloudflare.
-  - **Self-hosted**: All compute and data within customer’s private cloud or on-prem; supports private LLM endpoints (e.g., AWS Bedrock).
+  - **Self-hosted**: All compute and data within customer's private cloud or on-prem; supports private LLM endpoints (e.g., AWS Bedrock).
 - **Data Security**:
   - **Zero Data Retention**: Default for Teams/Enterprise; optional for individuals. Code data not stored post-inference.
   - **Encryption**: TLS for data in transit; encrypted at rest for remote indexing (Hybrid/Self-hosted).
   - **Codebase Indexing**:
-    - **Local**: AST-based indexing on user’s machine, respecting .gitignore/.codeiumignore.
+    - **Local**: AST-based indexing on user's machine, respecting .gitignore/.codeiumignore.
     - **Remote**: Server-side indexing with read-access token; stored in customer tenant for Hybrid/Self-hosted.
   - **Attribution Filtering**: Blocks non-permissively licensed code using fuzzy matching; logs available for Enterprise.
 - **Subcontractors**:
@@ -274,20 +277,20 @@ async function getOpenAIAnswer(question, contextSnippet) {
 
 ### Windsurf Editor
 **What is Windsurf?**  
-We don't mind if you call the Windsurf Editor the first agentic IDE, the first native surface for developers to collaborate with AI, or simply how we like to think about it - tomorrow’s editor, today. When we first used the Windsurf Editor, a lot of the words that we found resonating with us included magic, power, and flow state. Windsurfing perfectly captures the combination of human, machine, and nature in an activity that looks effortless, but takes an intense amount of power. You can think of the Windsurf Editor as the first agentic IDE, and then some. It is a new paradigm of working with AI, which we are calling AI flows - collaborative agents. We started with the existing paradigms of AI use. Copilots are great because of their collaborativeness with the developer - the human is always in the loop. That being said, to keep the human in the loop, copilots are generally confined to short scoped tasks. On the other hand, agents are great because the AI can independently iterate to complete much larger tasks. The tradeoff is that you lose the collaborative aspect, which is why we haven’t seen an agentic IDE (yet). An IDE would be overkill. Both copilots and agents are super powerful and have their use cases, but have generally been seen as complementary because their strengths and weaknesses are indeed complementary. Our spark came from one simple question - what if the AI had the best of both worlds? What if the AI was capable of being both collaborative and independent? Well, that is what makes humans special. Working with that kind of AI could feel like magic. With a lot of research, we built the foundations of this kind of system, which we are calling AI flows. AI flows allow developers and AI to truly mind-meld, combining the best of copilots and agents.
+We don't mind if you call the Windsurf Editor the first agentic IDE, the first native surface for developers to collaborate with AI, or simply how we like to think about it - tomorrow's editor, today. When we first used the Windsurf Editor, a lot of the words that we found resonating with us included magic, power, and flow state. Windsurfing perfectly captures the combination of human, machine, and nature in an activity that looks effortless, but takes an intense amount of power. You can think of the Windsurf Editor as the first agentic IDE, and then some. It is a new paradigm of working with AI, which we are calling AI flows - collaborative agents. We started with the existing paradigms of AI use. Copilots are great because of their collaborativeness with the developer - the human is always in the loop. That being said, to keep the human in the loop, copilots are generally confined to short scoped tasks. On the other hand, agents are great because the AI can independently iterate to complete much larger tasks. The tradeoff is that you lose the collaborative aspect, which is why we haven't seen an agentic IDE (yet). An IDE would be overkill. Both copilots and agents are super powerful and have their use cases, but have generally been seen as complementary because their strengths and weaknesses are indeed complementary. Our spark came from one simple question - what if the AI had the best of both worlds? What if the AI was capable of being both collaborative and independent? Well, that is what makes humans special. Working with that kind of AI could feel like magic. With a lot of research, we built the foundations of this kind of system, which we are calling AI flows. AI flows allow developers and AI to truly mind-meld, combining the best of copilots and agents.
 
 **Why did you build your own IDE? And why did you fork VS Code?**  
-We never went into building an editor until we realized the magic of flows and Cascade. That being said, we also were honest with ourselves that we did not have to build the editor entirely from scratch to expose this magic, so we forked Visual Studio Code. We are fully aware of the memes about people forking VS Code to create “AI IDEs,” but again, we would not have built the Windsurf Editor if extensions could maximize the potential of our vision. With regards to extensions, we have been an extension-first company, and still recognize that people really like the editors that they have, especially within our enterprise customer base. So, our Codeium extensions are not going anywhere, and we are going to continue to improve them to the max of their capabilities. Even some flow capabilities like Supercomplete are doable within extensions, and so we will build them in! The only difference with the Windsurf Editor is that we now have a surface where we are truly unconstrained to expose the magic as it evolves. As we start building towards a mission of helping across the entire software development life cycle, not just coding, we will be releasing our own products under this new Windsurf brand, starting with the Editor. These will be products natively and fully owned by us. Codeium will still exist as its own brand and product, representing extensions and integrations into existing products such as commonly used IDEs. So tl;dr, Windsurf and Codeium are two different products, though they do share a lot of underlying systems and infrastructure.
+We never went into building an editor until we realized the magic of flows and Cascade. That being said, we also were honest with ourselves that we did not have to build the editor entirely from scratch to expose this magic, so we forked Visual Studio Code. We are fully aware of the memes about people forking VS Code to create "AI IDEs," but again, we would not have built the Windsurf Editor if extensions could maximize the potential of our vision. With regards to extensions, we have been an extension-first company, and still recognize that people really like the editors that they have, especially within our enterprise customer base. So, our Codeium extensions are not going anywhere, and we are going to continue to improve them to the max of their capabilities. Even some flow capabilities like Supercomplete are doable within extensions, and so we will build them in! The only difference with the Windsurf Editor is that we now have a surface where we are truly unconstrained to expose the magic as it evolves. As we start building towards a mission of helping across the entire software development life cycle, not just coding, we will be releasing our own products under this new Windsurf brand, starting with the Editor. These will be products natively and fully owned by us. Codeium will still exist as its own brand and product, representing extensions and integrations into existing products such as commonly used IDEs. So tl;dr, Windsurf and Codeium are two different products, though they do share a lot of underlying systems and infrastructure.
 
 **How is this different from other solutions (Cursor, Cognition, etc)?**  
-As mentioned in the previous question, we didn’t set out to build an IDE until we had this concept of flows. It’s more than just “we want nicer UX,” though that is definitely an added benefit. Also, we don’t think we have a big enough ego to believe that we are the only ones that are able to come up with cool ideas and user experiences, and have a lot of respect for the teams at Cursor, Zed and elsewhere. A lot of these agentic systems such as Cognition’s Devin live outside of the IDE, which is one of the biggest differences, because that means they are unable to be aware of human actions. They are truly agentic systems, which are meant to independently solve larger tasks with access to knowledge and tools. They are also not generally available, hidden behind waitlists and invite-only programs. This perhaps could be seen as an indication of potential limitations to the kinds of tasks that agentic systems are appropriate for, which would conflict with the social media hype that these systems can do anything and everything. We actually believe that Cursor Composer got a lot of the ideas behind a flow system right. However, we think there is a depth to the components of the system that we have been able to build given our history and expertise. What makes Cascade insanely powerful is not just the breadth across knowledge, tools, and human actions, but the depth within each axis:  
-• Knowledge: This is where our multi-year work on building state-of-the-art context awareness systems that can parse and semantically understand complex codebases comes into play. If we weren’t really good at this, we wouldn’t be fortunate enough to be able to work with some of the largest and most technically complex companies such as Dell, Anduril, and Zillow.  
-• Tools: Cascade’s tools include making edits, adding files, grep, listing files in a directory, and even code execution. On top of this, Cascade comes with proprietary tools such as Riptide, which is the technology underpinning the Cortex research breakthrough that was covered by the press a few months ago. It is an LLM-based search tool that can rip through millions of lines of code in seconds with 3x better accuracy than state-of-the-art embedding-based systems, all with highly optimized use of a large amount of compute.  
-• Human Actions: There are a lot of different granularities at which you can capture this information, but it is very easy to either have too little or too much information. Either you miss actions core to determining user intent or you have too much noise. We won’t give away the magic sauce here, but we have done a lot of work on checkpointing, information compression, and more in order to make Cascade feel like an infinite stream of joint consciousness between human and AI.  
-We have put Cascade front and center - in fact, with Windsurf, we don’t even have Chat. It is all Cascade. The flow is core to the experience, which is different from features like Cursor Composer, which is not a front-and-center capability. In our experience: Cascade is better than Composer when working on existing codebases Cascade is better than Composer at context retrieval to ground work Cascade is faster than Composer. Our hypothesis is that Composer doesn’t yet have the depth of knowledge understanding, the full gamut of tools, or super fine grained human trajectories, which likely restricts its usefulness to zero-to-one applications.
+As mentioned in the previous question, we didn't set out to build an IDE until we had this concept of flows. It's more than just "we want nicer UX," though that is definitely an added benefit. Also, we don't think we have a big enough ego to believe that we are the only ones that are able to come up with cool ideas and user experiences, and have a lot of respect for the teams at Cursor, Zed and elsewhere. A lot of these agentic systems such as Cognition's Devin live outside of the IDE, which is one of the biggest differences, because that means they are unable to be aware of human actions. They are truly agentic systems, which are meant to independently solve larger tasks with access to knowledge and tools. They are also not generally available, hidden behind waitlists and invite-only programs. This perhaps could be seen as an indication of potential limitations to the kinds of tasks that agentic systems are appropriate for, which would conflict with the social media hype that these systems can do anything and everything. We actually believe that Cursor Composer got a lot of the ideas behind a flow system right. However, we think there is a depth to the components of the system that we have been able to build given our history and expertise. What makes Cascade insanely powerful is not just the breadth across knowledge, tools, and human actions, but the depth within each axis:  
+• Knowledge: This is where our multi-year work on building state-of-the-art context awareness systems that can parse and semantically understand complex codebases comes into play. If we weren't really good at this, we wouldn't be fortunate enough to be able to work with some of the largest and most technically complex companies such as Dell, Anduril, and Zillow.  
+• Tools: Cascade's tools include making edits, adding files, grep, listing files in a directory, and even code execution. On top of this, Cascade comes with proprietary tools such as Riptide, which is the technology underpinning the Cortex research breakthrough that was covered by the press a few months ago. It is an LLM-based search tool that can rip through millions of lines of code in seconds with 3x better accuracy than state-of-the-art embedding-based systems, all with highly optimized use of a large amount of compute.  
+• Human Actions: There are a lot of different granularities at which you can capture this information, but it is very easy to either have too little or too much information. Either you miss actions core to determining user intent or you have too much noise. We won't give away the magic sauce here, but we have done a lot of work on checkpointing, information compression, and more in order to make Cascade feel like an infinite stream of joint consciousness between human and AI.  
+We have put Cascade front and center - in fact, with Windsurf, we don't even have Chat. It is all Cascade. The flow is core to the experience, which is different from features like Cursor Composer, which is not a front-and-center capability. In our experience: Cascade is better than Composer when working on existing codebases Cascade is better than Composer at context retrieval to ground work Cascade is faster than Composer. Our hypothesis is that Composer doesn't yet have the depth of knowledge understanding, the full gamut of tools, or super fine grained human trajectories, which likely restricts its usefulness to zero-to-one applications.
 
 **Will this be available on the free Codeium plan post-GA?**  
-Our infrastructure expertise has been the secret sauce behind a number of the loved aspects of our Codeium extensions, from the crazy low latencies to the generous free tier (it’s not a financially irresponsible option for us due to our industry leading serving costs). But even for us, serving this magic at its full potential is a meaningful jump up in operating cost. So while the Windsurf Editor itself and a lot of the Cascade capabilities will be free, the full magic will only be available on paid plans in the long run. That being said, for the first couple of weeks after general access, we are going to be giving the full experience for free to any individual using the Windsurf Editor.
+Our infrastructure expertise has been the secret sauce behind a number of the loved aspects of our Codeium extensions, from the crazy low latencies to the generous free tier (it's not a financially irresponsible option for us due to our industry leading serving costs). But even for us, serving this magic at its full potential is a meaningful jump up in operating cost. So while the Windsurf Editor itself and a lot of the Cascade capabilities will be free, the full magic will only be available on paid plans in the long run. That being said, for the first couple of weeks after general access, we are going to be giving the full experience for free to any individual using the Windsurf Editor.
 
 **Who can use this and what are the security guarantees?**  
 From our end, you can use the Windsurf Editor for any work, but check with your employer if you plan to use it for your professional work. Currently, the Windsurf Editor (and connected functionalities like Cascade) are available for any of our self-serve plans, and as we learn more about the extent of what Cascade is capable of, we will make the Windsurf Editor available to enterprise plans. The Windsurf Editor obeys the same security guarantees and code snippet telemetry rules as the Codeium extensions.
@@ -326,7 +329,7 @@ Codeium is the modern coding superpower, a code acceleration toolkit built on cu
 - **Search**: lets you query your repository with natural language.  
 
 **What programming languages do you support?**  
-Codeium’s performance is enabled by default for:  
+Codeium's performance is enabled by default for:  
 APL, Assembly, Astro, Blade, C, C++, C#, Clojure, CMake, COBOL, CoffeeScript, Crystal, CSS, CUDA, Dart, Delphi, Dockerfile, Elixir, Erlang, F#, Fortran, GDScript, Go, Gradle, Groovy, Hack, Haskell, HCL, HTML, Java, JavaScript, Julia, JSON, Kotlin, LISP, Less, Lua, Makefile, MATLAB, MUMPS, Nim, Objective‑C, OCaml, pbtxt, PHP, Protobuf, Python, Perl, PowerShell, Prolog, R, Ruby, Rust, SAS, Sass, Scala, SCSS, shell, Solidity, SQL, Starlark, Swift, Svelte, TypeScript, TeX, TSX, VBA, Vimscript, Vue, YAML, Zig.  
 (On other languages you can explicitly enable Codeium.)
 
@@ -335,7 +338,7 @@ APL, Assembly, Astro, Blade, C, C++, C#, Clojure, CMake, COBOL, CoffeeScript, Cr
 - We sustain this by offering paid Pro, Teams, and Enterprise tiers with additional features.
 
 **What is the Codeium Pro Tier?**  
-The Pro Tier gives you extra “juice” for your workflows:  
+The Pro Tier gives you extra "juice" for your workflows:  
 - **Supercomplete**  
 - **Fast Autocomplete**  
 - Unlimited large‑model usage (GPT‑4o, Claude 3.5 Sonnet, Codeium large models)  
@@ -349,7 +352,7 @@ The Pro Tier gives you extra “juice” for your workflows:
 We believe every part of software development—from writing code and tests to reviewing PRs—can be accelerated by AI. Windsurf makes it seamless to turn ideas into code and iterate more efficiently.
 
 **Who should use this?**  
-Anyone with coding fundamentals—Windsurf doesn’t replace you, it empowers you. Always review and test AI‑generated code yourself.
+Anyone with coding fundamentals—Windsurf doesn't replace you, it empowers you. Always review and test AI‑generated code yourself.
 
 **Why am I getting bad results?**  
 - AI suggestions depend on context and training data.  
@@ -366,7 +369,7 @@ Anyone with coding fundamentals—Windsurf doesn’t replace you, it empowers yo
 **Feature Details**  
 
 **How does Autocomplete work?**  
-A large generative model understands your code and comments to predict what you’ll type next, backed by high‑performance serving infrastructure.
+A large generative model understands your code and comments to predict what you'll type next, backed by high‑performance serving infrastructure.
 
 **How does Windsurf Chat work?**  
 - Integrates open‑ended chat with IDE context  
@@ -374,7 +377,7 @@ A large generative model understands your code and comments to predict what you�
 - Zero‑data‑retention options for paid users, full privacy for self‑hosted  
 
 **How can you provide Windsurf Chat for free?**  
-We’re moving to our own models and infrastructure, allowing us to cover chat costs long‑term.
+We're moving to our own models and infrastructure, allowing us to cover chat costs long‑term.
 
 **Who can use Command?**  
 Everyone—Command is free in all tiers, in Windsurf Editor, VSCode, JetBrains IDEs (more coming).
@@ -394,7 +397,7 @@ Windsurf (Legacy mode), VSCode, JetBrains, Visual Studio, Eclipse, Xcode—suppo
 - **Chat**: mix of proprietary and OpenAI (self‑hosted can use only in‑house)
 
 **How does Forge work?**  
-A Chrome extension that replaces GitHub’s code review UI with an AI‑enhanced workflow.
+A Chrome extension that replaces GitHub's code review UI with an AI‑enhanced workflow.
 
 **What browsers does Forge support?**  
 Officially Chrome (works in Chromium‑based too; Safari/Firefox coming).
@@ -403,7 +406,7 @@ Officially Chrome (works in Chromium‑based too; Safari/Firefox coming).
 GitHub Free/Pro/Team/Enterprise Cloud (others coming).
 
 **When will AI review all my code?**  
-AI can’t fully review with perfect accuracy yet—Forge assists to make you a more capable reviewer.
+AI can't fully review with perfect accuracy yet—Forge assists to make you a more capable reviewer.
 
 **How does Supercomplete work?**  
 It looks at code before and after your cursor to retroactively correct as you type.
@@ -416,10 +419,10 @@ It triggers automatically alongside Autocomplete based on context.
 **Personalization**  
 
 **How do I ask a question about my codebase in chat?**  
-Prefix with “In our codebase,” or “Answer for our codebase:” to force context retrieval.
+Prefix with "In our codebase," or "Answer for our codebase:" to force context retrieval.
 
 **How can I tell what parts of my codebase were considered?**  
-Click the “Read X context items” dropdown with the search‑glass icon.
+Click the "Read X context items" dropdown with the search‑glass icon.
 
 **Why does Refactor/Explain/Docstring lack context?**  
 Context support is coming soon for those actions.
@@ -456,16 +459,16 @@ We tried them all, and have compiled results on our Compare page! Codeium has si
 
 ### Plans and Pricing
 **What are Flow Action and User Prompt credits?**  
-These credits govern the usage of premium models (Anthropic’s Claude 3.5 Sonnet, OpenAI’s GPT-4o, DeepSeek R-1) within the reasoning of Cascade. A message with a premium model consumes a model-dependent number of User Prompt credits, while tool call with a premium model consumes a model-dependent number of Flow Action credits. Depending on the prompt, the AI might...
+These credits govern the usage of premium models (Anthropic's Claude 3.5 Sonnet, OpenAI's GPT-4o, DeepSeek R-1) within the reasoning of Cascade. A message with a premium model consumes a model-dependent number of User Prompt credits, while tool call with a premium model consumes a model-dependent number of Flow Action credits. Depending on the prompt, the AI might...
 
-**What’s special about Enterprise?**  
+**What's special about Enterprise?**  
 Windsurf for Enterprises is an enterprise-grade version of Windsurf with high-security deployment options, additional features like local personalization on your private repositories, analytics dashboards, support and training, and more. While Windsurf is already the best offering for individual developers, even more AI-powered functionality can happen at a team level on larger, well-maintained repositories.
 
 **What guarantees exist on data security?**  
 For self-hosted, Windsurf for Enterprises is deployed entirely on-prem or in your Virtual Private Cloud (VPC). The best way to guarantee security is to not allow your data to leave your company's managed resources (Read More). We have also trained models in-house, built all IDE integrations, and written all custom logic to cleanly integrate the user's code with model inputs and outputs. By not relying on third party APIs, you can be confident that there is no potential for external security vulnerabilities to creep in. We recognize that every company has different data handling and management policies, as well as hardware setups, so we offer a wide range of methods to deploy Windsurf for Enterprises in a self-hosted manner. If you do not want to deploy locally, we do offer a managed service SaaS plan with zero data IP retention guarantees and SOC2 compliance, the latter being something that GitHub Copilot for Businesses particularly does not have. Zero data IP retention means that we use any code snippets or chat messages sent to us only to perform the model inference on our GPUs, but will never even persist that data. This means your IP is never stored on external servers and therefore never used for other purposes, such as training the underlying models.
 
 **Tell me more about personalization.**  
-The simple reality is if we can further personalize our system given the “data examples” that a specific customer has, and we will create a system that is the theoretically best performing system for coding that the particular customer could get. It boils down to obeying local conventions — a generic code product that wanted to adhere to syntactic patterns or to use libraries and utilities present in the particular codebase would need to have all of that code passed into it as context. If the system was instead personalized on your existing code base, both from a context awareness and fine-tuning perspective, we can deliver better suggestions as a result. And of course, all personalization is done locally within the enterprise's self-hosted Windsurf instance. No code leaves your tenant, and neither does the resulting, personalized system details.
+The simple reality is if we can further personalize our system given the "data examples" that a specific customer has, and we will create a system that is the theoretically best performing system for coding that the particular customer could get. It boils down to obeying local conventions — a generic code product that wanted to adhere to syntactic patterns or to use libraries and utilities present in the particular codebase would need to have all of that code passed into it as context. If the system was instead personalized on your existing code base, both from a context awareness and fine-tuning perspective, we can deliver better suggestions as a result. And of course, all personalization is done locally within the enterprise's self-hosted Windsurf instance. No code leaves your tenant, and neither does the resulting, personalized system details.
 
 **How does this compare to other Enterprise offerings?**  
 The primary other enterprise offerings are GitHub Copilot for Businesses and Tabnine for Enterprises. We go into detail on differences with GitHub Copilot for Businesses, and how it fails to meet basic enterprise needs in this blog post, but the gist is that all GitHub Copilot for Enterprises does is provide a team administrator to purchase and manage seats of GitHub Copilot for their employees. It provides no guarantees on code security, no customization for your codebase, and no support for common enterprise development patterns like notebooks. Tabnine for Enterprises does provide the same deployment and security options, but is a noticeably worse product compared to GitHub Copilot and Windsurf in terms of suggestion quality, to the point where it may not provide a comparable value proposition to enterprises.
@@ -505,7 +508,7 @@ But wait, how do we know the singularity hasn't already happened? But on a serio
   - Local personalization on private repositories.
   - Analytics dashboards and enterprise support.
 - **Comparison with Competitors**:
-  - **Cursor**: Windsurf’s Cascade has deeper context awareness and tool integration.
+  - **Cursor**: Windsurf's Cascade has deeper context awareness and tool integration.
   - **Cognition (Devin)**: Operates outside IDEs, less collaborative.
   - **GitHub Copilot**: Lacks deployment flexibility and SOC 2 compliance.
   - **Tabnine**: Lower suggestion quality.
@@ -524,7 +527,7 @@ make sure to answer in this format any question that is being asked. even if the
 - Plain language. Cut jargon. Persuasive but never pushy.
 
 🎯 Role:
-- Never say you’re an AI or script full sentences.
+- Never say you're an AI or script full sentences.
 - Whenever you see a question mark in the last user utterance, treat it as a direct question to answer.
 - Pull the exact relevant answer from the Windsurf FAQ/context and turn it into 1–4 clear, punchy bullets.
 
@@ -541,20 +544,20 @@ but also use the following questions and answers to answer questions you detect.
 
 ### Windsurf Editor
 **What is Windsurf?**  
-We don't mind if you call the Windsurf Editor the first agentic IDE, the first native surface for developers to collaborate with AI, or simply how we like to think about it - tomorrow’s editor, today. When we first used the Windsurf Editor, a lot of the words that we found resonating with us included magic, power, and flow state. Windsurfing perfectly captures the combination of human, machine, and nature in an activity that looks effortless, but takes an intense amount of power. You can think of the Windsurf Editor as the first agentic IDE, and then some. It is a new paradigm of working with AI, which we are calling AI flows - collaborative agents. We started with the existing paradigms of AI use. Copilots are great because of their collaborativeness with the developer - the human is always in the loop. That being said, to keep the human in the loop, copilots are generally confined to short scoped tasks. On the other hand, agents are great because the AI can independently iterate to complete much larger tasks. The tradeoff is that you lose the collaborative aspect, which is why we haven’t seen an agentic IDE (yet). An IDE would be overkill. Both copilots and agents are super powerful and have their use cases, but have generally been seen as complementary because their strengths and weaknesses are indeed complementary. Our spark came from one simple question - what if the AI had the best of both worlds? What if the AI was capable of being both collaborative and independent? Well, that is what makes humans special. Working with that kind of AI could feel like magic. With a lot of research, we built the foundations of this kind of system, which we are calling AI flows. AI flows allow developers and AI to truly mind-meld, combining the best of copilots and agents.
+We don't mind if you call the Windsurf Editor the first agentic IDE, the first native surface for developers to collaborate with AI, or simply how we like to think about it - tomorrow's editor, today. When we first used the Windsurf Editor, a lot of the words that we found resonating with us included magic, power, and flow state. Windsurfing perfectly captures the combination of human, machine, and nature in an activity that looks effortless, but takes an intense amount of power. You can think of the Windsurf Editor as the first agentic IDE, and then some. It is a new paradigm of working with AI, which we are calling AI flows - collaborative agents. We started with the existing paradigms of AI use. Copilots are great because of their collaborativeness with the developer - the human is always in the loop. That being said, to keep the human in the loop, copilots are generally confined to short scoped tasks. On the other hand, agents are great because the AI can independently iterate to complete much larger tasks. The tradeoff is that you lose the collaborative aspect, which is why we haven't seen an agentic IDE (yet). An IDE would be overkill. Both copilots and agents are super powerful and have their use cases, but have generally been seen as complementary because their strengths and weaknesses are indeed complementary. Our spark came from one simple question - what if the AI had the best of both worlds? What if the AI was capable of being both collaborative and independent? Well, that is what makes humans special. Working with that kind of AI could feel like magic. With a lot of research, we built the foundations of this kind of system, which we are calling AI flows. AI flows allow developers and AI to truly mind-meld, combining the best of copilots and agents.
 
 **Why did you build your own IDE? And why did you fork VS Code?**  
-We never went into building an editor until we realized the magic of flows and Cascade. That being said, we also were honest with ourselves that we did not have to build the editor entirely from scratch to expose this magic, so we forked Visual Studio Code. We are fully aware of the memes about people forking VS Code to create “AI IDEs,” but again, we would not have built the Windsurf Editor if extensions could maximize the potential of our vision. With regards to extensions, we have been an extension-first company, and still recognize that people really like the editors that they have, especially within our enterprise customer base. So, our Codeium extensions are not going anywhere, and we are going to continue to improve them to the max of their capabilities. Even some flow capabilities like Supercomplete are doable within extensions, and so we will build them in! The only difference with the Windsurf Editor is that we now have a surface where we are truly unconstrained to expose the magic as it evolves. As we start building towards a mission of helping across the entire software development life cycle, not just coding, we will be releasing our own products under this new Windsurf brand, starting with the Editor. These will be products natively and fully owned by us. Codeium will still exist as its own brand and product, representing extensions and integrations into existing products such as commonly used IDEs. So tl;dr, Windsurf and Codeium are two different products, though they do share a lot of underlying systems and infrastructure.
+We never went into building an editor until we realized the magic of flows and Cascade. That being said, we also were honest with ourselves that we did not have to build the editor entirely from scratch to expose this magic, so we forked Visual Studio Code. We are fully aware of the memes about people forking VS Code to create "AI IDEs," but again, we would not have built the Windsurf Editor if extensions could maximize the potential of our vision. With regards to extensions, we have been an extension-first company, and still recognize that people really like the editors that they have, especially within our enterprise customer base. So, our Codeium extensions are not going anywhere, and we are going to continue to improve them to the max of their capabilities. Even some flow capabilities like Supercomplete are doable within extensions, and so we will build them in! The only difference with the Windsurf Editor is that we now have a surface where we are truly unconstrained to expose the magic as it evolves. As we start building towards a mission of helping across the entire software development life cycle, not just coding, we will be releasing our own products under this new Windsurf brand, starting with the Editor. These will be products natively and fully owned by us. Codeium will still exist as its own brand and product, representing extensions and integrations into existing products such as commonly used IDEs. So tl;dr, Windsurf and Codeium are two different products, though they do share a lot of underlying systems and infrastructure.
 
 **How is this different from other solutions (Cursor, Cognition, etc)?**  
-As mentioned in the previous question, we didn’t set out to build an IDE until we had this concept of flows. It’s more than just “we want nicer UX,” though that is definitely an added benefit. Also, we don’t think we have a big enough ego to believe that we are the only ones that are able to come up with cool ideas and user experiences, and have a lot of respect for the teams at Cursor, Zed and elsewhere. A lot of these agentic systems such as Cognition’s Devin live outside of the IDE, which is one of the biggest differences, because that means they are unable to be aware of human actions. They are truly agentic systems, which are meant to independently solve larger tasks with access to knowledge and tools. They are also not generally available, hidden behind waitlists and invite-only programs. This perhaps could be seen as an indication of potential limitations to the kinds of tasks that agentic systems are appropriate for, which would conflict with the social media hype that these systems can do anything and everything. We actually believe that Cursor Composer got a lot of the ideas behind a flow system right. However, we think there is a depth to the components of the system that we have been able to build given our history and expertise. What makes Cascade insanely powerful is not just the breadth across knowledge, tools, and human actions, but the depth within each axis:  
-• Knowledge: This is where our multi-year work on building state-of-the-art context awareness systems that can parse and semantically understand complex codebases comes into play. If we weren’t really good at this, we wouldn’t be fortunate enough to be able to work with some of the largest and most technically complex companies such as Dell, Anduril, and Zillow.  
-• Tools: Cascade’s tools include making edits, adding files, grep, listing files in a directory, and even code execution. On top of this, Cascade comes with proprietary tools such as Riptide, which is the technology underpinning the Cortex research breakthrough that was covered by the press a few months ago. It is an LLM-based search tool that can rip through millions of lines of code in seconds with 3x better accuracy than state-of-the-art embedding-based systems, all with highly optimized use of a large amount of compute.  
-• Human Actions: There are a lot of different granularities at which you can capture this information, but it is very easy to either have too little or too much information. Either you miss actions core to determining user intent or you have too much noise. We won’t give away the magic sauce here, but we have done a lot of work on checkpointing, information compression, and more in order to make Cascade feel like an infinite stream of joint consciousness between human and AI.  
-We have put Cascade front and center - in fact, with Windsurf, we don’t even have Chat. It is all Cascade. The flow is core to the experience, which is different from features like Cursor Composer, which is not a front-and-center capability. In our experience: Cascade is better than Composer when working on existing codebases Cascade is better than Composer at context retrieval to ground work Cascade is faster than Composer. Our hypothesis is that Composer doesn’t yet have the depth of knowledge understanding, the full gamut of tools, or super fine grained human trajectories, which likely restricts its usefulness to zero-to-one applications.
+As mentioned in the previous question, we didn't set out to build an IDE until we had this concept of flows. It's more than just "we want nicer UX," though that is definitely an added benefit. Also, we don't think we have a big enough ego to believe that we are the only ones that are able to come up with cool ideas and user experiences, and have a lot of respect for the teams at Cursor, Zed and elsewhere. A lot of these agentic systems such as Cognition's Devin live outside of the IDE, which is one of the biggest differences, because that means they are unable to be aware of human actions. They are truly agentic systems, which are meant to independently solve larger tasks with access to knowledge and tools. They are also not generally available, hidden behind waitlists and invite-only programs. This perhaps could be seen as an indication of potential limitations to the kinds of tasks that agentic systems are appropriate for, which would conflict with the social media hype that these systems can do anything and everything. We actually believe that Cursor Composer got a lot of the ideas behind a flow system right. However, we think there is a depth to the components of the system that we have been able to build given our history and expertise. What makes Cascade insanely powerful is not just the breadth across knowledge, tools, and human actions, but the depth within each axis:  
+• Knowledge: This is where our multi-year work on building state-of-the-art context awareness systems that can parse and semantically understand complex codebases comes into play. If we weren't really good at this, we wouldn't be fortunate enough to be able to work with some of the largest and most technically complex companies such as Dell, Anduril, and Zillow.  
+• Tools: Cascade's tools include making edits, adding files, grep, listing files in a directory, and even code execution. On top of this, Cascade comes with proprietary tools such as Riptide, which is the technology underpinning the Cortex research breakthrough that was covered by the press a few months ago. It is an LLM-based search tool that can rip through millions of lines of code in seconds with 3x better accuracy than state-of-the-art embedding-based systems, all with highly optimized use of a large amount of compute.  
+• Human Actions: There are a lot of different granularities at which you can capture this information, but it is very easy to either have too little or too much information. Either you miss actions core to determining user intent or you have too much noise. We won't give away the magic sauce here, but we have done a lot of work on checkpointing, information compression, and more in order to make Cascade feel like an infinite stream of joint consciousness between human and AI.  
+We have put Cascade front and center - in fact, with Windsurf, we don't even have Chat. It is all Cascade. The flow is core to the experience, which is different from features like Cursor Composer, which is not a front-and-center capability. In our experience: Cascade is better than Composer when working on existing codebases Cascade is better than Composer at context retrieval to ground work Cascade is faster than Composer. Our hypothesis is that Composer doesn't yet have the depth of knowledge understanding, the full gamut of tools, or super fine grained human trajectories, which likely restricts its usefulness to zero-to-one applications.
 
 **Will this be available on the free Codeium plan post-GA?**  
-Our infrastructure expertise has been the secret sauce behind a number of the loved aspects of our Codeium extensions, from the crazy low latencies to the generous free tier (it’s not a financially irresponsible option for us due to our industry leading serving costs). But even for us, serving this magic at its full potential is a meaningful jump up in operating cost. So while the Windsurf Editor itself and a lot of the Cascade capabilities will be free, the full magic will only be available on paid plans in the long run. That being said, for the first couple of weeks after general access, we are going to be giving the full experience for free to any individual using the Windsurf Editor.
+Our infrastructure expertise has been the secret sauce behind a number of the loved aspects of our Codeium extensions, from the crazy low latencies to the generous free tier (it's not a financially irresponsible option for us due to our industry leading serving costs). But even for us, serving this magic at its full potential is a meaningful jump up in operating cost. So while the Windsurf Editor itself and a lot of the Cascade capabilities will be free, the full magic will only be available on paid plans in the long run. That being said, for the first couple of weeks after general access, we are going to be giving the full experience for free to any individual using the Windsurf Editor.
 
 **Who can use this and what are the security guarantees?**  
 From our end, you can use the Windsurf Editor for any work, but check with your employer if you plan to use it for your professional work. Currently, the Windsurf Editor (and connected functionalities like Cascade) are available for any of our self-serve plans, and as we learn more about the extent of what Cascade is capable of, we will make the Windsurf Editor available to enterprise plans. The Windsurf Editor obeys the same security guarantees and code snippet telemetry rules as the Codeium extensions.
@@ -593,7 +596,7 @@ Codeium is the modern coding superpower, a code acceleration toolkit built on cu
 - **Search**: lets you query your repository with natural language.  
 
 **What programming languages do you support?**  
-Codeium’s performance is enabled by default for:  
+Codeium's performance is enabled by default for:  
 APL, Assembly, Astro, Blade, C, C++, C#, Clojure, CMake, COBOL, CoffeeScript, Crystal, CSS, CUDA, Dart, Delphi, Dockerfile, Elixir, Erlang, F#, Fortran, GDScript, Go, Gradle, Groovy, Hack, Haskell, HCL, HTML, Java, JavaScript, Julia, JSON, Kotlin, LISP, Less, Lua, Makefile, MATLAB, MUMPS, Nim, Objective‑C, OCaml, pbtxt, PHP, Protobuf, Python, Perl, PowerShell, Prolog, R, Ruby, Rust, SAS, Sass, Scala, SCSS, shell, Solidity, SQL, Starlark, Swift, Svelte, TypeScript, TeX, TSX, VBA, Vimscript, Vue, YAML, Zig.  
 (On other languages you can explicitly enable Codeium.)
 
@@ -602,7 +605,7 @@ APL, Assembly, Astro, Blade, C, C++, C#, Clojure, CMake, COBOL, CoffeeScript, Cr
 - We sustain this by offering paid Pro, Teams, and Enterprise tiers with additional features.
 
 **What is the Codeium Pro Tier?**  
-The Pro Tier gives you extra “juice” for your workflows:  
+The Pro Tier gives you extra "juice" for your workflows:  
 - **Supercomplete**  
 - **Fast Autocomplete**  
 - Unlimited large‑model usage (GPT‑4o, Claude 3.5 Sonnet, Codeium large models)  
@@ -616,7 +619,7 @@ The Pro Tier gives you extra “juice” for your workflows:
 We believe every part of software development—from writing code and tests to reviewing PRs—can be accelerated by AI. Windsurf makes it seamless to turn ideas into code and iterate more efficiently.
 
 **Who should use this?**  
-Anyone with coding fundamentals—Windsurf doesn’t replace you, it empowers you. Always review and test AI‑generated code yourself.
+Anyone with coding fundamentals—Windsurf doesn't replace you, it empowers you. Always review and test AI‑generated code yourself.
 
 **Why am I getting bad results?**  
 - AI suggestions depend on context and training data.  
@@ -633,7 +636,7 @@ Anyone with coding fundamentals—Windsurf doesn’t replace you, it empowers yo
 **Feature Details**  
 
 **How does Autocomplete work?**  
-A large generative model understands your code and comments to predict what you’ll type next, backed by high‑performance serving infrastructure.
+A large generative model understands your code and comments to predict what you'll type next, backed by high‑performance serving infrastructure.
 
 **How does Windsurf Chat work?**  
 - Integrates open‑ended chat with IDE context  
@@ -641,7 +644,7 @@ A large generative model understands your code and comments to predict what you�
 - Zero‑data‑retention options for paid users, full privacy for self‑hosted  
 
 **How can you provide Windsurf Chat for free?**  
-We’re moving to our own models and infrastructure, allowing us to cover chat costs long‑term.
+We're moving to our own models and infrastructure, allowing us to cover chat costs long‑term.
 
 **Who can use Command?**  
 Everyone—Command is free in all tiers, in Windsurf Editor, VSCode, JetBrains IDEs (more coming).
@@ -661,7 +664,7 @@ Windsurf (Legacy mode), VSCode, JetBrains, Visual Studio, Eclipse, Xcode—suppo
 - **Chat**: mix of proprietary and OpenAI (self‑hosted can use only in‑house)
 
 **How does Forge work?**  
-A Chrome extension that replaces GitHub’s code review UI with an AI‑enhanced workflow.
+A Chrome extension that replaces GitHub's code review UI with an AI‑enhanced workflow.
 
 **What browsers does Forge support?**  
 Officially Chrome (works in Chromium‑based too; Safari/Firefox coming).
@@ -670,7 +673,7 @@ Officially Chrome (works in Chromium‑based too; Safari/Firefox coming).
 GitHub Free/Pro/Team/Enterprise Cloud (others coming).
 
 **When will AI review all my code?**  
-AI can’t fully review with perfect accuracy yet—Forge assists to make you a more capable reviewer.
+AI can't fully review with perfect accuracy yet—Forge assists to make you a more capable reviewer.
 
 **How does Supercomplete work?**  
 It looks at code before and after your cursor to retroactively correct as you type.
@@ -683,10 +686,10 @@ It triggers automatically alongside Autocomplete based on context.
 **Personalization**  
 
 **How do I ask a question about my codebase in chat?**  
-Prefix with “In our codebase,” or “Answer for our codebase:” to force context retrieval.
+Prefix with "In our codebase," or "Answer for our codebase:" to force context retrieval.
 
 **How can I tell what parts of my codebase were considered?**  
-Click the “Read X context items” dropdown with the search‑glass icon.
+Click the "Read X context items" dropdown with the search‑glass icon.
 
 **Why does Refactor/Explain/Docstring lack context?**  
 Context support is coming soon for those actions.
@@ -723,16 +726,16 @@ We tried them all, and have compiled results on our Compare page! Codeium has si
 
 ### Plans and Pricing
 **What are Flow Action and User Prompt credits?**  
-These credits govern the usage of premium models (Anthropic’s Claude 3.5 Sonnet, OpenAI’s GPT-4o, DeepSeek R-1) within the reasoning of Cascade. A message with a premium model consumes a model-dependent number of User Prompt credits, while tool call with a premium model consumes a model-dependent number of Flow Action credits. Depending on the prompt, the AI might...
+These credits govern the usage of premium models (Anthropic's Claude 3.5 Sonnet, OpenAI's GPT-4o, DeepSeek R-1) within the reasoning of Cascade. A message with a premium model consumes a model-dependent number of User Prompt credits, while tool call with a premium model consumes a model-dependent number of Flow Action credits. Depending on the prompt, the AI might...
 
-**What’s special about Enterprise?**  
+**What's special about Enterprise?**  
 Windsurf for Enterprises is an enterprise-grade version of Windsurf with high-security deployment options, additional features like local personalization on your private repositories, analytics dashboards, support and training, and more. While Windsurf is already the best offering for individual developers, even more AI-powered functionality can happen at a team level on larger, well-maintained repositories.
 
 **What guarantees exist on data security?**  
 For self-hosted, Windsurf for Enterprises is deployed entirely on-prem or in your Virtual Private Cloud (VPC). The best way to guarantee security is to not allow your data to leave your company's managed resources (Read More). We have also trained models in-house, built all IDE integrations, and written all custom logic to cleanly integrate the user's code with model inputs and outputs. By not relying on third party APIs, you can be confident that there is no potential for external security vulnerabilities to creep in. We recognize that every company has different data handling and management policies, as well as hardware setups, so we offer a wide range of methods to deploy Windsurf for Enterprises in a self-hosted manner. If you do not want to deploy locally, we do offer a managed service SaaS plan with zero data IP retention guarantees and SOC2 compliance, the latter being something that GitHub Copilot for Businesses particularly does not have. Zero data IP retention means that we use any code snippets or chat messages sent to us only to perform the model inference on our GPUs, but will never even persist that data. This means your IP is never stored on external servers and therefore never used for other purposes, such as training the underlying models.
 
 **Tell me more about personalization.**  
-The simple reality is if we can further personalize our system given the “data examples” that a specific customer has, and we will create a system that is the theoretically best performing system for coding that the particular customer could get. It boils down to obeying local conventions — a generic code product that wanted to adhere to syntactic patterns or to use libraries and utilities present in the particular codebase would need to have all of that code passed into it as context. If the system was instead personalized on your existing code base, both from a context awareness and fine-tuning perspective, we can deliver better suggestions as a result. And of course, all personalization is done locally within the enterprise's self-hosted Windsurf instance. No code leaves your tenant, and neither does the resulting, personalized system details.
+The simple reality is if we can further personalize our system given the "data examples" that a specific customer has, and we will create a system that is the theoretically best performing system for coding that the particular customer could get. It boils down to obeying local conventions — a generic code product that wanted to adhere to syntactic patterns or to use libraries and utilities present in the particular codebase would need to have all of that code passed into it as context. If the system was instead personalized on your existing code base, both from a context awareness and fine-tuning perspective, we can deliver better suggestions as a result. And of course, all personalization is done locally within the enterprise's self-hosted Windsurf instance. No code leaves your tenant, and neither does the resulting, personalized system details.
 
 **How does this compare to other Enterprise offerings?**  
 The primary other enterprise offerings are GitHub Copilot for Businesses and Tabnine for Enterprises. We go into detail on differences with GitHub Copilot for Businesses, and how it fails to meet basic enterprise needs in this blog post, but the gist is that all GitHub Copilot for Enterprises does is provide a team administrator to purchase and manage seats of GitHub Copilot for their employees. It provides no guarantees on code security, no customization for your codebase, and no support for common enterprise development patterns like notebooks. Tabnine for Enterprises does provide the same deployment and security options, but is a noticeably worse product compared to GitHub Copilot and Windsurf in terms of suggestion quality, to the point where it may not provide a comparable value proposition to enterprises.
@@ -763,14 +766,31 @@ But wait, how do we know the singularity hasn't already happened? But on a serio
 
 ---
 
-`.trim();
+## Additional Notes
+
+- **Supported IDEs**: VSCode, JetBrains, Vim, Neovim, Visual Studio, Eclipse, Xcode, Sublime, and more.
+- **Languages**: 70+ languages, with CodeLens suggestions for Python, JavaScript, TypeScript, Java, Go, PHP, etc.
+- **Enterprise Benefits**:
+  - High-security deployments (on-prem, VPC).
+  - Local personalization on private repositories.
+  - Analytics dashboards and enterprise support.
+- **Comparison with Competitors**:
+  - **Cursor**: Windsurf's Cascade has deeper context awareness and tool integration.
+  - **Cognition (Devin)**: Operates outside IDEs, less collaborative.
+  - **GitHub Copilot**: Lacks deployment flexibility and SOC 2 compliance.
+  - **Tabnine**: Lower suggestion quality.
+
+**Contact**:
+- Website: windsurf.com
+- Support: security@windsurf.com, Discord community
+- Enterprise: contact@windsurf.com`;
 const userPrompt = `
-Here’s the most recent snippet from the live call transcript:
+Here's the most recent snippet from the live call transcript:
 
 ${contextSnippet}
 
 A question was just asked:
-“${question}”
+"${question}"
 
 What are 2–4 concise, helpful talking points the rep can use to answer it.
 Respond only with bullet points.
@@ -833,27 +853,32 @@ async function updateTranscriptOverlay(text) {
   const textDiv = transcriptOverlayDiv.querySelector('#windsurf-transcript-text');
   if (!textDiv) return;
 
-  let question = '';
   if (typeof text === 'string' && text.trim() !== '') {
     const sentences = text.split(/[.!?\n]/).map(s => s.trim()).filter(Boolean);
-    if (sentences.length > 0) {
-      question = sentences[sentences.length - 1];
+
+    for (const s of sentences) {
+      if (!answeredQuestions.has(s) && isQuestion(s)) {
+        answeredQuestions.add(s);
+        lastQuestion = s;
+        textDiv.textContent = '  ';
+        const contextSnippet = getRecentTranscriptContext(text);
+        // Trigger the OpenAI call immediately for the newly detected question
+        getOpenAIAnswer(s, contextSnippet)
+          .then(answer => {
+            lastAnswer = answer;
+            textDiv.innerHTML = formatAnswerWithBullets(answer);
+          })
+          .catch(() => {
+            textDiv.innerHTML = '<span style="color:orange">Error getting answer.</span>';
+          });
+        // Only process the first unseen question per update cycle to keep UI stable
+        return;
+      }
     }
   }
 
-  // Only detect and answer if a new valid question is found
-  if (question && isQuestion(question) && question !== lastQuestion) {
-    lastQuestion = question;
-    textDiv.textContent = '  ';
-    const contextSnippet = getRecentTranscriptContext(text);
-    getOpenAIAnswer(question, contextSnippet).then(answer => {
-      lastAnswer = answer;
-      textDiv.innerHTML = formatAnswerWithBullets(answer);
-    }).catch(() => {
-      textDiv.innerHTML = '<span style="color:orange">Error getting answer.</span>';
-    });
-  } else if (lastAnswer && lastQuestion) {
-    // Keep showing the last answer until a new question is detected
+  // If no new question, keep rendering the last answer (if any)
+  if (lastAnswer && lastQuestion) {
     textDiv.innerHTML = formatAnswerWithBullets(lastAnswer);
   } else {
     textDiv.innerHTML = '';
@@ -1546,13 +1571,29 @@ async function updateTranscriptOverlay(text) {
 
   // Detect question in transcript
   let question = '';
+  let isQuestionDetected = false;
   if (typeof text === 'string' && text.trim() !== '') {
     const sentences = text.split(/[.!?\n]/).map(s => s.trim()).filter(Boolean);
-    if (sentences.length > 0) {
-      question = sentences[sentences.length - 1];
+    for (const s of sentences) {
+      if (!answeredQuestions.has(s) && isQuestion(s)) {
+        answeredQuestions.add(s);
+        question = s;
+        isQuestionDetected = true;
+        break;
+      }
     }
   }
-  const isQuestionDetected = isQuestion(question);
+  // If we didn't find a brand new question, fall back to last sentence heuristic
+  if (!isQuestionDetected) {
+    if (typeof text === 'string' && text.trim() !== '') {
+      const sentences = text.split(/[.!?\n]/).map(s => s.trim()).filter(Boolean);
+      if (sentences.length > 0) {
+        const possible = sentences[sentences.length - 1];
+        isQuestionDetected = isQuestion(possible);
+        if (isQuestionDetected) question = possible;
+      }
+    }
+  }
 
   // Check if transcript is reading from the pane
   const currentlyReading = isReadingFromPane(text, lastAnswer);
