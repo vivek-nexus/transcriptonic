@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Windsurf Extension Settings</title>
+  <style>
+    body { font-family: sans-serif; background: #181a20; color: #fff; margin: 0; padding: 2em; }
+    .container { max-width: 420px; margin: 0 auto; background: #23262f; border-radius: 12px; padding: 2em; box-shadow: 0 2px 8px #0005; }
+    label { display: block; margin-bottom: 0.5em; font-weight: 600; }
+    input[type="text"] { width: 100%; padding: 0.7em; border-radius: 6px; border: 1px solid #444; background: #222; color: #fff; margin-bottom: 1em; }
+    button { padding: 0.7em 1.5em; border: none; border-radius: 6px; background: #f7b731; color: #222; font-weight: 700; cursor: pointer; }
+    .status { margin-top: 1em; color: #f7b731; font-size: 1em; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Windsurf Extension Settings</h2>
+    <form id="apiKeyForm">
+      <label for="apiKey">OpenAI API Key</label>
+      <input type="text" id="apiKey" name="apiKey" placeholder="sk-..." autocomplete="off" />
+      <button type="submit">Save</button>
+      <div class="status" id="status"></div>
+    </form>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

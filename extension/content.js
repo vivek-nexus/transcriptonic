@@ -100,7 +100,18 @@ function ensureTranscriptOverlay() {
 
 // === SALES ASSISTANT QUESTION DETECTION ===
 // Place your OpenAI API key here (do NOT commit to public repos)
-const OPENAI_API_KEY = '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';
+async function getOpenAIApiKey() {
+  return new Promise((resolve) => {
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get(['OPENAI_API_KEY'], (result) => {
+        resolve(result.OPENAI_API_KEY || null);
+      });
+    } else {
+      // Not running as a Chrome extension context
+      resolve(null);
+    }
+  });
+}
 
 let lastQuestion = '';
 let lastAnswer = '';
@@ -143,6 +154,11 @@ async function getWindsurfProductContext() {
 }
 
 async function getOpenAIAnswer(question, contextSnippet) {
+  const apiKey = await getOpenAIApiKey();
+  if (!apiKey) {
+    console.error("OpenAI API key not found.");
+    return "Error: OpenAI API key not found.";
+  }
   const context = `# Windsurf (Formerly Codeium) Overview
 
 **Windsurf** is an AI-powered coding platform designed to enhance developer productivity through an agentic IDE and plugins. Launched as Exafunction in 2021, rebranded to Codeium in 2022, and officially renamed Windsurf in April 2025, the company combines human and machine capabilities to create a seamless "flow state" for developers. Windsurf offers tools for individuals and enterprises, emphasizing security, scalability, and intuitive AI integration.
@@ -286,7 +302,7 @@ async function getOpenAIAnswer(question, contextSnippet) {
 
 ### Windsurf Editor
 **What is Windsurf?**  
-We don't mind if you call the Windsurf Editor the first agentic IDE, the first native surface for developers to collaborate with AI, or simply how we like to think about it - tomorrow’s editor, today. When we first used the Windsurf Editor, a lot of the words that we found resonating with us included magic, power, and flow state. Windsurfing perfectly captures the combination of human, machine, and nature in an activity that looks effortless, but takes an intense amount of power. You can think of the Windsurf Editor as the first agentic IDE, and then more. It is a new paradigm of working with AI, which we are calling AI flows - collaborative agents. We started with the existing paradigms of AI use. Copilots are great because of their collaborativeness with the developer - the human is always in the loop. That being said, to keep the human in the loop, copilots are generally confined to short scoped tasks. On the other hand, agents are great because the AI can independently iterate to complete much larger tasks. The tradeoff is that you lose the collaborative aspect, which is why we haven’t seen an agentic IDE (yet). An IDE would be overkill. Both copilots and agents are super powerful and have their use cases, but have generally been seen as complementary because their strengths and weaknesses are indeed complementary. Our spark came from one simple question - what if the AI had the best of both worlds? What if the AI was capable of being both collaborative and independent? Well, that is what makes humans special. Working with that kind of AI could feel like magic. With a lot of research, we built the foundations of this kind of system, which we are calling AI flows. AI flows allow developers and AI to truly mind-meld, combining the best of copilots and agents.
+We don't mind if you call the Windsurf Editor the first agentic IDE, the first native surface for developers to collaborate with AI, or simply how we like to think about it - tomorrow’s editor, today. When we first used the Windsurf Editor, a lot of the words that we found resonating with us included magic, power, and flow state. Windsurfing perfectly captures the combination of human, machine, and nature in an activity that looks effortless, but takes an intense amount of power. You can think of the Windsurf Editor as the first agentic IDE, and then some. It is a new paradigm of working with AI, which we are calling AI flows - collaborative agents. We started with the existing paradigms of AI use. Copilots are great because of their collaborativeness with the developer - the human is always in the loop. That being said, to keep the human in the loop, copilots are generally confined to short scoped tasks. On the other hand, agents are great because the AI can independently iterate to complete much larger tasks. The tradeoff is that you lose the collaborative aspect, which is why we haven’t seen an agentic IDE (yet). An IDE would be overkill. Both copilots and agents are super powerful and have their use cases, but have generally been seen as complementary because their strengths and weaknesses are indeed complementary. Our spark came from one simple question - what if the AI had the best of both worlds? What if the AI was capable of being both collaborative and independent? Well, that is what makes humans special. Working with that kind of AI could feel like magic. With a lot of research, we built the foundations of this kind of system, which we are calling AI flows. AI flows allow developers and AI to truly mind-meld, combining the best of copilots and agents.
 
 **Why did you build your own IDE? And why did you fork VS Code?**  
 We never went into building an editor until we realized the magic of flows and Cascade. That being said, we also were honest with ourselves that we did not have to build the editor entirely from scratch to expose this magic, so we forked Visual Studio Code. We are fully aware of the memes about people forking VS Code to create “AI IDEs,” but again, we would not have built the Windsurf Editor if extensions could maximize the potential of our vision. With regards to extensions, we have been an extension-first company, and still recognize that people really like the editors that they have, especially within our enterprise customer base. So, our Codeium extensions are not going anywhere, and we are going to continue to improve them to the max of their capabilities. Even some flow capabilities like Supercomplete are doable within extensions, and so we will build them in! The only difference with the Windsurf Editor is that we now have a surface where we are truly unconstrained to expose the magic as it evolves. As we start building towards a mission of helping across the entire software development life cycle, not just coding, we will be releasing our own products under this new Windsurf brand, starting with the Editor. These will be products natively and fully owned by us. Codeium will still exist as its own brand and product, representing extensions and integrations into existing products such as commonly used IDEs. So tl;dr, Windsurf and Codeium are two different products, though they do share a lot of underlying systems and infrastructure.
@@ -385,7 +401,7 @@ Not private code. Codeium's underlying model was trained on publicly available n
 As with any other ML model, results from Codeium reflect the data used for training. The data used for training is primarily in English and does not have a uniform distribution of programming languages, so users may see degraded performance in certain natural and programming languages. In addition, there may have been offensive language, insecure coding patterns, or personally identifiable information in the publicly available training data. While we have anecdotal evidence that this information, especially personal data, is not produced verbatim, we always warn users to (a) not try to explicitly misuse Codeium and (b) review and test all produced code as if it is your own.
 
 **What data does Codeium collect?**  
-Please see our Privacy and Security page, as well as our Privacy Policy and Terms of Service. The code you develop based on suggestions originally generated by Codeium belongs to you, so you assume both the responsibility and the ownership. For Individuals, in order to continuously improve, Codeium does collect telemetry data such as latency, engagement with features, and suggestions accepted and rejected. This data is only used for directly improving the functionality, usability, and quality of Codeium, detecting abuse of the system, and evaluating Codeium's impact. Your data is not shared with, sold to, or used by any other party, company, or product, and we protect your data by encrypting data in transit. This data is primarily used or inspected in aggregate, and can only be directly accessed in extreme cases by authorized members of the Codeium team. Code data submitted by zero-data retention mode users will never be trained on. We want Codeium to be a product you can trust, and so any data collected will only be used to further increase Codeium's value to you. Codeium also does provide users with the option to opt out from allowing Codeium to store (and therefore use) their code snippet data post-inference, which can be found on your profile page. For Enterprise, Codeium collects no data beyond number of seats used for billing purposes, irrespective of user settings. No code or data ever leaves the enterprise firewall (on-prem servers or virtual private cloud).
+Please see our Privacy and Security page, as well as our Privacy Policy and Terms of Service. The code you develop based on suggestions originally generated by Codeium belongs to you, so you assume both the responsibility and the ownership. For Individuals, in order to continuously improve, Codeium does collect telemetry data such as latency, engagement with features, and suggestions accepted and rejected. This data is only used for directly improving the functionality, usability, and quality of Codeium, detecting abuse of the system, and evaluating Codeium's impact. Your data is not shared with, sold to, or used by any other party, company, or product, and we protect your data by encrypting data in transit. This data is primarily used or inspected in aggregate, and can only be directly accessed in extreme cases by authorized members of the Codeium team. Codeium also does provide users with the option to opt out from allowing Codeium to store (and therefore use) their code snippet data post-inference, which can be found on your profile page. For Enterprise, Codeium collects no data beyond number of seats used for billing purposes, irrespective of user settings. No code or data ever leaves the enterprise firewall (on-prem servers or virtual private cloud).
 
 **Does Codeium train on GPL or non-permissively licensed code?**  
 We do not train our own models on repositories with nonpermissive licenses (i.e. GPL). We deeply respect open source, and the work done by these communities have undoubtedly been instrumental to making the software industry what it is today. We also do not want to expose our users, such as our enterprise customers, to potential legal risk. This is in clear difference with products such as GitHub Copilot. Read more in this blog post.
@@ -422,7 +438,7 @@ But wait, how do we know the singularity hasn't already happened? But on a serio
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${OPENAI_API_KEY}`
+      'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
       model: 'gpt-4o',
@@ -462,13 +478,13 @@ async function updateTranscriptOverlay(text) {
     if (typeof text === 'string' && text.trim() !== '') {
       const sentences = text.split(/[.!?\n]/).map(s => s.trim()).filter(Boolean);
       for (let i = sentences.length - 1; i >= 0; i--) {
-        if (isQuestion(sentences[i])) {
+        if (isHighSignalSalesQuestion(sentences[i])) {
           question = sentences[i];
           break;
         }
       }
     }
-    // If a new question, or answer lock expired (7s since last answer)
+    // If a new high-signal question, or answer lock expired (7s since last answer)
     if (question && (question !== lastQuestion || (now - lastAnswerTimestamp > 7000))) {
       lastQuestion = question;
       textDiv.textContent = 'Generating talking point...';
@@ -1137,3 +1153,82 @@ function recoverLastMeeting() {
     })
   })
 }
+
+
+
+
+
+// CURRENT GOOGLE MEET TRANSCRIPT DOM. TO BE UPDATED.
+
+{/* <div class="a4cQT kV7vwc eO2Zfd" jscontroller="D1tHje" jsaction="bz0DVc:HWTqGc;E18dRb:lUFH9b;QBUr8:lUFH9b;stc2ve:oh3Xke" style="">
+  // CAPTION LANGUAGE SETTINGS. MAY OR MAY NOT HAVE CHILDREN
+  <div class="NmXUuc  P9KVBf" jscontroller="rRafu" jsaction="F41Sec:tsH52e;OmFrlf:xfAI6e(zHUIdd)"></div>
+  <div class="DtJ7e">
+    <span class="frX3lc-vlkzWd  P9KVBf"></span>
+    <div jsname="dsyhDe" class="iOzk7 uYs2ee " style="">
+      //PERSON 1
+      <div class="nMcdL bj4p3b" style="">
+        <div class="adE6rb M6cG9d">
+          <img alt="" class="Z6byG r6DyN" src="https://lh3.googleusercontent.com/a/some-url" data-iml="63197.699999999255">
+            <div class="KcIKyf jxFHg">Person 1</div>
+        </div>
+        <div jsname="YSxPC" class="bYevke wY1pdd" style="height: 27.5443px;">
+          <div jsname="tgaKEf" class="bh44bd VbkSUe">
+            <span>Some transcript text.</span>
+            <span>Some more text.</span></div>
+        </div>
+      </div>
+      //PERSON 2
+      <div class="nMcdL bj4p3b" style="">
+        <div class="adE6rb M6cG9d">
+          <img alt="" class="Z6byG r6DyN" src="https://lh3.googleusercontent.com/a/some-url" data-iml="63197.699999999255">
+            <div class="KcIKyf jxFHg">Person 2</div>
+        </div>
+        <div jsname="YSxPC" class="bYevke wY1pdd" style="height: 27.5443px;">
+          <div jsname="tgaKEf" class="bh44bd VbkSUe">
+            <span>Some transcript text.</span>
+            <span>Some more text.</span></div>
+        </div>
+      </div>
+    </div>
+    <div jsname="APQunf" class="iOzk7 uYs2ee" style="display: none;">
+    </div>
+  </div>
+  <div jscontroller="mdnBv" jsaction="stc2ve:MO88xb;QBUr8:KNou4c">
+  </div>
+</div> */}
+
+// CURRENT GOOGLE MEET CHAT MESSAGES DOM
+{/* <div jsname="xySENc" aria-live="polite" jscontroller="Mzzivb" jsaction="nulN2d:XL2g4b;vrPT5c:XL2g4b;k9UrDc:ClCcUe"
+  class="Ge9Kpc z38b6">
+  <div class="Ss4fHf" jsname="Ypafjf" tabindex="-1" jscontroller="LQRnv"
+    jsaction="JIbuQc:sCzVOd(aUCive),T4Iwcd(g21v4c),yyLnsd(iJEnyb),yFT8A(RNMM1e),Cg1Rgf(EZbOH)" style="order: 0;">
+    <div class="QTyiie">
+      <div class="poVWob">You</div>
+      <div jsname="biJjHb" class="MuzmKe">17:00</div>
+    </div>
+    <div class="beTDc">
+      <div class="er6Kjc chmVPb">
+        <div class="ptNLrf">
+          <div jsname="dTKtvb">
+            <div jscontroller="RrV5Ic" jsaction="rcuQ6b:XZyPzc" data-is-tv="false">Hello</div>
+          </div>
+          <div class="pZBsfc">Hover over a message to pin it<i class="google-material-icons VfPpkd-kBDsod WRc1Nb"
+              aria-hidden="true">keep</i></div>
+          <div class="MMfG3b"><span tooltip-id="ucc-17"></span><span data-is-tooltip-wrapper="true"><button
+                class="VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c Brnbv pFZkBd" jscontroller="soHxf"
+                jsaction="click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue; touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc; touchcancel:JMtRjd; focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;mlnRJb:fLiPzd"
+                jsname="iJEnyb" data-disable-idom="true" aria-label="Pin message" data-tooltip-enabled="true"
+                data-tooltip-id="ucc-17" data-tooltip-x-position="3" data-tooltip-y-position="2" role="button"
+                data-message-id="1714476309237">
+                <div jsname="s3Eaab" class="VfPpkd-Bz112c-Jh9lGc"></div>
+                <div class="VfPpkd-Bz112c-J1Ukfc-LhBDec"></div><i class="google-material-icons VfPpkd-kBDsod VjEpdd"
+                  aria-hidden="true">keep</i>
+              </button>
+              <div class="EY8ABd-OWXEXe-TAWMXe" role="tooltip" aria-hidden="true" id="ucc-17">Pin message</div>
+            </span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> */}
