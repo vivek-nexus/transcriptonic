@@ -476,8 +476,26 @@ Respond only with bullet points.
 // Helper: Detect if a string is a question (basic version)
 function isQuestion(text) {
   if (!text) return false;
-  // Simple: ends with ? or contains common question words
-  return /\?$|\b(what|how|why|when|where|who|which|can|do|does|is|are|could|should|would|will|may)\b/i.test(text.trim());
+  const q = text.trim().toLowerCase();
+  // Accept if ends with ?
+  if (q.endsWith('?')) return true;
+  // Common question words/phrases
+  const questionWords = [
+    'what', 'how', 'why', 'when', 'where', 'who', 'which', 'can', 'do', 'does', 'is', 'are',
+    'could', 'should', 'would', 'will', 'may', 'price', 'cost', 'safe', 'offer', 'team', 'plan', 'feature', 'difference', 'again', 'so', 'tell me', 'explain', 'help', 'make', 'works', 'benefit', 'support', 'enterprise', 'security', 'compliance', 'raise', 'fund', 'pricing', 'free', 'trial'
+  ];
+  // Fuzzy match for Windsurf variants
+  const windsurfVariants = ['windsurf', 'windsorb', 'windsafe', 'windswub', 'windsor', 'winter sport', 'wind staff', 'wind staff', 'wind surf'];
+  const containsWindsurf = windsurfVariants.some(v => q.includes(v));
+  // Accept if contains question word and windsurf variant
+  if (containsWindsurf && questionWords.some(w => q.includes(w))) return true;
+  // Accept informal/follow-up questions
+  if (/so (what|how|why|when|where|who|which|can|do|does|is|are|could|should|would|will|may|price|cost|safe|offer|plan|feature|difference|again)/.test(q)) return true;
+  // Accept if question word is present and it's not just a statement
+  if (questionWords.some(w => q.startsWith(w + ' '))) return true;
+  // Accept short informal questions
+  if (['so what is it', 'what is it', 'what is this', 'how does it work', 'how much', 'how are you', 'what makes'].some(phrase => q.includes(phrase))) return true;
+  return false;
 }
 
 // Helper: Get recent transcript context (last 8 lines or 45 seconds)
@@ -486,50 +504,37 @@ function getRecentTranscriptContext(transcriptText) {
   return lines.slice(-8).join('. ') + '.';
 }
 
-// Override updateTranscriptOverlay to only show answer to detected question, with lock delay
+// Override updateTranscriptOverlay to only show answer to detected question, with correct pane state logic
 async function updateTranscriptOverlay(text) {
   ensureTranscriptOverlay();
   const textDiv = transcriptOverlayDiv.querySelector('#windsurf-transcript-text');
-  const now = Date.now();
-  if (textDiv) {
-    // Only update if lockout expired or new question
-    let question = '';
-    if (typeof text === 'string' && text.trim() !== '') {
-      const sentences = text.split(/[.!?\n]/).map(s => s.trim()).filter(Boolean);
-      // Use the last non-empty sentence as the question
-      if (sentences.length > 0) {
-        question = sentences[sentences.length - 1];
-      }
-    }
-    // If a new question, or answer lock expired (7s since last answer)
-    if (question && (question !== lastQuestion || (now - lastAnswerTimestamp > 7000))) {
-      lastQuestion = question;
-      textDiv.textContent = '  ';
-      const contextSnippet = getRecentTranscriptContext(text);
-      getOpenAIAnswer(question, contextSnippet).then(answer => {
-        lastAnswer = answer;
-        lastAnswerTimestamp = Date.now();
-        textDiv.innerHTML = formatAnswerWithBullets(answer);
-        // Start lockout timer
-        if (answerTimer) clearTimeout(answerTimer);
-        answerTimer = setTimeout(() => {
-          // Only clear if no new question has come in
-          if (Date.now() - lastAnswerTimestamp >= 7000) {
-            textDiv.innerHTML = '';
-            lastQuestion = '';
-            lastAnswer = '';
-          }
-        }, 7000);
-      }).catch(() => {
-        textDiv.innerHTML = '<span style="color:orange">Error getting answer.</span>';
-      });
-    } else if (lastAnswer && lastQuestion && (now - lastAnswerTimestamp < 7000)) {
-      textDiv.innerHTML = formatAnswerWithBullets(lastAnswer);
-    } else {
-      textDiv.innerHTML = '';
+  if (!textDiv) return;
+
+  let question = '';
+  if (typeof text === 'string' && text.trim() !== '') {
+    const sentences = text.split(/[.!?\n]/).map(s => s.trim()).filter(Boolean);
+    if (sentences.length > 0) {
+      question = sentences[sentences.length - 1];
     }
   }
-  hideGoogleMeetTranscriptPane();
+
+  // Only detect and answer if a new valid question is found
+  if (question && isQuestion(question) && question !== lastQuestion) {
+    lastQuestion = question;
+    textDiv.textContent = '  ';
+    const contextSnippet = getRecentTranscriptContext(text);
+    getOpenAIAnswer(question, contextSnippet).then(answer => {
+      lastAnswer = answer;
+      textDiv.innerHTML = formatAnswerWithBullets(answer);
+    }).catch(() => {
+      textDiv.innerHTML = '<span style="color:orange">Error getting answer.</span>';
+    });
+  } else if (lastAnswer && lastQuestion) {
+    // Keep showing the last answer until a new question is detected
+    textDiv.innerHTML = formatAnswerWithBullets(lastAnswer);
+  } else {
+    textDiv.innerHTML = '';
+  }
 }
 
 // Helper: Format answer with beautiful bullets
