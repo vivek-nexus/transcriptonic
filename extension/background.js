@@ -261,7 +261,7 @@ function downloadTranscript(index, isWebhookEnabled) {
                 const timestamp = new Date(meeting.meetingStartTimestamp)
                 const formattedTimestamp = timestamp.toLocaleString("default", timeFormat).replace(/[\/:]/g, "-")
 
-                const fileName = `WindsurfOnsiteDemo/Transcript-${sanitisedMeetingTitle} at ${formattedTimestamp}.txt`
+                const fileName = `Transcript-${sanitisedMeetingTitle} at ${formattedTimestamp}.txt`
 
 
                 // Format transcript and chatMessages content
@@ -306,10 +306,10 @@ function downloadTranscript(index, isWebhookEnabled) {
                             chrome.downloads.download({
                                 // @ts-ignore
                                 url: dataUrl,
-                                filename: "WindsurfOnsiteDemo/Transcript.txt",
+                                filename: "Transcript.txt",
                                 conflictAction: "uniquify"
                             })
-                            console.log("Invalid file name. Transcript downloaded to WindsurfOnsiteDemo directory with simple file name.")
+                            console.log("Invalid file name. Transcript downloaded to root of Downloads folder with simple file name.")
                             resolve("Transcript downloaded successfully with default file name")
 
                             // Logs anonymous errors to a Google sheet for swift debugging   
