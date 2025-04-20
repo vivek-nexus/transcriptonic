@@ -135,7 +135,7 @@ function processLastMeeting() {
     return new Promise((resolve, reject) => {
         pickupLastMeetingFromStorage()
             .then(() => {
-                chrome.storage.local.get(["meetings"], function (resultLocalUntyped) {
+                chrome.storage.local.get(["meetings"], async function (resultLocalUntyped) {
                     const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
                     chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (resultSyncUntyped) {
                         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
@@ -240,7 +240,7 @@ function pickupLastMeetingFromStorage() {
  */
 function downloadTranscript(index, isWebhookEnabled) {
     return new Promise((resolve, reject) => {
-        chrome.storage.local.get(["meetings"], function (resultLocalUntyped) {
+        chrome.storage.local.get(["meetings"], async function (resultLocalUntyped) {
             const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
 
             if (resultLocal.meetings && resultLocal.meetings[index]) {
@@ -264,8 +264,15 @@ function downloadTranscript(index, isWebhookEnabled) {
                 const fileName = `Transcript-${sanitisedMeetingTitle} at ${formattedTimestamp}.txt`
 
 
-                // Format transcript and chatMessages content
+                // Format transcript, analytics, and chatMessages content
                 let content = getTranscriptString(meeting.transcript)
+
+                // Generate analytics (AI‑powered if possible)
+                const analyticsSection = await getAIAnalyticsString(meeting.transcript)
+                content += `\n\n---------------\nCALL ANALYTICS & COACHING\n---------------\n\n`
+                content += analyticsSection
+
+                // Add chat messages after analytics
                 content += `\n\n---------------\nCHAT MESSAGES\n---------------\n\n`
                 content += getChatMessagesString(meeting.chatMessages)
 
@@ -500,4 +507,147 @@ function recoverLastMeeting() {
             }
         })
     })
+}
+
+/**
+ * Generate analytics and coaching insights for the call transcript
+ * @param {TranscriptBlock[]} transcript
+ * @returns {string}
+ */
+function getRuleBasedAnalytics(transcript) {
+    // Early return if transcript empty
+    if (!transcript || transcript.length === 0) {
+        return "No transcript data available to generate analytics.";
+    }
+
+    /** @type {Record<string, {wordCount:number, questionCount:number, fillerCount:number}>} */
+    const speakerStats = {}
+
+    const fillerWords = ["um", "uh", "you know", "like", "hmm", "erm", "ah", "so"]
+
+    transcript.forEach(block => {
+        const speaker = block.personName || "Unknown"
+        if (!speakerStats[speaker]) {
+            speakerStats[speaker] = { wordCount: 0, questionCount: 0, fillerCount: 0 }
+        }
+
+        const words = block.transcriptText.split(/\s+/).filter(Boolean)
+        speakerStats[speaker].wordCount += words.length
+
+        // Count questions (naively by '?')
+        speakerStats[speaker].questionCount += (block.transcriptText.match(/\?/g) || []).length
+
+        // Count filler words (case‑insensitive)
+        const lower = block.transcriptText.toLowerCase()
+        fillerWords.forEach(fw => {
+            const regex = new RegExp(`\\b${fw}\\b`, "g")
+            speakerStats[speaker].fillerCount += (lower.match(regex) || []).length
+        })
+    })
+
+    // Compute totals & talk ratios
+    const totalWords = Object.values(speakerStats).reduce((acc, s) => acc + s.wordCount, 0) || 1
+
+    let analyticsString = "PARTICIPANTS ANALYSIS\n\n"
+
+    Object.entries(speakerStats).forEach(([speaker, stats]) => {
+        const ratio = ((stats.wordCount / totalWords) * 100).toFixed(1)
+        analyticsString += `${speaker}:\n  Talk Ratio: ${ratio}%\n  Questions Asked: ${stats.questionCount}\n  Filler Words: ${stats.fillerCount}\n\n`
+    })
+
+    // Identify dominant speaker (highest wordCount)
+    const dominantSpeaker = Object.entries(speakerStats).sort((a, b) => b[1].wordCount - a[1].wordCount)[0][0]
+    const dominantRatio = ((speakerStats[dominantSpeaker].wordCount / totalWords) * 100)
+
+    analyticsString += "COACHING INSIGHTS\n\n"
+
+    // Suggest balanced talk time
+    if (dominantRatio > 60) {
+        analyticsString += `- ${dominantSpeaker} spoke ${dominantRatio.toFixed(1)}% of the time. Consider encouraging more two‑way dialogue.\n`
+    } else {
+        analyticsString += "- Good balance of talk time among participants.\n"
+    }
+
+    // Suggest asking more questions for each speaker
+    Object.entries(speakerStats).forEach(([speaker, stats]) => {
+        if (stats.questionCount < 3) {
+            analyticsString += `- ${speaker} asked only ${stats.questionCount} question(s). Try incorporating more open‑ended questions.\n`
+        }
+    })
+
+    // Suggest reducing filler words
+    Object.entries(speakerStats).forEach(([speaker, stats]) => {
+        if (stats.fillerCount > 5) {
+            analyticsString += `- ${speaker} used ${stats.fillerCount} filler words. Practice concise messaging.\n`
+        }
+    })
+
+    return analyticsString
+}
+
+// === AI‑powered analytics ===
+/**
+ * Attempts to generate deep coaching insights using OpenAI. Falls back to rule‑based analytics if
+ * API key not configured or request fails.
+ * @param {TranscriptBlock[]} transcript
+ * @returns {Promise<string>} analytics string
+ */
+async function getAIAnalyticsString(transcript) {
+    // Import helper to read API key (duplicated small util to avoid circular deps)
+    const apiKey = await new Promise((resolve) => {
+        if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.get(["OPENAI_API_KEY"], (result) => {
+                resolve(result.OPENAI_API_KEY || null)
+            })
+        } else {
+            resolve(null)
+        }
+    })
+
+    if (!apiKey) {
+        console.warn("OpenAI API key not found. Using rule‑based analytics.")
+        return getRuleBasedAnalytics(transcript)
+    }
+
+    // Prepare prompt with transcript (truncate to keep within token limits)
+    const maxChars = 6000 // ~ 1.5k tokens; adjust as needed
+    let transcriptText = ""
+    transcript.forEach(block => {
+        transcriptText += `${block.personName}: ${block.transcriptText}\n`
+    })
+    if (transcriptText.length > maxChars) {
+        transcriptText = transcriptText.slice(-maxChars) // take last part of conversation
+    }
+
+    const prompt = `You are a world‑class sales coach. Analyze the following sales call transcript and produce:
+1. Participant talk ratios and key stats (questions asked, filler words observed).
+2. 5–8 bullet‑point highlights of what the rep did well.
+3. 5–8 bullet‑point actionable areas for improvement.
+4. Overall sentiment and next‑step recommendation.
+Output must be plain text, markdown‑style bullets, no JSON. Keep it concise and helpful.\n\nTRANSCRIPT:\n\n${transcriptText}`
+
+    try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini",
+                temperature: 0.4,
+                messages: [
+                    { role: "system", content: "You are an expert sales coach." },
+                    { role: "user", content: prompt }
+                ]
+            })
+        })
+        if (!response.ok) throw new Error(`OpenAI error ${response.status}`)
+        const data = await response.json()
+        const aiText = data.choices?.[0]?.message?.content?.trim()
+        return aiText || getRuleBasedAnalytics(transcript)
+    } catch (err) {
+        console.error("Failed to get AI analytics:", err)
+        return getRuleBasedAnalytics(transcript)
+    }
 }
