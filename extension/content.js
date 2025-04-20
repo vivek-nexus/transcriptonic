@@ -405,9 +405,11 @@ But wait, how do we know the singularity hasn't already happened? But on a serio
 - Support: security@windsurf.com, Discord community
 - Enterprise: contact@windsurf.com`;
 const systemPrompt = `
-You are a top-performing sales assistant for Windsurf.com — the first agentic IDE where developers and AI truly flow together. You work alongside a real sales rep, live in a Google Meet call, helping them confidently answer product, technical, or pricing-related questions.
+You are a top-performing sales assistant for Windsurf.com — the first agentic IDE where developers and AI truly flow together. You work alongside a real sales rep, live in a Google Meet call, helping them confidently answer any questions during the call.
 
 Your job is to generate **bullet-point talking points** — not a script — that the sales rep can scan and naturally speak to in the moment.
+
+even if you read windsor, winter sport, wind safe, these things are all referring to windsurf.
 
 ---
 
@@ -424,6 +426,7 @@ Your job is to generate **bullet-point talking points** — not a script — tha
 ---
 
 🧩 Output Format:
+dont ask questions or clarrification in the output. only answer in bullet points
 Respond with 2–4 short, punchy **bullet points** that help the rep explain the product in their own words.
 
 Each bullet should:
@@ -1180,4 +1183,106 @@ function recoverLastMeeting() {
       }
     })
   })
+}
+
+// === PANE STATE MANAGEMENT ===
+let paneState = 'empty'; // 'empty' | 'answerDisplayed' | 'beingRead'
+let lastPaneReadTimestamp = 0;
+
+// Utility: Check if transcript is reading the current pane content
+function isReadingFromPane(transcript, paneContent) {
+  if (!paneContent || !transcript) return false;
+  // Consider reading if transcript contains 60%+ of the pane content words
+  const paneWords = paneContent.split(/\s+/).filter(Boolean);
+  const transcriptWords = transcript.split(/\s+/).filter(Boolean);
+  if (paneWords.length === 0) return false;
+  let matchCount = 0;
+  for (const word of paneWords) {
+    if (transcriptWords.includes(word)) matchCount++;
+  }
+  return (matchCount / paneWords.length) >= 0.6;
+}
+
+// Override updateTranscriptOverlay to only show answer to detected question, with correct pane state logic
+async function updateTranscriptOverlay(text) {
+  ensureTranscriptOverlay();
+  const textDiv = transcriptOverlayDiv.querySelector('#windsurf-transcript-text');
+  const now = Date.now();
+  if (!textDiv) return;
+
+  // At meeting start, pane is empty
+  if (paneState === 'empty' && (!text || text.trim() === '')) {
+    textDiv.innerHTML = '';
+    return;
+  }
+
+  // Detect question in transcript
+  let question = '';
+  if (typeof text === 'string' && text.trim() !== '') {
+    const sentences = text.split(/[.!?\n]/).map(s => s.trim()).filter(Boolean);
+    if (sentences.length > 0) {
+      question = sentences[sentences.length - 1];
+    }
+  }
+  const isQuestionDetected = isQuestion(question);
+
+  // Check if transcript is reading from the pane
+  const currentlyReading = isReadingFromPane(text, lastAnswer);
+
+  // --- STATE MACHINE ---
+  if (paneState === 'empty') {
+    if (isQuestionDetected) {
+      // New question detected, show answer
+      lastQuestion = question;
+      textDiv.textContent = '  ';
+      const contextSnippet = getRecentTranscriptContext(text);
+      getOpenAIAnswer(question, contextSnippet).then(answer => {
+        lastAnswer = answer;
+        lastAnswerTimestamp = Date.now();
+        textDiv.innerHTML = formatAnswerWithBullets(answer);
+        paneState = 'answerDisplayed';
+      }).catch(() => {
+        textDiv.innerHTML = '<span style="color:orange">Error getting answer.</span>';
+      });
+    } else {
+      textDiv.innerHTML = '';
+    }
+    return;
+  }
+
+  if (paneState === 'answerDisplayed') {
+    if (currentlyReading) {
+      paneState = 'beingRead';
+      lastPaneReadTimestamp = now;
+      // Do not clear/update while being read
+      return;
+    } else if (isQuestionDetected && question !== lastQuestion) {
+      // New question detected
+      lastQuestion = question;
+      textDiv.textContent = '  ';
+      const contextSnippet = getRecentTranscriptContext(text);
+      getOpenAIAnswer(question, contextSnippet).then(answer => {
+        lastAnswer = answer;
+        lastAnswerTimestamp = Date.now();
+        textDiv.innerHTML = formatAnswerWithBullets(answer);
+        paneState = 'answerDisplayed';
+      }).catch(() => {
+        textDiv.innerHTML = '<span style="color:orange">Error getting answer.</span>';
+      });
+      return;
+    } else {
+      // Keep current answer visible
+      textDiv.innerHTML = formatAnswerWithBullets(lastAnswer);
+    }
+    return;
+  }
+
+  if (paneState === 'beingRead') {
+    if (!currentlyReading) {
+      paneState = 'answerDisplayed';
+    }
+    // Do not clear the pane while being read
+    textDiv.innerHTML = formatAnswerWithBullets(lastAnswer);
+    return;
+  }
 }
