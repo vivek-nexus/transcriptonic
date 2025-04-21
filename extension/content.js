@@ -516,6 +516,22 @@ But wait, how do we know the singularity hasn't already happened? But on a serio
   - **GitHub Copilot**: Lacks deployment flexibility and SOC 2 compliance.
   - **Tabnine**: Lower suggestion quality.
 
+  If you see // Fuzzy match for Windsurf variants
+  const windsurfVariants = [
+    'windsurf',        // correct spelling
+    'wind surf',       // separated words
+    'wind-surf',       // hyphenated
+    'windsorb',        // common mis-hearing
+    'windsafe', 'wind safe', // safety‑related mis-hearings
+    'windswub',
+    'windsor', 'windsore',   // pronunciation variants
+    'wind soar',             // homophone
+    'wind turf',             // homophone
+    'winter sport',
+    'the winter',            // "the Winter" mis-hearing
+    'wind staff'            // duplicate removed
+  ];
+  any of these variants, then so you know, we are referring to Windsurf (the IDE)
 **Contact**:
 - Website: windsurf.com
 - Support: security@windsurf.com, Discord community
@@ -551,7 +567,16 @@ Respond only with bullet points.
     })
   });
   const data = await response.json();
-  return data.choices?.[0]?.message?.content?.trim() || ' ';
+  const rawAnswer = data.choices?.[0]?.message?.content?.trim() || ' ';
+  return sanitizeAnswer(rawAnswer);
+}
+
+// Helper: remove any bullet lines that contain a question mark – we never want to show clarifying questions like "Did you mean ...?"
+function sanitizeAnswer(answer) {
+  if (!answer) return answer;
+  const lines = answer.split(/\r?\n/);
+  const filtered = lines.filter(l => /^\s*[\-•]\s+/.test(l) && !l.includes('?'));
+  return filtered.join('\n').trim();
 }
 
 // Helper: Detect if a string is a question (basic version)
@@ -566,7 +591,20 @@ function isQuestion(text) {
     'could', 'should', 'would', 'will', 'may', 'price', 'cost', 'safe', 'offer', 'team', 'plan', 'feature', 'difference', 'again', 'so', 'tell me', 'explain', 'help', 'make', 'works', 'benefit', 'support', 'enterprise', 'security', 'compliance', 'raise', 'fund', 'pricing', 'free', 'trial'
   ];
   // Fuzzy match for Windsurf variants
-  const windsurfVariants = ['windsurf', 'windsorb', 'windsafe', 'windswub', 'windsor', 'winter sport', 'wind staff', 'wind staff', 'wind surf'];
+  const windsurfVariants = [
+    'windsurf',        // correct spelling
+    'wind surf',       // separated words
+    'wind-surf',       // hyphenated
+    'windsorb',        // common mis-hearing
+    'windsafe', 'wind safe', // safety‑related mis-hearings
+    'windswub',
+    'windsor', 'windsore',   // pronunciation variants
+    'wind soar',             // homophone
+    'wind turf',             // homophone
+    'winter sport',
+    'the winter',            // "the Winter" mis-hearing
+    'wind staff'            // duplicate removed
+  ];
   const containsWindsurf = windsurfVariants.some(v => q.includes(v));
   // Accept if contains question word and windsurf variant
   if (containsWindsurf && questionWords.some(w => q.includes(w))) return true;
@@ -1457,7 +1495,7 @@ async function streamOpenAIAnswer(question, contextSnippet, onPartial, onDone) {
       const lines = chunk.split('\n').filter(Boolean);
       for (const line of lines) {
         if (line.trim() === 'data: [DONE]') {
-          onDone(partial.trim());
+          onDone(sanitizeAnswer(partial.trim()));
           return;
         }
         if (!line.startsWith('data:')) continue;
@@ -1467,7 +1505,7 @@ async function streamOpenAIAnswer(question, contextSnippet, onPartial, onDone) {
           const token = payload.choices?.[0]?.delta?.content || '';
           if (token) {
             partial += token;
-            onPartial(partial);
+            onPartial(sanitizeAnswer(partial));
           }
         } catch (e) {
           console.error('Error parsing SSE line', e, line);
