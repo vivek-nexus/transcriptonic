@@ -12,12 +12,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const recoverLastMeetingButton = document.querySelector("#recover-last-meeting")
 
     // Initial load of transcripts
-    loadTranscripts()
+    loadMeetings()
 
     // Reload transcripts when page becomes visible
     document.addEventListener("visibilitychange", function () {
         if (document.visibilityState === "visible") {
-            loadTranscripts()
+            loadMeetings()
         }
     })
 
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             chrome.runtime.sendMessage(message, function (responseUntyped) {
                 const response = /** @type {ExtensionResponse} */ (responseUntyped)
-                loadTranscripts()
+                loadMeetings()
                 scrollTo({ top: 0, behavior: "smooth" })
                 if (response.success) {
                     if (response.message === "No recovery needed") {
@@ -157,7 +157,7 @@ function requestWebhookAndNotificationPermission(url) {
 }
 
 // Load and display recent transcripts
-function loadTranscripts() {
+function loadMeetings() {
     const meetingsTable = document.querySelector("#transcripts-table")
 
     chrome.storage.local.get(["meetings"], function (resultLocalUntyped) {
@@ -219,7 +219,7 @@ function loadTranscripts() {
                             }
                             chrome.runtime.sendMessage(message, (responseUntyped) => {
                                 const response = /** @type {ExtensionResponse} */ (responseUntyped)
-                                loadTranscripts()
+                                loadMeetings()
                                 if (!response.success) {
                                     alert("Could not download transcript")
                                 }
@@ -234,26 +234,32 @@ function loadTranscripts() {
                             chrome.storage.sync.get(["webhookUrl"], function (resultSyncUntyped) {
                                 const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
                                 if (resultSync.webhookUrl) {
-                                    // Disable button and update text
-                                    webhookPostButton.disabled = true
-                                    webhookPostButton.textContent = meeting.webhookPostStatus === "new" ? "Posting..." : "Reposting..."
+                                    // Request runtime permission for the webhook URL. Needed for cases when user signs on a new browser—webhook URL and other sync variables are available, but runtime permissions will be missing.
+                                    requestWebhookAndNotificationPermission(resultSync.webhookUrl).then(() => {
+                                        // Disable button and update text
+                                        webhookPostButton.disabled = true
+                                        webhookPostButton.textContent = meeting.webhookPostStatus === "new" ? "Posting..." : "Reposting..."
 
-                                    // Send message to background script to post webhook
-                                    const index = parseInt(webhookPostButton.getAttribute("data-index") ?? "-1")
-                                    /** @type {ExtensionMessage} */
-                                    const message = {
-                                        type: "retry_webhook_at_index",
-                                        index: index
-                                    }
-                                    chrome.runtime.sendMessage(message, (responseUntyped) => {
-                                        const response = /** @type {ExtensionResponse} */ (responseUntyped)
-                                        loadTranscripts()
-                                        if (response.success) {
-                                            alert("Posted successfully!")
+                                        // Send message to background script to post webhook
+                                        const index = parseInt(webhookPostButton.getAttribute("data-index") ?? "-1")
+                                        /** @type {ExtensionMessage} */
+                                        const message = {
+                                            type: "retry_webhook_at_index",
+                                            index: index
                                         }
-                                        else {
-                                            console.error(response.message)
-                                        }
+                                        chrome.runtime.sendMessage(message, (responseUntyped) => {
+                                            const response = /** @type {ExtensionResponse} */ (responseUntyped)
+                                            loadMeetings()
+                                            if (response.success) {
+                                                alert("Posted successfully!")
+                                            }
+                                            else {
+                                                console.error(response.message)
+                                            }
+                                        })
+                                    }).catch((error) => {
+                                        alert("Fine! No webhooks for you!")
+                                        console.error("Webhook permission error:", error)
                                     })
                                 }
                                 else {

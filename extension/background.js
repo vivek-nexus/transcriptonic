@@ -28,10 +28,16 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
     }
 
     if (message.type === "meeting_ended") {
-        processLastMeeting().finally(() => {
-            // Invalidate tab id since transcript is downloaded, prevents double downloading of transcript from tab closed event listener
-            clearTabIdAndApplyUpdate()
-        })
+        processLastMeeting()
+            .catch((error) => {
+                /** @type {ExtensionResponse} */
+                const response = { success: false, message: error }
+                sendResponse(response)
+            })
+            .finally(() => {
+                // Invalidate tab id since transcript is downloaded, prevents double downloading of transcript from tab closed event listener
+                clearTabIdAndApplyUpdate()
+            })
     }
 
     if (message.type === "download_transcript_at_index") {
@@ -377,7 +383,7 @@ function postTranscriptToWebhook(index) {
                             body: JSON.stringify(webhookData)
                         }).then(response => {
                             if (!response.ok) {
-                                throw new Error(`Webhook request failed: ${response.status} ${response.statusText}`)
+                                throw new Error(`Webhook request failed with HTTP status code ${response.status} ${response.statusText}`)
                             }
                         }).then(() => {
                             // Update success status
