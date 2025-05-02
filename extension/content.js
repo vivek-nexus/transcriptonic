@@ -644,7 +644,136 @@ The Pro Tier gives you extra "juice" for your workflows:
 - Expanded context‑awareness and reasoning for complex codebases  
 
 ---
+An Update to Our Pricing
+Written by
+By Windsurf Team
 
+Published on
+Apr 21, 2025
+
+8 min read
+
+
+This is not a Wave announcement, but hopefully will be good news for our users.
+
+New Plans
+We are optimizing all of our plans for simplicity and customer-friendliness.
+
+In this regard, we are:
+
+Eliminating flow action credits, so you only pay per user prompt
+Consolidating Pro, Teams, and Enterprise offerings so there is just one per each category
+Building in flows for automatic credit refills
+And to make the transition even smoother, we will be extending the past week of free unlimited GPT-4.1 and o4-mini by another seven days, and offering both models at a discounted rate of 0.25 credits for the following couple of months!
+
+Concretely, these new plans are:
+
+Plan	Pricing Details	Credits (Prompts)	Features	Addl Notes
+Free	$0/mo	5 credits per month	Unlimited Tab, Command, Legacy Chat	
+Pro	$15/mo	
+500 credits/month
+
+
+$10 for an additional 250 credits
+
+Priority access to models
+
+
+Unlimited Fast Tab
+
+
+Previews, Deploys
+
+Teams	$30/user/month	
+500 credits/user/month
+
+
+$40 for an additional 1000 credits which are pooled with team
+
+Pro, plus
+
+
+Seat management, Org analytics, Basic org controls
+
+200 seat cap
+
+
+
+Option to self-serve access control @ $10/user/month [coming soon]
+
+Enterprise	$60/user/month	
+1000 credits/user/month
+
+
+$40 for an additional 1000 credits which are pooled with team
+
+Teams, plus
+
+
+Auth, Advanced access controls
+
+
+Analytics API
+
+Self-serve [coming soon]
+
+
+
+Talk to our team to get:
+
+
+Volume discounts, Hybrid (optional), FedRAMP (optional),Account management, Enterprise support
+
+For Individuals
+We’ve heard your complaints and feedback on the plans and pricing, and we have been hard at work to build the systems and optimizations to make our costs work. And now it’s time to make the pricing nicer for you without breaking our bank.
+
+The singular goal of this change: simplify everything.
+
+First, and most importantly, no more flow action credits. You only get charged for user prompts, no matter how many steps Cascade takes on its end.
+
+On the individual side, there is now only one paid Pro plan. It is still $15/mo for 500 prompt credits, and you get all of the features you’ve come to love, like Previews and Deploys. Additional prompt credits can be purchased at 250 for every $10, and these add-on credits will roll over.
+
+Why is this better? Because of how more recent models lead to more tool calls (i.e. flow actions) per user prompt, the ratios of credits in the previous system started to break down. With the rise of reasoning models like Claude 3.7 Sonnet, we have now noticed 4 tool calls per 1 user prompt (it used to be closer to 3 tool calls per 1 user prompt). So, for the previous $15/mo Pro plan, while it gave 500 user prompts credits, it only gave 1500 flow action credits, meaning that the user would only be able to use ~375 user prompts or would have to pay for 500 more flow action credits to utilize all 500 of the user prompt credits, which at the previous pricing of 300 flex credits per $10, was quite expensive. Pro Ultimate customers had it even worse - they were paying $60/mo but only had 3000 flow action credits, which roughly corresponded to 750 total user prompts before having to purchase more add-on flex credits. Now, for that same $60/mo, all Pro users under the new plan will be able to get more than twice the total user prompts (500 in the $15/mo base plan and 1125 in $45 of add-ons).
+
+To add to all of this, instead of $10 for 300 or 400 flex credits as the add-on, it is now $10 for 250 prompt credits. 250 prompt credits in the new system corresponds to 250 user prompts and approximately 1000 flow actions in the previous system, so you are essentially getting 1250 of the previous system’s flex credits for $10, instead of just 300 or 400.
+
+To help transition our past Pro Ultimate customers to the new Pro plan, we will grant a one-time batch of 1200 prompt credits for free to cover the most recent month of payment.
+
+We recognize that one of the allures of the Pro Ultimate plan was to not have to take breaks from the flow state to purchase add-on credit packs to unlock more credits, so we are also introducing automatic credit refills so that this is no longer a hassle. Under your plan settings page on the Windsurf website, you can specify a max amount of spend and other refill parameters, and we will automatically “top-up” your credits as you start running out. Now, you won’t lose access to Cascade until you pay, we’ll just handle that part automatically.
+
+For both Pro and Pro Ultimate users, hopefully it is clear that this new system is an objectively better deal than before, and one of the best deals in the market in general. No pricing on tool calls, no additional usage-based pricing components, just simple pay-per-prompt at a great rate.
+
+And to make things even better for those early adopters who have been with us for this journey from the beginning, we will continue to grandfather you in at the $10/mo early adopter price for the entire next year.
+
+For Teams
+Similarly to individuals, we wanted to simplify the plans. We are similarly getting rid of flow action credits and allowing for auto refill of credits.
+
+Instead of having both a Teams and Teams Ultimate plan, we will just have a $30/user/mo Teams plan that gives 500 prompt credits, instead of the 300 prompt credits for $35/user/mo under the previous Teams plan or the 2500 flow action credits (corresponding to ~625 prompt credits) for $90/user/mo on the previous Teams Ultimate plan. Add-on credits will now be $40 for 1000 prompt credits, as opposed to $99 for 3000 or 5000 flex credits depending on plan (which corresponds to 600 or 1000 prompt credits in the new system). Again, just massive savings across the board.
+
+For transparency, we are removing pooling for the base credits because it was generally adding confusion and complexity, with the majority of customers actually asking to make sure each user received their allotted base amount of credits. We are keeping pooling for the add-on credits.
+
+The last piece is that, in the near future, we will be adding an option to self-serve SSO integration and additional access control capabilities for a total base price of $40/user/mo.
+
+On top of this pricing, we truly believe that the Teams plan is the objective best offering on the market for SMBs because of its centralized seat management and organizational controls, robust organization-wide analytics dashboards, and a whole host of Teams-specific features coming shortly.
+
+For existing customers, we will be moving you to the new system and doing the same thing as with Individuals by giving you a bulk batch of prompt credits per user for free as a thank you for being an early customer.
+
+For Enterprise
+Currently, there are a bunch of different SKUs, types of seats, and types of add-on packages, all depending on the amount of Cascade use and type of deployment. Besides the complexity, as the systems and models have changed, the numbers we launched with have made less sense, just as with the Pro and Teams plans.
+
+Our new pricing will just have a single type of seat and a single add-on package:
+
+Enterprise Base ($60/user/mo): 1000 prompt credits. This is much cheaper than any of our past plans for more credits.
+Enterprise Prompt Credit Add-On: $40 for 1000 pooled prompt credits. This is less than a third the price of the add-on rate from the past.
+Also, in the near future, we are making the Enterprise offering self-serviceable on month-to-month pricing, the most customer-friendly way we can offer this tier. We have beefed up our security page to answer any security questions in a self-serve manner as well, and have our trust center for any standard security collateral. If you are looking for enterprise support, account management, and more involved deployments such as Hybrid or FedRAMP under an annual commitment, contact our enterprise team.
+
+We believe that Windsurf is the right option for any enterprise, with an industry-leading agentic experience in Cascade available on both the Windsurf Editor (a VSCode-fork) and our JetBrains plugin, an enterprise plan with the most robust set of enterprise controls and analytics, and now pricing that is competitive with anyone else at the price-per-prompt level.
+
+For existing Cascade-using customers, we will be grandfathering everyone into these plans, giving additional credits and seats for free if there are any differences in cost.
+
+We went through all of the tactical details of the pricing plan change just to be incredibly clear that we are continuing to deliver on our promise from the very beginning that we will continue to find ways to pass savings back to our end users. That way, you can pay less to dream bigger.
+
+Surf’s up.
 **General**  
 
 **Why are you building the Windsurf extension?**  
