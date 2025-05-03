@@ -10,6 +10,90 @@ const extensionStatusJSON_bug = {
   "message": `<strong>WindsurfOnsiteDemo encountered a new error</strong> <br /> Please report it <a href="https://github.com/vivek-nexus/transcriptonic/issues" target="_blank">here</a>.`
 }
 
+// Expanded link map with multiple keywords per link
+const linkMap = [
+  {
+    keywords: [
+      "pricing", "price", "cost", "how much", "how much does windsurf cost", "how much is windsurf", "windsurf pricing"
+    ],
+    url: "https://windsurf.com/pricing"
+  },
+  {
+    keywords: [
+      "enterprise", "business", "company", "org", "organization", "team", "teams", "large company", "corporate"
+    ],
+    url: "https://windsurf.com/enterprise"
+  },
+  {
+    keywords: [
+      "government", "fedramp", "dod", "federal", "public sector", "gov"
+    ],
+    url: "https://windsurf.com/enterprise/government"
+  },
+  {
+    keywords: [
+      "context", "context aware", "context engine", "contextual", "repo wide context"
+    ],
+    url: "https://windsurf.com/context"
+  },
+  {
+    keywords: [
+      "plugin", "plugins", "ides", "vscode", "jetbrains", "extension", "supported ides"
+    ],
+    url: "https://windsurf.com/plugins"
+  },
+  {
+    keywords: [
+      "security", "soc2", "compliance", "data retention", "privacy", "secure", "air gapped"
+    ],
+    url: "https://windsurf.com/security"
+  },
+  {
+    keywords: [
+      "flows", "ai flows", "cascade", "agentic", "automation"
+    ],
+    url: "https://windsurf.com/flows"
+  }
+];
+
+// Helper: Check if text contains any link keywords (searches all keywords in all linkMap entries)
+function containsLinkKeyword(text) {
+  if (!text) return null;
+  const lowerText = text.toLowerCase();
+  for (const entry of linkMap) {
+    for (const keyword of entry.keywords) {
+      if (lowerText.includes(keyword)) {
+        return { keyword, url: entry.url };
+      }
+    }
+  }
+  return null;
+}
+
+// Helper: Create share link button
+function createShareLinkButton(url, keyword) {
+  const button = document.createElement('button');
+  button.textContent = `Share ${keyword} page`;
+  button.style.cssText = `
+    background: #f7b731;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: background 0.2s;
+  `;
+  button.addEventListener('mouseover', () => button.style.background = '#f5c451');
+  button.addEventListener('mouseout', () => button.style.background = '#f7b731');
+  button.addEventListener('click', () => {
+    document.execCommand("insertText", false, url);
+  });
+  return button;
+}
+
 const reportErrorMessage = "There is a bug in WindsurfOnsiteDemo. Please report it at https://github.com/vivek-nexus/transcriptonic/issues"
 /** @type {MutationObserverInit} */
 const mutationConfig = { childList: true, attributes: true, subtree: true, characterData: true }
@@ -77,7 +161,7 @@ function ensureTranscriptOverlay() {
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      pointer-events: none;
+      pointer-events: auto;
       opacity: 0.92;
       transition: opacity 0.2s;
       user-select: text;
@@ -725,21 +809,21 @@ Talk to our team to get:
 Volume discounts, Hybrid (optional), FedRAMP (optional),Account management, Enterprise support
 
 For Individuals
-We’ve heard your complaints and feedback on the plans and pricing, and we have been hard at work to build the systems and optimizations to make our costs work. And now it’s time to make the pricing nicer for you without breaking our bank.
+We've heard your complaints and feedback on the plans and pricing, and we have been hard at work to build the systems and optimizations to make our costs work. And now it's time to make the pricing nicer for you without breaking our bank.
 
 The singular goal of this change: simplify everything.
 
 First, and most importantly, no more flow action credits. You only get charged for user prompts, no matter how many steps Cascade takes on its end.
 
-On the individual side, there is now only one paid Pro plan. It is still $15/mo for 500 prompt credits, and you get all of the features you’ve come to love, like Previews and Deploys. Additional prompt credits can be purchased at 250 for every $10, and these add-on credits will roll over.
+On the individual side, there is now only one paid Pro plan. It is still $15/mo for 500 prompt credits, and you get all of the features you've come to love, like Previews and Deploys. Additional prompt credits can be purchased at 250 for every $10, and these add-on credits will roll over.
 
 Why is this better? Because of how more recent models lead to more tool calls (i.e. flow actions) per user prompt, the ratios of credits in the previous system started to break down. With the rise of reasoning models like Claude 3.7 Sonnet, we have now noticed 4 tool calls per 1 user prompt (it used to be closer to 3 tool calls per 1 user prompt). So, for the previous $15/mo Pro plan, while it gave 500 user prompts credits, it only gave 1500 flow action credits, meaning that the user would only be able to use ~375 user prompts or would have to pay for 500 more flow action credits to utilize all 500 of the user prompt credits, which at the previous pricing of 300 flex credits per $10, was quite expensive. Pro Ultimate customers had it even worse - they were paying $60/mo but only had 3000 flow action credits, which roughly corresponded to 750 total user prompts before having to purchase more add-on flex credits. Now, for that same $60/mo, all Pro users under the new plan will be able to get more than twice the total user prompts (500 in the $15/mo base plan and 1125 in $45 of add-ons).
 
-To add to all of this, instead of $10 for 300 or 400 flex credits as the add-on, it is now $10 for 250 prompt credits. 250 prompt credits in the new system corresponds to 250 user prompts and approximately 1000 flow actions in the previous system, so you are essentially getting 1250 of the previous system’s flex credits for $10, instead of just 300 or 400.
+To add to all of this, instead of $10 for 300 or 400 flex credits as the add-on, it is now $10 for 250 prompt credits. 250 prompt credits in the new system corresponds to 250 user prompts and approximately 1000 flow actions in the previous system, so you are essentially getting 1250 of the previous system's flex credits for $10, instead of just 300 or 400.
 
 To help transition our past Pro Ultimate customers to the new Pro plan, we will grant a one-time batch of 1200 prompt credits for free to cover the most recent month of payment.
 
-We recognize that one of the allures of the Pro Ultimate plan was to not have to take breaks from the flow state to purchase add-on credit packs to unlock more credits, so we are also introducing automatic credit refills so that this is no longer a hassle. Under your plan settings page on the Windsurf website, you can specify a max amount of spend and other refill parameters, and we will automatically “top-up” your credits as you start running out. Now, you won’t lose access to Cascade until you pay, we’ll just handle that part automatically.
+We recognize that one of the allures of the Pro Ultimate plan was to not have to take breaks from the flow state to purchase add-on credit packs to unlock more credits, so we are also introducing automatic credit refills so that this is no longer a hassle. Under your plan settings page on the Windsurf website, you can specify a max amount of spend and other refill parameters, and we will automatically "top-up" your credits as you start running out. Now, you won't lose access to Cascade until you pay, we'll just handle that part automatically.
 
 For both Pro and Pro Ultimate users, hopefully it is clear that this new system is an objectively better deal than before, and one of the best deals in the market in general. No pricing on tool calls, no additional usage-based pricing components, just simple pay-per-prompt at a great rate.
 
@@ -773,7 +857,7 @@ For existing Cascade-using customers, we will be grandfathering everyone into th
 
 We went through all of the tactical details of the pricing plan change just to be incredibly clear that we are continuing to deliver on our promise from the very beginning that we will continue to find ways to pass savings back to our end users. That way, you can pay less to dream bigger.
 
-Surf’s up.
+Surf's up.
 **General**  
 
 **Why are you building the Windsurf extension?**  
@@ -1036,37 +1120,217 @@ function getRecentTranscriptContext(transcriptText) {
 async function updateTranscriptOverlay(text) {
   ensureTranscriptOverlay();
   const textDiv = transcriptOverlayDiv.querySelector('#windsurf-transcript-text');
+  const now = Date.now();
   if (!textDiv) return;
 
+  // Detect question in transcript
+  let question = '';
+  let isQuestionDetected = false;
   if (typeof text === 'string' && text.trim() !== '') {
     const sentences = text.split(/[.!?\n]/).map(s => s.trim()).filter(Boolean);
-
     for (const s of sentences) {
       if (!answeredQuestions.has(s) && isQuestion(s)) {
         answeredQuestions.add(s);
-        lastQuestion = s;
-        textDiv.textContent = '  ';
-        const contextSnippet = getRecentTranscriptContext(text);
-        // Trigger the OpenAI call immediately for the newly detected question
-        getOpenAIAnswer(s, contextSnippet)
-          .then(answer => {
-            lastAnswer = answer;
-            textDiv.innerHTML = formatAnswerWithBullets(answer);
-          })
-          .catch(() => {
-            textDiv.innerHTML = '<span style="color:orange">Error getting answer.</span>';
-          });
-        // Only process the first unseen question per update cycle to keep UI stable
-        return;
+        question = s;
+        isQuestionDetected = true;
+        break;
+      }
+    }
+  }
+  // If we didn't find a brand new question, fall back to last sentence heuristic
+  if (!isQuestionDetected) {
+    if (typeof text === 'string' && text.trim() !== '') {
+      const sentences = text.split(/[.!?\n]/).map(s => s.trim()).filter(Boolean);
+      if (sentences.length > 0) {
+        const possible = sentences[sentences.length - 1];
+        isQuestionDetected = isQuestion(possible);
+        if (isQuestionDetected) question = possible;
       }
     }
   }
 
-  // If no new question, keep rendering the last answer (if any)
-  if (lastAnswer && lastQuestion) {
+  // Check if transcript is reading from the pane
+  const currentlyReading = isReadingFromPane(text, lastAnswer);
+
+  // --- STATE MACHINE ---
+  if (paneState === 'empty') {
+    if (isQuestionDetected) {
+      lastQuestion = question;
+      textDiv.textContent = '  ';
+      const contextSnippet = getRecentTranscriptContext(text);
+      getOpenAIAnswer(question, contextSnippet).then(answer => {
+        lastAnswer = answer;
+        lastAnswerTimestamp = Date.now();
+        textDiv.innerHTML = formatAnswerWithBullets(answer);
+        // Add share link button if keyword detected
+        const linkInfo = containsLinkKeyword(question);
+        if (linkInfo) {
+          const button = document.createElement('button');
+          button.textContent = `Share ${linkInfo.keyword} page`;
+          button.style.cssText = `
+            background: #f7b731;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: background 0.2s;
+            display: block;
+          `;
+          button.addEventListener('mouseover', () => button.style.background = '#f5c451');
+          button.addEventListener('mouseout', () => button.style.background = '#f7b731');
+          button.addEventListener('click', () => {
+            navigator.clipboard.writeText(linkInfo.url);
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            button.disabled = true;
+            setTimeout(() => {
+              button.textContent = originalText;
+              button.disabled = false;
+            }, 1500);
+          });
+          textDiv.appendChild(button);
+        }
+        paneState = 'answerDisplayed';
+      }).catch(() => {
+        textDiv.innerHTML = '<span style="color:orange">Error getting answer.</span>';
+      });
+    } else {
+      textDiv.innerHTML = '';
+    }
+    return;
+  }
+
+  if (paneState === 'answerDisplayed') {
+    if (currentlyReading) {
+      paneState = 'beingRead';
+      lastPaneReadTimestamp = now;
+      // Do not clear/update while being read
+      return;
+    } else if (isQuestionDetected && question !== lastQuestion) {
+      lastQuestion = question;
+      textDiv.textContent = '  ';
+      const contextSnippet = getRecentTranscriptContext(text);
+      getOpenAIAnswer(question, contextSnippet).then(answer => {
+        lastAnswer = answer;
+        lastAnswerTimestamp = Date.now();
+        textDiv.innerHTML = formatAnswerWithBullets(answer);
+        // Add share link button if keyword detected
+        const linkInfo = containsLinkKeyword(question);
+        if (linkInfo) {
+          const button = document.createElement('button');
+          button.textContent = `Share ${linkInfo.keyword} page`;
+          button.style.cssText = `
+            background: #f7b731;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: background 0.2s;
+            display: block;
+          `;
+          button.addEventListener('mouseover', () => button.style.background = '#f5c451');
+          button.addEventListener('mouseout', () => button.style.background = '#f7b731');
+          button.addEventListener('click', () => {
+            navigator.clipboard.writeText(linkInfo.url);
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            button.disabled = true;
+            setTimeout(() => {
+              button.textContent = originalText;
+              button.disabled = false;
+            }, 1500);
+          });
+          textDiv.appendChild(button);
+        }
+        paneState = 'answerDisplayed';
+      }).catch(() => {
+        textDiv.innerHTML = '<span style="color:orange">Error getting answer.</span>';
+      });
+      return;
+    } else {
+      textDiv.innerHTML = formatAnswerWithBullets(lastAnswer);
+      // Add share link button if keyword detected
+      const linkInfo = containsLinkKeyword(lastQuestion);
+      if (linkInfo) {
+        const button = document.createElement('button');
+        button.textContent = `Share ${linkInfo.keyword} page`;
+        button.style.cssText = `
+          background: #f7b731;
+          color: #1a1a1a;
+          border: none;
+          border-radius: 6px;
+          padding: 8px 16px;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          margin-top: 12px;
+          transition: background 0.2s;
+          display: block;
+        `;
+        button.addEventListener('mouseover', () => button.style.background = '#f5c451');
+        button.addEventListener('mouseout', () => button.style.background = '#f7b731');
+        button.addEventListener('click', () => {
+          navigator.clipboard.writeText(linkInfo.url);
+          const originalText = button.textContent;
+          button.textContent = 'Copied!';
+          button.disabled = true;
+          setTimeout(() => {
+            button.textContent = originalText;
+            button.disabled = false;
+          }, 1500);
+        });
+        textDiv.appendChild(button);
+      }
+    }
+    return;
+  }
+
+  if (paneState === 'beingRead') {
+    if (!currentlyReading) {
+      paneState = 'answerDisplayed';
+    }
     textDiv.innerHTML = formatAnswerWithBullets(lastAnswer);
-  } else {
-    textDiv.innerHTML = '';
+    // Add share link button if keyword detected
+    const linkInfo = containsLinkKeyword(lastQuestion);
+    if (linkInfo) {
+      const button = document.createElement('button');
+      button.textContent = `Share ${linkInfo.keyword} page`;
+      button.style.cssText = `
+        background: #f7b731;
+        color: #1a1a1a;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-top: 12px;
+        transition: background 0.2s;
+        display: block;
+      `;
+      button.addEventListener('mouseover', () => button.style.background = '#f5c451');
+      button.addEventListener('mouseout', () => button.style.background = '#f7b731');
+      button.addEventListener('click', () => {
+        navigator.clipboard.writeText(linkInfo.url);
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        button.disabled = true;
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.disabled = false;
+        }, 1500);
+      });
+      textDiv.appendChild(button);
+    }
+    return;
   }
 }
 
@@ -1739,104 +2003,4 @@ function isReadingFromPane(transcript, paneContent) {
     if (transcriptWords.includes(word)) matchCount++;
   }
   return (matchCount / paneWords.length) >= 0.6;
-}
-
-// Override updateTranscriptOverlay to only show answer to detected question, with correct pane state logic
-async function updateTranscriptOverlay(text) {
-  ensureTranscriptOverlay();
-  const textDiv = transcriptOverlayDiv.querySelector('#windsurf-transcript-text');
-  const now = Date.now();
-  if (!textDiv) return;
-
-  // At meeting start, pane is empty
-  if (paneState === 'empty' && (!text || text.trim() === '')) {
-    textDiv.innerHTML = '';
-    return;
-  }
-
-  // Detect question in transcript
-  let question = '';
-  let isQuestionDetected = false;
-  if (typeof text === 'string' && text.trim() !== '') {
-    const sentences = text.split(/[.!?\n]/).map(s => s.trim()).filter(Boolean);
-    for (const s of sentences) {
-      if (!answeredQuestions.has(s) && isQuestion(s)) {
-        answeredQuestions.add(s);
-        question = s;
-        isQuestionDetected = true;
-        break;
-      }
-    }
-  }
-  // If we didn't find a brand new question, fall back to last sentence heuristic
-  if (!isQuestionDetected) {
-    if (typeof text === 'string' && text.trim() !== '') {
-      const sentences = text.split(/[.!?\n]/).map(s => s.trim()).filter(Boolean);
-      if (sentences.length > 0) {
-        const possible = sentences[sentences.length - 1];
-        isQuestionDetected = isQuestion(possible);
-        if (isQuestionDetected) question = possible;
-      }
-    }
-  }
-
-  // Check if transcript is reading from the pane
-  const currentlyReading = isReadingFromPane(text, lastAnswer);
-
-  // --- STATE MACHINE ---
-  if (paneState === 'empty') {
-    if (isQuestionDetected) {
-      // New question detected, show answer
-      lastQuestion = question;
-      textDiv.textContent = '  ';
-      const contextSnippet = getRecentTranscriptContext(text);
-      getOpenAIAnswer(question, contextSnippet).then(answer => {
-        lastAnswer = answer;
-        lastAnswerTimestamp = Date.now();
-        textDiv.innerHTML = formatAnswerWithBullets(answer);
-        paneState = 'answerDisplayed';
-      }).catch(() => {
-        textDiv.innerHTML = '<span style="color:orange">Error getting answer.</span>';
-      });
-    } else {
-      textDiv.innerHTML = '';
-    }
-    return;
-  }
-
-  if (paneState === 'answerDisplayed') {
-    if (currentlyReading) {
-      paneState = 'beingRead';
-      lastPaneReadTimestamp = now;
-      // Do not clear/update while being read
-      return;
-    } else if (isQuestionDetected && question !== lastQuestion) {
-      // New question detected
-      lastQuestion = question;
-      textDiv.textContent = '  ';
-      const contextSnippet = getRecentTranscriptContext(text);
-      getOpenAIAnswer(question, contextSnippet).then(answer => {
-        lastAnswer = answer;
-        lastAnswerTimestamp = Date.now();
-        textDiv.innerHTML = formatAnswerWithBullets(answer);
-        paneState = 'answerDisplayed';
-      }).catch(() => {
-        textDiv.innerHTML = '<span style="color:orange">Error getting answer.</span>';
-      });
-      return;
-    } else {
-      // Keep current answer visible
-      textDiv.innerHTML = formatAnswerWithBullets(lastAnswer);
-    }
-    return;
-  }
-
-  if (paneState === 'beingRead') {
-    if (!currentlyReading) {
-      paneState = 'answerDisplayed';
-    }
-    // Do not clear the pane while being read
-    textDiv.innerHTML = formatAnswerWithBullets(lastAnswer);
-    return;
-  }
 }
