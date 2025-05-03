@@ -26,7 +26,7 @@ const linkMap = [
   },
   {
     keywords: [
-      "government", "fedramp", "dod", "federal", "public sector", "gov"
+      "government", "fedramp certified", "dod", "federal", "public sector", "gov"
     ],
     url: "https://windsurf.com/enterprise/government"
   },
@@ -44,7 +44,7 @@ const linkMap = [
   },
   {
     keywords: [
-      "security", "soc2", "compliance", "data retention", "privacy", "secure", "air gapped"
+      "security", "soc2", "compliance", "data retention", "privacy", "secure", "safe,"
     ],
     url: "https://windsurf.com/security"
   },
@@ -88,8 +88,31 @@ function createShareLinkButton(url, keyword) {
   `;
   button.addEventListener('mouseover', () => button.style.background = '#f5c451');
   button.addEventListener('mouseout', () => button.style.background = '#f7b731');
+
+  // Message templates for variety
+  const templates = [
+    "Here's the Windsurf page I mentioned:",
+    "If you want more details, check this out:",
+    "Sharing the page I referenced:",
+    "For more info, here's the official page:",
+    "Here's the link I was talking about:",
+    "This might help:",
+    "Official info here:",
+    "You can find more here:"
+  ];
+
   button.addEventListener('click', () => {
-    document.execCommand("insertText", false, url);
+    // Pick a random template
+    const template = templates[Math.floor(Math.random() * templates.length)];
+    const message = template + ' ' + url;
+    navigator.clipboard.writeText(message);
+    const originalText = button.textContent;
+    button.textContent = 'Copied!';
+    button.disabled = true;
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.disabled = false;
+    }, 1500);
   });
   return button;
 }
@@ -696,7 +719,7 @@ Windsurf does not replace the software engineer, leaving the developer in charge
 To be clear, Windsurf Chat does cost us money, but we believe we can control costs in the long term by fully shifting to our own models and state-of-the-art model serving infrastructure (same reason why we can provide Autocomplete for free). We are committed to always providing a Chat functionality for free.
 
 **What IDEs and languages have Windsurf Chat?**  
-Windsurf Chat is currently only on Windsurf (Cascade's "Legacy" mode), VSCode, JetBrains IDEs, Visual Studio, Eclipse, and XCode, but we will be rapidly supporting more IDEs in the near future. Windsurf Chat will work on any language, but the CodeLens suggestions above functions are available for only common languages, which includes Python, JavaScript, TypeScript, Java, Go, PHP, and more.
+Windsurf Chat is currently only on Windsurf (Cascade's "Legacy" mode), VSCode, JetBrains IDEs, Visual Studio, Eclipse, XCode, but we will be rapidly supporting more IDEs in the near future. Windsurf Chat will work on any language, but the CodeLens suggestions above functions are available for only common languages, which includes Python, JavaScript, TypeScript, Java, Go, PHP, and more.
 
 ### Command
 **Who should use this?**  
@@ -1165,34 +1188,7 @@ async function updateTranscriptOverlay(text) {
         // Add share link button if keyword detected
         const linkInfo = containsLinkKeyword(question);
         if (linkInfo) {
-          const button = document.createElement('button');
-          button.textContent = `Share ${linkInfo.keyword} page`;
-          button.style.cssText = `
-            background: #f7b731;
-            color: #1a1a1a;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-top: 12px;
-            transition: background 0.2s;
-            display: block;
-          `;
-          button.addEventListener('mouseover', () => button.style.background = '#f5c451');
-          button.addEventListener('mouseout', () => button.style.background = '#f7b731');
-          button.addEventListener('click', () => {
-            navigator.clipboard.writeText(linkInfo.url);
-            const originalText = button.textContent;
-            button.textContent = 'Copied!';
-            button.disabled = true;
-            setTimeout(() => {
-              button.textContent = originalText;
-              button.disabled = false;
-            }, 1500);
-          });
-          textDiv.appendChild(button);
+          textDiv.appendChild(createShareLinkButton(linkInfo.url, linkInfo.keyword));
         }
         paneState = 'answerDisplayed';
       }).catch(() => {
@@ -1221,34 +1217,7 @@ async function updateTranscriptOverlay(text) {
         // Add share link button if keyword detected
         const linkInfo = containsLinkKeyword(question);
         if (linkInfo) {
-          const button = document.createElement('button');
-          button.textContent = `Share ${linkInfo.keyword} page`;
-          button.style.cssText = `
-            background: #f7b731;
-            color: #1a1a1a;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-top: 12px;
-            transition: background 0.2s;
-            display: block;
-          `;
-          button.addEventListener('mouseover', () => button.style.background = '#f5c451');
-          button.addEventListener('mouseout', () => button.style.background = '#f7b731');
-          button.addEventListener('click', () => {
-            navigator.clipboard.writeText(linkInfo.url);
-            const originalText = button.textContent;
-            button.textContent = 'Copied!';
-            button.disabled = true;
-            setTimeout(() => {
-              button.textContent = originalText;
-              button.disabled = false;
-            }, 1500);
-          });
-          textDiv.appendChild(button);
+          textDiv.appendChild(createShareLinkButton(linkInfo.url, linkInfo.keyword));
         }
         paneState = 'answerDisplayed';
       }).catch(() => {
@@ -1260,34 +1229,7 @@ async function updateTranscriptOverlay(text) {
       // Add share link button if keyword detected
       const linkInfo = containsLinkKeyword(lastQuestion);
       if (linkInfo) {
-        const button = document.createElement('button');
-        button.textContent = `Share ${linkInfo.keyword} page`;
-        button.style.cssText = `
-          background: #f7b731;
-          color: #1a1a1a;
-          border: none;
-          border-radius: 6px;
-          padding: 8px 16px;
-          font-size: 14px;
-          font-weight: 500;
-          cursor: pointer;
-          margin-top: 12px;
-          transition: background 0.2s;
-          display: block;
-        `;
-        button.addEventListener('mouseover', () => button.style.background = '#f5c451');
-        button.addEventListener('mouseout', () => button.style.background = '#f7b731');
-        button.addEventListener('click', () => {
-          navigator.clipboard.writeText(linkInfo.url);
-          const originalText = button.textContent;
-          button.textContent = 'Copied!';
-          button.disabled = true;
-          setTimeout(() => {
-            button.textContent = originalText;
-            button.disabled = false;
-          }, 1500);
-        });
-        textDiv.appendChild(button);
+        textDiv.appendChild(createShareLinkButton(linkInfo.url, linkInfo.keyword));
       }
     }
     return;
@@ -1301,34 +1243,7 @@ async function updateTranscriptOverlay(text) {
     // Add share link button if keyword detected
     const linkInfo = containsLinkKeyword(lastQuestion);
     if (linkInfo) {
-      const button = document.createElement('button');
-      button.textContent = `Share ${linkInfo.keyword} page`;
-      button.style.cssText = `
-        background: #f7b731;
-        color: #1a1a1a;
-        border: none;
-        border-radius: 6px;
-        padding: 8px 16px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        margin-top: 12px;
-        transition: background 0.2s;
-        display: block;
-      `;
-      button.addEventListener('mouseover', () => button.style.background = '#f5c451');
-      button.addEventListener('mouseout', () => button.style.background = '#f7b731');
-      button.addEventListener('click', () => {
-        navigator.clipboard.writeText(linkInfo.url);
-        const originalText = button.textContent;
-        button.textContent = 'Copied!';
-        button.disabled = true;
-        setTimeout(() => {
-          button.textContent = originalText;
-          button.disabled = false;
-        }, 1500);
-      });
-      textDiv.appendChild(button);
+      textDiv.appendChild(createShareLinkButton(linkInfo.url, linkInfo.keyword));
     }
     return;
   }
