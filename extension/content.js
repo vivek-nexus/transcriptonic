@@ -1371,6 +1371,8 @@ function meetingRoutines(uiType) {
     chrome.runtime.sendMessage(message, function () { })
     hasMeetingStarted = true
 
+    // Initialize mood indicator
+    createMoodIndicator();
 
     //*********** MEETING START ROUTINES **********//
     // Pick up meeting name after a delay, since Google meet updates meeting name after a delay
@@ -1535,6 +1537,10 @@ function transcriptMutationCallback(mutationsList) {
           const currentTranscriptText = person.childNodes[1].lastChild?.textContent
 
           if (currentPersonName && currentTranscriptText) {
+            // Analyze sentiment and update mood indicator
+            const sentiment = analyzeSentiment(currentTranscriptText);
+            updateMoodIndicator(sentiment);
+
             // Starting fresh in a meeting or resume from no active transcript
             if (transcriptTextBuffer === "") {
               personNameBuffer = currentPersonName
@@ -1918,4 +1924,163 @@ function isReadingFromPane(transcript, paneContent) {
     if (transcriptWords.includes(word)) matchCount++;
   }
   return (matchCount / paneWords.length) >= 0.6;
+}
+
+// Mood indicator state
+let currentMood = 'neutral'; // 'positive', 'neutral', or 'negative'
+
+// Create mood indicator element
+function createMoodIndicator() {
+  const moodIndicator = document.createElement('div');
+  moodIndicator.id = 'windsurf-mood-indicator';
+  moodIndicator.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #FFD700;
+    box-shadow: 0 0 12px rgba(0,0,0,0.3);
+    z-index: 2147483647;
+    transition: background-color 0.3s ease;
+    border: 2px solid rgba(255,255,255,0.8);
+  `;
+  document.body.appendChild(moodIndicator);
+  return moodIndicator;
+}
+
+// Update mood indicator color based on sentiment
+function updateMoodIndicator(sentiment) {
+  const moodIndicator = document.getElementById('windsurf-mood-indicator') || createMoodIndicator();
+  const colors = {
+    positive: '#4CAF50', // Green
+    neutral: '#FFD700',  // Yellow
+    negative: '#F44336'  // Red
+  };
+  moodIndicator.style.background = colors[sentiment];
+  currentMood = sentiment;
+}
+
+// Analyze sentiment of text
+function analyzeSentiment(text) {
+  if (!text) return 'neutral';
+  
+  const lowerText = text.toLowerCase();
+  
+  // Positive indicators
+  const positiveWords = [
+    // General positive
+    'great', 'excellent', 'amazing', 'awesome', 'love', 'perfect', 'good', 'nice',
+    'interested', 'excited', 'happy', 'impressed', 'fantastic', 'wonderful',
+    'yes', 'sure', 'definitely', 'absolutely', 'agree', 'like', 'helpful',
+    'useful', 'valuable', 'beneficial', 'promising', 'potential', 'opportunity',
+    'impressive', 'innovative', 'powerful', 'efficient', 'productive', 'seamless',
+    'intuitive', 'reliable', 'robust', 'scalable', 'secure', 'fast', 'quick',
+    'smooth', 'easy', 'simple', 'clear', 'transparent', 'affordable', 'reasonable',
+    'worth', 'value', 'quality', 'premium', 'professional', 'enterprise-grade',
+    
+    // Windsurf-specific positive
+    'windsurf', 'windsurfing', 'flow', 'cascade', 'agentic', 'ide', 'editor',
+    'context', 'awareness', 'collaborative', 'independent', 'mind-meld',
+    'supercomplete', 'tab', 'jump', 'import', 'preview', 'deploy', 'memory',
+    'rules', 'mcp', 'model context protocol', 'turbo', 'riptide', 'cortex',
+    'plugin', 'extension', 'integration', 'workflow', 'productivity',
+    'onboarding', 'development', 'coding', 'programming', 'software',
+    'developer', 'engineer', 'team', 'organization', 'enterprise',
+    
+    // Competitor comparisons (positive)
+    'better than', 'superior to', 'outperforms', 'beats', 'surpasses',
+    'more than', 'exceeds', 'advances', 'improves', 'enhances',
+    'unlike', 'different from', 'unique', 'distinct', 'special',
+    'advantage', 'edge', 'benefit', 'feature', 'capability',
+    
+    // Pricing positive
+    'affordable', 'reasonable', 'worth', 'value', 'investment',
+    'cost-effective', 'budget-friendly', 'pricing', 'plan', 'tier',
+    'free', 'trial', 'credit', 'prompt', 'usage', 'flexible',
+    
+    // Security positive
+    'secure', 'safe', 'protected', 'private', 'confidential',
+    'encrypted', 'compliant', 'certified', 'audited', 'verified',
+    'soc2', 'fedramp', 'hipaa', 'security', 'privacy', 'data',
+    
+    // Support positive
+    'support', 'help', 'assist', 'guide', 'train', 'documentation',
+    'community', 'discord', 'team', 'expert', 'professional',
+    'responsive', 'quick', 'fast', 'efficient', 'effective'
+  ];
+  
+  // Negative indicators
+  const negativeWords = [
+    // General negative
+    'bad', 'terrible', 'awful', 'horrible', 'hate', 'worst', 'poor', 'wrong',
+    'expensive', 'costly', 'difficult', 'hard', 'complex', 'complicated',
+    'no', 'not', 'never', 'disagree', 'dislike', 'concerned', 'worried',
+    'problem', 'issue', 'concern', 'expensive', 'cost', 'price', 'budget',
+    'expensive', 'costly', 'difficult', 'hard', 'complex', 'complicated',
+    'slow', 'lag', 'delay', 'bug', 'error', 'crash', 'fail', 'broken',
+    'unreliable', 'unstable', 'inconsistent', 'limited', 'restricted',
+    'confusing', 'unclear', 'vague', 'ambiguous', 'misleading',
+    'overpriced', 'expensive', 'costly', 'unaffordable', 'budget',
+    
+    // Competitor comparisons (negative)
+    'worse than', 'inferior to', 'behind', 'lags', 'trails',
+    'less than', 'missing', 'lacking', 'deficient', 'incomplete',
+    'same as', 'similar to', 'just like', 'no different', 'identical',
+    'disadvantage', 'drawback', 'limitation', 'restriction', 'constraint',
+    
+    // Pricing negative
+    'expensive', 'costly', 'overpriced', 'unaffordable', 'budget',
+    'pricey', 'high', 'steep', 'premium', 'luxury',
+    'cost', 'price', 'fee', 'charge', 'billing',
+    'expensive', 'costly', 'overpriced', 'unaffordable', 'budget',
+    
+    // Security negative
+    'insecure', 'unsafe', 'vulnerable', 'exposed', 'risky',
+    'unprotected', 'unencrypted', 'leak', 'breach', 'hack',
+    'security', 'privacy', 'data', 'confidential', 'sensitive',
+    
+    // Support negative
+    'unsupported', 'unhelpful', 'unresponsive', 'slow', 'delayed',
+    'missing', 'lacking', 'incomplete', 'insufficient', 'inadequate',
+    'confusing', 'unclear', 'vague', 'ambiguous', 'misleading',
+    
+    // Competitor-specific terms
+    'cursor', 'composer', 'cognition', 'devin', 'copilot', 'github',
+    'tabnine', 'replit', 'ghostwriter', 'cursor', 'zed', 'vscode',
+    'jetbrains', 'intellij', 'pycharm', 'webstorm', 'phpstorm',
+    'sublime', 'atom', 'eclipse', 'xcode', 'visual studio',
+    
+    // Common objections
+    'expensive', 'cost', 'price', 'budget', 'money', 'costly',
+    'difficult', 'hard', 'complex', 'complicated', 'challenging',
+    'time', 'slow', 'delay', 'wait', 'long', 'lengthy',
+    'security', 'privacy', 'data', 'confidential', 'sensitive',
+    'support', 'help', 'assist', 'guide', 'train', 'documentation',
+    'integration', 'compatibility', 'works with', 'connects to',
+    'learning', 'curve', 'training', 'onboarding', 'adoption',
+    'reliability', 'stability', 'performance', 'speed', 'quality'
+  ];
+
+  // Count positive and negative words
+  let positiveCount = 0;
+  let negativeCount = 0;
+  
+  positiveWords.forEach(word => {
+    if (lowerText.includes(word)) positiveCount++;
+  });
+  
+  negativeWords.forEach(word => {
+    if (lowerText.includes(word)) negativeCount++;
+  });
+
+  // Determine sentiment based on word counts
+  if (positiveCount > negativeCount) {
+    return 'positive';
+  } else if (negativeCount > positiveCount) {
+    return 'negative';
+  } else {
+    return 'neutral';
+  }
 }
