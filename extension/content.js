@@ -1537,6 +1537,9 @@ function transcriptMutationCallback(mutationsList) {
           const currentTranscriptText = person.childNodes[1].lastChild?.textContent
 
           if (currentPersonName && currentTranscriptText) {
+            // Start talk timer for current speaker
+            startTalkTimer(currentPersonName);
+
             // Analyze sentiment and update mood indicator
             const sentiment = analyzeSentiment(currentTranscriptText);
             updateMoodIndicator(sentiment);
@@ -1581,6 +1584,8 @@ function transcriptMutationCallback(mutationsList) {
         else {
           // No transcript yet or the last person stopped speaking(and no one has started speaking next)
           console.log("No active transcript")
+          // Stop talk timer when no one is speaking
+          stopTalkTimer();
           // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
           if ((personNameBuffer !== "") && (transcriptTextBuffer !== "")) {
             pushBufferToTranscript()
@@ -2083,4 +2088,116 @@ function analyzeSentiment(text) {
   } else {
     return 'neutral';
   }
+}
+
+// === TALK TIME METER ===
+let repSpeakingTime = 0;
+let prospectSpeakingTime = 0;
+let currentSpeaker = null;
+let talkTimer = null;
+
+// Create talk time meter element
+function createTalkTimeMeter() {
+  const meterContainer = document.createElement('div');
+  meterContainer.id = 'windsurf-talk-meter';
+  meterContainer.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 50px;
+    background: rgba(20, 30, 40, 0.60);
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+    font-size: 14px;
+    z-index: 2147483647;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+  `;
+
+  const repTime = document.createElement('div');
+  repTime.id = 'windsurf-rep-time';
+  repTime.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  `;
+  repTime.innerHTML = `
+    <span style="color: #4CAF50;">●</span>
+    <span>Rep:</span>
+    <span>00:00</span>
+  `;
+
+  const prospectTime = document.createElement('div');
+  prospectTime.id = 'windsurf-prospect-time';
+  prospectTime.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  `;
+  prospectTime.innerHTML = `
+    <span style="color: #F44336;">●</span>
+    <span>Prospect:</span>
+    <span>00:00</span>
+  `;
+
+  meterContainer.appendChild(repTime);
+  meterContainer.appendChild(prospectTime);
+  document.body.appendChild(meterContainer);
+  return meterContainer;
+}
+
+// Format time in MM:SS
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Update talk time meter
+function updateTalkTimeMeter() {
+  const meter = document.getElementById('windsurf-talk-meter') || createTalkTimeMeter();
+  const repTimeElement = meter.querySelector('#windsurf-rep-time span:last-child');
+  const prospectTimeElement = meter.querySelector('#windsurf-prospect-time span:last-child');
+  
+  if (repTimeElement) {
+    repTimeElement.textContent = formatTime(repSpeakingTime);
+  }
+  if (prospectTimeElement) {
+    prospectTimeElement.textContent = formatTime(prospectSpeakingTime);
+  }
+}
+
+// Start talk timer for current speaker
+function startTalkTimer(speaker) {
+  if (currentSpeaker === speaker) return;
+  
+  // Stop previous timer if exists
+  if (talkTimer) {
+    clearInterval(talkTimer);
+  }
+  
+  currentSpeaker = speaker;
+  
+  // Start new timer
+  talkTimer = setInterval(() => {
+    if (currentSpeaker === userName) {
+      repSpeakingTime++;
+    } else {
+      prospectSpeakingTime++;
+    }
+    updateTalkTimeMeter();
+  }, 1000);
+}
+
+// Stop talk timer
+function stopTalkTimer() {
+  if (talkTimer) {
+    clearInterval(talkTimer);
+    talkTimer = null;
+  }
+  currentSpeaker = null;
 }
