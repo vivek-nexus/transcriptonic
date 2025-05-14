@@ -328,6 +328,7 @@ function transcriptMutationCallback(mutationsList) {
               if (personNameBuffer !== currentPersonName) {
                 // Push previous person's transcript as a block
                 pushBufferToTranscript()
+
                 // Update buffers for next mutation and store transcript block timestamp
                 personNameBuffer = currentPersonName
                 timestampBuffer = new Date().toISOString()
@@ -335,18 +336,24 @@ function transcriptMutationCallback(mutationsList) {
               }
               // Same person speaking more
               else {
+                // Update buffers for next mutation
+                transcriptTextBuffer = currentTranscriptText
+
                 if (canUseAriaBasedTranscriptSelector) {
                   // When the same person speaks for more than 30 min (approx), Meet drops very long transcript for current person and starts over, which is detected by current transcript string being significantly smaller than the previous one
                   if ((currentTranscriptText.length - transcriptTextBuffer.length) < -250) {
+                    // Push the long transcript
                     pushBufferToTranscript()
+
+                    // Store transcript block timestamp for next transcript block of same person
+                    timestampBuffer = new Date().toISOString()
                   }
                 }
-                // Update buffers for next mutation
-                transcriptTextBuffer = currentTranscriptText
                 if (!canUseAriaBasedTranscriptSelector) {
                   // If a person is speaking for a long time, Google Meet does not keep the entire text in the spans. Starting parts are automatically removed in an unpredictable way as the length increases and TranscripTonic will miss them. So we force remove a lengthy transcript node in a controlled way. Google Meet will add a fresh person node when we remove it and continue transcription. TranscripTonic picks it up as a new person and nothing is missed.
-                  if (currentTranscriptText.length > 250)
+                  if (currentTranscriptText.length > 250) {
                     person.remove()
+                  }
                 }
               }
             }
@@ -496,7 +503,12 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
       const message = {
         type: "meeting_ended"
       }
-      chrome.runtime.sendMessage(message, function () { })
+      chrome.runtime.sendMessage(message, (responseUntyped) => {
+        const response = /** @type {ExtensionResponse} */ (responseUntyped)
+        if (!response.success) {
+          alert(`Something went wrong. View details by opening "Last 10 meetings" from the extension popup.`)
+        }
+      })
     }
   })
 }
