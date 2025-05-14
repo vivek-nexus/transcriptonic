@@ -313,7 +313,7 @@ function transcriptMutationCallback(mutationsList) {
           // CRITICAL DOM DEPENDENCY
           const currentPersonName = person.childNodes[0].textContent
           // CRITICAL DOM DEPENDENCY
-          const currentTranscriptText = person.childNodes[1].lastChild?.textContent
+          const currentTranscriptText = person.childNodes[1].textContent
 
           if (currentPersonName && currentTranscriptText) {
             // Starting fresh in a meeting or resume from no active transcript
@@ -336,24 +336,23 @@ function transcriptMutationCallback(mutationsList) {
               }
               // Same person speaking more
               else {
+                // Update buffers for next mutation
+                transcriptTextBuffer = currentTranscriptText
+
                 if (canUseAriaBasedTranscriptSelector) {
                   // When the same person speaks for more than 30 min (approx), Meet drops very long transcript for current person and starts over, which is detected by current transcript string being significantly smaller than the previous one
                   if ((currentTranscriptText.length - transcriptTextBuffer.length) < -250) {
                     // Push the long transcript
                     pushBufferToTranscript()
 
-                    // Update buffers for next mutation and store transcript block timestamp
+                    // Store transcript block timestamp for next transcript block of same person
                     timestampBuffer = new Date().toISOString()
-                    transcriptTextBuffer = currentTranscriptText
                   }
                 }
                 if (!canUseAriaBasedTranscriptSelector) {
                   // If a person is speaking for a long time, Google Meet does not keep the entire text in the spans. Starting parts are automatically removed in an unpredictable way as the length increases and TranscripTonic will miss them. So we force remove a lengthy transcript node in a controlled way. Google Meet will add a fresh person node when we remove it and continue transcription. TranscripTonic picks it up as a new person and nothing is missed.
                   if (currentTranscriptText.length > 250) {
                     person.remove()
-
-                    // Update buffers for next mutation
-                    transcriptTextBuffer = currentTranscriptText
                   }
                 }
               }
