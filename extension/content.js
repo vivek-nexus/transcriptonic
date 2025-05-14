@@ -313,7 +313,7 @@ function transcriptMutationCallback(mutationsList) {
           // CRITICAL DOM DEPENDENCY
           const currentPersonName = person.childNodes[0].textContent
           // CRITICAL DOM DEPENDENCY
-          const currentTranscriptText = person.childNodes[1].lastChild?.textContent
+          const currentTranscriptText = person.childNodes[1].textContent
 
           if (currentPersonName && currentTranscriptText) {
             // Starting fresh in a meeting or resume from no active transcript
@@ -718,8 +718,8 @@ function recoverLastMeeting() {
         </div>
         <div jsname="YSxPC" class="bYevke wY1pdd" style="height: 27.5443px;">
           <div jsname="tgaKEf" class="bh44bd VbkSUe">
-            <span>Some transcript text.</span>
-            <span>Some more text.</span></div>
+            Some transcript text.
+            Some more text.</div>
         </div>
       </div>
       //PERSON 2
@@ -730,8 +730,8 @@ function recoverLastMeeting() {
         </div>
         <div jsname="YSxPC" class="bYevke wY1pdd" style="height: 27.5443px;">
           <div jsname="tgaKEf" class="bh44bd VbkSUe">
-            <span>Some transcript text.</span>
-            <span>Some more text.</span></div>
+            Some transcript text.
+            Some more text.</div>
         </div>
       </div>
     </div>
