@@ -5,6 +5,11 @@ Simple Google Meet transcripts. Private and open source.
 
 Extension status: 🔴 FIX PENDING CHROME STORE REVIEW (v3.1.0)
 
+<a href="https://www.reddit.com/r/chrome_extensions/comments/1isi3zm/me_waiting_for_chrome_web_store_team_to_approve/" target="_blank">
+<img src="https://github.com/user-attachments/assets/b2f23816-104a-46f6-ae8b-5f4176897fed" width="50%" />
+</a>
+
+
 <br />
 <br />
 
