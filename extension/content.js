@@ -667,29 +667,32 @@ function logError(code, err) {
 
 
 // Fetches extension status from GitHub and saves to chrome storage. Defaults to 200, if remote server is unavailable.
-async function checkExtensionStatus() {
-  // Set default value as 200
-  chrome.storage.local.set({
-    extensionStatusJSON: { status: 200, message: "<strong>TranscripTonic is running</strong> <br /> Do not turn off captions" },
-  })
+function checkExtensionStatus() {
+  return new Promise((resolve, reject) => {
+    // Set default value as 200
+    chrome.storage.local.set({
+      extensionStatusJSON: { status: 200, message: "<strong>TranscripTonic is running</strong> <br /> Do not turn off captions" },
+    })
 
-  // https://stackoverflow.com/a/42518434
-  await fetch(
-    "https://ejnana.github.io/transcripto-status/status-prod1.json",
-    { cache: "no-store" }
-  )
-    .then((response) => response.json())
-    .then((result) => {
-      // Write status to chrome local storage
-      chrome.storage.local.set({ extensionStatusJSON: result }, function () {
-        console.log("Extension status fetched and saved")
+    // https://stackoverflow.com/a/42518434
+    fetch(
+      "https://ejnana.github.io/transcripto-status/status-prod1.json",
+      { cache: "no-store" }
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        // Write status to chrome local storage
+        chrome.storage.local.set({ extensionStatusJSON: result }, function () {
+          console.log("Extension status fetched and saved")
+          resolve("Extension status fetched and saved")
+        })
       })
-    })
-    .catch((err) => {
-      console.error(err)
+      .catch((err) => {
+        console.error(err)
 
-      logError("008", err)
-    })
+        logError("008", err)
+      })
+  })
 }
 
 function recoverLastMeeting() {
