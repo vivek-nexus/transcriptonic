@@ -730,8 +730,8 @@ function recoverLastMeeting() {
         </div>
         <div jsname="YSxPC" class="bYevke wY1pdd" style="height: 27.5443px;">
           <div jsname="tgaKEf" class="bh44bd VbkSUe">
-            <span>Some transcript text.</span>
-            <span>Some more text.</span></div>
+            Some transcript text.
+            Some more text.</div>
         </div>
       </div>
       //PERSON 2
@@ -742,8 +742,8 @@ function recoverLastMeeting() {
         </div>
         <div jsname="YSxPC" class="bYevke wY1pdd" style="height: 27.5443px;">
           <div jsname="tgaKEf" class="bh44bd VbkSUe">
-            <span>Some transcript text.</span>
-            <span>Some more text.</span></div>
+            Some transcript text.
+            Some more text.</div>
         </div>
       </div>
     </div>
