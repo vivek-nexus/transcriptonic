@@ -43,10 +43,6 @@ TranscripTonic has two modes of operation.
 - **Manual mode:** Switch on TranscripTonic by clicking on captions icon in Google Meet (CC icon)
 
 
-<br />
-<br />
-
-
 # FAQs
 
 **1. Can I change the language of the transcript?**
@@ -75,3 +71,15 @@ TranscripTonic Chrome extension does not collect any information from users in a
 # Notice
 The transcript may not always be accurate and is only intended to aid in improving productivity. It is the responsibility of the user to ensure they comply with any applicable laws/rules.
 
+<br />
+<br />
+
+# Installing unpacked extension
+1. Download the unpacked extension zip file from GitHub using this [link](https://raw.githubusercontent.com/vivek-nexus/transcriptonic/refs/heads/main/extension-unpacked.zip)
+2. Open `chrome://extensions` in a new Chrome tab
+3. Enable "Developer mode" from top right corner
+4. Drag and drop the unpacked extension zip file to complete the installation process
+5. Remove unpacked extension when no longer needed. Your meeting data of unpacked extension and extension installed from Chrome Store, are stored separately.
+
+<br />
+<br />
