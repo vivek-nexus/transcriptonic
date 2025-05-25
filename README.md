@@ -3,12 +3,7 @@ Simple Google Meet transcripts. Private and open source.
 
 ![marquee-large](/assets/marquee-large.png)
 
-Extension status: 🔴 FIX PENDING CHROME STORE REVIEW (v3.1.0)
-
-<a href="https://www.reddit.com/r/chrome_extensions/comments/1isi3zm/me_waiting_for_chrome_web_store_team_to_approve/" target="_blank">
-<img src="https://github.com/user-attachments/assets/b2f23816-104a-46f6-ae8b-5f4176897fed" width="50%" />
-</a>
-
+Extension status: 🟢 OPERATIONAL (v3.1.1)
 
 <br />
 <br />
@@ -63,7 +58,7 @@ When this happens, it might be possible to recover the transcript, but recovery 
 <br />
 
 # Privacy policy
-TranscripTonic Chrome extension does not collect any information from users in any manner, except anonymous errors and transcript download timestamp. All processing/transcript storage happens within the user's Chrome browser and does not leave the device.
+TranscripTonic Chrome extension does not collect any information from users in any manner, except anonymous errors and transcript download timestamp. All processing/transcript storage happens within the user's Chrome browser and does not leave the device, unless you configure a webhook and choose to post data to your webhook URL.
 
 <br />
 <br />
