@@ -503,7 +503,9 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
       }
       chrome.runtime.sendMessage(message, (responseUntyped) => {
         const response = /** @type {ExtensionResponse} */ (responseUntyped)
-        console.error(response)
+        if (!response.success) {
+          console.error(response.message)
+        }
       })
     }
   })

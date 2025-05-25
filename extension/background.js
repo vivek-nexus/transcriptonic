@@ -29,6 +29,11 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
 
     if (message.type === "meeting_ended") {
         processLastMeeting()
+            .then(() => {
+                /** @type {ExtensionResponse} */
+                const response = { success: true }
+                sendResponse(response)
+            })
             .catch((error) => {
                 /** @type {ExtensionResponse} */
                 const response = { success: false, message: error }
