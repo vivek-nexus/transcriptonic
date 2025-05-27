@@ -14,6 +14,7 @@
 
 /**
  * @typedef {Object} WebhookBody
+ * @property {"simple" | "advanced"} webhookBodyType simple or advanced
  * @property {string} meetingTitle title of the meeting
  * @property {string} meetingStartTimestamp ISO timestamp of when the meeting started
  * @property {string} meetingEndTimestamp ISO timestamp of when the meeting ended
@@ -32,8 +33,8 @@
  * @property {MeetingStartTimestamp} meetingStartTimestamp
  * @property {Transcript} transcript
  * @property {ChatMessages} chatMessages
- * @property {IsDeferredUpdatedAvailable} isDeferredUpdatedAvailable
- * @property {Meeting[]} meetings
+ * @property {IsDeferredUpdatedAvailable | undefined} isDeferredUpdatedAvailable
+ * @property {Meeting[] | undefined} meetings
  */
 
 /**
@@ -47,8 +48,8 @@
  * @property {string | undefined} [title] title of the meeting (this is older key for meetingTitle key, in v3.1.0)
  * @property {string} meetingStartTimestamp ISO timestamp of when the meeting started
  * @property {string} meetingEndTimestamp ISO timestamp of when the meeting ended
- * @property {TranscriptBlock[]} transcript array containing transcript blocks from the meeting
- * @property {ChatMessage[]} chatMessages array containing chat messages from the meeting
+ * @property {TranscriptBlock[] | []} transcript array containing transcript blocks from the meeting
+ * @property {ChatMessage[] | []} chatMessages array containing chat messages from the meeting
  * @property {"new" | "failed" | "successful"} webhookPostStatus status of the webhook post request
  */
 /**

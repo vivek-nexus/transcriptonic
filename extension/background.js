@@ -29,6 +29,11 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
 
     if (message.type === "meeting_ended") {
         processLastMeeting()
+            .then(() => {
+                /** @type {ExtensionResponse} */
+                const response = { success: true }
+                sendResponse(response)
+            })
             .catch((error) => {
                 /** @type {ExtensionResponse} */
                 const response = { success: false, message: error }
@@ -151,6 +156,7 @@ function processLastMeeting() {
                         const promises = []
 
                         // Meeting index to download and post webhook
+                        // @ts-ignore - Because this line exists in the resolved promise from pickupLastMeetingFromStorage, which clearly means that at least one meeting exists and resultLocal.meetings cannot be undefined.
                         const lastIndex = resultLocal.meetings.length - 1
 
                         // Promise to download transcript
@@ -350,13 +356,14 @@ function postTranscriptToWebhook(index) {
                 const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
 
                 if (resultSync.webhookUrl) {
-                    if (resultLocal.meetings || resultLocal.meetings[index]) {
+                    if (resultLocal.meetings && resultLocal.meetings[index]) {
                         const meeting = resultLocal.meetings[index]
 
                         /** @type {WebhookBody} */
                         let webhookData
                         if (resultSync.webhookBodyType === "advanced") {
                             webhookData = {
+                                webhookBodyType: "advanced",
                                 meetingTitle: meeting.meetingTitle || meeting.title || "",
                                 meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toISOString(),
                                 meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toISOString(),
@@ -366,6 +373,7 @@ function postTranscriptToWebhook(index) {
                         }
                         else {
                             webhookData = {
+                                webhookBodyType: "simple",
                                 meetingTitle: meeting.meetingTitle || meeting.title || "",
                                 meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
                                 meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
@@ -386,14 +394,16 @@ function postTranscriptToWebhook(index) {
                                 throw new Error(`Webhook request failed with HTTP status code ${response.status} ${response.statusText}`)
                             }
                         }).then(() => {
-                            // Update success status
+                            // Update success status.
+                            // @ts-ignore - Pointless type error about resultLocal.meetings being undefined, which is already checked above.
                             resultLocal.meetings[index].webhookPostStatus = "successful"
                             chrome.storage.local.set({ meetings: resultLocal.meetings }, function () {
                                 resolve("Webhook posted successfully")
                             })
                         }).catch(error => {
                             console.error(error)
-                            // Update failure status
+                            // Update failure status.
+                            // @ts-ignore - Pointless type error about resultLocal.meetings being undefined, which is already checked above.
                             resultLocal.meetings[index].webhookPostStatus = "failed"
                             chrome.storage.local.set({ meetings: resultLocal.meetings }, function () {
                                 // Create notification and open webhooks page
@@ -430,7 +440,7 @@ function postTranscriptToWebhook(index) {
 
 /**
  * Format transcript entries into string
- * @param {TranscriptBlock[]} transcript
+ * @param {TranscriptBlock[] | []} transcript
  */
 function getTranscriptString(transcript) {
     let transcriptString = ""
@@ -448,7 +458,7 @@ function getTranscriptString(transcript) {
 
 /**
  * Format chat messages into string
- * @param {ChatMessage[]} chatMessages
+ * @param {ChatMessage[] | []} chatMessages
  */
 function getChatMessagesString(chatMessages) {
     let chatMessagesString = ""
@@ -486,10 +496,14 @@ function recoverLastMeeting() {
             const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
             // Check if user ever attended a meeting
             if (resultLocal.meetingStartTimestamp) {
-                const meetingToDownload = resultLocal.meetings[resultLocal.meetings.length - 1]
+                /** @type {Meeting | undefined} */
+                let lastSavedMeeting
+                if ((resultLocal.meetings) && (resultLocal.meetings.length > 0)) {
+                    lastSavedMeeting = resultLocal.meetings[resultLocal.meetings.length - 1]
+                }
 
                 // Last meeting was not processed for some reason. Need to recover that data, process and download it.
-                if ((!meetingToDownload) || (resultLocal.meetingStartTimestamp !== meetingToDownload.meetingStartTimestamp)) {
+                if ((!lastSavedMeeting) || (resultLocal.meetingStartTimestamp !== lastSavedMeeting.meetingStartTimestamp)) {
                     processLastMeeting().then(() => {
                         resolve("Recovered last meeting to the best possible extent")
                     }).catch((error) => {

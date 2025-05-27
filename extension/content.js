@@ -60,9 +60,7 @@ Promise.race([
   )
 ]).
   catch((error) => {
-    if (error !== "Empty transcript and empty chatMessages") {
-      console.error(error)
-    }
+    console.error(error)
   }).
   finally(() => {
     // Save current meeting data to chrome storage once recovery is complete or is aborted
@@ -73,7 +71,7 @@ Promise.race([
 
 
 //*********** MAIN FUNCTIONS **********//
-checkExtensionStatus().then(() => {
+checkExtensionStatus().finally(() => {
   // Read the status JSON
   chrome.storage.local.get(["extensionStatusJSON"], function (resultLocalUntyped) {
     const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
@@ -506,7 +504,7 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
       chrome.runtime.sendMessage(message, (responseUntyped) => {
         const response = /** @type {ExtensionResponse} */ (responseUntyped)
         if (!response.success) {
-          alert(`Something went wrong. View details by opening "Last 10 meetings" from the extension popup.`)
+          console.error(response.message)
         }
       })
     }
@@ -561,7 +559,7 @@ function updateMeetingTitle() {
   }
 }
 
-// Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the upper parents. 
+// Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the parents. 
 /**
  * @param {string} selector
  * @param {string | RegExp} text
@@ -667,29 +665,33 @@ function logError(code, err) {
 
 
 // Fetches extension status from GitHub and saves to chrome storage. Defaults to 200, if remote server is unavailable.
-async function checkExtensionStatus() {
-  // Set default value as 200
-  chrome.storage.local.set({
-    extensionStatusJSON: { status: 200, message: "<strong>TranscripTonic is running</strong> <br /> Do not turn off captions" },
-  })
+function checkExtensionStatus() {
+  return new Promise((resolve, reject) => {
+    // Set default value as 200
+    chrome.storage.local.set({
+      extensionStatusJSON: { status: 200, message: "<strong>TranscripTonic is running</strong> <br /> Do not turn off captions" },
+    })
 
-  // https://stackoverflow.com/a/42518434
-  await fetch(
-    "https://ejnana.github.io/transcripto-status/status-prod-unpacked.json",
-    { cache: "no-store" }
-  )
-    .then((response) => response.json())
-    .then((result) => {
-      // Write status to chrome local storage
-      chrome.storage.local.set({ extensionStatusJSON: result }, function () {
-        console.log("Extension status fetched and saved")
+    // https://stackoverflow.com/a/42518434
+    fetch(
+      "https://ejnana.github.io/transcripto-status/status-prod-unpacked.json",
+      { cache: "no-store" }
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        // Write status to chrome local storage
+        chrome.storage.local.set({ extensionStatusJSON: result }, function () {
+          console.log("Extension status fetched and saved")
+          resolve("Extension status fetched and saved")
+        })
       })
-    })
-    .catch((err) => {
-      console.error(err)
+      .catch((err) => {
+        console.error(err)
+        reject("Could not fetch extension status")
 
-      logError("008", err)
-    })
+        logError("008", err)
+      })
+  })
 }
 
 function recoverLastMeeting() {

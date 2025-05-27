@@ -194,14 +194,16 @@ function loadMeetings() {
                             }
                         )()}
                     </td>
-                    <td style="min-width: 128px; display: flex; gap: 1rem; align-content: end;">
-                        <button class="download-button" data-index="${i}">
-                            <img src="./icons/download.svg" alt="Download this meeting transcript">
-                        </button>
-                        <button class="post-button" data-index="${i}">
-                            ${meeting.webhookPostStatus === "new" ? `Post` : `Repost`}
-                            <img src="./icons/webhook.svg" alt="" width="16px">
-                        </button>
+                    <td>
+                        <div style="min-width: 128px; display: flex; gap: 1rem;">
+                            <button class="download-button" data-index="${i}">
+                                <img src="./icons/download.svg" alt="Download this meeting transcript">
+                            </button>
+                            <button class="post-button" data-index="${i}">
+                                ${meeting.webhookPostStatus === "new" ? `Post` : `Repost`}
+                                <img src="./icons/webhook.svg" alt="" width="16px">
+                            </button>
+                        </div>
                     </td>
                 `
                     meetingsTable.appendChild(row)
