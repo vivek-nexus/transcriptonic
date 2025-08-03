@@ -44,6 +44,12 @@
             margin-bottom: 1rem;
         }
 
+        .webhook-section-heading {
+            display: flex;
+            gap: 0.5rem;
+            align-items: start;
+        }
+
         /* Custom scrollbar styling */
         ::-webkit-scrollbar {
             width: 8px;
@@ -268,6 +274,39 @@
             gap: 0.25rem;
             align-items: center;
         }
+
+        .card-heading {
+            margin: 0rem 1.5rem 0.5rem 1.5rem;
+            font-weight: bold;
+        }
+
+        .integration-card {
+            padding: 0rem 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .integration-guide {
+            padding: 0.5rem;
+            background: transparent;
+            border: 1px solid #2a9aca88;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: start;
+            gap: 0.5rem;
+            color: #2A9ACA;
+            font-weight: bold;
+            text-decoration: none;
+
+            img {
+                margin-top: 0.1rem;
+            }
+
+            p {
+                margin: 0;
+            }
+        }
     </style>
 </head>
 
@@ -297,7 +336,11 @@
         </div>
 
         <div>
-            <h2>Webhooks</h2>
+            <div class="webhook-section-heading">
+                <h2>Webhooks</h2>
+                <img src="./icons/webhook-white.svg" alt="" width="28px">
+            </div>
+
             <div class="card">
                 <div class="webhook-header">
                     <!-- <h3>Configure webhooks</h3> -->
@@ -345,8 +388,9 @@
 
 
             <div class="card">
+                <p class="card-heading">Webhook JSON body</p>
                 <details>
-                    <summary>Sample webhook body (simple)</summary>
+                    <summary>Webhook body (simple)</summary>
                     <div class="code-block accordion-content">
                         <code>
                         <pre>
@@ -364,7 +408,7 @@
                 </details>
 
                 <details>
-                    <summary>Sample webhook body (advanced)</summary>
+                    <summary>Webhook body (advanced)</summary>
                     <div class="code-block accordion-content">
                         <code>
                             <pre>
@@ -402,6 +446,21 @@
                     </code>
                     </div>
                 </details>
+                <hr />
+                <p class="card-heading">Guides</p>
+                <div class="integration-card">
+                    <a class="integration-guide"
+                        href="https://github.com/vivek-nexus/transcriptonic/wiki/Google-Docs-integration-guide"
+                        target="_blank">
+                        <img src="./icons/guide.svg" alt="" width="16px">
+                        <p>Get transcripts on Google Docs</p>
+                    </a>
+                    <a class="integration-guide"
+                        href="https://github.com/vivek-nexus/transcriptonic/wiki/n8n-integration-guide" target="_blank">
+                        <img src="./icons/guide.svg" alt="" width="16px">
+                        <p>Using webhooks with n8n</p>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
