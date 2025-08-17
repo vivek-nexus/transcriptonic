@@ -28,21 +28,26 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
     }
 
     if (message.type === "meeting_ended") {
-        processLastMeeting()
-            .then(() => {
-                /** @type {ExtensionResponse} */
-                const response = { success: true }
-                sendResponse(response)
-            })
-            .catch((error) => {
-                /** @type {ExtensionResponse} */
-                const response = { success: false, message: error }
-                sendResponse(response)
-            })
-            .finally(() => {
-                // Invalidate tab id since transcript is downloaded, prevents double downloading of transcript from tab closed event listener
-                clearTabIdAndApplyUpdate()
-            })
+        // Invalidate tab id since transcript is downloaded, prevents double downloading of transcript from tab closed event listener
+        chrome.storage.local.set({ meetingTabId: null }, function () {
+            console.log("Meeting tab id cleared for next meeting")
+
+            processLastMeeting()
+                .then(() => {
+                    /** @type {ExtensionResponse} */
+                    const response = { success: true }
+                    sendResponse(response)
+                })
+                .catch((error) => {
+                    /** @type {ExtensionResponse} */
+                    const response = { success: false, message: error }
+                    sendResponse(response)
+                })
+                .finally(() => {
+                    applyUpdate()
+                })
+        })
+
     }
 
     if (message.type === "download_transcript_at_index") {
@@ -113,9 +118,13 @@ chrome.tabs.onRemoved.addListener(function (tabId) {
         if (tabId === resultLocal.meetingTabId) {
             console.log("Successfully intercepted tab close")
 
-            processLastMeeting().finally(() => {
-                // Clearing meetingTabId to prevent misfires of onRemoved until next meeting actually starts
-                clearTabIdAndApplyUpdate()
+            // Clearing meetingTabId to prevent misfires of onRemoved until next meeting actually starts
+            chrome.storage.local.set({ meetingTabId: null }, function () {
+                console.log("Meeting tab id cleared for next meeting")
+
+                processLastMeeting().finally(() => {
+                    applyUpdate()
+                })
             })
         }
     })
@@ -472,21 +481,17 @@ function getChatMessagesString(chatMessages) {
     return chatMessagesString
 }
 
-function clearTabIdAndApplyUpdate() {
-    chrome.storage.local.set({ meetingTabId: null }, function () {
-        console.log("Meeting tab id cleared for next meeting")
+function applyUpdate() {
+    // Check if there's a deferred update
+    chrome.storage.local.get(["isDeferredUpdatedAvailable"], function (resultLocalUntyped) {
+        const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
 
-        // Check if there's a deferred update
-        chrome.storage.local.get(["isDeferredUpdatedAvailable"], function (resultLocalUntyped) {
-            const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
-
-            if (resultLocal.isDeferredUpdatedAvailable) {
-                console.log("Applying deferred update")
-                chrome.storage.local.set({ isDeferredUpdatedAvailable: false }, function () {
-                    chrome.runtime.reload()
-                })
-            }
-        })
+        if (resultLocal.isDeferredUpdatedAvailable) {
+            console.log("Applying deferred update")
+            chrome.storage.local.set({ isDeferredUpdatedAvailable: false }, function () {
+                chrome.runtime.reload()
+            })
+        }
     })
 }
 
