@@ -53,7 +53,7 @@
  * @property {"new" | "failed" | "successful"} webhookPostStatus status of the webhook post request
  */
 /**
- * @typedef {number | null} MeetingTabId tab id of the meeting tab, captured when meeting starts. A valid values indicates that a meeting is in progress. Set to null once meeting ends and associated processing is complete.
+ * @typedef {number | "processing" | null} MeetingTabId tab id of the meeting tab, captured when meeting starts. A valid value or "processing" indicates that a meeting is in progress. Set to null once meeting ends and associated processing is complete.
  */
 /**
  * @typedef {string} MeetingStartTimestamp ISO timestamp of when the most recent meeting started, dumped by content script

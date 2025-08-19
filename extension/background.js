@@ -28,9 +28,9 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
     }
 
     if (message.type === "meeting_ended") {
-        // Invalidate tab id since transcript is downloaded, prevents double downloading of transcript from tab closed event listener
-        chrome.storage.local.set({ meetingTabId: null }, function () {
-            console.log("Meeting tab id cleared for next meeting")
+        // Prevents double downloading of transcript from tab closed event listener. Also prevents available update from being applied, during meeting post processing.
+        chrome.storage.local.set({ meetingTabId: "processing" }, function () {
+            console.log("Meeting tab id set to processing meeting")
 
             processLastMeeting()
                 .then(() => {
@@ -44,10 +44,9 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
                     sendResponse(response)
                 })
                 .finally(() => {
-                    applyUpdate()
+                    clearTabIdAndApplyUpdate()
                 })
         })
-
     }
 
     if (message.type === "download_transcript_at_index") {
@@ -118,12 +117,12 @@ chrome.tabs.onRemoved.addListener(function (tabId) {
         if (tabId === resultLocal.meetingTabId) {
             console.log("Successfully intercepted tab close")
 
-            // Clearing meetingTabId to prevent misfires of onRemoved until next meeting actually starts
-            chrome.storage.local.set({ meetingTabId: null }, function () {
+            // Prevent misfires of onRemoved until next meeting. Also prevents available update from being applied, during meeting post processing.
+            chrome.storage.local.set({ meetingTabId: "processing" }, function () {
                 console.log("Meeting tab id cleared for next meeting")
 
                 processLastMeeting().finally(() => {
-                    applyUpdate()
+                    clearTabIdAndApplyUpdate()
                 })
             })
         }
@@ -137,12 +136,12 @@ chrome.runtime.onUpdateAvailable.addListener(() => {
         const result = /** @type {ResultLocal} */ (resultUntyped)
 
         if (result.meetingTabId) {
-            // There is an active meeting, defer the update
+            // There is an active meeting(values: tabId or processing), defer the update
             chrome.storage.local.set({ isDeferredUpdatedAvailable: true }, function () {
                 console.log("Deferred update flag set")
             })
         } else {
-            // No active meeting, apply the update immediately. Meeting tab id is invalidated only post meeting operations are done, so no race conditions.
+            // No active meeting, apply the update immediately. Meeting tab id is nullified only post meeting operations are done, so no race conditions.
             console.log("No active meeting, applying update immediately")
             chrome.runtime.reload()
         }
@@ -481,17 +480,22 @@ function getChatMessagesString(chatMessages) {
     return chatMessagesString
 }
 
-function applyUpdate() {
-    // Check if there's a deferred update
-    chrome.storage.local.get(["isDeferredUpdatedAvailable"], function (resultLocalUntyped) {
-        const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
+function clearTabIdAndApplyUpdate() {
+    // Nullify to indicate end of meeting processing
+    chrome.storage.local.set({ meetingTabId: null }, function () {
+        console.log("Meeting tab id cleared for next meeting")
 
-        if (resultLocal.isDeferredUpdatedAvailable) {
-            console.log("Applying deferred update")
-            chrome.storage.local.set({ isDeferredUpdatedAvailable: false }, function () {
-                chrome.runtime.reload()
-            })
-        }
+        // Check if there's a deferred update
+        chrome.storage.local.get(["isDeferredUpdatedAvailable"], function (resultLocalUntyped) {
+            const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
+
+            if (resultLocal.isDeferredUpdatedAvailable) {
+                console.log("Applying deferred update")
+                chrome.storage.local.set({ isDeferredUpdatedAvailable: false }, function () {
+                    chrome.runtime.reload()
+                })
+            }
+        })
     })
 }
 
