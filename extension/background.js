@@ -119,7 +119,7 @@ chrome.tabs.onRemoved.addListener(function (tabId) {
 
             // Prevent misfires of onRemoved until next meeting. Also prevents available update from being applied, during meeting post processing.
             chrome.storage.local.set({ meetingTabId: "processing" }, function () {
-                console.log("Meeting tab id cleared for next meeting")
+                console.log("Meeting tab id set to processing meeting")
 
                 processLastMeeting().finally(() => {
                     clearTabIdAndApplyUpdate()

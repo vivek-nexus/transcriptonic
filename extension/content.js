@@ -152,8 +152,7 @@ function meetingRoutines(uiType) {
 
 
     //*********** MEETING START ROUTINES **********//
-    // Pick up meeting name after a delay, since Google meet updates meeting name after a delay
-    setTimeout(() => updateMeetingTitle(), 5000)
+    updateMeetingTitle()
 
     /** @type {MutationObserver} */
     let transcriptObserver
@@ -162,41 +161,43 @@ function meetingRoutines(uiType) {
 
     // **** REGISTER TRANSCRIPT LISTENER **** //
     try {
-      // CRITICAL DOM DEPENDENCY
-      const captionsButton = selectElements(captionsIconData.selector, captionsIconData.text)[0]
+      waitForElement(captionsIconData.selector, captionsIconData.text).then(() => {
+        // CRITICAL DOM DEPENDENCY
+        const captionsButton = selectElements(captionsIconData.selector, captionsIconData.text)[0]
 
-      // Click captions icon for non manual operation modes. Async operation.
-      chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
-        const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
-        if (resultSync.operationMode === "manual")
-          console.log("Manual mode selected, leaving transcript off")
-        else
-          captionsButton.click()
+        // Click captions icon for non manual operation modes. Async operation.
+        chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
+          const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+          if (resultSync.operationMode === "manual")
+            console.log("Manual mode selected, leaving transcript off")
+          else
+            captionsButton.click()
+        })
+
+        // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
+        let transcriptTargetNode = document.querySelector(`div[role="region"][tabindex="0"]`)
+        // For old captions UI
+        if (!transcriptTargetNode) {
+          transcriptTargetNode = document.querySelector(".a4cQT")
+          canUseAriaBasedTranscriptSelector = false
+        }
+
+        if (transcriptTargetNode) {
+          // Attempt to dim down the transcript
+          canUseAriaBasedTranscriptSelector
+            ? transcriptTargetNode.setAttribute("style", "opacity:0.2")
+            : transcriptTargetNode.children[1].setAttribute("style", "opacity:0.2")
+
+          // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
+          transcriptObserver = new MutationObserver(transcriptMutationCallback)
+
+          // Start observing the transcript element and chat messages element for configured mutations
+          transcriptObserver.observe(transcriptTargetNode, mutationConfig)
+        }
+        else {
+          throw new Error("Transcript element not found in DOM")
+        }
       })
-
-      // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
-      let transcriptTargetNode = document.querySelector(`div[role="region"][tabindex="0"]`)
-      // For old captions UI
-      if (!transcriptTargetNode) {
-        transcriptTargetNode = document.querySelector(".a4cQT")
-        canUseAriaBasedTranscriptSelector = false
-      }
-
-      if (transcriptTargetNode) {
-        // Attempt to dim down the transcript
-        canUseAriaBasedTranscriptSelector
-          ? transcriptTargetNode.setAttribute("style", "opacity:0.2")
-          : transcriptTargetNode.children[1].setAttribute("style", "opacity:0.2")
-
-        // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
-        transcriptObserver = new MutationObserver(transcriptMutationCallback)
-
-        // Start observing the transcript element and chat messages element for configured mutations
-        transcriptObserver.observe(transcriptTargetNode, mutationConfig)
-      }
-      else {
-        throw new Error("Transcript element not found in DOM")
-      }
     } catch (err) {
       console.error(err)
       isTranscriptDomErrorCaptured = true
@@ -207,32 +208,35 @@ function meetingRoutines(uiType) {
 
     // **** REGISTER CHAT MESSAGES LISTENER **** //
     try {
-      const chatMessagesButton = selectElements(".google-symbols", "chat")[0]
-      // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
-      chatMessagesButton.click()
-
-      // Allow DOM to be updated, close chat messages and then register chatMessage mutation observer
-      waitForElement(`div[aria-live="polite"].Ge9Kpc`).then(() => {
+      // Wait for chat icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the chat icon is still not visible.
+      waitForElement(".google-symbols", "chat").then(() => {
+        const chatMessagesButton = selectElements(".google-symbols", "chat")[0]
+        // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
         chatMessagesButton.click()
-        // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
-        try {
-          const chatMessagesTargetNode = document.querySelector(`div[aria-live="polite"].Ge9Kpc`)
 
-          // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
-          if (chatMessagesTargetNode) {
-            chatMessagesObserver = new MutationObserver(chatMessagesMutationCallback)
-            chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
-          }
-          else {
-            throw new Error("Chat messages element not found in DOM")
-          }
-        } catch (err) {
-          console.error(err)
-          isChatMessagesDomErrorCaptured = true
-          showNotification(extensionStatusJSON_bug)
+        // Allow DOM to be updated, close chat messages and then register chatMessage mutation observer
+        waitForElement(`div[aria-live="polite"].Ge9Kpc`).then(() => {
+          chatMessagesButton.click()
+          // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
+          try {
+            const chatMessagesTargetNode = document.querySelector(`div[aria-live="polite"].Ge9Kpc`)
 
-          logError("002", err)
-        }
+            // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
+            if (chatMessagesTargetNode) {
+              chatMessagesObserver = new MutationObserver(chatMessagesMutationCallback)
+              chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
+            }
+            else {
+              throw new Error("Chat messages element not found in DOM")
+            }
+          } catch (err) {
+            console.error(err)
+            isChatMessagesDomErrorCaptured = true
+            showNotification(extensionStatusJSON_bug)
+
+            logError("002", err)
+          }
+        })
       })
     } catch (err) {
       console.error(err)
@@ -542,14 +546,19 @@ function pulseStatus() {
 // Grabs updated meeting title, if available
 function updateMeetingTitle() {
   try {
-    // NON CRITICAL DOM DEPENDENCY
-    const meetingTitleElement = document.querySelector(".u6vdEc")
-    if (meetingTitleElement?.textContent) {
-      meetingTitle = meetingTitleElement.textContent
-      overWriteChromeStorage(["meetingTitle"], false)
-    } else {
-      throw new Error("Meeting title element not found in DOM")
-    }
+    waitForElement(".u6vdEc").then(() => {
+      // Pick up meeting name after a delay, since Google meet updates meeting name after a delay
+      setTimeout(() => {
+        // NON CRITICAL DOM DEPENDENCY
+        const meetingTitleElement = document.querySelector(".u6vdEc")
+        if (meetingTitleElement?.textContent) {
+          meetingTitle = meetingTitleElement.textContent
+          overWriteChromeStorage(["meetingTitle"], false)
+        } else {
+          throw new Error("Meeting title element not found in DOM")
+        }
+      }, 5000)
+    })
   } catch (err) {
     console.error(err)
 
@@ -557,6 +566,7 @@ function updateMeetingTitle() {
       logError("007", err)
     }
   }
+
 }
 
 // Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the parents. 
