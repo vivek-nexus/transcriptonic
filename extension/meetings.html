@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TranscripTonic—Meetings</title>
+    <title data-i18n="meetings_page_title">TranscripTonic—Meetings</title>
     <style>
         @import url("https://fonts.googleapis.com/css2?family=SUSE:wght@400;700&display=swap");
 
@@ -311,19 +311,19 @@
 </head>
 
 <body>
-    <h1>TranscripTonic</h1>
+    <h1 data-i18n="popup_title">TranscripTonic</h1>
 
     <div class="grid-container">
         <div>
-            <h2>Last 10 meetings</h2>
+            <h2 data-i18n="meetings_last_10_heading">Last 10 meetings</h2>
             <div class="transcripts-section">
                 <table>
                     <thead>
                         <tr>
-                            <th>Meeting title</th>
-                            <th>Meeting start time and duration</th>
-                            <th>Webhook status</th>
-                            <th>Actions</th>
+                            <th data-i18n="meetings_table_title">Meeting title</th>
+                            <th data-i18n="meetings_table_start_time">Meeting start time and duration</th>
+                            <th data-i18n="meetings_table_webhook_status">Webhook status</th>
+                            <th data-i18n="meetings_table_actions">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="transcripts-table">
@@ -331,27 +331,27 @@
                     </tbody>
                 </table>
 
-                <button id="recover-last-meeting">Recover last meeting</button>
+                <button id="recover-last-meeting" data-i18n="meetings_recover_last">Recover last meeting</button>
             </div>
         </div>
 
         <div>
             <div class="webhook-section-heading">
-                <h2>Webhooks</h2>
+                <h2 data-i18n="meetings_webhooks_heading">Webhooks</h2>
                 <img src="./icons/webhook-white.svg" alt="" width="28px">
             </div>
 
             <div class="card">
                 <div class="webhook-header">
                     <!-- <h3>Configure webhooks</h3> -->
-                    <p><b>Integrate TranscripTonic with your favourite tools</b></p>
+                    <p><b data-i18n="meetings_integrate_sub">Integrate TranscripTonic with your favourite tools</b></p>
                 </div>
 
                 <form id="webhook-url-form" class="form-field">
-                    <label for="webhook-url">Webhook URL</label>
+                    <label for="webhook-url" data-i18n="meetings_webhook_url_label">Webhook URL</label>
                     <div class="input-group">
                         <input type="url" id="webhook-url" placeholder="https://your-webhook-url.com">
-                        <button id="save-webhook">Save</button>
+                        <button id="save-webhook" data-i18n="meetings_save">Save</button>
                     </div>
                 </form>
 
@@ -360,10 +360,7 @@
                 <form class="form-field">
                     <div class="checkbox-group">
                         <input type="checkbox" id="auto-post-webhook" checked>
-                        <label for="auto-post-webhook">
-                            Automatically post transcript after each
-                            meeting, to webhook URL
-                        </label>
+                        <label for="auto-post-webhook" data-i18n="meetings_auto_post_label">Automatically post transcript after each meeting, to webhook URL</label>
                     </div>
                 </form>
 
@@ -372,15 +369,14 @@
                 <form class="form-field">
                     <div class="radio-item">
                         <input type="radio" name="webhook-body-type" id="simple-webhook-body" checked />
-                        <label for="simple-webhook-body"><b>Simple webhook body</b>
-                            <br /><span class="sub-text">Pre-formatted data, suitable for no-code
-                                integrations</span>
+                        <label for="simple-webhook-body"><b data-i18n="meetings_simple_body_title">Simple webhook body</b>
+                            <br /><span class="sub-text" data-i18n="meetings_simple_body_sub">Pre-formatted data, suitable for no-code integrations</span>
                         </label>
                     </div>
                     <div class="radio-item">
                         <input type="radio" name="webhook-body-type" id="advanced-webhook-body" />
-                        <label for="advanced-webhook-body"><b>Advanced webhook body</b> <br />
-                            <span class="sub-text">Raw data, suitable for code integrations</span>
+                        <label for="advanced-webhook-body"><b data-i18n="meetings_advanced_body_title">Advanced webhook body</b> <br />
+                            <span class="sub-text" data-i18n="meetings_advanced_body_sub">Raw data, suitable for code integrations</span>
                         </label>
                     </div>
                 </form>
@@ -388,9 +384,9 @@
 
 
             <div class="card">
-                <p class="card-heading">Webhook JSON body</p>
+                <p class="card-heading" data-i18n="meetings_json_body_heading">Webhook JSON body</p>
                 <details>
-                    <summary>Webhook body (simple)</summary>
+                    <summary data-i18n="meetings_webhook_body_simple_summary">Webhook body (simple)</summary>
                     <div class="code-block accordion-content">
                         <code>
                         <pre>
@@ -408,7 +404,7 @@
                 </details>
 
                 <details>
-                    <summary>Webhook body (advanced)</summary>
+                    <summary data-i18n="meetings_webhook_body_advanced_summary">Webhook body (advanced)</summary>
                     <div class="code-block accordion-content">
                         <code>
                             <pre>
@@ -447,25 +443,26 @@
                     </div>
                 </details>
                 <hr />
-                <p class="card-heading">Helpful guides</p>
+                <p class="card-heading" data-i18n="meetings_helpful_guides">Helpful guides</p>
                 <div class="integration-card">
                     <a class="integration-guide"
                         href="https://github.com/vivek-nexus/transcriptonic/wiki/Google-Docs-integration-guide?utm_source=extension"
                         target="_blank">
                         <img src="./icons/guide.svg" alt="" width="16px">
-                        <p>Get transcripts on Google Docs</p>
+                        <p data-i18n="meetings_guide_google_docs">Get transcripts on Google Docs</p>
                     </a>
                     <a class="integration-guide"
                         href="https://github.com/vivek-nexus/transcriptonic/wiki/n8n-integration-guide?utm_source=extension"
                         target="_blank">
                         <img src="./icons/guide.svg" alt="" width="16px">
-                        <p>Using webhooks with n8n</p>
+                        <p data-i18n="meetings_guide_n8n">Using webhooks with n8n</p>
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="i18n.js"></script>
     <script src="meetings.js"></script>
 </body>
 

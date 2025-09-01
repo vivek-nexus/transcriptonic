@@ -33,21 +33,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 scrollTo({ top: 0, behavior: "smooth" })
                 if (response.success) {
                     if (response.message === "No recovery needed") {
-                        alert("Nothing to recover—you're on top of the world!")
+                        alert(t("alert_nothing_to_recover", "Nothing to recover—you're on top of the world!"))
                     }
                     else {
-                        alert("Last meeting recovered successfully!")
+                        alert(t("alert_recovered_success", "Last meeting recovered successfully!"))
                     }
                 }
                 else {
                     if (response.message === "No meetings found. May be attend one?") {
-                        alert(response.message)
+                        alert(t("alert_no_meetings_found", response.message))
                     }
                     else if (response.message === "Empty transcript and empty chatMessages") {
-                        alert("Nothing to recover—you're on top of the world!")
+                        alert(t("alert_empty_transcript", "Nothing to recover—you're on top of the world!"))
                     }
                     else {
-                        alert("Could not recover last meeting!")
+                        alert(t("alert_could_not_recover", "Could not recover last meeting!"))
                         console.error(response.message)
                     }
                 }
@@ -95,10 +95,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         autoPostWebhookAfterMeeting: autoPostCheckbox.checked,
                         webhookBodyType: advancedWebhookBodyRadio.checked ? "advanced" : "simple"
                     }, function () {
-                        alert("Webhook URL saved!")
+                        alert(t("alert_webhook_saved", "Webhook URL saved!"))
                     })
                 }).catch((error) => {
-                    alert("Fine! No webhooks for you!")
+                    alert(t("alert_webhook_denied", "Fine! No webhooks for you!"))
                     console.error("Webhook permission error:", error)
                 })
             }
@@ -176,20 +176,20 @@ function loadMeetings() {
 
                     const row = document.createElement("tr")
                     row.innerHTML = `
-                    <td>${meeting.meetingTitle || meeting.title || "Google Meet call"}</td>
+                    <td>${meeting.meetingTitle || meeting.title || t("meetings_default_meeting_title", "Google Meet call")}</td>
                     <td>${timestamp} &nbsp; &#9679; &nbsp; ${durationString}</td>
                     <td>
                         ${(
                             () => {
                                 switch (meeting.webhookPostStatus) {
                                     case "successful":
-                                        return `<span class="status-success">Successful</span>`
+                                        return `<span class=\"status-success\">${t("meetings_status_successful", "Successful")}</span>`
                                     case "failed":
-                                        return `<span class="status-failed">Failed</span>`
+                                        return `<span class=\"status-failed\">${t("meetings_status_failed", "Failed")}</span>`
                                     case "new":
-                                        return `<span class="status-new">New</span>`
+                                        return `<span class=\"status-new\">${t("meetings_status_new", "New")}</span>`
                                     default:
-                                        return `<span class="status-new">Unknown</span>`
+                                        return `<span class=\"status-new\">${t("meetings_status_unknown", "Unknown")}</span>`
                                 }
                             }
                         )()}
@@ -197,10 +197,10 @@ function loadMeetings() {
                     <td>
                         <div style="min-width: 128px; display: flex; gap: 1rem;">
                             <button class="download-button" data-index="${i}">
-                                <img src="./icons/download.svg" alt="Download this meeting transcript">
+                                <img src="./icons/download.svg" alt="${t("meetings_download_alt", "Download this meeting transcript")}">
                             </button>
                             <button class="post-button" data-index="${i}">
-                                ${meeting.webhookPostStatus === "new" ? `Post` : `Repost`}
+                                ${meeting.webhookPostStatus === "new" ? t("meetings_action_post", "Post") : t("meetings_action_repost", "Repost")}
                                 <img src="./icons/webhook.svg" alt="" width="16px">
                             </button>
                         </div>
@@ -223,7 +223,7 @@ function loadMeetings() {
                                 const response = /** @type {ExtensionResponse} */ (responseUntyped)
                                 loadMeetings()
                                 if (!response.success) {
-                                    alert("Could not download transcript")
+                                    alert(t("alert_could_not_download", "Could not download transcript"))
                                 }
                             })
                         })
@@ -240,7 +240,7 @@ function loadMeetings() {
                                     requestWebhookAndNotificationPermission(resultSync.webhookUrl).then(() => {
                                         // Disable button and update text
                                         webhookPostButton.disabled = true
-                                        webhookPostButton.textContent = meeting.webhookPostStatus === "new" ? "Posting..." : "Reposting..."
+                                        webhookPostButton.textContent = meeting.webhookPostStatus === "new" ? t("meetings_action_posting", "Posting...") : t("meetings_action_reposting", "Reposting...")
 
                                         // Send message to background script to post webhook
                                         const index = parseInt(webhookPostButton.getAttribute("data-index") ?? "-1")
@@ -253,19 +253,19 @@ function loadMeetings() {
                                             const response = /** @type {ExtensionResponse} */ (responseUntyped)
                                             loadMeetings()
                                             if (response.success) {
-                                                alert("Posted successfully!")
+                                                alert(t("alert_posted_success", "Posted successfully!"))
                                             }
                                             else {
                                                 console.error(response.message)
                                             }
                                         })
                                     }).catch((error) => {
-                                        alert("Fine! No webhooks for you!")
+                                        alert(t("alert_webhook_denied", "Fine! No webhooks for you!"))
                                         console.error("Webhook permission error:", error)
                                     })
                                 }
                                 else {
-                                    alert("Please provide a webhook URL")
+                                    alert(t("alert_provide_webhook", "Please provide a webhook URL"))
                                 }
                             })
                         })
@@ -273,7 +273,7 @@ function loadMeetings() {
                 }
             }
             else {
-                meetingsTable.innerHTML = `<tr><td colspan="4">Your next meeting will show up here</td></tr>`
+                meetingsTable.innerHTML = `<tr><td colspan="4">${t("meetings_empty_state", "Your next meeting will show up here")}</td></tr>`
             }
         }
     })

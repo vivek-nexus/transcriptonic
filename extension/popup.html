@@ -3,7 +3,7 @@
 <html>
 
 <head>
-  <title>TranscripTonic</title>
+  <title data-i18n="popup_title">TranscripTonic</title>
   <style>
     @import url("https://fonts.googleapis.com/css2?family=SUSE:wght@400;700&display=swap");
 
@@ -136,10 +136,8 @@
     <div class="header">
       <div class="header-content">
         <div class="header-text">
-          <h1>TranscripTonic</h1>
-          <p class="header-description">
-            Simple Google Meet transcripts. Private and open source.
-          </p>
+          <h1 data-i18n="popup_title">TranscripTonic</h1>
+          <p class="header-description" data-i18n="extension_description">Simple Google Meet transcripts. Private and open source.</p>
         </div>
         <img class="logo" src="./icon.png" alt="Extension icon" />
       </div>
@@ -148,43 +146,44 @@
     <div class="get-started">
       <div class="radio-item">
         <input type="radio" name="mode" id="auto-mode" />
-        <label for="auto-mode"><b>Auto mode</b>
-          <br /><span class="sub-text">Get transcripts of all meetings</span>
+        <label for="auto-mode"><b data-i18n="popup_auto_mode_title">Auto mode</b>
+          <br /><span class="sub-text" data-i18n="popup_auto_mode_sub">Get transcripts of all meetings</span>
         </label>
       </div>
       <div class="radio-item">
         <input type="radio" name="mode" id="manual-mode" />
-        <label for="manual-mode"><b>Manual mode</b> <br />
-          <span class="sub-text">Switch on transcript as needed using the CC icon in Google Meet</span>
+        <label for="manual-mode"><b data-i18n="popup_manual_mode_title">Manual mode</b> <br />
+          <span class="sub-text" data-i18n="popup_manual_mode_sub">Switch on transcript as needed using the CC icon in Google Meet</span>
         </label>
       </div>
       <hr class="divider" />
-      <p>In both modes, transcript will be downloaded as a text file at the end of each meeting. You can also <a
+      <p data-i18n="popup_mode_info" data-i18n-html="1">In both modes, transcript will be downloaded as a text file at the end of each meeting. You can also <a
           href="meetings.html" target="_blank"><b>set up webhooks</b></a> to integrate TranscripTonic with your
         favourite tools.</p>
     </div>
 
     <div>
       <div class="footer">
-        <a href="./meetings.html" target="_blank">Last 10 meetings -></a>
+  <a href="./meetings.html" target="_blank" data-i18n="popup_last_meetings_link">Last 10 meetings -></a>
         <div>
-          <a href="https://github.com/vivek-nexus/transcriptonic#readme" target="_blank">Get help</a>
+          <a href="https://github.com/vivek-nexus/transcriptonic#readme" target="_blank" data-i18n="popup_get_help">Get help</a>
           <span class="footer-separator">&#9679;</span>
-          <a href="https://github.com/vivek-nexus/transcriptonic/issues" target="_blank">Report a bug</a>
+          <a href="https://github.com/vivek-nexus/transcriptonic/issues" target="_blank" data-i18n="popup_report_bug">Report a bug</a>
         </div>
       </div>
       <p class="footer-link">
         <span>
           <span id="version"></span> /
-          <a href="https://github.com/vivek-nexus/transcriptonic?tab=readme-ov-file#notice" target="_blank">Notice</a>
+          <a href="https://github.com/vivek-nexus/transcriptonic?tab=readme-ov-file#notice" target="_blank" data-i18n="popup_notice">Notice</a>
         </span>
         <span>
-          Another project by <a href="https://vivek-nexus.github.io" target="_blank">Vivek</a>
+          <span data-i18n="popup_another_project_by">Another project by</span> <a href="https://vivek-nexus.github.io" target="_blank">Vivek</a>
         </span>
       </p>
     </div>
   </div>
 
+  <script src="i18n.js"></script>
   <script src="popup.js"></script>
 </body>
 
