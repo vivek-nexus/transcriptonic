@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat Meeting – TranscripTonic</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" href="../icon.png" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=SUSE:wght@400;700&display=swap");
+    :root { color-scheme: dark; --c-bg:#071f29; --c-panel:#0d2f3f; --c-accent:#2A9ACA; --c-text:#C0C0C0; --c-border:#2a9aca40; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:"SUSE",system-ui,sans-serif; background:var(--c-bg); color:var(--c-text); height:100vh; display:flex; }
+    a { color:var(--c-accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .sidebar { width:260px; border-right:1px solid var(--c-border); background:linear-gradient(180deg,#082b3a,#051d26); display:flex; flex-direction:column; transition:width .25s; overflow:hidden; }
+  .sidebar.collapsed { width:56px; }
+    .sb-header { display:flex; align-items:center; justify-content:space-between; padding:.75rem .85rem; gap:.5rem; }
+    .sb-title { font-size:.9rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; opacity:.85; }
+    .toggle-btn { background:transparent; border:1px solid var(--c-accent); color:var(--c-accent); font-size:.7rem; padding:.25rem .45rem; border-radius:4px; cursor:pointer; }
+    .chat-list { flex:1; overflow-y:auto; padding:.25rem .5rem .75rem; display:flex; flex-direction:column; gap:.4rem; }
+    .chat-item { border:1px solid transparent; background:rgba(255,255,255,0.05); padding:.55rem .6rem; border-radius:6px; cursor:pointer; display:flex; flex-direction:column; gap:2px; position:relative; }
+    .chat-item.active { border-color:var(--c-accent); background:rgba(42,154,202,0.18); }
+    .chat-item-title { font-size:.75rem; font-weight:600; line-height:1.2; color:#fff; }
+    .chat-item-meta { font-size:.55rem; opacity:.7; letter-spacing:.5px; }
+  .new-chat-btn { margin:.5rem; background:var(--c-accent); color:#071f29; border:none; padding:.5rem .7rem; border-radius:6px; font-size:.7rem; font-weight:700; cursor:pointer; letter-spacing:.5px; display:flex; align-items:center; justify-content:center; gap:2px; }
+    .new-chat-btn.full { width:calc(100% - 1rem); }
+  .sidebar.collapsed .new-chat-btn .label { display:none; }
+  .sidebar.collapsed .new-chat-btn { width:40px; padding:.55rem 0; }
+
+    .main { flex:1; display:flex; flex-direction:column; height:100%; }
+    .top-bar { padding:.75rem 1rem; border-bottom:1px solid var(--c-border); display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+    .meeting-title { margin:0; font-size:1rem; font-weight:600; color:var(--c-accent); }
+    .model-tag { font-size:.6rem; background:var(--c-accent); color:#071f29; padding:2px 6px; border-radius:10px; font-weight:700; letter-spacing:.5px; }
+
+    .messages { flex:1; overflow-y:auto; padding:1rem 1.25rem 1.5rem; display:flex; flex-direction:column; gap:1rem; }
+    .msg { display:flex; gap:.75rem; max-width:880px; }
+  .msg.assistant { align-self:flex-start; }
+  .msg.user { align-self:flex-end; }
+  .msg.user .bubble { background:#1f566b; }
+    .avatar { width:30px; height:30px; border-radius:6px; background:#134558; display:flex; align-items:center; justify-content:center; font-size:.6rem; font-weight:700; letter-spacing:.5px; color:#fff; flex-shrink:0; }
+    .bubble { background:var(--c-panel); border:1px solid var(--c-border); padding:.75rem .85rem; border-radius:10px; font-size:.82rem; line-height:1.45; white-space:pre-wrap; }
+    .msg.user .bubble { background:#124254; }
+    .msg.assistant .bubble { background:#0b3747; }
+
+    .composer { border-top:1px solid var(--c-border); padding:.75rem 1rem; display:flex; flex-direction:column; gap:.5rem; }
+    .composer-row { display:flex; gap:.75rem; }
+    textarea { flex:1; resize:none; background:rgba(255,255,255,0.07); border:1px solid var(--c-border); color:#fff; padding:.65rem .7rem; font-family:inherit; font-size:.85rem; line-height:1.35; border-radius:8px; height:68px; }
+    .send-btn { background:var(--c-accent); color:#071f29; border:none; padding:.6rem 1rem; font-weight:700; cursor:pointer; border-radius:8px; font-size:.8rem; letter-spacing:.5px; }
+    .status-line { font-size:.6rem; letter-spacing:.5px; opacity:.7; display:flex; justify-content:space-between; }
+
+    .empty-state { font-size:.75rem; opacity:.65; text-align:center; padding:1rem .5rem; }
+
+    /* Modal */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:flex-start; justify-content:center; padding:4vh 1rem; overflow-y:auto; }
+    .modal { background:linear-gradient(140deg,#082b3a,#05202b); border:1px solid var(--c-border); width:min(680px,100%); padding:1.2rem 1.25rem 1.4rem; border-radius:12px; display:flex; flex-direction:column; gap:1rem; }
+    .modal h2 { margin:0; font-size:1rem; color:var(--c-accent); }
+    .modal label { font-size:.7rem; font-weight:600; letter-spacing:.5px; text-transform:uppercase; display:flex; justify-content:space-between; margin-bottom:.35rem; }
+    .modal input, .modal select { background:#0d2f3f; border:1px solid var(--c-border); color:#fff; padding:.55rem .6rem; border-radius:6px; font-size:.8rem; width:100%; }
+    .modal textarea { height:140px; }
+    .modal-actions { display:flex; gap:.6rem; justify-content:flex-end; margin-top:.3rem; }
+    .btn { background:var(--c-panel); border:1px solid var(--c-accent); color:var(--c-accent); padding:.55rem .8rem; font-size:.7rem; border-radius:6px; cursor:pointer; font-weight:600; letter-spacing:.5px; }
+    .btn.primary { background:var(--c-accent); color:#071f29; }
+    .btn.danger { border-color:#ff6b6b; color:#ff6b6b; }
+
+    .hidden { display:none !important; }
+    .truncate { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+    .sidebar.collapsed .hide-when-collapsed { display:none; }
+    .sidebar.collapsed .new-chat-btn.full { width:auto; padding:.5rem; }
+    .sidebar.collapsed .chat-item-title { white-space:nowrap; }
+    .sidebar.collapsed .chat-item-meta { display:none; }
+  .sidebar.collapsed .chat-item { padding:.55rem .4rem; }
+  .sidebar.collapsed .chat-item-title { font-size:.6rem; }
+
+    .banner { background:#123d4d; border-bottom:1px solid var(--c-border); padding:.5rem 1rem; font-size:.7rem; letter-spacing:.3px; }
+    .banner.warn { background:#553400; color:#ffcc66; }
+    .banner.error { background:#4d1212; color:#ff6b6b; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-header">
+      <span class="sb-title hide-when-collapsed">Chat Meeting</span>
+      <button class="toggle-btn" id="toggleSidebar" title="Toggle sidebar">≡</button>
+    </div>
+  <button class="new-chat-btn full" id="btnNewChat" title="Nuova chat"><span class="icon">＋</span><span class="label"> Nuova Chat</span></button>
+    <div class="chat-list" id="chatList"></div>
+  </aside>
+  <main class="main">
+    <div id="bannerContainer"></div>
+    <div class="top-bar">
+      <h1 class="meeting-title" id="chatTitle">Caricamento...</h1>
+      <div class="model-tag" id="modelTag" title="Modello usato"></div>
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="composer" id="composer">
+      <div class="composer-row">
+  <textarea id="inputMessage" placeholder="Scrivi e premi Invio (Shift+Invio = a capo)"></textarea>
+        <button class="send-btn" id="btnSend">Invia</button>
+      </div>
+      <div class="status-line"><span id="statusLeft"></span><span id="statusRight"></span></div>
+    </div>
+  </main>
+
+  <!-- Modal nuova chat -->
+  <div class="modal-backdrop hidden" id="modalNewChat">
+    <div class="modal">
+      <h2>Nuova Chat</h2>
+      <div>
+        <label for="meetingSelect">Trascrizione meeting</label>
+        <select id="meetingSelect"></select>
+      </div>
+      <div>
+        <label for="chatName">Titolo chat</label>
+        <input id="chatName" placeholder="Titolo" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn" id="cancelNewChat">Annulla</button>
+        <button class="btn primary" id="createNewChat">Crea</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal rinomina chat -->
+  <div class="modal-backdrop hidden" id="modalRenameChat">
+    <div class="modal">
+      <h2>Rinomina Chat</h2>
+      <div>
+        <label for="renameChatInput">Nuovo titolo</label>
+        <input id="renameChatInput" placeholder="Titolo" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn" id="cancelRenameChat">Annulla</button>
+        <button class="btn primary" id="applyRenameChat">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal elimina chat -->
+  <div class="modal-backdrop hidden" id="modalDeleteChat">
+    <div class="modal">
+      <h2>Elimina Chat</h2>
+      <p style="margin:0;font-size:.8rem;">Confermi l'eliminazione definitiva di questa chat?</p>
+      <div class="modal-actions">
+        <button class="btn" id="cancelDeleteChat">Annulla</button>
+        <button class="btn danger" id="confirmDeleteChat">Elimina</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./LLM/llm.js"></script>
+  <script type="module" src="./chat.js"></script>
+</body>
+</html>
