@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Impostazioni AI – TranscripTonic</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" href="../icon.png" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=SUSE:wght@400;700&display=swap");
+    :root { color-scheme: dark; }
+    body { width:540px; padding:1.5rem; background:#071f29; color:#C0C0C0; font-family:"SUSE",system-ui,sans-serif; font-size:1rem; margin:0; }
+    h1 { font-size:1.65rem; margin:0 0 1rem; }
+    h2 { font-size:1.05rem; margin:1.5rem 0 .65rem; }
+    p, label, small { font-size:0.95rem; line-height:1.4; }
+    a { color:#2A9ACA; font-weight:600; text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    input, select, button { font-family:inherit; font-size:0.95rem; }
+    input, select { background:rgba(255,255,255,0.08); border:1px solid #2A9ACA; color:#fff; padding:0.5rem 0.6rem; border-radius:4px; width:100%; box-sizing:border-box; }
+    button { background:#2A9ACA; color:#071f29; border:none; padding:0.55rem 1rem; border-radius:4px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:0.4rem; }
+    button.secondary { background:transparent; color:#2A9ACA; border:1px solid #2A9ACA; }
+    button.small { font-size:0.65rem; padding:0.35rem 0.6rem; }
+    button.danger { background:#d33; color:#fff; }
+    button.danger.secondary { background:transparent; color:#ff6b6b; border:1px solid #ff6b6b; }
+    fieldset { border:1px solid #2a9aca55; border-radius:8px; padding:.85rem 1rem 1.1rem; margin:0 0 1.25rem; }
+    fieldset legend { padding:0 0.4rem; font-weight:700; color:#2A9ACA; }
+    .row-inline { display:flex; gap:0.75rem; flex-direction:column; }
+    .row-inline > * { flex:1; }
+    .status { margin-top:0.55rem; font-size:0.8rem; min-height:1.1rem; }
+    .answer-box { margin-top:0.75rem; padding:0.6rem 0.7rem; background:rgba(255,255,255,0.07); border:1px solid #2a9aca55; border-radius:6px; font-size:0.8rem; white-space:pre-wrap; display:none; }
+    .cards { display:grid; gap:1rem; grid-template-columns:1fr; margin-top:0.75rem; }
+    .card { position:relative; border:1px solid #2a9aca40; background:linear-gradient(145deg,#082b3a,#05202b); padding:.75rem .85rem .85rem; border-radius:10px; display:flex; flex-direction:column; gap:0.55rem; }
+    .card-header { display:flex; justify-content:space-between; align-items:center; gap:0.5rem; }
+    .card h3 { margin:0; font-size:1rem; color:#2A9ACA; }
+    .badge { display:inline-block; background:#2A9ACA; color:#071f29; font-size:0.6rem; padding:2px 6px; border-radius:10px; font-weight:700; letter-spacing:0.5px; }
+    .muted { color:#a0a0a0; }
+    .card-actions { display:flex; gap:0.4rem; flex-wrap:wrap; }
+    input[type=radio] { width:16px; height:16px; accent-color:#2A9ACA; cursor:pointer; }
+    .default-row { display:flex; align-items:center; gap:0.4rem; font-size:0.7rem; }
+    .empty-note { text-align:center; padding:1.25rem 0; font-size:0.8rem; color:#888; border:1px dashed #2a9aca55; border-radius:10px; }
+    .footer-note { margin-top:1.5rem; font-size:0.7rem; text-align:center; opacity:0.6; }
+    .end-actions { display:flex; gap:.75rem; flex-wrap:wrap; margin-top:0.5rem; }
+    .end-actions label { display:flex; gap:0.4rem; align-items:flex-start; font-size:0.85rem; }
+    .end-actions input { margin-top:2px; }
+    select { background:#0d2f3f; color:#fff; border:1px solid #2A9ACA; }
+    option { background:#0d2f3f; color:#fff; }
+    .inline-help { display:flex; gap:.75rem; flex-wrap:wrap; margin-top:.4rem; font-size:.63rem; letter-spacing:.5px; text-transform:uppercase; }
+    .inline-help a { color:#6ac9ff; font-weight:600; opacity:.85; }
+    .inline-help a:hover { opacity:1; }
+    .suggestions { display:flex; gap:.4rem; flex-wrap:wrap; margin:.45rem 0 .2rem; }
+    .pill { background:#2A9ACA; color:#071f29; padding:2px 8px; font-size:.65rem; font-weight:600; border-radius:12px; cursor:pointer; user-select:none; }
+    .pill:hover { filter:brightness(1.15); }
+    .group-min { display:grid; gap:.55rem; }
+    .field-label-row { display:flex; justify-content:space-between; align-items:center; }
+    .req { color:#ffcc66; font-size:.6rem; margin-left:.4rem; letter-spacing:.5px; }
+    @media (min-width:620px){ .row-inline { flex-direction:row; } .cards { grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); } }
+  </style>
+</head>
+<body>
+  <header style="display:flex;justify-content:space-between;align-items:center;gap:1rem;">
+    <div>
+      <h1>Impostazioni AI</h1>
+    </div>
+    <div>
+      <a href="../popup.html" class="secondary" style="font-size:0.75rem;padding:0.35rem 0.6rem;border-radius:4px;">← Torna</a>
+    </div>
+  </header>
+
+  <fieldset>
+    <legend>Nuovo Provider</legend>
+    <div class="group-min">
+      <div class="row-inline">
+        <div>
+          <div class="field-label-row"><label for="provider">Provider</label><span class="req">OBBLIGATORIO</span></div>
+          <select id="provider">
+            <option value="openai">openai</option>
+            <option value="google">google</option>
+          </select>
+          <div id="providerHelp" class="inline-help"></div>
+        </div>
+        <div>
+          <div class="field-label-row"><label for="model">Modello</label><span class="req">OBBLIGATORIO</span></div>
+          <input id="model" placeholder="es: gpt-4.1-mini" />
+          <div id="modelSuggestions" class="suggestions"></div>
+        </div>
+      </div>
+      <div>
+        <div class="field-label-row"><label for="apiKey">API Key</label><span class="req">OBBLIGATORIO</span></div>
+        <input id="apiKey" placeholder="sk-... / AIza..." />
+      </div>
+      <div style="display:flex; gap:0.6rem;">
+        <button id="testSaveBtn">Verifica & Salva</button>
+        <button id="resetForm" type="button" class="secondary">Reset</button>
+      </div>
+      <div class="status" id="status"></div>
+      <div id="answerBox" class="answer-box"></div>
+    </div>
+  </fieldset>
+
+  <h2>Provider Salvati</h2>
+  <div id="providersCards" class="cards"></div>
+  <div id="emptyProviders" class="empty-note" style="display:none;">Nessun provider salvato.</div>
+
+  <h2>Azione Fine Meeting</h2>
+  <div class="end-actions" id="endActionGroup">
+    <label><input type="radio" name="endAction" value="chat" /> <span>Apri chat con trascrizione</span></label>
+    <label><input type="radio" name="endAction" value="report" /> <span>Apri report (riassunto)</span></label>
+    <label><input type="radio" name="endAction" value="none" /> <span>Nessuna azione</span></label>
+  </div>
+  <small class="muted">Usata quando una call termina.</small>
+
+  <div class="footer-note">API key salvate solo in <code>localStorage</code>. Usa chiavi a permessi limitati.</div>
+
+  <script type="module" src="./ai_setting.js"></script>
+  <script type="module" src="./LLM/llm.js"></script>
+</body>
+</html>

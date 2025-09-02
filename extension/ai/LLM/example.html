@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>LLM Demo</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body { font-family: system-ui, Arial, sans-serif; margin: 24px; max-width: 760px; }
+label { display:block; margin-top:12px; font-weight:600; }
+input, select, button, textarea { font: inherit; padding:6px 8px; }
+textarea { width:100%; height:140px; }
+#chat { border:1px solid #ccc; padding:12px; border-radius:8px; background:#fafafa; min-height:160px; white-space:pre-wrap; }
+small { color:#666; }
+</style>
+</head>
+<body>
+<h1>LLM Unified Client Demo</h1>
+<p>Enter a provider, API key and ask something. (History kept in memory only.)</p>
+
+<label>Provider
+<select id="provider">
+  <option value="openai">openai</option>
+  <option value="anthropic">anthropic</option>
+  <option value="google">google</option>
+  <option value="huggingface">huggingface</option>
+</select>
+</label>
+
+<label>API Key
+<input id="apiKey" type="password" placeholder="sk-... / hf_... / etc." style="width:420px">
+</label>
+
+<label>Model (optional override)
+<input id="model" placeholder="Leave empty for suggested default" style="width:420px">
+</label>
+
+<label>Prompt
+<textarea id="prompt">Give me a single concise productivity tip.</textarea>
+</label>
+
+<button id="send">Send</button>
+<button id="reset" style="margin-left:8px;">Reset History</button>
+
+<h2>Chat Output</h2>
+<div id="chat"></div>
+<small id="status"></small>
+
+<script type="module">
+import LLM from './llm.js';
+
+const $ = id => document.getElementById(id);
+let client = null;
+
+function append(role, text) {
+  const box = $('chat');
+  box.textContent += `[${role}] ${text}\n\n`;
+}
+
+$('send').onclick = async () => {
+  $('status').textContent = 'Sending...';
+  try {
+    if (!client) {
+      client = new LLM(
+        $('provider').value,
+        $('apiKey').value.trim(),
+        { model: $('model').value.trim() || undefined}
+      );
+    } else {
+      client.setProvider($('provider').value);
+      const m = $('model').value.trim();
+      if (m) client.setModel(m);
+    }
+    const prompt = $('prompt').value.trim();
+    append('user', prompt);
+    const reply = await client.chat(prompt);
+    append('assistant', reply);
+    $('status').textContent = `Model: ${client.model}`;
+  } catch (e) {
+    $('status').textContent = 'Error: ' + e.message;
+  }
+};
+
+$('reset').onclick = () => {
+  if (client) client.reset();
+  $('chat').textContent = '';
+  $('status').textContent = 'History cleared.';
+};
+</script>
+
+<!--
+-------------------------------------------------
+Developed by: Alessandro Ciciarelli
+IntelligenzaArtificialeItalia.net
+
+   /\_/\
+  ( o.o )  Build once, talk to many models.
+   > ^ <
+
+-------------------------------------------------
+-->
+</body>
+</html>
