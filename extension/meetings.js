@@ -177,7 +177,7 @@ function loadMeetings() {
                     const row = document.createElement("tr")
                     row.innerHTML = `
                     <td>${meeting.meetingTitle || meeting.title || t("meetings_default_meeting_title", "Google Meet call")}</td>
-                    <td>${timestamp} &nbsp; &#9679; &nbsp; ${durationString}</td>
+                    <td>${timestamp}</td>
                     <td>
                         ${(
                             () => {
@@ -195,22 +195,38 @@ function loadMeetings() {
                         )()}
                     </td>
                     <td>
-                        <div style="min-width: 128px; display: flex; gap: 1rem;">
-                            <button class="download-button" data-index="${i}">
-                                <img src="./icons/download.svg" alt="${t("meetings_download_alt", "Download this meeting transcript")}">
+                        <div style="min-width: 200px; display: flex; gap: 0.5rem; align-items: center;">
+                            <button class="download-button" data-index="${i}" style="background: #1a73e8; color: white; border: none; border-radius: 4px; padding: 6px 12px; display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; transition: background-color 0.2s;">
+                                <img src="./icons/download.svg" alt="${t("meetings_download_alt", "Download this meeting transcript")}" style="width: 16px; height: 16px;">
                             </button>
-                            <button class="post-button" data-index="${i}">
+                            <button class="post-button" data-index="${i}" style="background: #34a853; color: white; border: none; border-radius: 4px; padding: 6px 12px; display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; transition: background-color 0.2s;">
                                 ${meeting.webhookPostStatus === "new" ? t("meetings_action_post", "Post") : t("meetings_action_repost", "Repost")}
-                                <img src="./icons/webhook.svg" alt="" width="16px">
+                                <img src="./icons/webhook.svg" alt="" width="16px" style="filter: brightness(0) invert(1);">
                             </button>
+                            <a href="./ai/chat.html?meetingId=${encodeURIComponent(meeting.meetingStartTimestamp)}" target="_blank" data-index="${i}" style="background: #ea4335; color: white; text-decoration: none; border-radius: 4px; padding: 6px 12px; display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#d33b2c'" onmouseout="this.style.backgroundColor='#ea4335'">
+                                <img src="./icons/chat.svg" alt="AI Chat" style="width: 16px; height: 16px; filter: brightness(0) invert(1);">
+                                Chat
+                            </a>
+                            <a href="./ai/report.html?meetingId=${encodeURIComponent(meeting.meetingStartTimestamp)}" target="_blank" data-index="${i}" style="background: #fbbc04; color: #1f1f1f; text-decoration: none; border-radius: 4px; padding: 6px 12px; display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f9ab00'" onmouseout="this.style.backgroundColor='#fbbc04'">
+                                <img src="./icons/ai.svg" alt="AI Report" style="width: 16px; height: 16px;">
+                                Report
+                            </a>
                         </div>
                     </td>
                 `
                     meetingsTable.appendChild(row)
 
-                    // Add event listener to the webhook post button
+                    // Add event listener to the download button
                     const downloadButton = row.querySelector(".download-button")
                     if (downloadButton instanceof HTMLButtonElement) {
+                        // Add hover effects
+                        downloadButton.addEventListener("mouseenter", function () {
+                            this.style.backgroundColor = "#1557b0"
+                        })
+                        downloadButton.addEventListener("mouseleave", function () {
+                            this.style.backgroundColor = "#1a73e8"
+                        })
+                        
                         downloadButton.addEventListener("click", function () {
                             // Send message to background script to download text file
                             const index = parseInt(downloadButton.getAttribute("data-index") ?? "-1")
@@ -232,6 +248,14 @@ function loadMeetings() {
                     // Add event listener to the webhook post button
                     const webhookPostButton = row.querySelector(".post-button")
                     if (webhookPostButton instanceof HTMLButtonElement) {
+                        // Add hover effects
+                        webhookPostButton.addEventListener("mouseenter", function () {
+                            this.style.backgroundColor = "#2d8f47"
+                        })
+                        webhookPostButton.addEventListener("mouseleave", function () {
+                            this.style.backgroundColor = "#34a853"
+                        })
+                        
                         webhookPostButton.addEventListener("click", function () {
                             chrome.storage.sync.get(["webhookUrl"], function (resultSyncUntyped) {
                                 const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)

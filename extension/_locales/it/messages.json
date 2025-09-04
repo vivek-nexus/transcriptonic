@@ -36,7 +36,7 @@
 	"meetings_guide_n8n": { "message": "Webhook con n8n" },
 	"meetings_status_successful": { "message": "Successo" },
 	"meetings_status_failed": { "message": "Fallito" },
-	"meetings_status_new": { "message": "Nuovo" },
+	"meetings_status_new": { "message": "Non Inviato" },
 	"meetings_status_unknown": { "message": "Sconosciuto" },
 	"meetings_action_post": { "message": "Invia" },
 	"meetings_action_repost": { "message": "Reinvia" },

@@ -1,56 +1,82 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="meetings_page_title">TranscripTonic—Meetings</title>
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=SUSE:wght@400;700&display=swap");
+        @import url("https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap");
 
+        * { box-sizing: border-box; }
         body {
-            font-family: "SUSE", sans-serif;
-            padding: 1.5rem 3rem;
-            color: #C0C0C0;
-            background: #071f29;
-            font-size: 1rem;
+            font-family: "Google Sans", "Roboto", sans-serif;
+            margin: 0;
+            padding: 32px 48px;
+            color: #202124;
+            background: #fff;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
         h1 {
-            margin: 0.5rem 0rem 1.5rem 0rem;
+            font-size: 32px;
+            font-weight: 400;
+            color: #2D9AC7;
+            margin: 0 0 8px;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 500;
+            color: #202124;
+            margin: 32px 0 16px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #5f6368;
+            margin-bottom: 32px;
         }
 
         .grid-container {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 2rem;
+            gap: 32px;
             align-items: start;
-        }
-
-        .grid-container>* {
-            overflow-x: auto;
         }
 
         .card {
-            grid-column: 1;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1.5rem 0rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+            background: #f8f9fa;
+            border: 1px solid #e8eaed;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
         }
 
-        h2 {
-            margin-top: 0;
-            margin-bottom: 1rem;
+        .card-header {
+            background: #e8f0fe;
+            color: #2D9AC7;
+            margin: -24px -24px 24px -24px;
+            padding: 16px 24px;
+            border-radius: 12px 12px 0 0;
+            border-bottom: 1px solid #dadce0;
         }
 
-        .webhook-section-heading {
+        .card-header p {
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .section-heading {
             display: flex;
-            gap: 0.5rem;
-            align-items: start;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
-        /* Custom scrollbar styling */
+        /* Scrollbar styling */
         ::-webkit-scrollbar {
             width: 8px;
             height: 6px;
@@ -61,401 +87,485 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #a0a0a0;
+            background: #dadce0;
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #2A9ACA;
-        }
-
-        .webhook-header {
-            padding: 1rem 1.5rem;
-            background: #2a9aca1a;
-            margin-bottom: 1.5rem;
-            margin-top: -1.5rem;
-
-            p {
-                margin: 0;
-            }
+            background: #2D9AC7;
         }
 
         .form-field {
-            padding: 0px 1.5rem;
+            margin-bottom: 14px;
         }
 
+        .form-field:last-child {
+            margin-bottom: 0;
+        }
 
-        /* .form-field:not(:last-of-type) {
-            margin-bottom: 2rem;
-        } */
-
-        hr {
-            margin: 1.5rem 0rem;
-            border: 1px solid #2a9aca33;
+        .divider {
+            margin: 24px 0;
+            border: none;
+            border-top: 1px solid #e8eaed;
         }
 
         .input-group {
-            margin-top: 0.5rem;
             display: flex;
             align-items: center;
+            margin-top: 8px;
         }
 
         label {
             display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 8px;
             cursor: pointer;
         }
 
         .sub-text {
-            font-weight: normal;
-            color: #a0a0a0;
+            font-weight: 400;
+            color: #5f6368;
+            font-size: 12px;
+            line-height: 1.4;
         }
 
         input[type="url"] {
-            width: 100%;
-            padding: 0.45rem;
-            border: 1px solid #2A9ACA;
-            border-radius: 4px 0px 0px 4px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-family: "SUSE", sans-serif;
-            box-sizing: border-box;
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 8px 0 0 8px;
+            background: #fff;
+            color: #202124;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.2s;
         }
 
-        .checkbox-group {
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #2D9AC7;
+            box-shadow: 0 0 0 1px #2D9AC7;
+        }
+
+        .checkbox-group, .radio-item {
             display: flex;
-            gap: 8px;
-        }
-
-        input[type="checkbox"] {
-            margin: 0;
-            margin-top: 0.15rem;
-            accent-color: #2A9ACA;
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .radio-item {
-            display: flex;
-            gap: 0.5rem;
-            align-items: start;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 3px 0;
         }
 
         .radio-item:not(:last-of-type) {
-            margin-bottom: 0.5rem;
+            margin-bottom: 8px;
         }
 
-        input[type="radio"] {
+        input[type="checkbox"], input[type="radio"] {
+            width: 20px;
+            height: 20px;
             margin: 0;
-            margin-top: 0.3rem;
-            width: 16px;
-            height: 16px;
-        }
-
-        button {
-            background: #2A9ACA;
-            color: #071f29;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            font-family: "SUSE", sans-serif;
-            font-weight: bold;
+            accent-color: #2D9AC7;
             cursor: pointer;
         }
 
-        #save-webhook {
-            border-radius: 0px 4px 4px 0px;
+        .btn {
+            background: #2D9AC7;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 20px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        button:disabled {
+        .btn:hover {
+            background: #1557b0;
+            box-shadow: 0 2px 8px rgba(26,115,232,0.3);
+        }
+
+        .btn.secondary {
+            background: #f8f9fa;
+            color: #2D9AC7;
+            border: 1px solid #dadce0;
+        }
+
+        .btn.secondary:hover {
+            background: #f1f3f4;
+        }
+
+        .btn.small {
+            padding: 8px 16px;
+            font-size: 12px;
+            border-radius: 16px;
+        }
+
+        #save-webhook {
+            border-radius: 0 20px 20px 0;
+            padding: 12px 20px;
+        }
+
+        .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
         details {
-            padding: 0px 1.5rem;
-        }
-
-        details:first-of-type {
-            margin-bottom: 0.5rem;
+            margin-bottom: 16px;
         }
 
         summary {
             cursor: pointer;
-            font-weight: bold;
-            color: #2A9ACA;
+            font-weight: 500;
+            color: #2D9AC7;
+            padding: 3px 0;
         }
 
         .accordion-content {
-            margin-bottom: 1.5rem;
+            margin: 16px 0;
         }
 
         .code-block {
-            margin: 1rem 0rem;
             overflow-x: auto;
-            padding: 1rem;
+            padding: 16px;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            line-height: 1.5;
+            background: #f8f9fa;
+            border: 1px solid #e8eaed;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            line-height: 1.4;
         }
 
         .code-block pre {
             margin: 0;
             white-space: pre;
-        }
-
-        .meetings-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            color: #202124;
         }
 
         #recover-last-meeting {
             background: transparent;
-            color: #2A9ACA;
-            border: 1px solid #2A9ACA;
-            margin: 1rem 0;
-            padding: 0.25rem 0.5rem;
+            color: #2D9AC7;
+            border: 1px solid #dadce0;
+            margin: 16px 0;
+            padding: 8px 16px;
+            border-radius: 20px;
             display: flex;
-            gap: 0.25rem;
+            gap: 8px;
             align-items: center;
+            font-size: 14px;
+        }
+
+        #recover-last-meeting:hover {
+            background: #f8f9fa;
+        }
+
+        .table-container {
+            background: #fff;
+            border: 1px solid #e8eaed;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background: #ffffff1a;
-            border-radius: 8px;
         }
 
-        th,
-        td {
-            padding: 1rem 1.5rem;
+        th, td {
+            padding: 16px 20px;
             text-align: left;
-            border-bottom: 1px solid #2a9aca33;
+            font-size: 12px;
+            border-bottom: 1px solid #f1f3f4;
         }
 
         th {
-            background: #2a9aca1a;
-            font-weight: bold;
+            background: #f8f9fa;
+            font-weight: 500;
+            color: #5f6368;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
         }
 
         .status-success {
-            color: #4CAF50;
-            font-weight: bold;
+            color: #34a853;
+            font-weight: 500;
         }
 
         .status-failed {
-            color: #f44336;
-            font-weight: bold
+            color: #ea4335;
+            font-weight: 500;
         }
 
         .status-new {
-            color: #FFA726;
-            font-weight: bold
+            color: #f9ab00;
+            font-weight: 500;
         }
 
-        .download-button {
-            background: transparent;
-            color: #2A9ACA;
-            border: none;
-            padding: 0;
+        .actions-row {
             display: flex;
-            flex-direction: column;
-            justify-content: end;
-        }
-
-        .post-button {
-            background: transparent;
-            color: #2A9ACA;
-            border: 1px solid #2A9ACA;
-            padding: 0.25rem 0.5rem;
-            display: flex;
-            gap: 0.25rem;
+            gap: 8px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
-        .card-heading {
-            margin: 0rem 1.5rem 0.5rem 1.5rem;
-            font-weight: bold;
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border: 1px solid #dadce0;
+            background: #fff;
+            color: #5f6368;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .integration-card {
-            padding: 0rem 1.5rem;
+        .action-btn:hover {
+            background: #f1f3f4;
+            border-color: #2D9AC7;
+            color: #2D9AC7;
+        }
+
+        .action-btn.primary {
+            background: #2D9AC7;
+            color: #fff;
+            border-color: #2D9AC7;
+        }
+
+        .action-btn.primary:hover {
+            background: #1557b0;
+        }
+
+        .action-btn.ai-chat {
+            background: #34a853;
+            color: #fff;
+            border-color: #34a853;
+        }
+
+        .action-btn.ai-chat:hover {
+            background: #2d8f47;
+        }
+
+        .action-btn.ai-report {
+            background: #f9ab00;
+            color: #fff;
+            border-color: #f9ab00;
+        }
+
+        .action-btn.ai-report:hover {
+            background: #e8a000;
+        }
+
+        .integration-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
+            gap: 12px;
+            margin-top: 16px;
         }
 
         .integration-guide {
-            padding: 0.5rem;
-            background: transparent;
-            border: 1px solid #2a9aca88;
-            border-radius: 0.5rem;
+            padding: 16px;
+            background: #fff;
+            border: 1px solid #e8eaed;
+            border-radius: 8px;
             display: flex;
-            align-items: start;
-            gap: 0.5rem;
-            color: #2A9ACA;
-            font-weight: bold;
+            align-items: flex-start;
+            gap: 12px;
+            color: #2D9AC7;
+            font-weight: 500;
             text-decoration: none;
+            transition: all 0.2s;
+        }
 
-            img {
-                margin-top: 0.1rem;
+        .integration-guide:hover {
+            background: #f8f9fa;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .integration-guide p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-container {
+                grid-template-columns: 1fr;
             }
+            
+            body {
+                padding: 24px;
+            }
+        }
 
-            p {
-                margin: 0;
+        @media (max-width: 768px) {
+            .integration-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions-row {
+                flex-direction: column;
+                align-items: stretch;
             }
         }
     </style>
 </head>
 
 <body>
-    <h1 data-i18n="popup_title">TranscripTonic</h1>
+    <div class="header">
+        <h1 data-i18n="popup_title" style="font-weight: 600;">TranscripTonic</h1>
+        <p class="subtitle">Gestisci le tue riunioni, webhook e integrazioni AI</p>
+    </div>
 
     <div class="grid-container">
-        <div>
-            <h2 data-i18n="meetings_last_10_heading">Last 10 meetings</h2>
-            <div class="transcripts-section">
+        <div class="meetings-section">
+            <div class="section-heading">
+                <h2 data-i18n="meetings_last_10_heading">Ultime 25 riunioni</h2>
+            </div>
+            
+            <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th data-i18n="meetings_table_title">Meeting title</th>
-                            <th data-i18n="meetings_table_start_time">Meeting start time and duration</th>
-                            <th data-i18n="meetings_table_webhook_status">Webhook status</th>
-                            <th data-i18n="meetings_table_actions">Actions</th>
+                            <th data-i18n="meetings_table_title">Titolo riunione</th>
+                            <th data-i18n="meetings_table_start_time">Data e durata</th>
+                            <th data-i18n="meetings_table_webhook_status">Stato webhook</th>
+                            <th data-i18n="meetings_table_actions">Azioni</th>
                         </tr>
                     </thead>
                     <tbody id="transcripts-table">
                         <!-- Table content will be populated by JavaScript -->
                     </tbody>
                 </table>
-
-                <button id="recover-last-meeting" data-i18n="meetings_recover_last">Recover last meeting</button>
             </div>
+
+            <button id="recover-last-meeting" class="btn secondary" data-i18n="meetings_recover_last">
+                🔄 Recupera ultima riunione
+            </button>
         </div>
 
-        <div>
-            <div class="webhook-section-heading">
+        <div class="webhook-section">
+            <div class="section-heading">
                 <h2 data-i18n="meetings_webhooks_heading">Webhooks</h2>
-                <img src="./icons/webhook-white.svg" alt="" width="28px">
+                <img src="./icons/webhook-white.svg" alt="" width="24px">
             </div>
 
             <div class="card">
-                <div class="webhook-header">
-                    <!-- <h3>Configure webhooks</h3> -->
-                    <p><b data-i18n="meetings_integrate_sub">Integrate TranscripTonic with your favourite tools</b></p>
+                <div class="card-header">
+                    <p data-i18n="meetings_integrate_sub"><strong>Integra TranscripTonic</strong> con i tuoi strumenti preferiti</p>
                 </div>
 
                 <form id="webhook-url-form" class="form-field">
-                    <label for="webhook-url" data-i18n="meetings_webhook_url_label">Webhook URL</label>
+                    <label for="webhook-url" data-i18n="meetings_webhook_url_label">URL Webhook</label>
                     <div class="input-group">
                         <input type="url" id="webhook-url" placeholder="https://your-webhook-url.com">
-                        <button id="save-webhook" data-i18n="meetings_save">Save</button>
+                        <button id="save-webhook" class="btn" data-i18n="meetings_save">Salva</button>
                     </div>
                 </form>
 
-                <hr />
+                <hr class="divider" />
 
                 <form class="form-field">
                     <div class="checkbox-group">
                         <input type="checkbox" id="auto-post-webhook" checked>
-                        <label for="auto-post-webhook" data-i18n="meetings_auto_post_label">Automatically post transcript after each meeting, to webhook URL</label>
+                        <label for="auto-post-webhook" data-i18n="meetings_auto_post_label">Invia automaticamente la trascrizione al termine di ogni riunione</label>
                     </div>
                 </form>
 
-                <hr />
+                <hr class="divider" />
 
                 <form class="form-field">
                     <div class="radio-item">
                         <input type="radio" name="webhook-body-type" id="simple-webhook-body" checked />
-                        <label for="simple-webhook-body"><b data-i18n="meetings_simple_body_title">Simple webhook body</b>
-                            <br /><span class="sub-text" data-i18n="meetings_simple_body_sub">Pre-formatted data, suitable for no-code integrations</span>
+                        <label for="simple-webhook-body">
+                            <strong data-i18n="meetings_simple_body_title">Formato semplice</strong><br>
+                            <span class="sub-text" data-i18n="meetings_simple_body_sub">Dati preformattati, ideali per integrazioni no-code</span>
                         </label>
                     </div>
                     <div class="radio-item">
                         <input type="radio" name="webhook-body-type" id="advanced-webhook-body" />
-                        <label for="advanced-webhook-body"><b data-i18n="meetings_advanced_body_title">Advanced webhook body</b> <br />
-                            <span class="sub-text" data-i18n="meetings_advanced_body_sub">Raw data, suitable for code integrations</span>
+                        <label for="advanced-webhook-body">
+                            <strong data-i18n="meetings_advanced_body_title">Formato avanzato</strong><br>
+                            <span class="sub-text" data-i18n="meetings_advanced_body_sub">Dati grezzi, ideali per integrazioni programmatiche</span>
                         </label>
                     </div>
                 </form>
             </div>
 
-
             <div class="card">
-                <p class="card-heading" data-i18n="meetings_json_body_heading">Webhook JSON body</p>
+                <h3 data-i18n="meetings_json_body_heading">Struttura JSON Webhook</h3>
                 <details>
-                    <summary data-i18n="meetings_webhook_body_simple_summary">Webhook body (simple)</summary>
+                    <summary data-i18n="meetings_webhook_body_simple_summary">Formato semplice</summary>
                     <div class="code-block accordion-content">
-                        <code>
-                        <pre>
-{
-    "webhookBodyType": "simple",
-    "meetingTitle": "Team meeting",
-    "meetingStartTimestamp": "01/15/2024, 10:00 AM",
-    "meetingEndTimestamp": "01/15/2024, 11:00 AM",
-    "transcript": "Priya (01/15/2024, 10:00 AM)\nHi everyone!\n\nCarlos (01/15/2024, 10:01 AM)\nHello Priya!...\n\n",
-    "chatMessages": "Mohammed (01/15/2024, 10:05 AM)\nCan you share the slides?\n\nSofia (01/15/2024, 10:06 AM)\nHere's the link: ...\n\n"
-}
-</pre>
-                        </code>
+                        <pre>{
+  "webhookBodyType": "simple",
+  "meetingTitle": "Team meeting",
+  "meetingStartTimestamp": "01/15/2024, 10:00 AM",
+  "meetingEndTimestamp": "01/15/2024, 11:00 AM",
+  "transcript": "Priya (01/15/2024, 10:00 AM)\n..",
+  "chatMessages": "Mohammed (01/15/2024, 10:05 AM).."
+}</pre>
                     </div>
                 </details>
 
                 <details>
-                    <summary data-i18n="meetings_webhook_body_advanced_summary">Webhook body (advanced)</summary>
+                    <summary data-i18n="meetings_webhook_body_advanced_summary">Formato avanzato</summary>
                     <div class="code-block accordion-content">
-                        <code>
-                            <pre>
-{
-    "webhookBodyType": "advanced",
-    "meetingTitle": "Team meeting",
-    "meetingStartTimestamp": "2024-01-15T10:00:00.000Z",
-    "meetingEndTimestamp": "2024-01-15T11:00:00.000Z",
-    "transcript": [
-        {
-            "personName": "Priya",
-            "timestamp": "2024-01-15T10:00:00.000Z",
-            "transcriptText": "Hi everyone!"
-        },
-        {
-            "personName": "Carlos",
-            "timestamp": "2024-01-15T10:01:00.000Z",
-            "transcriptText": "Hello Priya!"
-        }
-    ],
-    "chatMessages": [
-        {
-            "personName": "Mohammed",
-            "timestamp": "2024-01-15T10:05:00.000Z",
-            "chatMessageText": "Can you share the slides?"
-        },
-        {
-            "personName": "Sofia",
-            "timestamp": "2024-01-15T10:06:00.000Z",
-            "chatMessageText": "Here's the link: ..."
-        }
-    ]
-}
-</pre>
-                    </code>
+                        <pre>{
+  "webhookBodyType": "advanced",
+  "meetingTitle": "Team meeting",
+  "meetingStartTimestamp": "2024-01-15T10:00:00.000Z",
+  "meetingEndTimestamp": "2024-01-15T11:00:00.000Z",
+  "transcript": [
+    {
+      "personName": "Priya",
+      "timestamp": "2024-01-15T10:00:00.000Z",
+      "transcriptText": "Hi everyone!"
+    }
+  ],
+  "chatMessages": [
+    {
+      "personName": "Mohammed",
+      "timestamp": "2024-01-15T10:05:00.000Z",
+      "chatMessageText": "Can you share the slides?"
+    }
+  ]
+}</pre>
                     </div>
                 </details>
-                <hr />
-                <p class="card-heading" data-i18n="meetings_helpful_guides">Helpful guides</p>
-                <div class="integration-card">
+                
+                <hr class="divider" />
+                
+                <h3 data-i18n="meetings_helpful_guides">Guide utili</h3>
+                <div class="integration-grid">
                     <a class="integration-guide"
                         href="https://github.com/vivek-nexus/transcriptonic/wiki/Google-Docs-integration-guide?utm_source=extension"
                         target="_blank">
                         <img src="./icons/guide.svg" alt="" width="16px">
-                        <p data-i18n="meetings_guide_google_docs">Get transcripts on Google Docs</p>
+                        <p data-i18n="meetings_guide_google_docs">Trascrizioni su Google Docs</p>
                     </a>
                     <a class="integration-guide"
                         href="https://github.com/vivek-nexus/transcriptonic/wiki/n8n-integration-guide?utm_source=extension"
                         target="_blank">
                         <img src="./icons/guide.svg" alt="" width="16px">
-                        <p data-i18n="meetings_guide_n8n">Using webhooks with n8n</p>
+                        <p data-i18n="meetings_guide_n8n">Webhook con n8n</p>
                     </a>
                 </div>
             </div>

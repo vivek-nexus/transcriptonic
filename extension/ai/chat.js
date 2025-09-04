@@ -3,7 +3,7 @@
 const CHAT_INDEX_KEY = 'aiChatIndex'; // array metadata
 const CHAT_PREFIX = 'aiChat:'; // dettaglio
 const MAX_CHATS = 100;
-const TRANSCRIPT_TRUNCATE_LIMIT = 60000; // chars
+const TRANSCRIPT_TRUNCATE_LIMIT = 200000; // chars
 
 // Utilities
 const qs = sel => document.querySelector(sel);

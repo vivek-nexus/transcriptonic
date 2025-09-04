@@ -14,37 +14,37 @@
     .view { flex: 1; display: none; padding: 48px clamp(24px,4vw,56px) 40px; }
     .view.active { display: flex; flex-direction: column; }
     .intro { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
-    .hero-title { font-size: 36px; line-height: 1.2; color: #1a73e8; font-weight: 400; }
+    .hero-title { font-size: 36px; line-height: 1.2; color: #2D9AC7; font-weight: 400; }
     .subtitle { font-size: 16px; color: #5f6368; max-width: 640px; line-height: 1.5; }
     
     .sections-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-top: 24px; }
     .check-card { position: relative; border: 1px solid #dadce0; background: #fff; padding: 20px; border-radius: 12px; cursor: pointer; display: flex; gap: 12px; align-items: flex-start; transition: all 0.2s; min-height: 80px; }
     .check-card input { position: absolute; opacity: 0; pointer-events: none; }
-    .check-card:hover { border-color: #1a73e8; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .check-card.active { border-color: #1a73e8; background: #e8f0fe; box-shadow: 0 2px 8px rgba(26,115,232,0.15); }
+    .check-card:hover { border-color: #2D9AC7; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .check-card.active { border-color: #2D9AC7; background: #e8f0fe; box-shadow: 0 2px 8px rgba(26,115,232,0.15); }
     .check-card span { font-size: 14px; line-height: 1.4; font-weight: 500; color: #202124; }
     
     .add-row { display: flex; gap: 12px; margin-top: 16px; }
     .add-row input { flex: 1; background: #fff; border: 1px solid #dadce0; color: #202124; padding: 12px 16px; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
-    .add-row input:focus { outline: none; border-color: #1a73e8; box-shadow: 0 0 0 1px #1a73e8; }
+    .add-row input:focus { outline: none; border-color: #2D9AC7; box-shadow: 0 0 0 1px #2D9AC7; }
     
-    .btn { background: #1a73e8; color: #fff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 500; border-radius: 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn { background: #2D9AC7; color: #fff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 500; border-radius: 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
     .btn:hover { background: #1557b0; box-shadow: 0 2px 8px rgba(26,115,232,0.3); }
-    .btn.secondary { background: #f8f9fa; color: #1a73e8; border: 1px solid #dadce0; }
+    .btn.secondary { background: #f8f9fa; color: #2D9AC7; border: 1px solid #dadce0; }
     .btn.secondary:hover { background: #f1f3f4; }
     .btn.ghost { background: transparent; color: #5f6368; }
     .btn.ghost:hover { background: #f8f9fa; }
-    .btn.outline { background: transparent; border: 1px solid #1a73e8; color: #1a73e8; }
+    .btn.outline { background: transparent; border: 1px solid #2D9AC7; color: #2D9AC7; }
     .btn.outline:hover { background: #e8f0fe; }
     .btn.small { font-size: 12px; padding: 8px 16px; border-radius: 16px; }
     
     .center-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
     .pill-tips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
-    .pill { background: #e8f0fe; color: #1a73e8; padding: 4px 12px; font-size: 12px; font-weight: 500; border-radius: 16px; cursor: pointer; transition: background 0.2s; }
+    .pill { background: #e8f0fe; color: #2D9AC7; padding: 4px 12px; font-size: 12px; font-weight: 500; border-radius: 16px; cursor: pointer; transition: background 0.2s; }
     .pill:hover { background: #d2e3fc; }
     
     .loading-view { align-items: center; justify-content: center; }
-    .spinner { width: 48px; height: 48px; border: 4px solid #f1f3f4; border-top-color: #1a73e8; border-radius: 50%; animation: spin 1s linear infinite; }
+    .spinner { width: 48px; height: 48px; border: 4px solid #f1f3f4; border-top-color: #2D9AC7; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { margin-top: 24px; font-size: 16px; color: #5f6368; }
     
@@ -55,12 +55,38 @@
     
     .blocks { display: flex; flex-direction: column; gap: 24px; }
     .block { background: #f8f9fa; border: 1px solid #e8eaed; padding: 24px; border-radius: 12px; position: relative; }
-    .block h2 { margin: 0 0 16px; font-size: 20px; color: #1a73e8; font-weight: 500; }
+    .block h2 { margin: 0 0 16px; font-size: 20px; color: #2D9AC7; font-weight: 500; }
     .block .body { font-size: 14px; line-height: 1.6; white-space: pre-wrap; color: #202124; }
     .hint { font-size: 12px; color: #5f6368; margin-top: 8px; }
     .empty-note { font-size: 14px; color: #5f6368; }
     
     .error-box { background: #fce8e6; border: 1px solid #ea4335; padding: 16px 20px; border-radius: 8px; font-size: 14px; line-height: 1.5; color: #d93025; }
+    
+    /* Branding */
+    .branding { 
+      text-align: center; 
+      margin-top: 48px; 
+      padding-top: 24px; 
+      border-top: 1px solid #f1f3f4; 
+      font-size: 12px; 
+      color: #9aa0a6; 
+    }
+    .branding-link { 
+      color: #2D9AC7; 
+      text-decoration: none; 
+      font-weight: 500; 
+    }
+    .branding-link:hover { 
+      text-decoration: underline; 
+    }
+    .report-branding {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid #e8eaed;
+      text-align: center;
+      font-size: 11px;
+      color: #9aa0a6;
+    }
     
     @media (max-width: 760px) { 
       .sections-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); } 
@@ -74,6 +100,7 @@
       .report-actions { display: none !important; } 
       .block { background: #fff; border: 1px solid #ccc; color: #000; } 
       .block h2 { color: #000; } 
+      .branding, .report-branding { color: #666; font-size: 10px; }
     }
   </style>
 </head>
@@ -94,6 +121,10 @@
         <button class="btn ghost" id="btnClear">Reset</button>
       </div>
       <div class="hint" id="status"></div>
+      
+      <div class="branding">
+        Powered by <strong>TranscripTonic-AI</strong> by <a href="https://intelligenzaartificialeitalia.net" target="_blank" class="branding-link">IntelligenzaArtificialeItalia.net</a>
+      </div>
     </div>
   </section>
 
@@ -119,6 +150,10 @@
       </div>
       <div id="blocks" class="blocks"></div>
       <div id="reportError"></div>
+      
+      <div class="report-branding">
+        Generated by TranscripTonic-AI • IntelligenzaArtificialeItalia.net
+      </div>
     </div>
   </section>
   <script type="module" src="./LLM/llm.js"></script>

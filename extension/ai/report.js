@@ -1,5 +1,5 @@
 // report.js (fullscreen UX) - stati: config -> loading -> report
-const DEFAULT_SECTIONS = ['Riassunto','Obiettivi','Decisioni','Azioni','Rischi','Analisi Partecipanti','Temi Ricorrenti'];
+const DEFAULT_SECTIONS = ['Riassunto','Obiettivi','Decisioni','Azioni','Rischi'];
 
 // Views
 const viewConfig = document.getElementById('viewConfig');
@@ -52,7 +52,7 @@ function addSectionCard(label){
 function renderDefaultCards(){ DEFAULT_SECTIONS.forEach(addSectionCard); }
 function collectSelectedSections(){ return Array.from(selectedSet); }
 
-function truncateTranscript(str, max=60000){
+function truncateTranscript(str, max=200000){
   if(str.length<=max) return { txt:str, truncated:false };
   return { txt: str.slice(0,max-20)+"\n...[TRONCATO]...", truncated:true };
 }
@@ -198,7 +198,7 @@ async function init(){
   meeting = await loadMeeting(meetingId);
   if(!meeting){ setStatus('Meeting non trovato','error'); return; }
   meetingSubtitleEl.textContent = (meeting.meetingTitle? `Riunione: ${meeting.meetingTitle}. `: '') + 'Seleziona contenuti utili per il tuo report.';
-  setStatus('Pronto.');
+  setStatus('');
 }
 
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
