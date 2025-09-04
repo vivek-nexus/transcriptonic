@@ -141,7 +141,7 @@ function renderProviders() {
     body.style.fontSize = '12px';
     body.style.color = '#5f6368';
     body.style.marginBottom = '12px';
-    body.innerHTML = `Creato: ${new Date(p.createdAt).toLocaleDateString()}${p.lastTestAt?' • Ultimo test: '+ new Date(p.lastTestAt).toLocaleTimeString():''}`;
+    //body.innerHTML = `Creato: ${new Date(p.createdAt).toLocaleDateString()}${p.lastTestAt?' • Ultimo test: '+ new Date(p.lastTestAt).toLocaleTimeString():''}`;
 
     if (p.lastTestOk === false) {
       const ko = document.createElement('div');
