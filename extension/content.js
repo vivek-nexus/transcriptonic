@@ -160,27 +160,31 @@ function meetingRoutines(uiType) {
     let chatMessagesObserver
 
     // **** REGISTER TRANSCRIPT LISTENER **** //
-    try {
-      waitForElement(captionsIconData.selector, captionsIconData.text).then(() => {
-        // CRITICAL DOM DEPENDENCY
-        const captionsButton = selectElements(captionsIconData.selector, captionsIconData.text)[0]
+    // Wait for chat icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
+    waitForElement(captionsIconData.selector, captionsIconData.text).then(() => {
+      // CRITICAL DOM DEPENDENCY
+      const captionsButton = selectElements(captionsIconData.selector, captionsIconData.text)[0]
 
-        // Click captions icon for non manual operation modes. Async operation.
-        chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
-          const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
-          if (resultSync.operationMode === "manual")
-            console.log("Manual mode selected, leaving transcript off")
-          else
-            captionsButton.click()
-        })
+      // Click captions icon for non manual operation modes. Async operation.
+      chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
+        const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+        if (resultSync.operationMode === "manual") {
+          console.log("Manual mode selected, leaving transcript off")
+        }
+        else {
+          captionsButton.click()
+        }
+      })
 
+      // Allow DOM to be updated and then register chatMessage mutation observer
+      waitForElement(`div[role="region"][tabindex="0"]`).then(() => {
         // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
         let transcriptTargetNode = document.querySelector(`div[role="region"][tabindex="0"]`)
         // For old captions UI
-        if (!transcriptTargetNode) {
-          transcriptTargetNode = document.querySelector(".a4cQT")
-          canUseAriaBasedTranscriptSelector = false
-        }
+        // if (!transcriptTargetNode) {
+        //   transcriptTargetNode = document.querySelector(".a4cQT")
+        //   canUseAriaBasedTranscriptSelector = false
+        // }
 
         if (transcriptTargetNode) {
           // Attempt to dim down the transcript
@@ -198,53 +202,54 @@ function meetingRoutines(uiType) {
           throw new Error("Transcript element not found in DOM")
         }
       })
-    } catch (err) {
-      console.error(err)
-      isTranscriptDomErrorCaptured = true
-      showNotification(extensionStatusJSON_bug)
+        .catch((err) => {
+          console.error(err)
+          isTranscriptDomErrorCaptured = true
+          showNotification(extensionStatusJSON_bug)
 
-      logError("001", err)
-    }
+          logError("001", err)
+        })
+    })
+
 
     // **** REGISTER CHAT MESSAGES LISTENER **** //
-    try {
-      // Wait for chat icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the chat icon is still not visible.
-      waitForElement(".google-symbols", "chat").then(() => {
-        const chatMessagesButton = selectElements(".google-symbols", "chat")[0]
-        // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
+    // Wait for chat icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the chat icon is still not visible.
+    waitForElement(".google-symbols", "chat").then(() => {
+      const chatMessagesButton = selectElements(".google-symbols", "chat")[0]
+      // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
+      chatMessagesButton.click()
+
+      // Allow DOM to be updated, close chat messages and then register chatMessage mutation observer
+      waitForElement(`div[aria-live="polite"].Ge9Kpc`).then(() => {
         chatMessagesButton.click()
+        // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
+        try {
+          const chatMessagesTargetNode = document.querySelector(`div[aria-live="polite"].Ge9Kpc`)
 
-        // Allow DOM to be updated, close chat messages and then register chatMessage mutation observer
-        waitForElement(`div[aria-live="polite"].Ge9Kpc`).then(() => {
-          chatMessagesButton.click()
-          // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
-          try {
-            const chatMessagesTargetNode = document.querySelector(`div[aria-live="polite"].Ge9Kpc`)
-
-            // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
-            if (chatMessagesTargetNode) {
-              chatMessagesObserver = new MutationObserver(chatMessagesMutationCallback)
-              chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
-            }
-            else {
-              throw new Error("Chat messages element not found in DOM")
-            }
-          } catch (err) {
-            console.error(err)
-            isChatMessagesDomErrorCaptured = true
-            showNotification(extensionStatusJSON_bug)
-
-            logError("002", err)
+          // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
+          if (chatMessagesTargetNode) {
+            chatMessagesObserver = new MutationObserver(chatMessagesMutationCallback)
+            chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
           }
-        })
-      })
-    } catch (err) {
-      console.error(err)
-      isChatMessagesDomErrorCaptured = true
-      showNotification(extensionStatusJSON_bug)
+          else {
+            throw new Error("Chat messages element not found in DOM")
+          }
+        } catch (err) {
+          console.error(err)
+          isChatMessagesDomErrorCaptured = true
+          showNotification(extensionStatusJSON_bug)
 
-      logError("003", err)
-    }
+          logError("002", err)
+        }
+      })
+    })
+      .catch((err) => {
+        console.error(err)
+        isChatMessagesDomErrorCaptured = true
+        showNotification(extensionStatusJSON_bug)
+
+        logError("003", err)
+      })
 
     // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
     if (!isTranscriptDomErrorCaptured && !isChatMessagesDomErrorCaptured) {
