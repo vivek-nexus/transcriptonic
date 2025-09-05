@@ -51,6 +51,19 @@
     .msg.user .bubble { background: #2D9AC7; color: #fff; border-color: #2D9AC7; }
     .msg.assistant .bubble { background: #f8f9fa; border-color: #e8eaed; }
 
+    /* Markdown styling for AI responses */
+    .msg.assistant .bubble strong { font-weight: 700; color: #1f1f1f; }
+    .msg.assistant .bubble em { font-style: italic; }
+    .msg.assistant .bubble code { background: #f1f3f4; color: #1f1f1f; padding: 2px 6px; border-radius: 4px; font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace; font-size: 13px; }
+    .msg.assistant .bubble h1, .msg.assistant .bubble h2, .msg.assistant .bubble h3 { margin: 16px 0 8px 0; font-weight: 600; color: #202124; }
+    .msg.assistant .bubble h1 { font-size: 18px; }
+    .msg.assistant .bubble h2 { font-size: 16px; }
+    .msg.assistant .bubble h3 { font-size: 15px; }
+    .msg.assistant .bubble ul { margin: 8px 0; padding-left: 20px; }
+    .msg.assistant .bubble li { margin: 4px 0; }
+    .msg.assistant .bubble a { color: #2D9AC7; text-decoration: underline; }
+    .msg.assistant .bubble a:hover { color: #1557b0; }
+
     .composer { border-top: 1px solid #e8eaed; padding: 16px 24px; display: flex; flex-direction: column; gap: 12px; background: #fff; }
     .composer-row { display: flex; gap: 12px; align-items: flex-end; }
     textarea { flex: 1; resize: none; background: #fff; border: 1px solid #dadce0; color: #202124; padding: 12px 16px; font-family: inherit; font-size: 14px; line-height: 1.4; border-radius: 24px; min-height: 48px; transition: border-color 0.2s; }

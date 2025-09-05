@@ -8,70 +8,70 @@
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap");
     * { box-sizing: border-box; }
-    body { width: 540px;max-width: 800px; margin: 0 auto; padding: 24px; background: #fff; color: #202124; font-family: "Google Sans", "Roboto", sans-serif; font-size: 14px; line-height: 1.5; }
-    h1 { font-size: 28px; font-weight: 400; margin: 0 0 8px; color: #202124; }
-    h2 { font-size: 20px; font-weight: 500; margin: 32px 0 16px; color: #202124; }
-    p, label, small { font-size: 14px; line-height: 1.4; }
+    body { width: 540px;max-width: 800px; margin: 0 auto; padding: 16px; background: #fff; color: #202124; font-family: "Google Sans", "Roboto", sans-serif; font-size: 14px; line-height: 1.5; }
+    h1 { font-size: 24px; font-weight: 400; margin: 0 0 6px; color: #202124; }
+    h2 { font-size: 18px; font-weight: 500; margin: 20px 0 12px; color: #202124; }
+    p, label, small { font-size: 13px; line-height: 1.4; }
     small { color: #5f6368; }
     a { color: #2D9AC7; text-decoration: none; font-weight: 500; }
     a:hover { text-decoration: underline; }
-    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid #e8eaed; }
-    .back-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border: 1px solid #dadce0; border-radius: 20px; color: #2D9AC7; font-size: 14px; transition: all 0.2s; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #e8eaed; }
+    .back-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #dadce0; border-radius: 16px; color: #2D9AC7; font-size: 13px; transition: all 0.2s; }
     .back-btn:hover { background: #f8f9fa; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .section { margin-bottom: 32px; }
-    .expander { border: 1px solid #dadce0; border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
-    .expander-header { display: flex; align-items: center; justify-content: between; padding: 16px 20px; background: #f8f9fa; cursor: pointer; transition: background 0.2s; }
+    .section { margin-bottom: 20px; }
+    .expander { border: 1px solid #dadce0; border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+    .expander-header { display: flex; align-items: center; justify-content: between; padding: 12px 16px; background: #f8f9fa; cursor: pointer; transition: background 0.2s; }
     .expander-header:hover { background: #f1f3f4; }
-    .expander-title { font-size: 16px; font-weight: 500; color: #202124; flex: 1; }
-    .expander-icon { width: 24px; height: 24px; transition: transform 0.2s; }
+    .expander-title { font-size: 14px; font-weight: 500; color: #202124; flex: 1; }
+    .expander-icon { width: 20px; height: 20px; transition: transform 0.2s; }
     .expander-icon.expanded { transform: rotate(180deg); }
-    .expander-content { padding: 20px; display: none; }
+    .expander-content { padding: 16px; display: none; }
     .expander-content.expanded { display: block; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group.full-width { grid-column: 1 / -1; }
-    label { font-size: 14px; font-weight: 500; color: #202124; }
-    .required { color: #ea4335; font-size: 12px; margin-left: 4px; }
-    input, select { height: 48px; padding: 12px 16px; border: 1px solid #dadce0; border-radius: 8px; font-size: 14px; background: #fff; color: #202124; transition: border-color 0.2s; }
+    label { font-size: 13px; font-weight: 500; color: #202124; }
+    .required { color: #ea4335; font-size: 11px; margin-left: 4px; }
+    input, select { height: 40px; padding: 8px 12px; border: 1px solid #dadce0; border-radius: 6px; font-size: 13px; background: #fff; color: #202124; transition: border-color 0.2s; }
     input:focus, select:focus { outline: none; border-color: #2D9AC7; box-shadow: 0 0 0 1px #2D9AC7; }
     input::placeholder { color: #9aa0a6; }
-    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; border-radius: 20px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 16px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; }
     .btn-primary { background: #2D9AC7; color: #fff; }
     .btn-primary:hover { background: #1557b0; box-shadow: 0 2px 8px rgba(26,115,232,0.3); }
     .btn-secondary { background: transparent; color: #2D9AC7; border: 1px solid #dadce0; }
     .btn-secondary:hover { background: #f8f9fa; }
     .btn-danger { background: #ea4335; color: #fff; }
     .btn-danger:hover { background: #d33b2c; }
-    .btn-actions { display: flex; gap: 12px; margin-top: 16px; }
-    .status { margin-top: 16px; font-size: 14px; min-height: 20px; }
+    .btn-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .status { margin-top: 12px; font-size: 13px; min-height: 18px; }
     .status.success { color: #34a853; }
     .status.error { color: #ea4335; }
-    .answer-box { margin-top: 16px; padding: 16px; background: #f8f9fa; border: 1px solid #e8eaed; border-radius: 8px; font-size: 14px; white-space: pre-wrap; display: none; }
-    .cards { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-    .card { border: 1px solid #dadce0; background: #fff; border-radius: 12px; padding: 20px; transition: box-shadow 0.2s; }
+    .answer-box { margin-top: 12px; padding: 12px; background: #f8f9fa; border: 1px solid #e8eaed; border-radius: 6px; font-size: 13px; white-space: pre-wrap; display: none; }
+    .cards { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .card { border: 1px solid #dadce0; background: #fff; border-radius: 8px; padding: 16px; transition: box-shadow 0.2s; }
     .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-    .card-title { font-size: 16px; font-weight: 500; color: #202124; margin: 0; }
-    .badge { display: inline-block; background: #e8f0fe; color: #2D9AC7; font-size: 12px; padding: 4px 8px; border-radius: 12px; font-weight: 500; }
-    .card-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-    .empty-state { text-align: center; padding: 48px 24px; color: #5f6368; border: 1px dashed #dadce0; border-radius: 12px; }
-    .radio-group { display: flex; flex-direction: column; gap: 12px; }
-    .radio-option { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .card-title { font-size: 14px; font-weight: 500; color: #202124; margin: 0; }
+    .badge { display: inline-block; background: #e8f0fe; color: #2D9AC7; font-size: 11px; padding: 3px 6px; border-radius: 10px; font-weight: 500; }
+    .card-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .empty-state { text-align: center; padding: 32px 16px; color: #5f6368; border: 1px dashed #dadce0; border-radius: 8px; }
+    .radio-group { display: flex; gap: 16px; flex-wrap: wrap; }
+    .radio-option { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: background 0.2s; flex: 1; min-width: 160px; }
     .radio-option:hover { background: #f8f9fa; }
-    input[type="radio"] { width: 20px; height: 20px; accent-color: #2D9AC7; }
-    .help-text { font-size: 12px; color: #5f6368; margin-top: 8px; }
-    .suggestions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-    .suggestion-pill { background: #e8f0fe; color: #2D9AC7; padding: 4px 12px; font-size: 12px; font-weight: 500; border-radius: 16px; cursor: pointer; transition: background 0.2s; }
+    input[type="radio"] { width: 16px; height: 16px; accent-color: #2D9AC7; }
+    .help-text { font-size: 11px; color: #5f6368; margin-top: 4px; }
+    .suggestions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+    .suggestion-pill { background: #e8f0fe; color: #2D9AC7; padding: 3px 8px; font-size: 11px; font-weight: 500; border-radius: 12px; cursor: pointer; transition: background 0.2s; }
     .suggestion-pill:hover { background: #d2e3fc; }
-    @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } .btn-actions { flex-direction: column; } .cards { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } .btn-actions { flex-direction: column; } .cards { grid-template-columns: 1fr; } .radio-group { flex-direction: column; gap: 8px; } .radio-option { min-width: auto; } }
   </style>
 </head>
 <body>
   <div class="header">
     <div>
-      <h1>Impostazioni AI</h1>
+      <h1 data-i18n="ai_settings_title">Impostazioni AI</h1>
     </div>
-    <a href="../popup.html" class="back-btn">
+    <a href="../popup.html" class="back-btn" data-i18n="ai_back_to_dashboard">
       ← Torna alla dashboard
     </a>
   </div>
@@ -79,7 +79,7 @@
   <div class="section">
     <div class="expander" id="newProviderExpander">
       <div class="expander-header" id="expanderHeader">
-        <span class="expander-title">Aggiungi nuovo provider AI</span>
+        <span class="expander-title" data-i18n="ai_add_provider">Aggiungi nuovo provider AI</span>
         <svg class="expander-icon" viewBox="0 0 24 24" fill="currentColor">
           <path d="M7 10l5 5 5-5z"/>
         </svg>
@@ -87,7 +87,7 @@
       <div class="expander-content" id="newProviderContent">
         <div class="form-row">
           <div class="form-group">
-            <label for="provider">Provider <span class="required">*</span></label>
+            <label for="provider" data-i18n="ai_provider_label">Provider <span class="required">*</span></label>
             <select id="provider">
               <option value="openai">OpenAI</option>
               <option value="google">Google AI</option>
@@ -95,19 +95,19 @@
             <div id="providerHelp" class="help-text"></div>
           </div>
           <div class="form-group">
-            <label for="model">Modello <span class="required">*</span></label>
-            <input id="model" placeholder="es. gpt-4o-mini" />
+            <label for="model" data-i18n="ai_model_label">Modello <span class="required">*</span></label>
+            <input id="model" data-i18n-placeholder="ai_model_placeholder" placeholder="es. gpt-4o-mini" />
             <div id="modelSuggestions" class="suggestions"></div>
           </div>
         </div>
         <div class="form-group full-width">
-          <label for="apiKey">API Key <span class="required">*</span></label>
-          <input id="apiKey" type="password" placeholder="Inserisci la tua API key" />
-          <small class="help-text">Le API key sono salvate solo localmente nel browser</small>
+          <label for="apiKey" data-i18n="ai_api_key_label">API Key <span class="required">*</span></label>
+          <input id="apiKey" type="password" data-i18n-placeholder="ai_api_key_placeholder" placeholder="Inserisci la tua API key" />
+          <small class="help-text" data-i18n="ai_api_key_help">Le API key sono salvate solo localmente nel browser</small>
         </div>
         <div class="btn-actions">
-          <button id="testSaveBtn" class="btn btn-primary">Verifica e salva</button>
-          <button id="resetForm" class="btn btn-secondary">Cancella</button>
+          <button id="testSaveBtn" class="btn btn-primary" data-i18n="ai_test_save_btn">Verifica e salva</button>
+          <button id="resetForm" class="btn btn-secondary" data-i18n="ai_reset_form_btn">Cancella</button>
         </div>
         <div class="status" id="status"></div>
         <div id="answerBox" class="answer-box"></div>
@@ -118,34 +118,34 @@
   <div class="section">
     <div id="providersCards" class="cards"></div>
     <div id="emptyProviders" class="empty-state" style="display:none;">
-      <p>Nessun provider AI configurato</p>
-      <small>Aggiungi il tuo primo provider per iniziare a utilizzare le funzionalità AI</small>
+      <p data-i18n="ai_no_providers">Nessun provider AI configurato</p>
+      <small data-i18n="ai_no_providers_help">Aggiungi il tuo primo provider per iniziare a utilizzare le funzionalità AI</small>
     </div>
   </div>
 
   <div class="section">
-    <h2>Azione fine meeting</h2>
-    <small class="help-text">Scegli cosa fare automaticamente quando termina una videochiamata</small>
+    <h2 data-i18n="ai_end_meeting_title">Azione fine meeting</h2>
+    <small class="help-text" data-i18n="ai_end_meeting_help">Scegli cosa fare automaticamente quando termina una videochiamata</small>
     <div class="radio-group" id="endActionGroup">
       <label class="radio-option">
         <input type="radio" name="endAction" value="chat" />
         <div>
-          <div>Apri chat con trascrizione</div>
-          <small class="help-text">Avvia una conversazione AI con il testo della riunione</small>
+          <div data-i18n="ai_end_action_chat">Apri chat AI</div>
+          <small class="help-text" data-i18n="ai_end_action_chat_help">Avvia conversazione</small>
         </div>
       </label>
       <label class="radio-option">
         <input type="radio" name="endAction" value="report" />
         <div>
-          <div>Genera report automatico</div>
-          <small class="help-text">Crea un riassunto strutturato della riunione</small>
+          <div data-i18n="ai_end_action_report">Genera report</div>
+          <small class="help-text" data-i18n="ai_end_action_report_help">Crea riassunto</small>
         </div>
       </label>
       <label class="radio-option">
         <input type="radio" name="endAction" value="none" />
         <div>
-          <div>Nessuna azione</div>
-          <small class="help-text">Salva solo la trascrizione senza elaborazioni</small>
+          <div data-i18n="ai_end_action_none">Nessuna azione</div>
+          <small class="help-text" data-i18n="ai_end_action_none_help">Solo trascrizione</small>
         </div>
       </label>
     </div>
@@ -153,5 +153,6 @@
 
   <script type="module" src="./ai_setting.js"></script>
   <script type="module" src="./LLM/llm.js"></script>
+  <script src="../i18n.js"></script>
 </body>
 </html>

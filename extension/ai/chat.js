@@ -66,6 +66,42 @@ function getMeetings(){ return new Promise(resolve => { chrome.storage.local.get
 
 // ---- UI Helpers ----
 function clearChildren(el){ if(!el) return; while(el.firstChild) el.removeChild(el.firstChild); }
+function processMarkdown(text) {
+  if (!text) return '';
+  
+  // Escape HTML to prevent XSS
+  let html = text.replace(/[<>&"']/g, function(match) {
+    const escapeMap = { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#x27;' };
+    return escapeMap[match];
+  });
+  
+  // Process markdown patterns
+  html = html
+    // Bold **text**
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    // Italic *text*
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // Code `text`
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // Lists - bullet points
+    .replace(/^[\s]*[-*+]\s+(.+)$/gm, '<li>$1</li>')
+    // Headers ### text
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    // Links [text](url)
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  
+  // Wrap consecutive <li> elements in <ul>
+  html = html.replace(/(<li>.*?<\/li>)(\s*<li>.*?<\/li>)*/g, function(match) {
+    return '<ul>' + match + '</ul>';
+  });
+  
+  // Convert line breaks to <br> (preserve formatting)
+  html = html.replace(/\n/g, '<br>');
+  
+  return html;
+}
 function showBanner(msg, type='info'){ const cont = bannerContainer || document.getElementById('bannerContainer'); if(!cont){ console.warn('[chat] bannerContainer non trovato'); return; } const div = document.createElement('div'); div.className = 'banner'+(type==='warn'?' warn':type==='error'?' error':''); div.textContent = msg; cont.appendChild(div); setTimeout(()=>{ div.remove(); }, 4000); }
 function setStatus(left='', right=''){
   if(!statusLeft) statusLeft = document.getElementById('statusLeft');
@@ -101,7 +137,14 @@ function renderSidebar(){
     target.appendChild(item); });
 }
 
-function renderMessages(chat){ if(!messagesEl){ messagesEl=document.getElementById('messages'); } if(!messagesEl){ console.warn('[chat] messagesEl mancante (renderMessages)'); return; } clearChildren(messagesEl); chat.messages.forEach(m => { if(m.role==='system') return; const row = document.createElement('div'); row.className='msg '+(m.role==='assistant'?'assistant':'user'); const avatar = document.createElement('div'); avatar.className='avatar'; avatar.textContent = m.role==='assistant'?'AI':'TU'; const bubble = document.createElement('div'); bubble.className='bubble'; bubble.textContent = m.content; row.appendChild(avatar); row.appendChild(bubble); messagesEl.appendChild(row); }); scrollToBottom(); }
+function renderMessages(chat){ if(!messagesEl){ messagesEl=document.getElementById('messages'); } if(!messagesEl){ console.warn('[chat] messagesEl mancante (renderMessages)'); return; } clearChildren(messagesEl); chat.messages.forEach(m => { if(m.role==='system') return; const row = document.createElement('div'); row.className='msg '+(m.role==='assistant'?'assistant':'user'); const avatar = document.createElement('div'); avatar.className='avatar'; avatar.textContent = m.role==='assistant'?'AI':'TU'; const bubble = document.createElement('div'); bubble.className='bubble'; 
+  // Process markdown for AI messages
+  if(m.role === 'assistant') {
+    bubble.innerHTML = processMarkdown(m.content);
+  } else {
+    bubble.textContent = m.content;
+  }
+  row.appendChild(avatar); row.appendChild(bubble); messagesEl.appendChild(row); }); scrollToBottom(); }
 
 function updateTopBar(chat){
   const titleEl = chatTitleEl || document.getElementById('chatTitle');
