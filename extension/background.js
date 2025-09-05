@@ -34,6 +34,24 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
 
             processLastMeeting()
                 .then(() => {
+                    // Dopo il processing recupera ultima meeting e se endAction=chat apre chat.html (usa chrome.storage.local perché localStorage non è persistente nel service worker MV3)
+                    chrome.storage.local.get(['aiEndMeetingAction','meetings'], function(getResult){
+                        /** @type {ResultLocal & {aiEndMeetingAction?: string}} */
+                        const r = /** @type {any} */ (getResult);
+                        const endAction = r.aiEndMeetingAction || 'none';
+                        if (r.meetings && r.meetings.length){
+                            const last = r.meetings[r.meetings.length-1];
+                            if (last && last.meetingStartTimestamp){
+                                if (endAction === 'chat') {
+                                    const url = chrome.runtime.getURL(`ai/chat.html?meetingId=${encodeURIComponent(last.meetingStartTimestamp)}`);
+                                    chrome.tabs.create({ url });
+                                } else if (endAction === 'report') {
+                                    const url = chrome.runtime.getURL(`ai/report.html?meetingId=${encodeURIComponent(last.meetingStartTimestamp)}`);
+                                    chrome.tabs.create({ url });
+                                }
+                            }
+                        }
+                    });
                     /** @type {ExtensionResponse} */
                     const response = { success: true }
                     sendResponse(response)

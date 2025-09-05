@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Report Meeting – TranscripTonic</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" href="../icon.png" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap");
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Google Sans", "Roboto", sans-serif; background: #fff; color: #202124; min-height: 100vh; display: flex; flex-direction: column; font-size: 14px; }
+    h1 { margin: 0; font-size: 28px; color: #202124; font-weight: 400; }
+    
+    .view { flex: 1; display: none; padding: 48px clamp(24px,4vw,56px) 40px; }
+    .view.active { display: flex; flex-direction: column; }
+    .intro { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+    .hero-title { font-size: 36px; line-height: 1.2; color: #2D9AC7; font-weight: 400; }
+    .subtitle { font-size: 16px; color: #5f6368; max-width: 640px; line-height: 1.5; }
+    
+    .sections-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-top: 24px; }
+    .check-card { position: relative; border: 1px solid #dadce0; background: #fff; padding: 20px; border-radius: 12px; cursor: pointer; display: flex; gap: 12px; align-items: flex-start; transition: all 0.2s; min-height: 80px; }
+    .check-card input { position: absolute; opacity: 0; pointer-events: none; }
+    .check-card:hover { border-color: #2D9AC7; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .check-card.active { border-color: #2D9AC7; background: #e8f0fe; box-shadow: 0 2px 8px rgba(26,115,232,0.15); }
+    .check-card span { font-size: 14px; line-height: 1.4; font-weight: 500; color: #202124; }
+    
+    .add-row { display: flex; gap: 12px; margin-top: 16px; }
+    .add-row input { flex: 1; background: #fff; border: 1px solid #dadce0; color: #202124; padding: 12px 16px; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+    .add-row input:focus { outline: none; border-color: #2D9AC7; box-shadow: 0 0 0 1px #2D9AC7; }
+    
+    .btn { background: #2D9AC7; color: #fff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 500; border-radius: 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn:hover { background: #1557b0; box-shadow: 0 2px 8px rgba(26,115,232,0.3); }
+    .btn.secondary { background: #f8f9fa; color: #2D9AC7; border: 1px solid #dadce0; }
+    .btn.secondary:hover { background: #f1f3f4; }
+    .btn.ghost { background: transparent; color: #5f6368; }
+    .btn.ghost:hover { background: #f8f9fa; }
+    .btn.outline { background: transparent; border: 1px solid #2D9AC7; color: #2D9AC7; }
+    .btn.outline:hover { background: #e8f0fe; }
+    .btn.small { font-size: 12px; padding: 8px 16px; border-radius: 16px; }
+    
+    .center-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+    .pill-tips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+    .pill { background: #e8f0fe; color: #2D9AC7; padding: 4px 12px; font-size: 12px; font-weight: 500; border-radius: 16px; cursor: pointer; transition: background 0.2s; }
+    .pill:hover { background: #d2e3fc; }
+    
+    .loading-view { align-items: center; justify-content: center; }
+    .spinner { width: 48px; height: 48px; border: 4px solid #f1f3f4; border-top-color: #2D9AC7; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { margin-top: 24px; font-size: 16px; color: #5f6368; }
+    
+    .report-view { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+    .report-header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+    .report-title { font-size: 28px; font-weight: 400; margin: 0; color: #202124; }
+    .report-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    
+    .blocks { display: flex; flex-direction: column; gap: 24px; }
+    .block { background: #f8f9fa; border: 1px solid #e8eaed; padding: 24px; border-radius: 12px; position: relative; }
+    .block h2 { margin: 0 0 16px; font-size: 20px; color: #2D9AC7; font-weight: 500; }
+    .block .body { font-size: 14px; line-height: 1.6; white-space: pre-wrap; color: #202124; }
+    .hint { font-size: 12px; color: #5f6368; margin-top: 8px; }
+    .empty-note { font-size: 14px; color: #5f6368; }
+    
+    .error-box { background: #fce8e6; border: 1px solid #ea4335; padding: 16px 20px; border-radius: 8px; font-size: 14px; line-height: 1.5; color: #d93025; }
+    
+    /* Branding */
+    .branding { 
+      text-align: center; 
+      margin-top: 48px; 
+      padding-top: 24px; 
+      border-top: 1px solid #f1f3f4; 
+      font-size: 12px; 
+      color: #9aa0a6; 
+    }
+    .branding-link { 
+      color: #2D9AC7; 
+      text-decoration: none; 
+      font-weight: 500; 
+    }
+    .branding-link:hover { 
+      text-decoration: underline; 
+    }
+    .report-branding {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid #e8eaed;
+      text-align: center;
+      font-size: 11px;
+      color: #9aa0a6;
+    }
+    
+    @media (max-width: 760px) { 
+      .sections-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); } 
+      .hero-title { font-size: 28px; } 
+      .view { padding: 32px 24px; }
+    }
+    
+    @media print { 
+      body { background: #fff; color: #000; } 
+      .view:not(.report-active) { display: none !important; } 
+      .report-actions { display: none !important; } 
+      .block { background: #fff; border: 1px solid #ccc; color: #000; } 
+      .block h2 { color: #000; } 
+      .branding, .report-branding { color: #666; font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- VIEW: CONFIG -->
+  <section class="view active" id="viewConfig">
+    <div class="intro">
+      <h1 class="hero-title">Report della Riunione</h1>
+      <p class="subtitle" id="meetingSubtitle">Seleziona le sezioni che vuoi generare. Puoi aggiungerne di personalizzate. Poi premi Genera.</p>
+      <div id="sectionsGrid" class="sections-grid"></div>
+      <div class="add-row">
+        <input id="customSection" placeholder="Nuova sezione..." />
+        <button class="btn small" id="addCustom">Aggiungi</button>
+      </div>
+      <div class="center-actions">
+        <button class="btn" id="btnGenerate">Genera Report</button>
+        <button class="btn ghost" id="btnSelectAll">Seleziona tutto</button>
+        <button class="btn ghost" id="btnClear">Reset</button>
+      </div>
+      <div class="hint" id="status"></div>
+      
+      <div class="branding">
+        Powered by <strong>TranscripTonic-AI</strong> by <a href="https://intelligenzaartificialeitalia.net" target="_blank" class="branding-link">IntelligenzaArtificialeItalia.net</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIEW: LOADING -->
+  <section class="view loading-view" id="viewLoading">
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <div class="spinner"></div>
+      <div class="loading-text" id="loadingText">Generazione in corso...</div>
+      <div class="hint" style="margin-top:1rem;">Analisi trascrizione + costruzione sezioni</div>
+    </div>
+  </section>
+
+  <!-- VIEW: REPORT -->
+  <section class="view" id="viewReport">
+    <div class="report-view">
+      <div class="report-header">
+        <h2 class="report-title" id="reportTitle">Report</h2>
+        <div class="report-actions">
+          <button class="btn secondary" id="btnOpenChat">Chat</button>
+          <button class="btn secondary" id="btnPrint">PDF</button>
+          <button class="btn outline" id="btnRegenera">Rigenera</button>
+        </div>
+      </div>
+      <div id="blocks" class="blocks"></div>
+      <div id="reportError"></div>
+      
+      <div class="report-branding">
+        Generated by TranscripTonic-AI • IntelligenzaArtificialeItalia.net
+      </div>
+    </div>
+  </section>
+  <script type="module" src="./LLM/llm.js"></script>
+  <script type="module" src="./report.js"></script>
+</body>
+</html>
