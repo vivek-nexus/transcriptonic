@@ -74,6 +74,8 @@
   "ai_end_action_chat_help": { "message": "Unterhaltung starten" },
   "ai_end_action_report": { "message": "Bericht generieren" },
   "ai_end_action_report_help": { "message": "Zusammenfassung erstellen" },
+  "ai_end_action_press_release": { "message": "Pressemitteilung generieren" },
+  "ai_end_action_press_release_help": { "message": "Passcode erforderlich" },
   "ai_end_action_none": { "message": "Keine Aktion" },
   "ai_end_action_none_help": { "message": "Nur Transkript" }
 }

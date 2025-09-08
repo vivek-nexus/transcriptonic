@@ -48,6 +48,17 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
                                 } else if (endAction === 'report') {
                                     const url = chrome.runtime.getURL(`ai/report.html?meetingId=${encodeURIComponent(last.meetingStartTimestamp)}`);
                                     chrome.tabs.create({ url });
+                                } else if (endAction === 'press_release') {
+                                    // Build transcript text and open the Digitalia21 modal
+                                    try {
+                                        const transcriptText = getTranscriptString(last.transcript) + `\n\n---------------\nCHAT MESSAGES\n---------------\n\n` + getChatMessagesString(last.chatMessages);
+                                        chrome.storage.local.set({ transcriptContent: transcriptText }, function(){
+                                            const url = chrome.runtime.getURL('ai/modal.html');
+                                            chrome.tabs.create({ url });
+                                        });
+                                    } catch (e) {
+                                        console.error('Failed to prepare press release data', e);
+                                    }
                                 }
                             }
                         }

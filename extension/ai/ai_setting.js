@@ -262,8 +262,24 @@ function initEndAction(){
       const val = loadEndAction();
       const radios = endActionGroup.querySelectorAll('input[type=radio][name=endAction]');
       let has=false;
+      let lastValue = val;
       radios.forEach(r=>{ if(r.value===val){ r.checked=true; has=true; }
-        r.addEventListener('change',()=>{ if(r.checked) saveEndAction(r.value); });
+        r.addEventListener('change',()=>{ 
+          if(!r.checked) return;
+          const next = r.value;
+          if (next === 'press_release') {
+            const code = prompt('Inserisci il passcode per abilitare: Genera comunicato stampa');
+            if (code !== 'Digitalia21.') {
+              alert('Passcode errato. Opzione non abilitata.');
+              // revert selection
+              const prev = endActionGroup.querySelector(`input[type=radio][name=endAction][value="${lastValue}"]`);
+              if (prev) prev.checked = true;
+              return;
+            }
+          }
+          lastValue = next;
+          saveEndAction(next);
+        });
       });
       if(!has){ const def=endActionGroup.querySelector('input[value=none]'); if(def) def.checked=true; saveEndAction('none'); }
       // Ensure mirror is saved at least once
@@ -273,9 +289,9 @@ function initEndAction(){
     // Fallback to legacy behavior
     const val = loadEndAction();
     const radios = endActionGroup.querySelectorAll('input[type=radio][name=endAction]');
-    let has=false;
+    let has=false; let lastValue = val;
     radios.forEach(r=>{ if(r.value===val){ r.checked=true; has=true; }
-      r.addEventListener('change',()=>{ if(r.checked) saveEndAction(r.value); });
+      r.addEventListener('change',()=>{ if(!r.checked) return; const next=r.value; if(next==='press_release'){ const code=prompt('Inserisci il passcode per abilitare: Genera comunicato stampa'); if(code!=='Digitalia21.'){ alert('Passcode errato. Opzione non abilitata.'); const prev=endActionGroup.querySelector(`input[type=radio][name=endAction][value="${lastValue}"]`); if(prev) prev.checked=true; return; } } lastValue=next; saveEndAction(next); });
     });
     if(!has){ const def=endActionGroup.querySelector('input[value=none]'); if(def) def.checked=true; saveEndAction('none'); }
   }

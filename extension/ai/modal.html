@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digitalia21 - Genera Comunicato Stampa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --digitalia-black: #000000;
+            --digitalia-gray: #666666;
+            --digitalia-light-gray: #f5f5f5;
+            --digitalia-hover: #333333;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--digitalia-light-gray);
+            margin: 0;
+            padding: 20px;
+            color: var(--digitalia-black);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .container h2 {
+            color: var(--digitalia-black);
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 32px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 24px;
+            flex: 1;
+        }
+
+        .form-group label {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: var(--digitalia-gray);
+            transition: all 0.2s ease-in-out;
+            background: white;
+            padding: 0 4px;
+            pointer-events: none;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 16px 12px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .form-group input:focus {
+            border-color: var(--digitalia-black);
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+        }
+
+        .form-group input:focus + label,
+        .form-group input:not(:placeholder-shown) + label {
+            top: 0;
+            font-size: 12px;
+            color: var(--digitalia-black);
+            font-weight: 500;
+        }
+
+        /* Stili per lo spinner di caricamento */
+        .spinner-container {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            margin: 24px 0;
+        }
+
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid var(--digitalia-black);
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Stili per le notizie generate */
+        .notizie-container {
+            display: none;
+            margin-bottom: 24px;
+        }
+
+        .notizie-container h4 {
+            margin-bottom: 16px;
+            color: var(--digitalia-black);
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .notizia-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 16px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .notizia-card:hover {
+            border-color: var(--digitalia-black);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .notizia-card.selected {
+            border-color: var(--digitalia-black);
+            background-color: #f9f9f9;
+        }
+
+        .notizia-titolo {
+            font-weight: 500;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .notizia-descrizione {
+            font-size: 14px;
+            color: var(--digitalia-gray);
+            margin-bottom: 8px;
+        }
+
+        .notizia-motivo {
+            font-size: 13px;
+            color: var(--digitalia-gray);
+            font-style: italic;
+        }
+
+        button {
+            background-color: var(--digitalia-black);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover {
+            background-color: var(--digitalia-hover);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background-color: var(--digitalia-gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button .material-icons {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        /* Modal di successo */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-backdrop.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .modal-icon {
+            font-size: 48px;
+            color: #4CAF50;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: var(--digitalia-black);
+        }
+
+        .modal-message {
+            margin-bottom: 24px;
+            color: var(--digitalia-gray);
+        }
+
+        /* Stili per il multi-step form */
+        #formStep2 {
+            display: none;
+        }
+
+        /* Transcript info indicator */
+        .transcript-info {
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background-color: #f0f8ff;
+            border-left: 4px solid #2196F3;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="https://www.digitalia21.it/hosted/images/ab/fdaa9a117840d694e92b7bcc13e10e/Digitalia21-logo-k.png" alt="Digitalia21 Logo" class="logo">
+        </div>
+        <h2>Genera Comunicato Stampa</h2>
+        <form id="modalForm">
+            <!-- Primo step: Nome, Cognome -->
+            <div id="formStep1">
+                <!-- Nome e Cognome -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <input type="text" id="name" name="name" placeholder=" " required>
+                        <label for="name">Nome</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="surname" name="surname" placeholder=" " required>
+                        <label for="surname">Cognome</label>
+                    </div>
+                </div>
+
+                <!-- Informazioni sulla trascrizione -->
+                <div class="transcript-info">
+                    <p>Trascrizione caricata automaticamente dall'estensione.</p>
+                </div>
+
+                <!-- Spinner di caricamento -->
+                <div id="loadingSpinner" class="spinner-container">
+                    <div class="spinner"></div>
+                    <p>Generazione notizie in corso...</p>
+                </div>
+
+                <!-- Container che mostrerà le notizie generate -->
+                <div id="notizieContainer" class="notizie-container">
+                    <h4>Seleziona una notizia principale:</h4>
+                    <div id="notizieLista">
+                        <!-- Le notizie verranno inserite qui dinamicamente -->
+                    </div>
+                </div>
+
+                <button type="button" id="analyzeBtn">
+                    <i class="material-icons">auto_awesome</i>
+                    Trova le migliori notizie
+                </button>
+            </div>
+
+            <!-- Secondo step: Campi aggiuntivi dopo aver scelto l'argomento -->
+            <div id="formStep2">
+                <!-- Email e Telefono -->
+                <div class="form-group">
+                    <input type="email" id="email" name="email" placeholder=" " required>
+                    <label for="email">Email</label>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="phone" name="phone" placeholder=" " required>
+                    <label for="phone">Telefono</label>
+                </div>
+
+                <!-- Prodotto venduto (opzionale) -->
+                <div class="form-group">
+                    <input type="text" id="product" name="product" placeholder=" ">
+                    <label for="product">Prodotto venduto (opzionale)</label>
+                </div>
+
+                <!-- Target (opzionale) -->
+                <div class="form-group">
+                    <input type="text" id="target" name="target" placeholder=" ">
+                    <label for="target">Target (opzionale)</label>
+                </div>
+
+                <!-- Argomento scelto (riepilogo) -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Argomento principale scelto:</label>
+                    <div id="argomentoScelto" class="notizia-card selected">
+                        <!-- I dettagli verranno inseriti qui dinamicamente -->
+                    </div>
+                    <button type="button" id="changeArgomentoBtn" style="margin-top: 12px; width: auto;">
+                        <i class="material-icons">edit</i>
+                        Cambia argomento
+                    </button>
+                </div>
+
+                <!-- Pulsante Invio -->
+                <button type="submit">
+                    <i class="material-icons">send</i>
+                    Invia richiesta
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-backdrop" id="successModal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="material-icons">check_circle</i>
+            </div>
+            <h3 class="modal-title">Operazione completata</h3>
+            <p class="modal-message">Richiesta inviata con successo! Riceverai un'email con il comunicato.</p>
+            <button class="btn" onclick="closeModal()">Chiudi</button>
+        </div>
+    </div>
+
+    <script src="modal.js"></script>
+</body>
+</html>
