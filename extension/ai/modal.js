@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (result.transcriptContent) {
             transcriptionContent = result.transcriptContent;
             console.log("Trascrizione caricata con successo dall'estensione.");
+            console.log(transcriptionContent);
         } else {
             console.error("Nessuna trascrizione trovata nello storage.");
         }
@@ -81,6 +82,7 @@ document.getElementById("analyzeBtn").addEventListener("click", async function()
         return response.json();
     })
     .then(data => {
+        console.log("Notizie ricevute:", data);
         // Nascondi spinner
         document.getElementById("loadingSpinner").style.display = "none";
         
@@ -107,7 +109,7 @@ document.getElementById("analyzeBtn").addEventListener("click", async function()
 function renderNotizie(notizie) {
     const container = document.getElementById("notizieLista");
     container.innerHTML = "";
-
+    console.log("Rendering notizie:", notizie);
     // Per ogni notizia nel JSON
     Object.keys(notizie).forEach(key => {
         const notizia = notizie[key];

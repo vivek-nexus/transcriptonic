@@ -687,7 +687,7 @@ function checkExtensionStatus() {
       extensionStatusJSON: { status: 200, message: "<strong>TranscripTonic-AI is running</strong> <br /> Do not turn off captions" },
     })
 
-    /* https://stackoverflow.com/a/42518434
+    // https://stackoverflow.com/a/42518434
     fetch(
       "https://ejnana.github.io/transcripto-status/status-prod-unpacked.json",
       { cache: "no-store" }
@@ -706,7 +706,6 @@ function checkExtensionStatus() {
 
         logError("008", err)
       })
-    */
   })
 }
 
