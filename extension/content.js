@@ -684,10 +684,10 @@ function checkExtensionStatus() {
   return new Promise((resolve, reject) => {
     // Set default value as 200
     chrome.storage.local.set({
-      extensionStatusJSON: { status: 200, message: "<strong>TranscripTonic is running</strong> <br /> Do not turn off captions" },
+      extensionStatusJSON: { status: 200, message: "<strong>TranscripTonic-AI is running</strong> <br /> Do not turn off captions" },
     })
 
-    // https://stackoverflow.com/a/42518434
+    /* https://stackoverflow.com/a/42518434
     fetch(
       "https://ejnana.github.io/transcripto-status/status-prod-unpacked.json",
       { cache: "no-store" }
@@ -706,6 +706,7 @@ function checkExtensionStatus() {
 
         logError("008", err)
       })
+    */
   })
 }
 

@@ -56,7 +56,19 @@
     .blocks { display: flex; flex-direction: column; gap: 24px; }
     .block { background: #f8f9fa; border: 1px solid #e8eaed; padding: 24px; border-radius: 12px; position: relative; }
     .block h2 { margin: 0 0 16px; font-size: 20px; color: #2D9AC7; font-weight: 500; }
-    .block .body { font-size: 14px; line-height: 1.6; white-space: pre-wrap; color: #202124; }
+  .block .body { font-size: 14px; line-height: 1.6; white-space: normal; color: #202124; }
+  /* Markdown styles in report body */
+  .block .body strong { font-weight: 700; color: #1f1f1f; }
+  .block .body em { font-style: italic; }
+  .block .body code { background: #f1f3f4; color: #1f1f1f; padding: 2px 6px; border-radius: 4px; font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace; font-size: 13px; }
+  .block .body h1, .block .body h2, .block .body h3 { margin: 16px 0 8px 0; font-weight: 600; color: #202124; }
+  .block .body h1 { font-size: 18px; }
+  .block .body h2 { font-size: 16px; }
+  .block .body h3 { font-size: 15px; }
+  .block .body ul { margin: 8px 0; padding-left: 20px; }
+  .block .body li { margin: 4px 0; }
+  .block .body a { color: #2D9AC7; text-decoration: underline; }
+  .block .body a:hover { color: #1557b0; }
     .hint { font-size: 12px; color: #5f6368; margin-top: 8px; }
     .empty-note { font-size: 14px; color: #5f6368; }
     

@@ -309,7 +309,8 @@ function downloadTranscript(index, isWebhookEnabled) {
 
                 // Add branding
                 content += "\n\n---------------\n"
-                content += "Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)"
+                content += "Trascrizione creata con TranscripTonic-AI - Estensione gratuita per trascrivere le chiamate Google Meet ed elaborare i dati con l'AI.\n"
+                content += "Sviluppato da Alessandro Ciciarelli - IntelligenzaArtificialeItalia.net\n"
                 content += "\n---------------"
 
                 const blob = new Blob([content], { type: "text/plain" })

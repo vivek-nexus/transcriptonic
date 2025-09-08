@@ -115,6 +115,36 @@ function safeParseJson(raw){
   try{ return JSON.parse(raw); } catch(e){ return null; }
 }
 
+// Minimal, safe markdown -> HTML converter
+function processMarkdown(text){
+  if(!text) return '';
+  // Escape HTML
+  let html = text.replace(/[<>&"']/g, (m)=>({"<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;", "'":"&#x27;"}[m]));
+  // Basic markdown conversions
+  html = html
+    // Bold **text**
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    // Italic *text*
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // Inline code `code`
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // Headers
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    // Links [text](url)
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    // Unordered list items -> li
+    .replace(/^[\s]*[-*+]\s+(.+)$/gm, '<li>$1</li>');
+
+  // Group consecutive <li> into <ul>
+  html = html.replace(/(?:<li>.*?<\/li>\s*)+/gs, (match)=>`<ul>${match}</ul>`);
+
+  // Line breaks
+  html = html.replace(/\n/g, '<br>');
+  return html;
+}
+
 function renderReport(data){
   blocksEl.innerHTML=''; reportErrorEl.innerHTML='';
   if(!data || !Array.isArray(data.sections)){ reportErrorEl.innerHTML = '<div class="error-box">JSON non valido o formato inatteso.</div>'; return; }
@@ -123,8 +153,8 @@ function renderReport(data){
     div.className='block';
     const title = sec.name || 'Sezione';
     const content = (sec.content||'').trim() || '(Nessun contenuto)';
-    const safe = content.replace(/[<>]/g, c=> ({'<':'&lt;','>':'&gt;'}[c]));
-    div.innerHTML = `<h2>${title}</h2><div class="body">${safe}</div>`;
+    const htmlBody = processMarkdown(content);
+    div.innerHTML = `<h2>${title}</h2><div class="body">${htmlBody}</div>`;
     blocksEl.appendChild(div);
   });
 }
