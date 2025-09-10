@@ -347,9 +347,15 @@ function main() {
           if (currentPersonElement?.tagName === "IMG") {
             // @ts-ignore
             const avatarSrc = currentPersonElement.src
-            console.log(avatarSrc)
             // @ts-ignore
-            currentPersonName = iframeDOM.querySelectorAll(`img[src="${avatarSrc}"]`)[0].parentElement.nextSibling.textContent
+            const avatarElements = iframeDOM.querySelectorAll(`img[src="${avatarSrc}"]`)
+            if (avatarElements.length > 1) {
+              // @ts-ignore
+              currentPersonName = iframeDOM.querySelectorAll(`img[src="${avatarSrc}"]`)[0].parentElement.nextSibling.textContent
+            }
+            else {
+              currentPersonName = avatarSrc
+            }
           }
           else {
             // @ts-ignore
