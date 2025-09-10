@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TranscripTonic",
-  "version": "3.1.7",
+  "version": "3.2.0",
   "description": "Simple Google Meet transcripts. Private and open source.",
   "action": {
     "default_icon": "icon.png",
@@ -22,6 +22,15 @@
       "exclude_matches": [
         "https://meet.google.com/"
       ]
+    },
+    {
+      "js": [
+        "content-zoom.js"
+      ],
+      "run_at": "document_end",
+      "matches": [
+        "https://*.zoom.us/*"
+      ]
     }
   ],
   "permissions": [
@@ -29,7 +38,8 @@
     "downloads"
   ],
   "host_permissions": [
-    "https://meet.google.com/*"
+    "https://meet.google.com/*",
+    "https://*.zoom.us/"
   ],
   "optional_permissions": [
     "notifications"
