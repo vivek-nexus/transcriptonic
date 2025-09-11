@@ -326,7 +326,7 @@ function main() {
    * @param {MutationRecord[]} mutationsList
    */
   function transcriptMutationCallback(mutationsList) {
-    mutationsList.forEach((mutation) => {
+    mutationsList.forEach(async (mutation) => {
       console.log(mutation)
 
       try {
@@ -354,7 +354,7 @@ function main() {
               currentPersonName = iframeDOM.querySelectorAll(`img[src="${avatarSrc}"]`)[0].parentElement.nextSibling.textContent
             }
             else {
-              currentPersonName = avatarSrc
+              currentPersonName = await getAvatarIdentifier(avatarSrc)
             }
           }
           else {
@@ -500,6 +500,31 @@ function main() {
 
     // No common suffix and prefix between the two strings. So the second string must be entirely new.
     return string2
+  }
+
+  async function getAvatarIdentifier(url) {
+    // Check if the URL is valid
+    if (!url || typeof url !== 'string') {
+      return 'invalid_url'
+    }
+
+    try {
+      // Encode the URL into a buffer
+      const msgUint8 = new TextEncoder().encode(url)
+
+      // Hash the URL using SHA-256
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8)
+
+      // Convert the hash buffer to a hexadecimal string
+      const hashArray = Array.from(new Uint8Array(hashBuffer))
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+
+      // Return the first 10 characters of the hash as the identifier
+      return hashHex.substring(0, 10)
+    } catch (error) {
+      console.error('Error hashing URL:', error)
+      return 'hashing_error'
+    }
   }
 
   // Pushes data in the buffer to transcript array as a transcript block
