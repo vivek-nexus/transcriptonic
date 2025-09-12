@@ -2,10 +2,30 @@
 /// <reference path="../types/chrome.d.ts" />
 /// <reference path="../types/index.js" />
 
-main()
+let isMainRunning = false
+
+setInterval(() => {
+  // Use a regular expression to match the URL pattern
+  const urlPattern = /^https:\/\/app\.zoom\.us\/wc\/\d+\/.+$/
+  const isUrlMatching = urlPattern.test(location.href)
+
+  // If on the URL and main is not running, call main
+  if (isUrlMatching && !isMainRunning) {
+    main()
+    isMainRunning = true
+  }
+  // Main already running on the right URL, don't do anything
+  else if (isUrlMatching && isMainRunning) {
+    return
+  }
+  // Not the right URL, so reset main for next visit
+  else {
+    isMainRunning = false
+  }
+}, 2000)
+
 
 function main() {
-  console.log("Hello Zoom")
 
   //*********** GLOBAL VARIABLES **********//
   /** @type {ExtensionStatusJSON} */
@@ -49,9 +69,6 @@ function main() {
   /** @type {ExtensionStatusJSON} */
   let extensionStatusJSON
 
-  let canUseAriaBasedTranscriptSelector = true
-
-
 
 
 
@@ -76,86 +93,32 @@ function main() {
 
   //*********** MAIN FUNCTIONS **********//
   checkExtensionStatus().finally(() => {
-    // Read the status JSON
-    chrome.storage.local.get(["extensionStatusJSON"], function (resultLocalUntyped) {
-      const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
-      extensionStatusJSON = resultLocal.extensionStatusJSON
-      console.log("Extension status " + extensionStatusJSON.status)
+    console.log("Extension status " + extensionStatusJSON.status)
 
-      // Enable extension functions only if status is 200
-      if (extensionStatusJSON.status === 200) {
-        // NON CRITICAL DOM DEPENDENCY. Attempt to get username before meeting starts. Abort interval if valid username is found or if meeting starts and default to "You".
-        // waitForElement(".awLEm").then(() => {
-        //   // Poll the element until the textContent loads from network or until meeting starts
-        //   const captureUserNameInterval = setInterval(() => {
-        //     if (!hasMeetingStarted) {
-        //       const capturedUserName = document.querySelector(".awLEm")?.textContent
-        //       if (capturedUserName) {
-        //         userName = capturedUserName
-        //         clearInterval(captureUserNameInterval)
-        //       }
-        //     }
-        //     else {
-        //       clearInterval(captureUserNameInterval)
-        //     }
-        //   }, 100)
-        // })
+    // Enable extension functions only if status is 200
+    if (extensionStatusJSON.status === 200) {
 
-        // 1. Meet UI prior to July/Aug 2024
-        // meetingRoutines(1)
-
-        // 2. Meet UI post July/Aug 2024
-        meetingRoutines(2)
-      }
-      else {
-        // Show downtime message as extension status is 400
-        showNotification(extensionStatusJSON)
-      }
-    })
+      meetingRoutines()
+    }
+    else {
+      // Show downtime message as extension status is 400
+      showNotification(extensionStatusJSON)
+    }
   })
 
 
-  /**
-   * @param {number} uiType
-   */
-  function meetingRoutines(uiType) {
-    const meetingEndIconData = {
-      selector: "",
-      text: ""
-    }
-    const captionsIconData = {
-      selector: "",
-      text: ""
-    }
-    // Different selector data for different UI versions
-    switch (uiType) {
-      case 1:
-        meetingEndIconData.selector = ".google-material-icons"
-        meetingEndIconData.text = "call_end"
-        captionsIconData.selector = ".material-icons-extended"
-        captionsIconData.text = "closed_caption_off"
-        break
-      case 2:
-        meetingEndIconData.selector = ".google-symbols"
-        meetingEndIconData.text = "call_end"
-        captionsIconData.selector = ".google-symbols"
-        captionsIconData.text = "closed_caption_off"
-      default:
-        break
-    }
 
+  function meetingRoutines() {
     waitForElement(document, "#webclient").then(() => {
       console.log(`Found iframe`)
-      /** @type {HTMLIFrameElement | null} */
-      const iframe = document.querySelector("#webclient")
+      const iframe = /** @type {HTMLIFrameElement | null} */ (document.querySelector("#webclient"))
 
-      iframe?.addEventListener("load", () => {
+      iframe && hasIframeLoaded(iframe).then(() => {
         console.log("Iframe loaded")
         const iframeDOM = iframe.contentDocument
 
         // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
-        // @ts-ignore
-        waitForElement(iframeDOM, "#audioOptionMenu").then(() => {
+        iframeDOM && waitForElement(iframeDOM, "#audioOptionMenu").then(() => {
           console.log("Meeting started")
           /** @type {ExtensionMessage} */
           const message = {
@@ -163,20 +126,18 @@ function main() {
           }
           chrome.runtime.sendMessage(message, function () { })
           hasMeetingStarted = true
-
-          alert("Please switch on captions")
+          // Update meeting startTimestamp
+          meetingStartTimestamp = new Date().toISOString()
+          overWriteChromeStorage(["meetingStartTimestamp"], false)
 
           //*********** MEETING START ROUTINES **********//
           updateMeetingTitle()
 
           /** @type {MutationObserver} */
           let transcriptObserver
-          /** @type {MutationObserver} */
-          let chatMessagesObserver
 
           // **** REGISTER TRANSCRIPT LISTENER **** //
           // Wait for transcript node to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
-          // @ts-ignore
           waitForElement(iframeDOM, ".live-transcription-subtitle__box").then(() => {
             console.log("Found captions container")
             // CRITICAL DOM DEPENDENCY. Grab the transcript element.
@@ -211,7 +172,6 @@ function main() {
           //*********** MEETING END ROUTINES **********//
           try {
             // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
-            // @ts-ignore
             selectElements(iframeDOM, ".footer__leave-btn-container")[0].firstChild.addEventListener("click", () => {
               console.log("Meeting ended")
               // To suppress further errors
@@ -226,9 +186,6 @@ function main() {
               }
               // Save to chrome storage and send message to download transcript from background script
               overWriteChromeStorage(["transcript", "chatMessages"], true)
-              setTimeout(() => {
-                location.reload()
-              }, 10000)
             })
           } catch (err) {
             console.error(err)
@@ -255,8 +212,8 @@ function main() {
       console.log(mutation)
 
       try {
-        /** @type {HTMLIFrameElement | null} */
-        const iframe = document.querySelector("#webclient")
+
+        const iframe = /** @type {HTMLIFrameElement | null} */ (document.querySelector("#webclient"))
         const iframeDOM = iframe?.contentDocument
         const transcriptTargetNode = iframeDOM?.querySelector(`.live-transcription-subtitle__box`)
 
@@ -264,27 +221,23 @@ function main() {
 
         if (currentPerson && currentPerson.childNodes.length > 1) {
           const currentTranscriptText = currentPerson.lastChild?.textContent
-          /** @type {HTMLElement | null} */
-          // @ts-ignore
-          const currentPersonElement = currentPerson.firstChild
+
+          const currentPersonElement =  /** @type {HTMLElement | null} */ (currentPerson.firstChild)
           let currentPersonName = ""
 
           if (currentPersonElement?.tagName === "IMG") {
             // @ts-ignore
             const avatarSrc = currentPersonElement.src
-            // @ts-ignore
-            const avatarElements = iframeDOM.querySelectorAll(`img[src="${avatarSrc}"]`)
-            if (avatarElements.length > 1) {
-              // @ts-ignore
-              currentPersonName = iframeDOM.querySelectorAll(`img[src="${avatarSrc}"]`)[0].parentElement.nextSibling.textContent
+            const avatarElements = iframeDOM?.querySelectorAll(`img[src="${avatarSrc}"]`)
+            if (avatarElements && avatarElements.length > 1) {
+              currentPersonName = /** @type {string} */ (iframeDOM?.querySelectorAll(`img[src="${avatarSrc}"]`)[0]?.parentElement?.nextSibling?.textContent)
             }
             else {
               currentPersonName = await getAvatarIdentifier(avatarSrc)
             }
           }
           else {
-            // @ts-ignore
-            currentPersonName = currentPersonElement?.textContent
+            currentPersonName = /** @type {string} */ (currentPersonElement?.textContent)
           }
 
 
@@ -378,6 +331,9 @@ function main() {
     return string2
   }
 
+  /**
+   * @param {string | undefined} url
+   */
   async function getAvatarIdentifier(url) {
     // Check if the URL is valid
     if (!url || typeof url !== 'string') {
@@ -403,17 +359,29 @@ function main() {
     }
   }
 
+  /**
+   * @param {HTMLIFrameElement} iframe
+   * @returns {Promise<boolean>}
+   */
+  function hasIframeLoaded(iframe) {
+    return new Promise((resolve) => {
+      if (iframe.contentDocument?.readyState) {
+        resolve(true)
+      }
+      else {
+        iframe?.addEventListener("load", () => {
+          resolve(true)
+        })
+      }
+    })
+  }
+
   // Pushes data in the buffer to transcript array as a transcript block
   function pushBufferToTranscript() {
     transcript.push({
       "personName": personNameBuffer === "You" ? userName : personNameBuffer,
       "timestamp": timestampBuffer,
       "transcriptText": transcriptTextBuffer
-    })
-
-    console.log("%cTRANSCRIPT", 'color: green; font-weight: bold;')
-    transcript.forEach((item) => {
-      console.log(`%c${item.personName}: ${item.transcriptText}`, 'color: green; font-weight: bold;')
     })
 
     overWriteChromeStorage(["transcript"], false)
@@ -466,23 +434,27 @@ function main() {
     z-index: 100;
     transition: background-color 0.3s ease-in
   `
+    const iframe = /** @type {HTMLIFrameElement} */ (document.querySelector("#webclient"))
+    const iframeDOM = iframe.contentDocument
 
-    /** @type {HTMLDivElement | null}*/
-    let activityStatus = document.querySelector(`#transcriptonic-status`)
-    if (!activityStatus) {
-      let html = document.querySelector("html")
-      activityStatus = document.createElement("div")
-      activityStatus.setAttribute("id", "transcriptonic-status")
-      activityStatus.style.cssText = `background-color: #2A9ACA; ${statusActivityCSS}`
-      html?.appendChild(activityStatus)
-    }
-    else {
-      activityStatus.style.cssText = `background-color: #2A9ACA; ${statusActivityCSS}`
-    }
+    if (iframeDOM) {
+      /** @type {HTMLDivElement | null}*/
+      let activityStatus = iframeDOM.querySelector(`#transcriptonic-status`)
+      if (!activityStatus) {
+        let html = iframeDOM.querySelector("html")
+        activityStatus = iframeDOM.createElement("div")
+        activityStatus.setAttribute("id", "transcriptonic-status")
+        activityStatus.style.cssText = `background-color: #2A9ACA; ${statusActivityCSS}`
+        html?.appendChild(activityStatus)
+      }
+      else {
+        activityStatus.style.cssText = `background-color: #2A9ACA; ${statusActivityCSS}`
+      }
 
-    setTimeout(() => {
-      activityStatus.style.cssText = `background-color: transparent; ${statusActivityCSS}`
-    }, 3000)
+      setTimeout(() => {
+        activityStatus.style.cssText = `background-color: transparent; ${statusActivityCSS}`
+      }, 3000)
+    }
   }
 
 
@@ -502,7 +474,7 @@ function main() {
    */
   function selectElements(iframe, selector, text) {
     var elements = iframe.querySelectorAll(selector)
-    return Array.prototype.filter.call(elements, function (element) {
+    return Array.prototype.filter.call(elements, function (/** @type {{ textContent: string; }} */ element) {
       return RegExp(text ? text : "").test(element.textContent)
     })
   }
@@ -534,38 +506,44 @@ function main() {
    * @param {ExtensionStatusJSON} extensionStatusJSON
    */
   function showNotification(extensionStatusJSON) {
-    // Banner CSS
-    let html = document.querySelector("html")
-    let obj = document.createElement("div")
-    let logo = document.createElement("img")
-    let text = document.createElement("p")
+    const iframe = /** @type {HTMLIFrameElement} */ (document.querySelector("#webclient"))
+    const iframeDOM = iframe.contentDocument
 
-    logo.setAttribute(
-      "src",
-      "https://ejnana.github.io/transcripto-status/icon.png"
-    )
-    logo.setAttribute("height", "32px")
-    logo.setAttribute("width", "32px")
-    logo.style.cssText = "border-radius: 4px"
+    if (iframeDOM) {
+      // Banner CSS
+      let html = iframeDOM.querySelector("html")
+      let obj = iframeDOM.createElement("div")
+      let logo = iframeDOM.createElement("img")
+      let text = iframeDOM.createElement("p")
 
-    // Remove banner after 5s
-    setTimeout(() => {
-      obj.style.display = "none"
-    }, 5000)
+      logo.setAttribute(
+        "src",
+        "https://ejnana.github.io/transcripto-status/icon.png"
+      )
+      logo.setAttribute("height", "32px")
+      logo.setAttribute("width", "32px")
+      logo.style.cssText = "border-radius: 4px"
+      text.style.cssText = "margin-top: 1rem; margin-bottom:1rem"
 
-    if (extensionStatusJSON.status === 200) {
-      obj.style.cssText = `color: #2A9ACA; ${commonCSS}`
-      text.innerHTML = extensionStatusJSON.message
+      // Remove banner once transcript is on
+      waitForElement(iframeDOM, ".live-transcription-subtitle__box").then(() => {
+        obj.style.display = "none"
+      })
+
+      if (extensionStatusJSON.status === 200) {
+        obj.style.cssText = `color: #2A9ACA; ${commonCSS}`
+        text.innerHTML = extensionStatusJSON.message
+      }
+      else {
+        obj.style.cssText = `color: orange; ${commonCSS}`
+        text.innerHTML = extensionStatusJSON.message
+      }
+
+      obj.prepend(text)
+      obj.prepend(logo)
+      if (html)
+        html.append(obj)
     }
-    else {
-      obj.style.cssText = `color: orange; ${commonCSS}`
-      text.innerHTML = extensionStatusJSON.message
-    }
-
-    obj.prepend(text)
-    obj.prepend(logo)
-    if (html)
-      html.append(obj)
   }
 
   // CSS for notification
@@ -587,7 +565,6 @@ function main() {
     gap: 16px;  
     font-size: 1rem; 
     line-height: 1.5; 
-    font-family: "Google Sans",Roboto,Arial,sans-serif; 
     box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;`
 
 
@@ -600,27 +577,52 @@ function main() {
     fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=${code}&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
   }
 
+  /**
+   * @param {string} oldVer
+   * @param {string} newVer
+   */
+  function meetsMinVersion(oldVer, newVer) {
+    const oldParts = oldVer.split('.')
+    const newParts = newVer.split('.')
+    for (var i = 0; i < newParts.length; i++) {
+      const a = ~~newParts[i] // parse int
+      const b = ~~oldParts[i] // parse int
+      if (a > b) return false
+      if (a < b) return true
+    }
+    return true
+  }
+
+
 
   // Fetches extension status from GitHub and saves to chrome storage. Defaults to 200, if remote server is unavailable.
   function checkExtensionStatus() {
     return new Promise((resolve, reject) => {
       // Set default value as 200
-      chrome.storage.local.set({
-        extensionStatusJSON: { status: 200, message: "<strong>TranscripTonic is running</strong> <br /> Do not turn off captions" },
-      })
+      extensionStatusJSON = { status: 200, message: "<strong>TranscripTonic is running</strong> <br /> Please switch on Zoom captions" }
 
       // https://stackoverflow.com/a/42518434
       fetch(
-        "https://ejnana.github.io/transcripto-status/status-prod-unpacked.json",
+        "https://script.google.com/macros/s/AKfycbxR5JrVay-WRSDmxTbJnmRiv68HhjMRwKRZgO0OlOmZx6xu10kx-4OZRee0noiNA1BZ/exec",
         { cache: "no-store" }
       )
         .then((response) => response.json())
         .then((result) => {
-          // Write status to chrome local storage
-          chrome.storage.local.set({ extensionStatusJSON: result }, function () {
-            console.log("Extension status fetched and saved")
-            resolve("Extension status fetched and saved")
-          })
+          const minVersion = result.minVersion
+
+          // Disable extension if extension is not of the required version
+          if (!meetsMinVersion(chrome.runtime.getManifest().version, minVersion)) {
+            extensionStatusJSON.status = 400
+            extensionStatusJSON.message = `<strong>TranscripTonic is not running</strong> <br /> Please update to v${minVersion} by following <a href="https://github.com/vivek-nexus/transcriptonic/wiki/Manually-update-TranscripTonic" target="_blank">these instructions</a>`
+          }
+          else {
+            // Update status based on response
+            extensionStatusJSON.status = result.status
+            extensionStatusJSON.message = result.message
+          }
+
+          console.log("Extension status fetched and saved")
+          resolve("Extension status fetched and saved")
         })
         .catch((err) => {
           console.error(err)
