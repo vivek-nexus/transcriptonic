@@ -10,6 +10,10 @@ const extensionStatusJSON_bug = {
   "message": `<strong>TranscripTonic encountered a new error</strong> <br /> Please report it <a href="https://github.com/vivek-nexus/transcriptonic/issues" target="_blank">here</a>.`
 }
 
+const statusUrl = chrome.runtime.getManifest().unpacked === true
+  ? "https://script.google.com/macros/s/AKfycbxgLpKemxFwKWTpFIQRUH1ciZ2s74UCv5mH7rnKbD7PT6J4gJrjO06EDFbU0C8_P8Js/exec"
+  : "https://script.google.com/macros/s/AKfycbw4ImUJmRZGgI2ymaSwW0QqFiZ1Cv50pXNCsnVu3664WZAq60nbFX_0yN4de2sq8KxH/exec"
+
 const reportErrorMessage = "There is a bug in TranscripTonic. Please report it at https://github.com/vivek-nexus/transcriptonic/issues"
 /** @type {MutationObserverInit} */
 const mutationConfig = { childList: true, attributes: true, subtree: true, characterData: true }
@@ -44,9 +48,6 @@ let hasMeetingEnded = false
 
 /** @type {ExtensionStatusJSON} */
 let extensionStatusJSON
-
-let canUseAriaBasedTranscriptSelector = true
-
 
 
 
@@ -160,7 +161,7 @@ function meetingRoutines(uiType) {
     let chatMessagesObserver
 
     // **** REGISTER TRANSCRIPT LISTENER **** //
-    // Wait for chat icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
+    // Wait for captions icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
     waitForElement(captionsIconData.selector, captionsIconData.text).then(() => {
       // CRITICAL DOM DEPENDENCY
       const captionsButton = selectElements(captionsIconData.selector, captionsIconData.text)[0]
@@ -176,21 +177,14 @@ function meetingRoutines(uiType) {
         }
       })
 
-      // Allow DOM to be updated and then register chatMessage mutation observer
+      // Allow DOM to be updated and then register transcript mutation observer
       waitForElement(`div[role="region"][tabindex="0"]`).then(() => {
         // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
         let transcriptTargetNode = document.querySelector(`div[role="region"][tabindex="0"]`)
-        // For old captions UI
-        // if (!transcriptTargetNode) {
-        //   transcriptTargetNode = document.querySelector(".a4cQT")
-        //   canUseAriaBasedTranscriptSelector = false
-        // }
 
         if (transcriptTargetNode) {
           // Attempt to dim down the transcript
-          canUseAriaBasedTranscriptSelector
-            ? transcriptTargetNode.setAttribute("style", "opacity:0.2")
-            : transcriptTargetNode.children[1].setAttribute("style", "opacity:0.2")
+          transcriptTargetNode.setAttribute("style", "opacity:0.2")
 
           // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
           transcriptObserver = new MutationObserver(transcriptMutationCallback)
@@ -306,17 +300,13 @@ function transcriptMutationCallback(mutationsList) {
   mutationsList.forEach(() => {
     try {
       // CRITICAL DOM DEPENDENCY. Get all people in the transcript
-      const people = canUseAriaBasedTranscriptSelector
-        ? document.querySelector(`div[role="region"][tabindex="0"]`)?.children
-        : document.querySelector(".a4cQT")?.childNodes[1]?.firstChild?.childNodes
+      const people = document.querySelector(`div[role="region"][tabindex="0"]`)?.children
 
       if (people) {
         /// In aria based selector case, the last people element is "Jump to bottom" button. So, pick up only if more than 1 element is available.
-        if (canUseAriaBasedTranscriptSelector ? (people.length > 1) : (people.length > 0)) {
+        if (people.length > 1) {
           // Get the last person
-          const person = canUseAriaBasedTranscriptSelector
-            ? people[people.length - 2]
-            : people[people.length - 1]
+          const person = people[people.length - 2]
           // CRITICAL DOM DEPENDENCY
           const currentPersonName = person.childNodes[0].textContent
           // CRITICAL DOM DEPENDENCY
@@ -343,24 +333,16 @@ function transcriptMutationCallback(mutationsList) {
               }
               // Same person speaking more
               else {
-                if (canUseAriaBasedTranscriptSelector) {
-                  // When the same person speaks for more than 30 min (approx), Meet drops very long transcript for current person and starts over, which is detected by current transcript string being significantly smaller than the previous one
-                  if ((currentTranscriptText.length - transcriptTextBuffer.length) < -250) {
-                    // Push the long transcript
-                    pushBufferToTranscript()
+                // When the same person speaks for more than 30 min (approx), Meet drops very long transcript for current person and starts over, which is detected by current transcript string being significantly smaller than the previous one
+                if ((currentTranscriptText.length - transcriptTextBuffer.length) < -250) {
+                  // Push the long transcript
+                  pushBufferToTranscript()
 
-                    // Store transcript block timestamp for next transcript block of same person
-                    timestampBuffer = new Date().toISOString()
-                  }
-                }
-                else {
-                  // If a person is speaking for a long time, Google Meet does not keep the entire text in the spans. Starting parts are automatically removed in an unpredictable way as the length increases and TranscripTonic will miss them. So we force remove a lengthy transcript node in a controlled way. Google Meet will add a fresh person node when we remove it and continue transcription. TranscripTonic picks it up as a new person and nothing is missed.
-                  if (currentTranscriptText.length > 250) {
-                    person.remove()
-                  }
+                  // Store transcript block timestamp for next transcript block of same person
+                  timestampBuffer = new Date().toISOString()
                 }
 
-                // Update buffers for next mutation. This has to be done irrespective of any condition.
+                // Update buffers for next mutation
                 transcriptTextBuffer = currentTranscriptText
               }
             }
@@ -689,7 +671,7 @@ function checkExtensionStatus() {
 
     // https://stackoverflow.com/a/42518434
     fetch(
-      "https://ejnana.github.io/transcripto-status/status-prod-unpacked.json",
+      statusUrl,
       { cache: "no-store" }
     )
       .then((response) => response.json())
