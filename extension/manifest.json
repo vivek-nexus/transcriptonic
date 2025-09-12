@@ -45,10 +45,9 @@
     "notifications"
   ],
   "optional_host_permissions": [
-    "https://*/*"
+    "*://*/*"
   ],
   "background": {
     "service_worker": "background.js"
-  },
-  "unpacked": false
+  }
 }
