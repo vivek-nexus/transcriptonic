@@ -10,10 +10,6 @@ const extensionStatusJSON_bug = {
   "message": `<strong>TranscripTonic encountered a new error</strong> <br /> Please report it <a href="https://github.com/vivek-nexus/transcriptonic/issues" target="_blank">here</a>.`
 }
 
-const statusUrl = chrome.runtime.getManifest().unpacked === true
-  ? "https://script.google.com/macros/s/AKfycbxgLpKemxFwKWTpFIQRUH1ciZ2s74UCv5mH7rnKbD7PT6J4gJrjO06EDFbU0C8_P8Js/exec"
-  : "https://script.google.com/macros/s/AKfycbw4ImUJmRZGgI2ymaSwW0QqFiZ1Cv50pXNCsnVu3664WZAq60nbFX_0yN4de2sq8KxH/exec"
-
 const reportErrorMessage = "There is a bug in TranscripTonic. Please report it at https://github.com/vivek-nexus/transcriptonic/issues"
 /** @type {MutationObserverInit} */
 const mutationConfig = { childList: true, attributes: true, subtree: true, characterData: true }
@@ -73,42 +69,38 @@ Promise.race([
 
 //*********** MAIN FUNCTIONS **********//
 checkExtensionStatus().finally(() => {
-  // Read the status JSON
-  chrome.storage.local.get(["extensionStatusJSON"], function (resultLocalUntyped) {
-    const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
-    extensionStatusJSON = resultLocal.extensionStatusJSON
-    console.log("Extension status " + extensionStatusJSON.status)
+  console.log("Extension status " + extensionStatusJSON.status)
 
-    // Enable extension functions only if status is 200
-    if (extensionStatusJSON.status === 200) {
-      // NON CRITICAL DOM DEPENDENCY. Attempt to get username before meeting starts. Abort interval if valid username is found or if meeting starts and default to "You".
-      waitForElement(".awLEm").then(() => {
-        // Poll the element until the textContent loads from network or until meeting starts
-        const captureUserNameInterval = setInterval(() => {
-          if (!hasMeetingStarted) {
-            const capturedUserName = document.querySelector(".awLEm")?.textContent
-            if (capturedUserName) {
-              userName = capturedUserName
-              clearInterval(captureUserNameInterval)
-            }
-          }
-          else {
+  // Enable extension functions only if status is 200
+  if (extensionStatusJSON.status === 200) {
+    // NON CRITICAL DOM DEPENDENCY. Attempt to get username before meeting starts. Abort interval if valid username is found or if meeting starts and default to "You".
+    waitForElement(".awLEm").then(() => {
+      // Poll the element until the textContent loads from network or until meeting starts
+      const captureUserNameInterval = setInterval(() => {
+        if (!hasMeetingStarted) {
+          const capturedUserName = document.querySelector(".awLEm")?.textContent
+          if (capturedUserName) {
+            userName = capturedUserName
             clearInterval(captureUserNameInterval)
           }
-        }, 100)
-      })
+        }
+        else {
+          clearInterval(captureUserNameInterval)
+        }
+      }, 100)
+    })
 
-      // 1. Meet UI prior to July/Aug 2024
-      // meetingRoutines(1)
+    // 1. Meet UI prior to July/Aug 2024
+    // meetingRoutines(1)
 
-      // 2. Meet UI post July/Aug 2024
-      meetingRoutines(2)
-    }
-    else {
-      // Show downtime message as extension status is 400
-      showNotification(extensionStatusJSON)
-    }
-  })
+    // 2. Meet UI post July/Aug 2024
+    meetingRoutines(2)
+  }
+  else {
+    // Show downtime message as extension status is 400
+    showNotification(extensionStatusJSON)
+  }
+
 })
 
 
@@ -150,6 +142,9 @@ function meetingRoutines(uiType) {
     }
     chrome.runtime.sendMessage(message, function () { })
     hasMeetingStarted = true
+    // Update meeting startTimestamp
+    meetingStartTimestamp = new Date().toISOString()
+    overWriteChromeStorage(["meetingStartTimestamp"], false)
 
 
     //*********** MEETING START ROUTINES **********//
@@ -660,27 +655,47 @@ function logError(code, err) {
   fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=${code}&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
 }
 
+function meetsMinVersion(oldVer, newVer) {
+  const oldParts = oldVer.split('.')
+  const newParts = newVer.split('.')
+  for (var i = 0; i < newParts.length; i++) {
+    const a = ~~newParts[i] // parse int
+    const b = ~~oldParts[i] // parse int
+    if (a > b) return false
+    if (a < b) return true
+  }
+  return true
+}
+
 
 // Fetches extension status from GitHub and saves to chrome storage. Defaults to 200, if remote server is unavailable.
 function checkExtensionStatus() {
   return new Promise((resolve, reject) => {
     // Set default value as 200
-    chrome.storage.local.set({
-      extensionStatusJSON: { status: 200, message: "<strong>TranscripTonic is running</strong> <br /> Do not turn off captions" },
-    })
+    extensionStatusJSON = { status: 200, message: "<strong>TranscripTonic is running</strong> <br /> Do not turn off captions" }
 
     // https://stackoverflow.com/a/42518434
     fetch(
-      statusUrl,
+      "https://script.google.com/macros/s/AKfycbx9Fe4MMsoDd-Z0Ngs3yeVXtBnY-bHawSLrppnL--42dIcDfNeX-fmUyTljplpXTk85/exec",
       { cache: "no-store" }
     )
       .then((response) => response.json())
       .then((result) => {
-        // Write status to chrome local storage
-        chrome.storage.local.set({ extensionStatusJSON: result }, function () {
-          console.log("Extension status fetched and saved")
-          resolve("Extension status fetched and saved")
-        })
+        const minVersion = result.minVersion
+
+        // Disable extension if extension is not of the required version
+        if (!meetsMinVersion(chrome.runtime.getManifest().version, minVersion)) {
+          extensionStatusJSON.status = 400
+          extensionStatusJSON.message = `<strong>TranscripTonic is not running</strong> <br /> Please update to v${minVersion} by following <a href="https://github.com/vivek-nexus/transcriptonic/wiki/Manually-update-TranscripTonic" target="_blank">these instructions</a>`
+        }
+        else {
+          // Update status based on response
+          extensionStatusJSON.status = result.status
+          extensionStatusJSON.message = result.message
+        }
+
+        console.log("Extension status fetched and saved")
+        resolve("Extension status fetched and saved")
       })
       .catch((err) => {
         console.error(err)
