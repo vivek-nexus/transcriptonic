@@ -49,5 +49,6 @@
   ],
   "background": {
     "service_worker": "background.js"
-  }
+  },
+  "unpacked": false
 }

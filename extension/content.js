@@ -10,6 +10,10 @@ const extensionStatusJSON_bug = {
   "message": `<strong>TranscripTonic encountered a new error</strong> <br /> Please report it <a href="https://github.com/vivek-nexus/transcriptonic/issues" target="_blank">here</a>.`
 }
 
+const statusUrl = chrome.runtime.getManifest().unpacked === true
+  ? "https://script.google.com/macros/s/AKfycbxgLpKemxFwKWTpFIQRUH1ciZ2s74UCv5mH7rnKbD7PT6J4gJrjO06EDFbU0C8_P8Js/exec"
+  : "https://script.google.com/macros/s/AKfycbw4ImUJmRZGgI2ymaSwW0QqFiZ1Cv50pXNCsnVu3664WZAq60nbFX_0yN4de2sq8KxH/exec"
+
 const reportErrorMessage = "There is a bug in TranscripTonic. Please report it at https://github.com/vivek-nexus/transcriptonic/issues"
 /** @type {MutationObserverInit} */
 const mutationConfig = { childList: true, attributes: true, subtree: true, characterData: true }
@@ -689,7 +693,7 @@ function checkExtensionStatus() {
 
     // https://stackoverflow.com/a/42518434
     fetch(
-      "https://ejnana.github.io/transcripto-status/status-prod-unpacked.json",
+      statusUrl,
       { cache: "no-store" }
     )
       .then((response) => response.json())
