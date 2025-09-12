@@ -38,9 +38,6 @@ function main() {
   /** @type {MutationObserverInit} */
   const mutationConfig = { childList: true, attributes: true, subtree: true, characterData: true }
 
-  // Name of the person attending the meeting
-  let userName = "You"
-
   // Transcript array that holds one or more transcript blocks
   /** @type {TranscriptBlock[]} */
   let transcript = []
@@ -212,7 +209,6 @@ function main() {
       console.log(mutation)
 
       try {
-
         const iframe = /** @type {HTMLIFrameElement | null} */ (document.querySelector("#webclient"))
         const iframeDOM = iframe?.contentDocument
         const transcriptTargetNode = iframeDOM?.querySelector(`.live-transcription-subtitle__box`)
@@ -233,7 +229,7 @@ function main() {
               currentPersonName = /** @type {string} */ (iframeDOM?.querySelectorAll(`img[src="${avatarSrc}"]`)[0]?.parentElement?.nextSibling?.textContent)
             }
             else {
-              currentPersonName = await getAvatarIdentifier(avatarSrc)
+              currentPersonName = "Person " + await getAvatarIdentifier(avatarSrc)
             }
           }
           else {
@@ -379,9 +375,9 @@ function main() {
   // Pushes data in the buffer to transcript array as a transcript block
   function pushBufferToTranscript() {
     transcript.push({
-      "personName": personNameBuffer === "You" ? userName : personNameBuffer,
+      "personName": personNameBuffer,
       "timestamp": timestampBuffer,
-      "transcriptText": transcriptTextBuffer
+      "transcriptText": transcriptTextBuffer.trim()
     })
 
     overWriteChromeStorage(["transcript"], false)
@@ -463,6 +459,7 @@ function main() {
     setTimeout(() => {
       // NON CRITICAL DOM DEPENDENCY
       meetingTitle = document.title
+      overWriteChromeStorage(["meetingTitle"], false)
     }, 5000)
   }
 
