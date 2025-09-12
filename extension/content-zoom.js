@@ -175,39 +175,15 @@ function main() {
           let chatMessagesObserver
 
           // **** REGISTER TRANSCRIPT LISTENER **** //
-          // Wait for chat icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
+          // Wait for transcript node to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
           // @ts-ignore
           waitForElement(iframeDOM, ".live-transcription-subtitle__box").then(() => {
             console.log("Found captions container")
-            // CRITICAL DOM DEPENDENCY
-            // const captionsButton = selectElements(captionsIconData.selector, captionsIconData.text)[0]
-
-            // Click captions icon for non manual operation modes. Async operation.
-            // chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
-            //   const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
-            //   if (resultSync.operationMode === "manual") {
-            //     console.log("Manual mode selected, leaving transcript off")
-            //   }
-            //   else {
-            //     captionsButton.click()
-            //   }
-            // })
-
-            // Allow DOM to be updated and then register chatMessage mutation observer
-            // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
+            // CRITICAL DOM DEPENDENCY. Grab the transcript element.
             let transcriptTargetNode = iframeDOM?.querySelector(`.live-transcription-subtitle__box`)
-            // For old captions UI
-            // if (!transcriptTargetNode) {
-            //   transcriptTargetNode = document.querySelector(".a4cQT")
-            //   canUseAriaBasedTranscriptSelector = false
-            // }
 
             if (transcriptTargetNode) {
               console.log("Registering mutation observer on .live-transcription-subtitle__box")
-              // Attempt to dim down the transcript
-              // canUseAriaBasedTranscriptSelector
-              //   ? transcriptTargetNode.setAttribute("style", "opacity:0.2")
-              //   : transcriptTargetNode.children[1].setAttribute("style", "opacity:0.2")
 
               // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
               transcriptObserver = new MutationObserver(transcriptMutationCallback)
@@ -227,58 +203,10 @@ function main() {
               logError("001", err)
             })
 
-
-          // **** REGISTER CHAT MESSAGES LISTENER **** //
-          // Wait for chat icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the chat icon is still not visible.
-          // waitForElement(".google-symbols", "chat").then(() => {
-          //   const chatMessagesButton = selectElements(".google-symbols", "chat")[0]
-          //   // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
-          //   chatMessagesButton.click()
-
-          //   // Allow DOM to be updated, close chat messages and then register chatMessage mutation observer
-          //   waitForElement(`div[aria-live="polite"].Ge9Kpc`).then(() => {
-          //     chatMessagesButton.click()
-          //     // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
-          //     try {
-          //       const chatMessagesTargetNode = document.querySelector(`div[aria-live="polite"].Ge9Kpc`)
-
-          //       // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
-          //       if (chatMessagesTargetNode) {
-          //         chatMessagesObserver = new MutationObserver(chatMessagesMutationCallback)
-          //         chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
-          //       }
-          //       else {
-          //         throw new Error("Chat messages element not found in DOM")
-          //       }
-          //     } catch (err) {
-          //       console.error(err)
-          //       isChatMessagesDomErrorCaptured = true
-          //       showNotification(extensionStatusJSON_bug)
-
-          //       logError("002", err)
-          //     }
-          //   })
-          // })
-          //   .catch((err) => {
-          //     console.error(err)
-          //     isChatMessagesDomErrorCaptured = true
-          //     showNotification(extensionStatusJSON_bug)
-
-          //     logError("003", err)
-          //   })
-
           // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
-          // if (!isTranscriptDomErrorCaptured && !isChatMessagesDomErrorCaptured) {
-          //   chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
-          //     const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
-          //     if (resultSync.operationMode === "manual") {
-          //       showNotification({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
-          //     }
-          //     else {
-          //       showNotification(extensionStatusJSON)
-          //     }
-          //   })
-          // }
+          if (!isTranscriptDomErrorCaptured) {
+            showNotification(extensionStatusJSON)
+          }
 
           //*********** MEETING END ROUTINES **********//
           try {
@@ -291,9 +219,6 @@ function main() {
               if (transcriptObserver) {
                 transcriptObserver.disconnect()
               }
-              // if (chatMessagesObserver) {
-              //   chatMessagesObserver.disconnect()
-              // }
 
               // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
               if ((personNameBuffer !== "") && (transcriptTextBuffer !== "")) {
@@ -396,15 +321,12 @@ function main() {
         }
 
         // Logs to indicate that the extension is working
-        console.log(`Person: ${personNameBuffer}`)
-        // if (transcriptTextBuffer.length > 125) {
-        //   console.log(transcriptTextBuffer.slice(0, 50) + " ... " + transcriptTextBuffer.slice(-50))
-        // }
-        // else {
-        console.log(`TBuffer: ${transcriptTextBuffer}`)
-        // }
-
-        // console.log(transcript)
+        if (transcriptTextBuffer.length > 125) {
+          console.log(transcriptTextBuffer.slice(0, 50) + " ... " + transcriptTextBuffer.slice(-50))
+        }
+        else {
+          console.log(transcriptTextBuffer)
+        }
       }
       catch (err) {
         console.error(err)
@@ -418,52 +340,6 @@ function main() {
       }
     })
   }
-
-  // Callback function to execute when chat messages mutations are observed. 
-  /**
-   * @param {MutationRecord[]} mutationsList
-   */
-  function chatMessagesMutationCallback(mutationsList) {
-    mutationsList.forEach(() => {
-      try {
-        // CRITICAL DOM DEPENDENCY
-        const chatMessagesElement = document.querySelector(`div[aria-live="polite"].Ge9Kpc`)
-        // Attempt to parse messages only if at least one message exists
-        if (chatMessagesElement && chatMessagesElement.children.length > 0) {
-          // CRITICAL DOM DEPENDENCY. Get the last message that was sent/received.
-          const chatMessageElement = chatMessagesElement.lastChild
-          // CRITICAL DOM DEPENDENCY
-          const personName = chatMessageElement?.firstChild?.firstChild?.textContent
-          const timestamp = new Date().toISOString()
-          // CRITICAL DOM DEPENDENCY. Some mutations will have some noisy text at the end, which is handled in pushUniqueChatBlock function.
-          const chatMessageText = chatMessageElement?.lastChild?.lastChild?.textContent
-
-          if (personName && chatMessageText) {
-            /**@type {ChatMessage} */
-            const chatMessageBlock = {
-              "personName": personName === "You" ? userName : personName,
-              "timestamp": timestamp,
-              "chatMessageText": chatMessageText
-            }
-
-            // Lot of mutations fire for each message, pick them only once
-            pushUniqueChatBlock(chatMessageBlock)
-          }
-        }
-      }
-      catch (err) {
-        console.error(err)
-        if (!isChatMessagesDomErrorCaptured && !hasMeetingEnded) {
-          console.log(reportErrorMessage)
-          showNotification(extensionStatusJSON_bug)
-
-          logError("006", err)
-        }
-        isChatMessagesDomErrorCaptured = true
-      }
-    })
-  }
-
 
 
 
@@ -541,22 +417,6 @@ function main() {
     })
 
     overWriteChromeStorage(["transcript"], false)
-  }
-
-  // Pushes object to array only if it doesn't already exist. chatMessage is checked for substring since some trailing text(keep Pin message) is present from a button that allows to pin the message.
-  /**
-   * @param {ChatMessage} chatBlock
-   */
-  function pushUniqueChatBlock(chatBlock) {
-    const isExisting = chatMessages.some(item =>
-      item.personName === chatBlock.personName &&
-      chatBlock.chatMessageText.includes(item.chatMessageText)
-    )
-    if (!isExisting) {
-      console.log(chatBlock)
-      chatMessages.push(chatBlock)
-      overWriteChromeStorage(["chatMessages"], false)
-    }
   }
 
   // Saves specified variables to chrome storage. Optionally, can send message to background script to download, post saving.
@@ -789,82 +649,3 @@ function main() {
     })
   }
 }
-
-
-
-
-
-// CURRENT GOOGLE MEET TRANSCRIPT DOM. TO BE UPDATED.
-
-{/* <div class="a4cQT kV7vwc eO2Zfd" jscontroller="D1tHje" jsaction="bz0DVc:HWTqGc;E18dRb:lUFH9b;QBUr8:lUFH9b;stc2ve:oh3Xke" style="">
-  // CAPTION LANGUAGE SETTINGS. MAY OR MAY NOT HAVE CHILDREN
-  <div class="NmXUuc  P9KVBf" jscontroller="rRafu" jsaction="F41Sec:tsH52e;OmFrlf:xfAI6e(zHUIdd)"></div>
-  <div class="DtJ7e">
-    <span class="frX3lc-vlkzWd  P9KVBf"></span>
-    <div jsname="dsyhDe" class="iOzk7 uYs2ee " style="">
-      //PERSON 1
-      <div class="nMcdL bj4p3b" style="">
-        <div class="adE6rb M6cG9d">
-          <img alt="" class="Z6byG r6DyN" src="https://lh3.googleusercontent.com/a/some-url" data-iml="63197.699999999255">
-            <div class="KcIKyf jxFHg">Person 1</div>
-        </div>
-        <div jsname="YSxPC" class="bYevke wY1pdd" style="height: 27.5443px;">
-          <div jsname="tgaKEf" class="bh44bd VbkSUe">
-            Some transcript text.
-            Some more text.</div>
-        </div>
-      </div>
-      //PERSON 2
-      <div class="nMcdL bj4p3b" style="">
-        <div class="adE6rb M6cG9d">
-          <img alt="" class="Z6byG r6DyN" src="https://lh3.googleusercontent.com/a/some-url" data-iml="63197.699999999255">
-            <div class="KcIKyf jxFHg">Person 2</div>
-        </div>
-        <div jsname="YSxPC" class="bYevke wY1pdd" style="height: 27.5443px;">
-          <div jsname="tgaKEf" class="bh44bd VbkSUe">
-            Some transcript text.
-            Some more text.</div>
-        </div>
-      </div>
-    </div>
-    <div jsname="APQunf" class="iOzk7 uYs2ee" style="display: none;">
-    </div>
-  </div>
-  <div jscontroller="mdnBv" jsaction="stc2ve:MO88xb;QBUr8:KNou4c">
-  </div>
-</div> */}
-
-// CURRENT GOOGLE MEET CHAT MESSAGES DOM
-{/* <div jsname="xySENc" aria-live="polite" jscontroller="Mzzivb" jsaction="nulN2d:XL2g4b;vrPT5c:XL2g4b;k9UrDc:ClCcUe"
-  class="Ge9Kpc z38b6">
-  <div class="Ss4fHf" jsname="Ypafjf" tabindex="-1" jscontroller="LQRnv"
-    jsaction="JIbuQc:sCzVOd(aUCive),T4Iwcd(g21v4c),yyLnsd(iJEnyb),yFT8A(RNMM1e),Cg1Rgf(EZbOH)" style="order: 0;">
-    <div class="QTyiie">
-      <div class="poVWob">You</div>
-      <div jsname="biJjHb" class="MuzmKe">17:00</div>
-    </div>
-    <div class="beTDc">
-      <div class="er6Kjc chmVPb">
-        <div class="ptNLrf">
-          <div jsname="dTKtvb">
-            <div jscontroller="RrV5Ic" jsaction="rcuQ6b:XZyPzc" data-is-tv="false">Hello</div>
-          </div>
-          <div class="pZBsfc">Hover over a message to pin it<i class="google-material-icons VfPpkd-kBDsod WRc1Nb"
-              aria-hidden="true">keep</i></div>
-          <div class="MMfG3b"><span tooltip-id="ucc-17"></span><span data-is-tooltip-wrapper="true"><button
-                class="VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c Brnbv pFZkBd" jscontroller="soHxf"
-                jsaction="click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue; touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc; touchcancel:JMtRjd; focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;mlnRJb:fLiPzd"
-                jsname="iJEnyb" data-disable-idom="true" aria-label="Pin message" data-tooltip-enabled="true"
-                data-tooltip-id="ucc-17" data-tooltip-x-position="3" data-tooltip-y-position="2" role="button"
-                data-message-id="1714476309237">
-                <div jsname="s3Eaab" class="VfPpkd-Bz112c-Jh9lGc"></div>
-                <div class="VfPpkd-Bz112c-J1Ukfc-LhBDec"></div><i class="google-material-icons VfPpkd-kBDsod VjEpdd"
-                  aria-hidden="true">keep</i>
-              </button>
-              <div class="EY8ABd-OWXEXe-TAWMXe" role="tooltip" aria-hidden="true" id="ucc-17">Pin message</div>
-            </span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div> */}
