@@ -56,11 +56,14 @@ let extensionStatusJSON
 Promise.race([
   recoverLastMeeting(),
   new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('Recovery timed out')), 2000)
+    setTimeout(() => reject({ errorCode: "016", errorMessage: "Recovery timed out" }), 2000)
   )
 ]).
   catch((error) => {
-    console.error(error)
+    const parsedError = /** @type {ErrorObject} */ (error)
+    if ((parsedError.errorCode !== "013") && (parsedError.errorCode !== "014")) {
+      console.error(parsedError.errorMessage)
+    }
   }).
   finally(() => {
     // Save current meeting data to chrome storage once recovery is complete or is aborted
@@ -495,8 +498,8 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
       }
       chrome.runtime.sendMessage(message, (responseUntyped) => {
         const response = /** @type {ExtensionResponse} */ (responseUntyped)
-        if (!response.success) {
-          console.error(response.message)
+        if ((!response.success) && (typeof response.message === 'object') && (response.message?.errorCode === "010")) {
+          console.error(response.message.errorMessage)
         }
       })
     }

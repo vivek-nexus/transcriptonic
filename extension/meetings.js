@@ -40,15 +40,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
                 else {
-                    if (response.message === "No meetings found. May be attend one?") {
+                    const parsedError = /** @type {ErrorObject} */ (response.message)
+                    if (parsedError.errorCode === "013") {
                         alert(response.message)
                     }
-                    else if (response.message === "Empty transcript and empty chatMessages") {
+                    if (parsedError.errorCode === "014") {
                         alert("Nothing to recover—you're on top of the world!")
                     }
                     else {
                         alert("Could not recover last meeting!")
-                        console.error(response.message)
+                        console.error(parsedError.errorMessage)
                     }
                 }
             })
@@ -227,6 +228,10 @@ function loadMeetings() {
                                 loadMeetings()
                                 if (!response.success) {
                                     alert("Could not download transcript")
+                                    const parsedError = /** @type {ErrorObject} */ (response.message)
+                                    if (typeof parsedError === 'object') {
+                                        console.error(parsedError.errorMessage)
+                                    }
                                 }
                             })
                         })
@@ -259,7 +264,10 @@ function loadMeetings() {
                                                 alert("Posted successfully!")
                                             }
                                             else {
-                                                console.error(response.message)
+                                                const parsedError = /** @type {ErrorObject} */ (response.message)
+                                                if (typeof parsedError === 'object') {
+                                                    console.error(parsedError.errorMessage)
+                                                }
                                             }
                                         })
                                     }).catch((error) => {

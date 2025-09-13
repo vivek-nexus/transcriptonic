@@ -39,8 +39,11 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
                     sendResponse(response)
                 })
                 .catch((error) => {
+                    // Fails with error codes: 009, 010, 011, 012, 013, 014
+                    const parsedError = /** @type {ErrorObject} */ (error)
+
                     /** @type {ExtensionResponse} */
-                    const response = { success: false, message: error }
+                    const response = { success: false, message: parsedError }
                     sendResponse(response)
                 })
                 .finally(() => {
@@ -59,14 +62,17 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
                     sendResponse(response)
                 })
                 .catch((error) => {
+                    // Fails with error codes: 009, 010
+                    const parsedError = /** @type {ErrorObject} */ (error)
+
                     /** @type {ExtensionResponse} */
-                    const response = { success: false, message: error }
+                    const response = { success: false, message: parsedError }
                     sendResponse(response)
                 })
         }
         else {
             /** @type {ExtensionResponse} */
-            const response = { success: false, message: "Invalid index" }
+            const response = { success: false, message: { errorCode: "015", errorMessage: "Invalid index" } }
             sendResponse(response)
         }
     }
@@ -81,15 +87,18 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
                     sendResponse(response)
                 })
                 .catch(error => {
+                    // Fails with error codes: 009, 010, 011, 012
+                    const parsedError = /** @type {ErrorObject} */ (error)
+
                     console.error("Webhook retry failed:", error)
                     /** @type {ExtensionResponse} */
-                    const response = { success: false, message: error }
+                    const response = { success: false, message: parsedError }
                     sendResponse(response)
                 })
         }
         else {
             /** @type {ExtensionResponse} */
-            const response = { success: false, message: "Invalid index" }
+            const response = { success: false, message: { errorCode: "015", errorMessage: "Invalid index" } }
             sendResponse(response)
         }
     }
@@ -101,8 +110,11 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
             sendResponse(response)
         })
             .catch((error) => {
+                // Fails with error codes: 009, 010, 011, 012, 013, 014
+                const parsedError = /** @type {ErrorObject} */ (error)
+
                 /** @type {ExtensionResponse} */
-                const response = { success: false, message: error }
+                const response = { success: false, message: parsedError }
                 sendResponse(response)
             })
     }
@@ -150,6 +162,7 @@ chrome.runtime.onUpdateAvailable.addListener(() => {
 
 // Download transcripts, post webhook if URL is enabled and available
 // Fails if transcript is empty or webhook request fails or if no meetings in storage
+/** @throws error codes: 009, 010, 011, 012, 013, 014 */
 function processLastMeeting() {
     return new Promise((resolve, reject) => {
         pickupLastMeetingFromStorage()
@@ -187,18 +200,25 @@ function processLastMeeting() {
                                 resolve("Meeting processing and download/webhook posting complete")
                             })
                             .catch(error => {
-                                console.error("Operation failed:", error)
-                                reject(error)
+                                // Fails with error codes: 009, 010, 011, 012
+                                const parsedError = /** @type {ErrorObject} */ (error)
+                                console.error("Operation failed:", parsedError.errorMessage)
+                                reject({ errorCode: parsedError.errorCode, errorMessage: parsedError.errorMessage })
                             })
                     })
                 })
             })
             .catch((error) => {
-                reject(error)
+                // Fails with error codes: 013, 014
+                const parsedError = /** @type {ErrorObject} */ (error)
+                reject({ errorCode: parsedError.errorCode, errorMessage: parsedError.errorMessage })
             })
     })
 }
 
+/**
+ * @throws error codes: 013, 014
+ */
 // Process transcript and chat messages of the meeting that just ended from storage, format them into strings, and save as a new entry in meetings (keeping last 10)
 function pickupLastMeetingFromStorage() {
     return new Promise((resolve, reject) => {
@@ -244,11 +264,11 @@ function pickupLastMeetingFromStorage() {
                     })
                 }
                 else {
-                    reject("Empty transcript and empty chatMessages")
+                    reject({ errorCode: "014", errorMessage: "Empty transcript and empty chatMessages" })
                 }
             }
             else {
-                reject("No meetings found. May be attend one?")
+                reject({ errorCode: "013", errorMessage: "No meetings found. May be attend one?" })
             }
         })
     })
@@ -259,6 +279,7 @@ function pickupLastMeetingFromStorage() {
 /**
  * @param {number} index
  * @param {boolean} isWebhookEnabled
+ * @throws error codes: 009, 010
  */
 function downloadTranscript(index, isWebhookEnabled) {
     return new Promise((resolve, reject) => {
@@ -346,12 +367,12 @@ function downloadTranscript(index, isWebhookEnabled) {
                         })
                     }
                     else {
-                        reject(new Error("Failed to read blob"))
+                        reject({ errorCode: "009", errorMessage: "Failed to read blob" })
                     }
                 }
             }
             else {
-                reject(new Error("Meeting at specified index not found"))
+                reject({ errorCode: "010", errorMessage: "Meeting at specified index not found" })
             }
         })
     })
@@ -359,6 +380,7 @@ function downloadTranscript(index, isWebhookEnabled) {
 
 /**
  * @param {number} index
+ * @throws error code: 010, 011, 012
  */
 function postTranscriptToWebhook(index) {
     return new Promise((resolve, reject) => {
@@ -435,17 +457,16 @@ function postTranscriptToWebhook(index) {
                                         }
                                     })
                                 })
-
-                                reject(error)
+                                reject({ errorCode: "011", errorMessage: error })
                             })
                         })
                     }
                     else {
-                        reject(new Error("Meeting at specified index not found"))
+                        reject({ errorCode: "010", errorMessage: "Meeting at specified index not found" })
                     }
                 }
                 else {
-                    reject(new Error("No webhook URL configured"))
+                    reject({ errorCode: "012", errorMessage: "No webhook URL configured" })
                 }
             })
         })
@@ -506,6 +527,7 @@ function clearTabIdAndApplyUpdate() {
     })
 }
 
+/** @throws error codes: 009, 010, 011, 012, 013, 014 */
 function recoverLastMeeting() {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get(["meetings", "meetingStartTimestamp"], function (resultLocalUntyped) {
@@ -523,8 +545,9 @@ function recoverLastMeeting() {
                     processLastMeeting().then(() => {
                         resolve("Recovered last meeting to the best possible extent")
                     }).catch((error) => {
-                        // Fails if transcript is empty or webhook request fails or user never attended any meetings
-                        reject(error)
+                        // Fails with error codes: 009, 010, 011, 013, 014
+                        const parsedError = /** @type {ErrorObject} */ (error)
+                        reject({ errorCode: parsedError.errorCode, errorMessage: parsedError.errorMessage })
                     })
                 }
                 else {
@@ -532,7 +555,7 @@ function recoverLastMeeting() {
                 }
             }
             else {
-                reject("No meetings found. May be attend one?")
+                reject({ errorCode: "013", errorMessage: "No meetings found. May be attend one?" })
             }
         })
     })
