@@ -176,7 +176,10 @@ function loadMeetings() {
 
                     const row = document.createElement("tr")
                     row.innerHTML = `
-                    <td>${meeting.meetingTitle || meeting.title || "Google Meet call"}</td>
+                    <td>
+                        ${meeting.meetingSoftware ? `<span title="${meeting.meetingSoftware}" aria-label="${meeting.meetingSoftware}" style="padding:0.1rem 0.25rem; margin-right:0.25rem; border: 1px solid white; border-radius: 0.25rem; font-size: small"><b>${meeting.meetingSoftware[0]}</b></span>` : ""} 
+                        ${meeting.meetingTitle || meeting.title || "Google Meet call"}
+                    </td>
                     <td>${timestamp} &nbsp; &#9679; &nbsp; ${durationString}</td>
                     <td>
                         ${(

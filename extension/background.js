@@ -203,6 +203,7 @@ function processLastMeeting() {
 function pickupLastMeetingFromStorage() {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get([
+            "meetingSoftware",
             "meetingTitle",
             "meetingStartTimestamp",
             "transcript",
@@ -215,6 +216,7 @@ function pickupLastMeetingFromStorage() {
                     // Create new transcript entry
                     /** @type {Meeting} */
                     const newMeetingEntry = {
+                        meetingSoftware: result.meetingSoftware ? result.meetingSoftware : "",
                         meetingTitle: result.meetingTitle,
                         meetingStartTimestamp: result.meetingStartTimestamp,
                         meetingEndTimestamp: new Date().toISOString(),
@@ -269,7 +271,7 @@ function downloadTranscript(index, isWebhookEnabled) {
                 // Sanitise meeting title to prevent invalid file name errors
                 // https://stackoverflow.com/a/78675894
                 const invalidFilenameRegex = /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/gui
-                let sanitisedMeetingTitle = "Google Meet call"
+                let sanitisedMeetingTitle = "Meeting"
                 if (meeting.meetingTitle) {
                     sanitisedMeetingTitle = meeting.meetingTitle.replaceAll(invalidFilenameRegex, "_")
                 }
@@ -281,7 +283,9 @@ function downloadTranscript(index, isWebhookEnabled) {
                 const timestamp = new Date(meeting.meetingStartTimestamp)
                 const formattedTimestamp = timestamp.toLocaleString("default", timeFormat).replace(/[\/:]/g, "-")
 
-                const fileName = `TranscripTonic/Transcript-${sanitisedMeetingTitle} at ${formattedTimestamp}.txt`
+                const prefix = meeting.meetingSoftware ? `${meeting.meetingSoftware} transcript` : "Transcript"
+
+                const fileName = `TranscripTonic/${prefix}-${sanitisedMeetingTitle} at ${formattedTimestamp} on.txt`
 
 
                 // Format transcript and chatMessages content
@@ -318,7 +322,7 @@ function downloadTranscript(index, isWebhookEnabled) {
                             resolve("Transcript downloaded successfully")
 
                             // Increment anonymous transcript generated count to a Google sheet
-                            fetch(`https://script.google.com/macros/s/AKfycbw4wRFjJcIoC5uDfscITSjNtUj83JVrBXKn44u9Cs0BoKNgyvt0A5hmG-xsJnlhfVu--g/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}`, {
+                            fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}&meetingSoftware=${meeting.meetingSoftware}`, {
                                 mode: "no-cors"
                             })
                         }).catch((err) => {
@@ -333,9 +337,10 @@ function downloadTranscript(index, isWebhookEnabled) {
                             resolve("Transcript downloaded successfully with default file name")
 
                             // Logs anonymous errors to a Google sheet for swift debugging   
-                            fetch(`https://script.google.com/macros/s/AKfycbw4wRFjJcIoC5uDfscITSjNtUj83JVrBXKn44u9Cs0BoKNgyvt0A5hmG-xsJnlhfVu--g/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
+                            fetch(`https://script.google.com/macros/s/AKfycbwN-bVkVv3YX4qvrEVwG9oSup0eEd3R22kgKahsQ3bCTzlXfRuaiO7sUVzH9ONfhL4wbA/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}&meetingSoftware=${meeting.meetingSoftware}`, { mode: "no-cors" })
+
                             // Increment anonymous transcript generated count to a Google sheet
-                            fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}`, {
+                            fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}&meetingSoftware=${meeting.meetingSoftware}`, {
                                 mode: "no-cors"
                             })
                         })
@@ -372,6 +377,7 @@ function postTranscriptToWebhook(index) {
                         if (resultSync.webhookBodyType === "advanced") {
                             webhookData = {
                                 webhookBodyType: "advanced",
+                                meetingSoftware: meeting.meetingSoftware ? meeting.meetingSoftware : "",
                                 meetingTitle: meeting.meetingTitle || meeting.title || "",
                                 meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toISOString(),
                                 meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toISOString(),
@@ -382,6 +388,7 @@ function postTranscriptToWebhook(index) {
                         else {
                             webhookData = {
                                 webhookBodyType: "simple",
+                                meetingSoftware: meeting.meetingSoftware ? meeting.meetingSoftware : "",
                                 meetingTitle: meeting.meetingTitle || meeting.title || "",
                                 meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
                                 meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toLocaleString("default", timeFormat).toUpperCase(),

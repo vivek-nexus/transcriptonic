@@ -28,6 +28,9 @@ let personNameBuffer = "", transcriptTextBuffer = "", timestampBuffer = ""
 /** @type {ChatMessage[]} */
 let chatMessages = []
 
+/** @type {MeetingSoftware} */
+const meetingSoftware = "Google Meet"
+
 // Capture meeting start timestamp, stored in ISO format
 let meetingStartTimestamp = new Date().toISOString()
 let meetingTitle = document.title
@@ -61,7 +64,7 @@ Promise.race([
   }).
   finally(() => {
     // Save current meeting data to chrome storage once recovery is complete or is aborted
-    overWriteChromeStorage(["meetingStartTimestamp", "meetingTitle", "transcript", "chatMessages"], false)
+    overWriteChromeStorage(["meetingSoftware", "meetingStartTimestamp", "meetingTitle", "transcript", "chatMessages"], false)
   })
 
 
@@ -359,7 +362,7 @@ function transcriptMutationCallback(mutationsList) {
 
       // Logs to indicate that the extension is working
       if (transcriptTextBuffer.length > 125) {
-        console.log(transcriptTextBuffer.slice(0, 50) + " ... " + transcriptTextBuffer.slice(-50))
+        console.log(transcriptTextBuffer.slice(0, 50) + "   ...   " + transcriptTextBuffer.slice(-50))
       }
       else {
         console.log(transcriptTextBuffer)
@@ -460,20 +463,23 @@ function pushUniqueChatBlock(chatBlock) {
 
 // Saves specified variables to chrome storage. Optionally, can send message to background script to download, post saving.
 /**
- * @param {Array<"transcript" | "meetingTitle" | "meetingStartTimestamp" | "chatMessages">} keys
+ * @param {Array<"meetingSoftware"  | "meetingTitle" | "meetingStartTimestamp" | "transcript" | "chatMessages">} keys
  * @param {boolean} sendDownloadMessage
  */
 function overWriteChromeStorage(keys, sendDownloadMessage) {
   const objectToSave = {}
   // Hard coded list of keys that are accepted
-  if (keys.includes("transcript")) {
-    objectToSave.transcript = transcript
+  if (keys.includes("meetingSoftware")) {
+    objectToSave.meetingSoftware = meetingSoftware
   }
   if (keys.includes("meetingTitle")) {
     objectToSave.meetingTitle = meetingTitle
   }
   if (keys.includes("meetingStartTimestamp")) {
     objectToSave.meetingStartTimestamp = meetingStartTimestamp
+  }
+  if (keys.includes("transcript")) {
+    objectToSave.transcript = transcript
   }
   if (keys.includes("chatMessages")) {
     objectToSave.chatMessages = chatMessages
@@ -652,7 +658,7 @@ const commonCSS = `background: rgb(255 255 255 / 10%);
  * @param {any} err
  */
 function logError(code, err) {
-  fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=${code}&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
+  fetch(`https://script.google.com/macros/s/AKfycbwN-bVkVv3YX4qvrEVwG9oSup0eEd3R22kgKahsQ3bCTzlXfRuaiO7sUVzH9ONfhL4wbA/exec?version=${chrome.runtime.getManifest().version}&code=${code}&error=${encodeURIComponent(err)}&meetingSoftware=${meetingSoftware}`, { mode: "no-cors" })
 }
 
 function meetsMinVersion(oldVer, newVer) {
@@ -683,7 +689,7 @@ function checkExtensionStatus() {
       .then((result) => {
         const minVersion = result.minVersion
 
-        // Disable extension if extension is not of the required version
+        // Disable extension if version is below the min version
         if (!meetsMinVersion(chrome.runtime.getManifest().version, minVersion)) {
           extensionStatusJSON.status = 400
           extensionStatusJSON.message = `<strong>TranscripTonic is not running</strong> <br /> Please update to v${minVersion} by following <a href="https://github.com/vivek-nexus/transcriptonic/wiki/Manually-update-TranscripTonic" target="_blank">these instructions</a>`

@@ -3,19 +3,38 @@
 /// <reference path="../types/index.js" />
 
 let isMainRunning = false
+// let isPromptShown = false
 
 setInterval(() => {
-  // Use a regular expression to match the URL pattern
-  const urlPattern = /^https:\/\/app\.zoom\.us\/wc\/\d+\/.+$/
-  const isUrlMatching = urlPattern.test(location.href)
+  // // Join page prompt
+  // const joinUrlPattern = /^https:\/\/.*\.zoom\.us\/s\/.*$/
+  // const isJoiningUrlMatching = joinUrlPattern.test(location.href)
+
+  // console.log(isJoiningUrlMatching)
+
+  // if (isJoiningUrlMatching && !isPromptShown) {
+  //   alert(`For TranscripTonic to work, please join the meeting in the browser and not the Zoom app. Click "Join" button again and cancel it. A button to join from browser will appear.`)
+  //   isPromptShown = true
+  // }
+
+  // else if (isJoiningUrlMatching && isPromptShown) {
+  //   return
+  // }
+  // else {
+  //   isPromptShown = false
+  // }
+
+  // Meeting page
+  const meetingUrlPattern = /^https:\/\/app\.zoom\.us\/wc\/\d+\/.+$/
+  const isMeetingUrlMatching = meetingUrlPattern.test(location.href)
 
   // If on the URL and main is not running, call main
-  if (isUrlMatching && !isMainRunning) {
+  if (isMeetingUrlMatching && !isMainRunning) {
     main()
     isMainRunning = true
   }
   // Main already running on the right URL, don't do anything
-  else if (isUrlMatching && isMainRunning) {
+  else if (isMeetingUrlMatching && isMainRunning) {
     return
   }
   // Not the right URL, so reset main for next visit
@@ -48,6 +67,9 @@ function main() {
   // Chat messages array that holds one or more chat messages of the meeting
   /** @type {ChatMessage[]} */
   let chatMessages = []
+
+  /** @type {MeetingSoftware} */
+  const meetingSoftware = "Zoom"
 
   // Capture meeting start timestamp, stored in ISO format
   let meetingStartTimestamp = new Date().toISOString()
@@ -82,7 +104,7 @@ function main() {
     }).
     finally(() => {
       // Save current meeting data to chrome storage once recovery is complete or is aborted
-      overWriteChromeStorage(["meetingStartTimestamp", "meetingTitle", "transcript", "chatMessages"], false)
+      overWriteChromeStorage(["meetingSoftware", "meetingStartTimestamp", "meetingTitle", "transcript", "chatMessages"], false)
     })
 
 
@@ -110,88 +132,92 @@ function main() {
       console.log(`Found iframe`)
       const iframe = /** @type {HTMLIFrameElement | null} */ (document.querySelector("#webclient"))
 
-      iframe && hasIframeLoaded(iframe).then(() => {
-        console.log("Iframe loaded")
-        const iframeDOM = iframe.contentDocument
+      if (iframe) {
+        hasIframeLoaded(iframe).then(() => {
+          console.log("Iframe loaded")
+          const iframeDOM = iframe.contentDocument
 
-        // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
-        iframeDOM && waitForElement(iframeDOM, "#audioOptionMenu").then(() => {
-          console.log("Meeting started")
-          /** @type {ExtensionMessage} */
-          const message = {
-            type: "new_meeting_started"
-          }
-          chrome.runtime.sendMessage(message, function () { })
-          hasMeetingStarted = true
-          // Update meeting startTimestamp
-          meetingStartTimestamp = new Date().toISOString()
-          overWriteChromeStorage(["meetingStartTimestamp"], false)
+          // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
+          if (iframeDOM) {
+            waitForElement(iframeDOM, "#audioOptionMenu").then(() => {
+              console.log("Meeting started")
+              /** @type {ExtensionMessage} */
+              const message = {
+                type: "new_meeting_started"
+              }
+              chrome.runtime.sendMessage(message, function () { })
+              hasMeetingStarted = true
+              // Update meeting startTimestamp
+              meetingStartTimestamp = new Date().toISOString()
+              overWriteChromeStorage(["meetingStartTimestamp"], false)
 
-          //*********** MEETING START ROUTINES **********//
-          updateMeetingTitle()
+              //*********** MEETING START ROUTINES **********//
+              updateMeetingTitle()
 
-          /** @type {MutationObserver} */
-          let transcriptObserver
+              /** @type {MutationObserver} */
+              let transcriptObserver
 
-          // **** REGISTER TRANSCRIPT LISTENER **** //
-          // Wait for transcript node to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
-          waitForElement(iframeDOM, ".live-transcription-subtitle__box").then(() => {
-            console.log("Found captions container")
-            // CRITICAL DOM DEPENDENCY. Grab the transcript element.
-            let transcriptTargetNode = iframeDOM?.querySelector(`.live-transcription-subtitle__box`)
+              // **** REGISTER TRANSCRIPT LISTENER **** //
+              // Wait for transcript node to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
+              waitForElement(iframeDOM, ".live-transcription-subtitle__box").then(() => {
+                console.log("Found captions container")
+                // CRITICAL DOM DEPENDENCY. Grab the transcript element.
+                let transcriptTargetNode = iframeDOM?.querySelector(`.live-transcription-subtitle__box`)
 
-            if (transcriptTargetNode) {
-              console.log("Registering mutation observer on .live-transcription-subtitle__box")
+                if (transcriptTargetNode) {
+                  console.log("Registering mutation observer on .live-transcription-subtitle__box")
 
-              // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
-              transcriptObserver = new MutationObserver(transcriptMutationCallback)
+                  // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
+                  transcriptObserver = new MutationObserver(transcriptMutationCallback)
 
-              // Start observing the transcript element and chat messages element for configured mutations
-              transcriptObserver.observe(transcriptTargetNode, mutationConfig)
-            }
-            else {
-              throw new Error("Transcript element not found in DOM")
-            }
-          })
-            .catch((err) => {
-              console.error(err)
-              isTranscriptDomErrorCaptured = true
-              showNotification(extensionStatusJSON_bug)
+                  // Start observing the transcript element and chat messages element for configured mutations
+                  transcriptObserver.observe(transcriptTargetNode, mutationConfig)
+                }
+                else {
+                  throw new Error("Transcript element not found in DOM")
+                }
+              })
+                .catch((err) => {
+                  console.error(err)
+                  isTranscriptDomErrorCaptured = true
+                  showNotification(extensionStatusJSON_bug)
 
-              logError("001", err)
-            })
+                  logError("001", err)
+                })
 
-          // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
-          if (!isTranscriptDomErrorCaptured) {
-            showNotification(extensionStatusJSON)
-          }
-
-          //*********** MEETING END ROUTINES **********//
-          try {
-            // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
-            selectElements(iframeDOM, ".footer__leave-btn-container")[0].firstChild.addEventListener("click", () => {
-              console.log("Meeting ended")
-              // To suppress further errors
-              hasMeetingEnded = true
-              if (transcriptObserver) {
-                transcriptObserver.disconnect()
+              // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
+              if (!isTranscriptDomErrorCaptured) {
+                showNotification(extensionStatusJSON)
               }
 
-              // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
-              if ((personNameBuffer !== "") && (transcriptTextBuffer !== "")) {
-                pushBufferToTranscript()
-              }
-              // Save to chrome storage and send message to download transcript from background script
-              overWriteChromeStorage(["transcript", "chatMessages"], true)
-            })
-          } catch (err) {
-            console.error(err)
-            showNotification(extensionStatusJSON_bug)
+              //*********** MEETING END ROUTINES **********//
+              try {
+                // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
+                selectElements(iframeDOM, ".footer__leave-btn-container")[0].firstChild.addEventListener("click", () => {
+                  console.log("Meeting ended")
+                  // To suppress further errors
+                  hasMeetingEnded = true
+                  if (transcriptObserver) {
+                    transcriptObserver.disconnect()
+                  }
 
-            logError("004", err)
+                  // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
+                  if ((personNameBuffer !== "") && (transcriptTextBuffer !== "")) {
+                    pushBufferToTranscript()
+                  }
+                  // Save to chrome storage and send message to download transcript from background script
+                  overWriteChromeStorage(["transcript", "chatMessages"], true)
+                })
+              } catch (err) {
+                console.error(err)
+                showNotification(extensionStatusJSON_bug)
+
+                logError("004", err)
+              }
+            })
           }
         })
-      })
+      }
     })
   }
 
@@ -206,8 +232,6 @@ function main() {
    */
   function transcriptMutationCallback(mutationsList) {
     mutationsList.forEach(async (mutation) => {
-      console.log(mutation)
-
       try {
         const iframe = /** @type {HTMLIFrameElement | null} */ (document.querySelector("#webclient"))
         const iframeDOM = iframe?.contentDocument
@@ -227,18 +251,22 @@ function main() {
             const avatarElements = iframeDOM?.querySelectorAll(`img[src="${avatarSrc}"]`)
             if (avatarElements && avatarElements.length > 1) {
               currentPersonName = /** @type {string} */ (iframeDOM?.querySelectorAll(`img[src="${avatarSrc}"]`)[0]?.parentElement?.nextSibling?.textContent)
+              // Store avatarSrc and name in local storage for future meetings
+              localStorage.setItem(avatarSrc, currentPersonName)
             }
             else {
-              currentPersonName = "Person " + await getAvatarIdentifier(avatarSrc)
+              // Try to read if avatarSrc and name is available in local storage 
+              if (localStorage.getItem(avatarSrc)) {
+                currentPersonName = /** @type {string} */ (localStorage.getItem(avatarSrc))
+              }
+              else {
+                currentPersonName = "Person " + await getAvatarIdentifier(avatarSrc)
+              }
             }
           }
           else {
             currentPersonName = /** @type {string} */ (currentPersonElement?.textContent)
           }
-
-
-          console.log("currentPersonName" + currentPersonName)
-          console.log("currentTranscriptText" + currentTranscriptText)
 
           if (currentPersonName && currentTranscriptText) {
             // Starting fresh in a meeting or resume from no active transcript
@@ -271,7 +299,7 @@ function main() {
 
         // Logs to indicate that the extension is working
         if (transcriptTextBuffer.length > 125) {
-          console.log(transcriptTextBuffer.slice(0, 50) + " ... " + transcriptTextBuffer.slice(-50))
+          console.log(transcriptTextBuffer.slice(0, 50) + "   ...   " + transcriptTextBuffer.slice(-50))
         }
         else {
           console.log(transcriptTextBuffer)
@@ -385,20 +413,23 @@ function main() {
 
   // Saves specified variables to chrome storage. Optionally, can send message to background script to download, post saving.
   /**
-   * @param {Array<"transcript" | "meetingTitle" | "meetingStartTimestamp" | "chatMessages">} keys
+   * @param {Array<"meetingSoftware"  | "meetingTitle" | "meetingStartTimestamp" | "transcript" | "chatMessages">} keys
    * @param {boolean} sendDownloadMessage
    */
   function overWriteChromeStorage(keys, sendDownloadMessage) {
     const objectToSave = {}
     // Hard coded list of keys that are accepted
-    if (keys.includes("transcript")) {
-      objectToSave.transcript = transcript
+    if (keys.includes("meetingSoftware")) {
+      objectToSave.meetingSoftware = meetingSoftware
     }
     if (keys.includes("meetingTitle")) {
       objectToSave.meetingTitle = meetingTitle
     }
     if (keys.includes("meetingStartTimestamp")) {
       objectToSave.meetingStartTimestamp = meetingStartTimestamp
+    }
+    if (keys.includes("transcript")) {
+      objectToSave.transcript = transcript
     }
     if (keys.includes("chatMessages")) {
       objectToSave.chatMessages = chatMessages
@@ -571,7 +602,7 @@ function main() {
    * @param {any} err
    */
   function logError(code, err) {
-    fetch(`https://script.google.com/macros/s/AKfycbxiyQSDmJuC2onXL7pKjXgELK1vA3aLGZL5_BLjzCp7fMoQ8opTzJBNfEHQX_QIzZ-j4Q/exec?version=${chrome.runtime.getManifest().version}&code=${code}&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
+    fetch(`https://script.google.com/macros/s/AKfycbwN-bVkVv3YX4qvrEVwG9oSup0eEd3R22kgKahsQ3bCTzlXfRuaiO7sUVzH9ONfhL4wbA/exec?version=${chrome.runtime.getManifest().version}&code=${code}&error=${encodeURIComponent(err)}&meetingSoftware=${meetingSoftware}`, { mode: "no-cors" })
   }
 
   /**
@@ -607,7 +638,7 @@ function main() {
         .then((result) => {
           const minVersion = result.minVersion
 
-          // Disable extension if extension is not of the required version
+          // Disable extension if version is below the min version
           if (!meetsMinVersion(chrome.runtime.getManifest().version, minVersion)) {
             extensionStatusJSON.status = 400
             extensionStatusJSON.message = `<strong>TranscripTonic is not running</strong> <br /> Please update to v${minVersion} by following <a href="https://github.com/vivek-nexus/transcriptonic/wiki/Manually-update-TranscripTonic" target="_blank">these instructions</a>`

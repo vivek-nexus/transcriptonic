@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "TranscripTonic",
   "version": "3.2.0",
-  "description": "Simple Google Meet transcripts. Private and open source.",
+  "description": "Simple Google Meet and Zoom transcripts. Private and open source.",
   "action": {
     "default_icon": "icon.png",
     "default_popup": "popup.html"

@@ -15,6 +15,7 @@
 /**
  * @typedef {Object} WebhookBody
  * @property {"simple" | "advanced"} webhookBodyType simple or advanced
+ * @property {MeetingSoftware} meetingSoftware
  * @property {string} meetingTitle title of the meeting
  * @property {string} meetingStartTimestamp ISO timestamp of when the meeting started
  * @property {string} meetingEndTimestamp ISO timestamp of when the meeting ended
@@ -29,6 +30,7 @@
  * @typedef {Object} ResultLocal Local chrome storage
  * @property {ExtensionStatusJSON} extensionStatusJSON
  * @property {MeetingTabId} meetingTabId
+ * @property {MeetingSoftware} meetingSoftware
  * @property {MeetingTitle} meetingTitle
  * @property {MeetingStartTimestamp} meetingStartTimestamp
  * @property {Transcript} transcript
@@ -44,6 +46,7 @@
 */
 /**
  * @typedef {Object} Meeting
+ * @property {MeetingSoftware} [meetingSoftware]
  * @property {string | undefined} [meetingTitle] title of the meeting
  * @property {string | undefined} [title] title of the meeting (this is older key for meetingTitle key, in v3.1.0)
  * @property {string} meetingStartTimestamp ISO timestamp of when the meeting started
@@ -51,6 +54,10 @@
  * @property {TranscriptBlock[] | []} transcript array containing transcript blocks from the meeting
  * @property {ChatMessage[] | []} chatMessages array containing chat messages from the meeting
  * @property {"new" | "failed" | "successful"} webhookPostStatus status of the webhook post request
+ */
+
+/**
+ * @typedef {"Google Meet" | "Zoom" | "" | undefined} MeetingSoftware Google Meet or Zoom or undefined.
  */
 /**
  * @typedef {number | "processing" | null} MeetingTabId tab id of the meeting tab, captured when meeting starts. A valid value or "processing" indicates that a meeting is in progress. Set to null once meeting ends and associated processing is complete.
