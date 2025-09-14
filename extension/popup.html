@@ -112,6 +112,12 @@
       border-color: #a0a0a0;
     }
 
+    .zoom {
+      margin-bottom: 1.5rem;
+      display: flex;
+      /* gap: 0.25rem; */
+    }
+
     .footer {
       margin-bottom: 2.75rem;
       display: flex;
@@ -138,7 +144,7 @@
         <div class="header-text">
           <h1>TranscripTonic</h1>
           <p class="header-description">
-            Simple Google Meet and Zoom transcripts. Private and open source.
+            Simple Google Meet transcripts. Private and open source.
           </p>
         </div>
         <img class="logo" src="./icon.png" alt="Extension icon" />
@@ -167,6 +173,13 @@
     </div>
 
     <div>
+      <div class="zoom" style="justify-content: flex-start;">
+        <p style="margin: 0;"><b>Zoom transcripts are in beta.</b></p>
+        <!-- <span class="footer-separator"></span> -->
+        <button id="enable-zoom">Enable</button>
+        <span>or&nbsp;&nbsp;</span>
+        <a href="https://github.com/vivek-nexus/transcriptonic/wiki/Zoom-beta-testing" target="_blank">learn more</a>.
+      </div>
       <div class="footer">
         <a href="./meetings.html" target="_blank">Last 10 meetings -></a>
         <div>

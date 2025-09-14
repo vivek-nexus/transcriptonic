@@ -1,5 +1,5 @@
 # TranscripTonic
-Simple Google Meet and Zoom transcripts. Private and open source.
+Simple Google Meet transcripts. Private and open source.
 
 ![marquee-large](/assets/marquee-large.png)
 

@@ -160,6 +160,46 @@ chrome.runtime.onUpdateAvailable.addListener(() => {
     })
 })
 
+chrome.permissions.onAdded.addListener((event) => {
+    console.log(event)
+    if (event.origins?.includes("https://*.zoom.us/*")) {
+        chrome.scripting
+            .getRegisteredContentScripts()
+            .then((scripts) => {
+                let isContentZoomRegistered = false
+                scripts.forEach((script) => {
+                    if (script.id === "content-zoom") {
+                        isContentZoomRegistered = true
+                        console.log("Zoom content script already registered")
+                    }
+                })
+
+                if (!isContentZoomRegistered) {
+                    chrome.scripting.registerContentScripts([{
+                        id: "content-zoom",
+                        js: ["content-zoom.js"],
+                        matches: ["https://*.zoom.us/*"],
+                        runAt: "document_end",
+                    }])
+                        .then(() => {
+                            console.log("Registered Zoom content script")
+                            chrome.permissions.contains({ permissions: ["notifications"] }).then(() => {
+                                chrome.notifications.create({
+                                    type: "basic",
+                                    iconUrl: "icon.png",
+                                    title: "Zoom transcripts enabled.",
+                                    message: "Please join Zoom meetings on the browser. Refresh any existing Zoom pages."
+                                })
+                            })
+                        })
+                        .catch((error) => {
+                            console.error(error)
+                        })
+                }
+            })
+    }
+})
+
 // Download transcripts, post webhook if URL is enabled and available
 // Fails if transcript is empty or webhook request fails or if no meetings in storage
 /** @throws error codes: 009, 010, 011, 012, 013, 014 */
