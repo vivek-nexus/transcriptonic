@@ -30,7 +30,7 @@ setInterval(() => {
 
   // If on the URL and main is not running, call main
   if (isMeetingUrlMatching && !isMainRunning) {
-    main()
+    zoom()
     isMainRunning = true
   }
   // Main already running on the right URL, don't do anything
@@ -44,7 +44,7 @@ setInterval(() => {
 }, 2000)
 
 
-function main() {
+function zoom() {
 
   //*********** GLOBAL VARIABLES **********//
   /** @type {ExtensionStatusJSON} */
@@ -196,7 +196,9 @@ function main() {
               //*********** MEETING END ROUTINES **********//
               try {
                 // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
-                selectElements(iframeDOM, ".footer__leave-btn-container")[0].firstChild.addEventListener("click", () => {
+                const endCallElement = selectElements(iframeDOM, ".footer__leave-btn-container")[0]
+                endCallElement.firstChild.addEventListener("click", function meetingEndRoutines() {
+                  endCallElement.removeEventListener("click", meetingEndRoutines)
                   console.log("Meeting ended")
                   // To suppress further errors
                   hasMeetingEnded = true
@@ -252,6 +254,7 @@ function main() {
             // @ts-ignore
             const avatarSrc = currentPersonElement.src
             const avatarElements = iframeDOM?.querySelectorAll(`img[src="${avatarSrc}"]`)
+            // Check if another image of same src exists on the page
             if (avatarElements && avatarElements.length > 1) {
               currentPersonName = /** @type {string} */ (iframeDOM?.querySelectorAll(`img[src="${avatarSrc}"]`)[0]?.parentElement?.nextSibling?.textContent)
               // Store avatarSrc and name in local storage for future meetings
@@ -556,18 +559,22 @@ function main() {
       logo.style.cssText = "border-radius: 4px"
       text.style.cssText = "margin-top: 1rem; margin-bottom:1rem"
 
-      // Remove banner once transcript is on
-      waitForElement(iframeDOM, ".live-transcription-subtitle__box").then(() => {
-        obj.style.display = "none"
-      })
-
       if (extensionStatusJSON.status === 200) {
         obj.style.cssText = `color: #2A9ACA; ${commonCSS}`
         text.innerHTML = extensionStatusJSON.message
+
+        // Remove banner once transcript is on
+        waitForElement(iframeDOM, ".live-transcription-subtitle__box").then(() => {
+          obj.style.display = "none"
+        })
       }
       else {
         obj.style.cssText = `color: orange; ${commonCSS}`
         text.innerHTML = extensionStatusJSON.message
+
+        setTimeout(() => {
+          obj.style.display = "none"
+        }, 5000)
       }
 
       obj.prepend(text)
@@ -578,7 +585,7 @@ function main() {
   }
 
   // CSS for notification
-  const commonCSS = `background: rgb(255 255 255 / 10%); 
+  const commonCSS = `background: rgb(255 255 255 / 100%); 
     backdrop-filter: blur(16px); 
     position: fixed;
     top: 5%; 
@@ -630,7 +637,7 @@ function main() {
   function checkExtensionStatus() {
     return new Promise((resolve, reject) => {
       // Set default value as 200
-      extensionStatusJSON = { status: 200, message: "<strong>TranscripTonic is running</strong> <br /> Please switch on Zoom captions" }
+      extensionStatusJSON = { status: 200, message: "TranscripTonic is ready <br /> <b>Please switch on Zoom captions to begin (More > Captions)</b>" }
 
       // https://stackoverflow.com/a/42518434
       fetch(

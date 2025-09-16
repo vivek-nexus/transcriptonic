@@ -633,7 +633,7 @@ function showNotification(extensionStatusJSON) {
 }
 
 // CSS for notification
-const commonCSS = `background: rgb(255 255 255 / 10%); 
+const commonCSS = `background: rgb(255 255 255 / 100%); 
     backdrop-filter: blur(16px); 
     position: fixed;
     top: 5%; 
@@ -664,6 +664,10 @@ function logError(code, err) {
   fetch(`https://script.google.com/macros/s/AKfycbwN-bVkVv3YX4qvrEVwG9oSup0eEd3R22kgKahsQ3bCTzlXfRuaiO7sUVzH9ONfhL4wbA/exec?version=${chrome.runtime.getManifest().version}&code=${code}&error=${encodeURIComponent(err)}&meetingSoftware=${meetingSoftware}`, { mode: "no-cors" })
 }
 
+/**
+ * @param {string} oldVer
+ * @param {string} newVer
+ */
 function meetsMinVersion(oldVer, newVer) {
   const oldParts = oldVer.split('.')
   const newParts = newVer.split('.')

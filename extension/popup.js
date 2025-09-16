@@ -6,7 +6,7 @@ window.onload = function () {
   const autoModeRadio = document.querySelector("#auto-mode")
   const manualModeRadio = document.querySelector("#manual-mode")
   const versionElement = document.querySelector("#version")
-  const enableZoom = document.querySelector("#enable-zoom")
+  const enableBeta = document.querySelector("#enable-beta")
 
 
   if (versionElement) {
@@ -36,33 +36,36 @@ window.onload = function () {
     }
   })
 
-  enableZoom?.addEventListener("click", () => {
-    chrome.scripting
-      .getRegisteredContentScripts()
-      .then((scripts) => {
-        let isContentZoomRegistered = false
-        scripts.forEach((script) => {
-          if (script.id === "content-zoom") {
-            isContentZoomRegistered = true
-            alert("Zoom transcripts are already enabled. Please join Zoom meetings on the browser. Refresh any existing Zoom pages.")
+  enableBeta?.addEventListener("click", () => {
+    chrome.permissions.request({
+      origins: ["https://*.zoom.us/*", "https://teams.live.com/*", "https://teams.microsoft.com/*"],
+      permissions: ["notifications"]
+    }).then((granted) => {
+      if (granted) {
+        /** @type {ExtensionMessage} */
+        const message = {
+          type: "register_content_scripts",
+        }
+        chrome.runtime.sendMessage(message, (responseUntyped) => {
+          const response = /** @type {ExtensionResponse} */ (responseUntyped)
+          // Prevent alert as well as notification from background script
+          if (response.success) {
+            if (response.message !== "Zoom and Teams content scripts registered") {
+              alert("Already enabled! Go ahead, enjoy your day!")
+            }
+          }
+          else {
+            console.error(response.message)
+            alert("Failed to enable. Please try again.")
           }
         })
-
-        if (!isContentZoomRegistered) {
-          chrome.permissions.request({
-            origins: ["https://*.zoom.us/*"],
-            permissions: ["notifications"]
-          }).then((granted) => {
-            if (granted) {
-              alert("Zoom transcripts enabled")
-            } else {
-              alert("Permission denied")
-            }
-          }).catch((error) => {
-            console.error(error)
-            alert("Could not enable Zoom transcripts")
-          })
-        }
-      })
+      }
+      else {
+        alert("Permission denied")
+      }
+    }).catch((error) => {
+      console.error(error)
+      alert("Could not enable Zoom and Teams transcripts")
+    })
   })
 }

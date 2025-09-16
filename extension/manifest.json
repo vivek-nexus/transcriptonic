@@ -37,7 +37,9 @@
   ],
   "optional_host_permissions": [
     "*://*/*",
-    "https://*.zoom.us/"
+    "https://*.zoom.us/",
+    "https://teams.live.com/*",
+    "https://teams.microsoft.com/*"
   ],
   "background": {
     "service_worker": "background.js"

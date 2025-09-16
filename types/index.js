@@ -57,7 +57,7 @@
  */
 
 /**
- * @typedef {"Google Meet" | "Zoom" | "" | undefined} MeetingSoftware Google Meet or Zoom or undefined.
+ * @typedef {"Google Meet" | "Zoom" | "Teams" | "" | undefined} MeetingSoftware Google Meet or Zoom or undefined.
  */
 /**
  * @typedef {number | "processing" | null} MeetingTabId tab id of the meeting tab, captured when meeting starts. A valid value or "processing" indicates that a meeting is in progress. Set to null once meeting ends and associated processing is complete.
@@ -107,7 +107,7 @@
 
 /**
  * @typedef {Object} ExtensionMessage Message sent by the calling script
- * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "retry_webhook_at_index" | "recover_last_meeting"} type type of message
+ * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "retry_webhook_at_index" | "recover_last_meeting" | "register_content_scripts"} type type of message
  * @property {number} [index] index of the meeting to process
  */
 

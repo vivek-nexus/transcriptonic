@@ -118,6 +118,23 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
                 sendResponse(response)
             })
     }
+
+    if (message.type === "register_content_scripts") {
+        registerContentScripts().then((message) => {
+            /** @type {ExtensionResponse} */
+            const response = { success: true, message: message }
+            sendResponse(response)
+        })
+            .catch((error) => {
+                // Fails with error codes: not defined
+                const parsedError = /** @type {ErrorObject} */ (error)
+
+                /** @type {ExtensionResponse} */
+                const response = { success: false, message: parsedError }
+                sendResponse(response)
+            })
+    }
+
     return true
 })
 
@@ -160,44 +177,8 @@ chrome.runtime.onUpdateAvailable.addListener(() => {
     })
 })
 
-chrome.permissions.onAdded.addListener((event) => {
-    console.log(event)
-    if (event.origins?.includes("https://*.zoom.us/*")) {
-        chrome.scripting
-            .getRegisteredContentScripts()
-            .then((scripts) => {
-                let isContentZoomRegistered = false
-                scripts.forEach((script) => {
-                    if (script.id === "content-zoom") {
-                        isContentZoomRegistered = true
-                        console.log("Zoom content script already registered")
-                    }
-                })
-
-                if (!isContentZoomRegistered) {
-                    chrome.scripting.registerContentScripts([{
-                        id: "content-zoom",
-                        js: ["content-zoom.js"],
-                        matches: ["https://*.zoom.us/*"],
-                        runAt: "document_end",
-                    }])
-                        .then(() => {
-                            console.log("Registered Zoom content script")
-                            chrome.permissions.contains({ permissions: ["notifications"] }).then(() => {
-                                chrome.notifications.create({
-                                    type: "basic",
-                                    iconUrl: "icon.png",
-                                    title: "Zoom transcripts enabled.",
-                                    message: "Please join Zoom meetings on the browser. Refresh any existing Zoom pages."
-                                })
-                            })
-                        })
-                        .catch((error) => {
-                            console.error(error)
-                        })
-                }
-            })
-    }
+chrome.permissions.onAdded.addListener(() => {
+    registerContentScripts()
 })
 
 // Download transcripts, post webhook if URL is enabled and available
@@ -598,5 +579,77 @@ function recoverLastMeeting() {
                 reject({ errorCode: "013", errorMessage: "No meetings found. May be attend one?" })
             }
         })
+    })
+}
+
+function registerContentScripts() {
+    return new Promise((resolve, reject) => {
+        chrome.scripting
+            .getRegisteredContentScripts()
+            .then((scripts) => {
+                let isContentZoomRegistered = false
+                let isContentTeamsRegistered = false
+                scripts.forEach((script) => {
+                    if (script.id === "content-zoom") {
+                        isContentZoomRegistered = true
+                        console.log("Zoom content script already registered")
+                    }
+                    if (script.id === "content-teams") {
+                        isContentTeamsRegistered = true
+                        console.log("Teams content script already registered")
+                    }
+                })
+
+                if (isContentTeamsRegistered && isContentTeamsRegistered) {
+                    resolve("Zoom and Teams content scripts already registered")
+                    return
+                }
+
+                const promises = []
+
+                if (!isContentZoomRegistered) {
+                    const zoomRegistrationPromise = chrome.scripting.registerContentScripts([{
+                        id: "content-zoom",
+                        js: ["content-zoom.js"],
+                        matches: ["https://*.zoom.us/*"],
+                        runAt: "document_end",
+                    }])
+                    promises.push(zoomRegistrationPromise)
+                }
+
+                if (!isContentTeamsRegistered) {
+                    const teamsRegistrationPromise = chrome.scripting.registerContentScripts([{
+                        id: "content-teams",
+                        js: ["content-teams.js"],
+                        matches: ["https://teams.live.com/*", "https://teams.live.com/*"],
+                        runAt: "document_end",
+                    }])
+                    promises.push(teamsRegistrationPromise)
+                }
+
+                Promise.all(promises)
+                    .then(() => {
+                        console.log("Both Zoom and Teams content scripts registered successfully.")
+                        resolve("Zoom and Teams content scripts registered")
+
+                        chrome.permissions.contains({
+                            permissions: ["notifications"]
+                        }).then((hasPermission) => {
+                            if (hasPermission) {
+                                chrome.notifications.create({
+                                    type: "basic",
+                                    iconUrl: "icon.png",
+                                    title: "Zoom and Teams transcripts enabled!",
+                                    message: "Please join Zoom/Teams meetings on the browser. Refresh any existing Zoom/Teams pages."
+                                })
+                            }
+                        })
+                    })
+                    .catch((error) => {
+                        // This block runs if EITHER Zoom OR Teams registration fails.
+                        console.error("One or more content script registrations failed.", error)
+                        reject("Failed to register one or more content scripts")
+                    })
+            })
     })
 }
