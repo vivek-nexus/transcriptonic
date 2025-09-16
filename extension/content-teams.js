@@ -503,7 +503,7 @@ function teams() {
 
       // https://stackoverflow.com/a/42518434
       fetch(
-        "https://script.google.com/macros/s/AKfycbxR5JrVay-WRSDmxTbJnmRiv68HhjMRwKRZgO0OlOmZx6xu10kx-4OZRee0noiNA1BZ/exec",
+        "https://script.google.com/macros/s/AKfycbwr745hTPXgsLs3ePpxXVoBzxhfLgJk5s8HaEobN4CL1rYWNzj_hV9Y6HZvbaxPv6GQ/exec",
         { cache: "no-store" }
       )
         .then((response) => response.json())
