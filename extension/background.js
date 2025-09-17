@@ -177,8 +177,10 @@ chrome.runtime.onUpdateAvailable.addListener(() => {
     })
 })
 
-chrome.permissions.onAdded.addListener(() => {
-    registerContentScripts()
+chrome.permissions.onAdded.addListener((event) => {
+    if (event.origins?.includes("https://*.zoom.us/*") && event.origins?.includes("https://teams.live.com/*") && event.origins?.includes("https://teams.microsoft.com/*")) {
+        registerContentScripts()
+    }
 })
 
 // Download transcripts, post webhook if URL is enabled and available
@@ -621,7 +623,7 @@ function registerContentScripts() {
                     const teamsRegistrationPromise = chrome.scripting.registerContentScripts([{
                         id: "content-teams",
                         js: ["content-teams.js"],
-                        matches: ["https://teams.live.com/*", "https://teams.live.com/*"],
+                        matches: ["https://teams.live.com/*", "https://teams.microsoft.com/"],
                         runAt: "document_end",
                     }])
                     promises.push(teamsRegistrationPromise)
