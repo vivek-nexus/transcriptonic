@@ -177,10 +177,20 @@ chrome.runtime.onUpdateAvailable.addListener(() => {
     })
 })
 
+// Register content scripts whenever runtime permission is provided by the user
 chrome.permissions.onAdded.addListener((event) => {
     if (event.origins?.includes("https://*.zoom.us/*") && event.origins?.includes("https://teams.live.com/*") && event.origins?.includes("https://teams.microsoft.com/*")) {
         registerContentScripts()
     }
+})
+
+// Re-register content scripts whenever extension in installed or updated, provided permissions are available
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.permissions.getAll().then((permissions) => {
+        if (permissions.origins?.includes("https://*.zoom.us/*") && permissions.origins?.includes("https://teams.live.com/*") && permissions.origins?.includes("https://teams.microsoft.com/*")) {
+            registerContentScripts(false)
+        }
+    })
 })
 
 // Download transcripts, post webhook if URL is enabled and available
@@ -584,7 +594,10 @@ function recoverLastMeeting() {
     })
 }
 
-function registerContentScripts() {
+/**
+ * @param {boolean} [showNotification]
+ */
+function registerContentScripts(showNotification = true) {
     return new Promise((resolve, reject) => {
         chrome.scripting
             .getRegisteredContentScripts()
@@ -634,18 +647,20 @@ function registerContentScripts() {
                         console.log("Both Zoom and Teams content scripts registered successfully.")
                         resolve("Zoom and Teams content scripts registered")
 
-                        chrome.permissions.contains({
-                            permissions: ["notifications"]
-                        }).then((hasPermission) => {
-                            if (hasPermission) {
-                                chrome.notifications.create({
-                                    type: "basic",
-                                    iconUrl: "icon.png",
-                                    title: "Zoom and Teams transcripts enabled!",
-                                    message: "Please join Zoom/Teams meetings on the browser. Refresh any existing Zoom/Teams pages."
-                                })
-                            }
-                        })
+                        if (showNotification) {
+                            chrome.permissions.contains({
+                                permissions: ["notifications"]
+                            }).then((hasPermission) => {
+                                if (hasPermission) {
+                                    chrome.notifications.create({
+                                        type: "basic",
+                                        iconUrl: "icon.png",
+                                        title: "Zoom and Teams transcripts enabled!",
+                                        message: "Please join Zoom/Teams meetings on the browser. Refresh any existing Zoom/Teams pages."
+                                    })
+                                }
+                            })
+                        }
                     })
                     .catch((error) => {
                         // This block runs if EITHER Zoom OR Teams registration fails.
