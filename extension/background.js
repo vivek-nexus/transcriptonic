@@ -39,8 +39,11 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
                     sendResponse(response)
                 })
                 .catch((error) => {
+                    // Fails with error codes: 009, 010, 011, 012, 013, 014
+                    const parsedError = /** @type {ErrorObject} */ (error)
+
                     /** @type {ExtensionResponse} */
-                    const response = { success: false, message: error }
+                    const response = { success: false, message: parsedError }
                     sendResponse(response)
                 })
                 .finally(() => {
@@ -59,14 +62,17 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
                     sendResponse(response)
                 })
                 .catch((error) => {
+                    // Fails with error codes: 009, 010
+                    const parsedError = /** @type {ErrorObject} */ (error)
+
                     /** @type {ExtensionResponse} */
-                    const response = { success: false, message: error }
+                    const response = { success: false, message: parsedError }
                     sendResponse(response)
                 })
         }
         else {
             /** @type {ExtensionResponse} */
-            const response = { success: false, message: "Invalid index" }
+            const response = { success: false, message: { errorCode: "015", errorMessage: "Invalid index" } }
             sendResponse(response)
         }
     }
@@ -81,15 +87,18 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
                     sendResponse(response)
                 })
                 .catch(error => {
-                    console.error("Webhook retry failed:", error)
+                    // Fails with error codes: 009, 010, 011, 012
+                    const parsedError = /** @type {ErrorObject} */ (error)
+
+                    console.error("Webhook retry failed:", parsedError)
                     /** @type {ExtensionResponse} */
-                    const response = { success: false, message: error }
+                    const response = { success: false, message: parsedError }
                     sendResponse(response)
                 })
         }
         else {
             /** @type {ExtensionResponse} */
-            const response = { success: false, message: "Invalid index" }
+            const response = { success: false, message: { errorCode: "015", errorMessage: "Invalid index" } }
             sendResponse(response)
         }
     }
@@ -101,11 +110,31 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
             sendResponse(response)
         })
             .catch((error) => {
+                // Fails with error codes: 009, 010, 011, 012, 013, 014
+                const parsedError = /** @type {ErrorObject} */ (error)
+
                 /** @type {ExtensionResponse} */
-                const response = { success: false, message: error }
+                const response = { success: false, message: parsedError }
                 sendResponse(response)
             })
     }
+
+    if (message.type === "register_content_scripts") {
+        registerContentScripts().then((message) => {
+            /** @type {ExtensionResponse} */
+            const response = { success: true, message: message }
+            sendResponse(response)
+        })
+            .catch((error) => {
+                // Fails with error codes: not defined
+                const parsedError = /** @type {ErrorObject} */ (error)
+
+                /** @type {ExtensionResponse} */
+                const response = { success: false, message: parsedError }
+                sendResponse(response)
+            })
+    }
+
     return true
 })
 
@@ -148,8 +177,25 @@ chrome.runtime.onUpdateAvailable.addListener(() => {
     })
 })
 
+// Register content scripts whenever runtime permission is provided by the user
+chrome.permissions.onAdded.addListener((event) => {
+    if (event.origins?.includes("https://*.zoom.us/*") && event.origins?.includes("https://teams.live.com/*") && event.origins?.includes("https://teams.microsoft.com/*")) {
+        registerContentScripts()
+    }
+})
+
+// Re-register content scripts whenever extension in installed or updated, provided permissions are available
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.permissions.getAll().then((permissions) => {
+        if (permissions.origins?.includes("https://*.zoom.us/*") && permissions.origins?.includes("https://teams.live.com/*") && permissions.origins?.includes("https://teams.microsoft.com/*")) {
+            registerContentScripts(false)
+        }
+    })
+})
+
 // Download transcripts, post webhook if URL is enabled and available
 // Fails if transcript is empty or webhook request fails or if no meetings in storage
+/** @throws error codes: 009, 010, 011, 012, 013, 014 */
 function processLastMeeting() {
     return new Promise((resolve, reject) => {
         pickupLastMeetingFromStorage()
@@ -187,22 +233,30 @@ function processLastMeeting() {
                                 resolve("Meeting processing and download/webhook posting complete")
                             })
                             .catch(error => {
-                                console.error("Operation failed:", error)
-                                reject(error)
+                                // Fails with error codes: 009, 010, 011, 012
+                                const parsedError = /** @type {ErrorObject} */ (error)
+                                console.error("Operation failed:", parsedError.errorMessage)
+                                reject({ errorCode: parsedError.errorCode, errorMessage: parsedError.errorMessage })
                             })
                     })
                 })
             })
             .catch((error) => {
-                reject(error)
+                // Fails with error codes: 013, 014
+                const parsedError = /** @type {ErrorObject} */ (error)
+                reject({ errorCode: parsedError.errorCode, errorMessage: parsedError.errorMessage })
             })
     })
 }
 
+/**
+ * @throws error codes: 013, 014
+ */
 // Process transcript and chat messages of the meeting that just ended from storage, format them into strings, and save as a new entry in meetings (keeping last 10)
 function pickupLastMeetingFromStorage() {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get([
+            "meetingSoftware",
             "meetingTitle",
             "meetingStartTimestamp",
             "transcript",
@@ -215,6 +269,7 @@ function pickupLastMeetingFromStorage() {
                     // Create new transcript entry
                     /** @type {Meeting} */
                     const newMeetingEntry = {
+                        meetingSoftware: result.meetingSoftware ? result.meetingSoftware : "",
                         meetingTitle: result.meetingTitle,
                         meetingStartTimestamp: result.meetingStartTimestamp,
                         meetingEndTimestamp: new Date().toISOString(),
@@ -242,11 +297,11 @@ function pickupLastMeetingFromStorage() {
                     })
                 }
                 else {
-                    reject("Empty transcript and empty chatMessages")
+                    reject({ errorCode: "014", errorMessage: "Empty transcript and empty chatMessages" })
                 }
             }
             else {
-                reject("No meetings found. May be attend one?")
+                reject({ errorCode: "013", errorMessage: "No meetings found. May be attend one?" })
             }
         })
     })
@@ -257,6 +312,7 @@ function pickupLastMeetingFromStorage() {
 /**
  * @param {number} index
  * @param {boolean} isWebhookEnabled
+ * @throws error codes: 009, 010
  */
 function downloadTranscript(index, isWebhookEnabled) {
     return new Promise((resolve, reject) => {
@@ -269,7 +325,7 @@ function downloadTranscript(index, isWebhookEnabled) {
                 // Sanitise meeting title to prevent invalid file name errors
                 // https://stackoverflow.com/a/78675894
                 const invalidFilenameRegex = /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/gui
-                let sanitisedMeetingTitle = "Google Meet call"
+                let sanitisedMeetingTitle = "Meeting"
                 if (meeting.meetingTitle) {
                     sanitisedMeetingTitle = meeting.meetingTitle.replaceAll(invalidFilenameRegex, "_")
                 }
@@ -281,7 +337,9 @@ function downloadTranscript(index, isWebhookEnabled) {
                 const timestamp = new Date(meeting.meetingStartTimestamp)
                 const formattedTimestamp = timestamp.toLocaleString("default", timeFormat).replace(/[\/:]/g, "-")
 
-                const fileName = `TranscripTonic/Transcript-${sanitisedMeetingTitle} at ${formattedTimestamp}.txt`
+                const prefix = meeting.meetingSoftware ? `${meeting.meetingSoftware} transcript` : "Transcript"
+
+                const fileName = `TranscripTonic/${prefix}-${sanitisedMeetingTitle} at ${formattedTimestamp} on.txt`
 
 
                 // Format transcript and chatMessages content
@@ -318,7 +376,7 @@ function downloadTranscript(index, isWebhookEnabled) {
                             resolve("Transcript downloaded successfully")
 
                             // Increment anonymous transcript generated count to a Google sheet
-                            fetch(`https://script.google.com/macros/s/AKfycbw4wRFjJcIoC5uDfscITSjNtUj83JVrBXKn44u9Cs0BoKNgyvt0A5hmG-xsJnlhfVu--g/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}`, {
+                            fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}&meetingSoftware=${meeting.meetingSoftware}`, {
                                 mode: "no-cors"
                             })
                         }).catch((err) => {
@@ -333,20 +391,21 @@ function downloadTranscript(index, isWebhookEnabled) {
                             resolve("Transcript downloaded successfully with default file name")
 
                             // Logs anonymous errors to a Google sheet for swift debugging   
-                            fetch(`https://script.google.com/macros/s/AKfycbw4wRFjJcIoC5uDfscITSjNtUj83JVrBXKn44u9Cs0BoKNgyvt0A5hmG-xsJnlhfVu--g/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}`, { mode: "no-cors" })
+                            fetch(`https://script.google.com/macros/s/AKfycbwN-bVkVv3YX4qvrEVwG9oSup0eEd3R22kgKahsQ3bCTzlXfRuaiO7sUVzH9ONfhL4wbA/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}&meetingSoftware=${meeting.meetingSoftware}`, { mode: "no-cors" })
+
                             // Increment anonymous transcript generated count to a Google sheet
-                            fetch(`https://script.google.com/macros/s/AKfycbzUk-q3N8_BWjwE90g9HXs5im1pYFriydKi1m9FoxEmMrWhK8afrHSmYnwYcw6AkH14eg/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}`, {
+                            fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}&meetingSoftware=${meeting.meetingSoftware}`, {
                                 mode: "no-cors"
                             })
                         })
                     }
                     else {
-                        reject(new Error("Failed to read blob"))
+                        reject({ errorCode: "009", errorMessage: "Failed to read blob" })
                     }
                 }
             }
             else {
-                reject(new Error("Meeting at specified index not found"))
+                reject({ errorCode: "010", errorMessage: "Meeting at specified index not found" })
             }
         })
     })
@@ -354,6 +413,7 @@ function downloadTranscript(index, isWebhookEnabled) {
 
 /**
  * @param {number} index
+ * @throws error code: 010, 011, 012
  */
 function postTranscriptToWebhook(index) {
     return new Promise((resolve, reject) => {
@@ -372,6 +432,7 @@ function postTranscriptToWebhook(index) {
                         if (resultSync.webhookBodyType === "advanced") {
                             webhookData = {
                                 webhookBodyType: "advanced",
+                                meetingSoftware: meeting.meetingSoftware ? meeting.meetingSoftware : "",
                                 meetingTitle: meeting.meetingTitle || meeting.title || "",
                                 meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toISOString(),
                                 meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toISOString(),
@@ -382,6 +443,7 @@ function postTranscriptToWebhook(index) {
                         else {
                             webhookData = {
                                 webhookBodyType: "simple",
+                                meetingSoftware: meeting.meetingSoftware ? meeting.meetingSoftware : "",
                                 meetingTitle: meeting.meetingTitle || meeting.title || "",
                                 meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
                                 meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
@@ -428,17 +490,16 @@ function postTranscriptToWebhook(index) {
                                         }
                                     })
                                 })
-
-                                reject(error)
+                                reject({ errorCode: "011", errorMessage: error })
                             })
                         })
                     }
                     else {
-                        reject(new Error("Meeting at specified index not found"))
+                        reject({ errorCode: "010", errorMessage: "Meeting at specified index not found" })
                     }
                 }
                 else {
-                    reject(new Error("No webhook URL configured"))
+                    reject({ errorCode: "012", errorMessage: "No webhook URL configured" })
                 }
             })
         })
@@ -499,6 +560,7 @@ function clearTabIdAndApplyUpdate() {
     })
 }
 
+/** @throws error codes: 009, 010, 011, 012, 013, 014 */
 function recoverLastMeeting() {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get(["meetings", "meetingStartTimestamp"], function (resultLocalUntyped) {
@@ -516,8 +578,9 @@ function recoverLastMeeting() {
                     processLastMeeting().then(() => {
                         resolve("Recovered last meeting to the best possible extent")
                     }).catch((error) => {
-                        // Fails if transcript is empty or webhook request fails or user never attended any meetings
-                        reject(error)
+                        // Fails with error codes: 009, 010, 011, 013, 014
+                        const parsedError = /** @type {ErrorObject} */ (error)
+                        reject({ errorCode: parsedError.errorCode, errorMessage: parsedError.errorMessage })
                     })
                 }
                 else {
@@ -525,8 +588,85 @@ function recoverLastMeeting() {
                 }
             }
             else {
-                reject("No meetings found. May be attend one?")
+                reject({ errorCode: "013", errorMessage: "No meetings found. May be attend one?" })
             }
         })
+    })
+}
+
+/**
+ * @param {boolean} [showNotification]
+ */
+function registerContentScripts(showNotification = true) {
+    return new Promise((resolve, reject) => {
+        chrome.scripting
+            .getRegisteredContentScripts()
+            .then((scripts) => {
+                let isContentZoomRegistered = false
+                let isContentTeamsRegistered = false
+                scripts.forEach((script) => {
+                    if (script.id === "content-zoom") {
+                        isContentZoomRegistered = true
+                        console.log("Zoom content script already registered")
+                    }
+                    if (script.id === "content-teams") {
+                        isContentTeamsRegistered = true
+                        console.log("Teams content script already registered")
+                    }
+                })
+
+                if (isContentTeamsRegistered && isContentTeamsRegistered) {
+                    resolve("Zoom and Teams content scripts already registered")
+                    return
+                }
+
+                const promises = []
+
+                if (!isContentZoomRegistered) {
+                    const zoomRegistrationPromise = chrome.scripting.registerContentScripts([{
+                        id: "content-zoom",
+                        js: ["content-zoom.js"],
+                        matches: ["https://*.zoom.us/*"],
+                        runAt: "document_end",
+                    }])
+                    promises.push(zoomRegistrationPromise)
+                }
+
+                if (!isContentTeamsRegistered) {
+                    const teamsRegistrationPromise = chrome.scripting.registerContentScripts([{
+                        id: "content-teams",
+                        js: ["content-teams.js"],
+                        matches: ["https://teams.live.com/*", "https://teams.microsoft.com/"],
+                        runAt: "document_end",
+                    }])
+                    promises.push(teamsRegistrationPromise)
+                }
+
+                Promise.all(promises)
+                    .then(() => {
+                        console.log("Both Zoom and Teams content scripts registered successfully.")
+                        resolve("Zoom and Teams content scripts registered")
+
+                        if (showNotification) {
+                            chrome.permissions.contains({
+                                permissions: ["notifications"]
+                            }).then((hasPermission) => {
+                                if (hasPermission) {
+                                    chrome.notifications.create({
+                                        type: "basic",
+                                        iconUrl: "icon.png",
+                                        title: "Zoom and Teams transcripts enabled!",
+                                        message: "Please join Zoom/Teams meetings on the browser. Refresh any existing Zoom/Teams pages."
+                                    })
+                                }
+                            })
+                        }
+                    })
+                    .catch((error) => {
+                        // This block runs if EITHER Zoom OR Teams registration fails.
+                        console.error("One or more content script registrations failed.", error)
+                        reject("Failed to register one or more content scripts")
+                    })
+            })
     })
 }

@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const simpleWebhookBodyRadio = document.querySelector("#simple-webhook-body")
     const advancedWebhookBodyRadio = document.querySelector("#advanced-webhook-body")
     const recoverLastMeetingButton = document.querySelector("#recover-last-meeting")
+    const showAllButton = document.querySelector("#show-all")
 
     // Initial load of transcripts
     loadMeetings()
@@ -19,6 +20,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (document.visibilityState === "visible") {
             loadMeetings()
         }
+    })
+
+    chrome.storage.onChanged.addListener(() => {
+        loadMeetings()
     })
 
     if (recoverLastMeetingButton instanceof HTMLButtonElement) {
@@ -40,15 +45,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
                 else {
-                    if (response.message === "No meetings found. May be attend one?") {
-                        alert(response.message)
+                    const parsedError = /** @type {ErrorObject} */ (response.message)
+                    if (parsedError.errorCode === "013") {
+                        alert(parsedError.errorMessage)
                     }
-                    else if (response.message === "Empty transcript and empty chatMessages") {
+                    else if (parsedError.errorCode === "014") {
                         alert("Nothing to recover—you're on top of the world!")
                     }
                     else {
                         alert("Could not recover last meeting!")
-                        console.error(response.message)
+                        console.error(parsedError.errorMessage)
                     }
                 }
             })
@@ -124,6 +130,14 @@ document.addEventListener("DOMContentLoaded", function () {
             chrome.storage.sync.set({ webhookBodyType: advancedWebhookBodyRadio.checked ? "advanced" : "simple" }, function () { })
         })
     }
+
+    if (showAllButton instanceof HTMLButtonElement) {
+        showAllButton.addEventListener("click", () => {
+            const meetingsTableContainer = document.querySelector("#meetings-table-container")
+            meetingsTableContainer?.classList.remove("fade-mask")
+            showAllButton.setAttribute("style", "display:none;")
+        })
+    }
 })
 
 
@@ -158,7 +172,7 @@ function requestWebhookAndNotificationPermission(url) {
 
 // Load and display recent transcripts
 function loadMeetings() {
-    const meetingsTable = document.querySelector("#transcripts-table")
+    const meetingsTable = document.querySelector("#meetings-table")
 
     chrome.storage.local.get(["meetings"], function (resultLocalUntyped) {
         const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
@@ -168,15 +182,21 @@ function loadMeetings() {
 
 
             if (resultLocal.meetings && resultLocal.meetings.length > 0) {
+                const meetings = resultLocal.meetings
                 // Loop through the array in reverse order to list latest meeting first
-                for (let i = resultLocal.meetings.length - 1; i >= 0; i--) {
-                    const meeting = resultLocal.meetings[i]
+                for (let i = meetings.length - 1; i >= 0; i--) {
+                    const meeting = meetings[i]
                     const timestamp = new Date(meeting.meetingStartTimestamp).toLocaleString()
                     const durationString = getDuration(meeting.meetingStartTimestamp, meeting.meetingEndTimestamp)
 
                     const row = document.createElement("tr")
                     row.innerHTML = `
-                    <td>${meeting.meetingTitle || meeting.title || "Google Meet call"}</td>
+                    <td>
+                        ${meeting.meetingTitle || meeting.title || "Google Meet call"}
+                    </td>
+                    <td>
+                     ${meeting.meetingSoftware ? meeting.meetingSoftware : ""} 
+                    </td>
                     <td>${timestamp} &nbsp; &#9679; &nbsp; ${durationString}</td>
                     <td>
                         ${(
@@ -208,6 +228,12 @@ function loadMeetings() {
                 `
                     meetingsTable.appendChild(row)
 
+                    const meetingsTableContainer = document.querySelector("#meetings-table-container")
+                    if (meetingsTableContainer && meetingsTableContainer.clientHeight > 320) {
+                        meetingsTableContainer?.classList.add("fade-mask")
+                        document.querySelector("#show-all")?.setAttribute("style", "display: block")
+                    }
+
                     // Add event listener to the webhook post button
                     const downloadButton = row.querySelector(".download-button")
                     if (downloadButton instanceof HTMLButtonElement) {
@@ -224,6 +250,10 @@ function loadMeetings() {
                                 loadMeetings()
                                 if (!response.success) {
                                     alert("Could not download transcript")
+                                    const parsedError = /** @type {ErrorObject} */ (response.message)
+                                    if (typeof parsedError === 'object') {
+                                        console.error(parsedError.errorMessage)
+                                    }
                                 }
                             })
                         })
@@ -256,7 +286,10 @@ function loadMeetings() {
                                                 alert("Posted successfully!")
                                             }
                                             else {
-                                                console.error(response.message)
+                                                const parsedError = /** @type {ErrorObject} */ (response.message)
+                                                if (typeof parsedError === 'object') {
+                                                    console.error(parsedError.errorMessage)
+                                                }
                                             }
                                         })
                                     }).catch((error) => {

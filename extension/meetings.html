@@ -8,6 +8,10 @@
     <style>
         @import url("https://fonts.googleapis.com/css2?family=SUSE:wght@400;700&display=swap");
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: "SUSE", sans-serif;
             padding: 1.5rem 3rem;
@@ -22,8 +26,8 @@
 
         .grid-container {
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 2rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
             align-items: start;
         }
 
@@ -32,7 +36,7 @@
         }
 
         .card {
-            grid-column: 1;
+            /* grid-column: 1; */
             background: rgba(255, 255, 255, 0.1);
             padding: 1.5rem 0rem;
             border-radius: 8px;
@@ -85,9 +89,9 @@
         }
 
 
-        /* .form-field:not(:last-of-type) {
+        .form-field:not(:last-of-type) {
             margin-bottom: 2rem;
-        } */
+        }
 
         hr {
             margin: 1.5rem 0rem;
@@ -116,7 +120,7 @@
             border: 1px solid #2A9ACA;
             border-radius: 4px 0px 0px 4px;
             background: rgba(255, 255, 255, 0.1);
-            color: white;
+            color: #C0C0C0;
             font-family: "SUSE", sans-serif;
             box-sizing: border-box;
         }
@@ -124,12 +128,11 @@
         .checkbox-group {
             display: flex;
             gap: 8px;
+            margin-bottom: -0.5rem;
         }
 
         input[type="checkbox"] {
             margin: 0;
-            margin-top: 0.15rem;
-            accent-color: #2A9ACA;
             width: 18px;
             height: 18px;
             cursor: pointer;
@@ -307,95 +310,142 @@
                 margin: 0;
             }
         }
+
+        #show-all {
+            display: block;
+            margin: 0 auto;
+            border-radius: 100px;
+            background: transparent;
+            color: #2A9ACA;
+            border: 1px solid #2A9ACA;
+            padding: 0.25rem 0.75rem;
+        }
+
+        .fade-mask {
+            mask-image: linear-gradient(to bottom, #071f29 0%, #071f29 90%, transparent 100%);
+            max-height: 20rem;
+            overflow-y: hidden;
+        }
+
+        section {
+            margin-bottom: 5rem;
+        }
     </style>
 </head>
 
 <body>
-    <h1>TranscripTonic</h1>
 
-    <div class="grid-container">
-        <div>
-            <h2>Last 10 meetings</h2>
-            <div class="transcripts-section">
+
+    <div style="margin: 0px auto; max-width: 1440px;">
+        <h1>TranscripTonic</h1>
+
+        <section id="last-10-meetings">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Last 10 meetings</h2>
+                <button id="recover-last-meeting">Recover last meeting</button>
+            </div>
+            <div id="meetings-table-container">
                 <table>
                     <thead>
                         <tr>
                             <th>Meeting title</th>
+                            <th>Meeting software</th>
                             <th>Meeting start time and duration</th>
                             <th>Webhook status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="transcripts-table">
+                    <tbody id="meetings-table">
                         <!-- Table content will be populated by JavaScript -->
                     </tbody>
                 </table>
-
-                <button id="recover-last-meeting">Recover last meeting</button>
             </div>
-        </div>
+            <button id="show-all" style="display: none;">Show
+                all</button>
+        </section>
 
-        <div>
-            <div class="webhook-section-heading">
-                <h2>Webhooks</h2>
-                <img src="./icons/webhook-white.svg" alt="" width="28px">
-            </div>
+        <section id="webhooks">
+            <h2 style="margin-bottom: 0;">Integrate TranscripTonic with your favourite tools</h2>
 
-            <div class="card">
-                <div class="webhook-header">
-                    <!-- <h3>Configure webhooks</h3> -->
-                    <p><b>Integrate TranscripTonic with your favourite tools</b></p>
+            <p style="margin-top: 0.5rem" class="sub-text">You can connect TranscripTonic directly to any tool that
+                supports webhooks.
+                If
+                it does not, you can use
+                automation tools like n8n as a bridge.</b></p>
+
+            <div class="grid-container">
+                <div class="card">
+                    <div class="webhook-header" style="display: flex; gap: 0.5rem; align-items: center;">
+                        <p class="card-heading">Configure webhook</p>
+                        <img src="./icons/webhook-white.svg" alt="" width="20px">
+                    </div>
+                    <form id="webhook-url-form" class="form-field">
+                        <label for="webhook-url">Webhook URL</label>
+                        <div class="input-group">
+                            <input type="url" id="webhook-url" placeholder="https://your-webhook-url.com">
+                            <button id="save-webhook">Save</button>
+                        </div>
+                    </form>
+
+                    <hr />
+
+                    <form class="form-field">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="auto-post-webhook" checked>
+                            <label for="auto-post-webhook">
+                                Automatically post transcript to webhook URL, after each meeting
+                            </label>
+                        </div>
+                    </form>
+
+                    <hr />
+
+                    <form class="form-field">
+                        <div class="radio-item">
+                            <input type="radio" name="webhook-body-type" id="simple-webhook-body" checked />
+                            <label for="simple-webhook-body"><b>Simple webhook body</b>
+                                <br /><span class="sub-text">Pre-formatted data, suitable for no-code
+                                    integrations</span>
+                            </label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" name="webhook-body-type" id="advanced-webhook-body" />
+                            <label for="advanced-webhook-body"><b>Advanced webhook body</b> <br />
+                                <span class="sub-text">Raw data, suitable for code integrations</span>
+                            </label>
+                        </div>
+                    </form>
                 </div>
 
-                <form id="webhook-url-form" class="form-field">
-                    <label for="webhook-url">Webhook URL</label>
-                    <div class="input-group">
-                        <input type="url" id="webhook-url" placeholder="https://your-webhook-url.com">
-                        <button id="save-webhook">Save</button>
+                <div>
+                    <div class="card">
+                        <p class="card-heading">Webhook integration guides</p>
+                        <div class="integration-card">
+                            <a class="integration-guide"
+                                href="https://github.com/vivek-nexus/transcriptonic/wiki/Google-Docs-integration-guide?utm_source=extension"
+                                target="_blank">
+                                <img src="./icons/guide.svg" alt="" width="16px">
+                                <p>Get transcripts on Google Docs</p>
+                            </a>
+                            <a class="integration-guide"
+                                href="https://github.com/vivek-nexus/transcriptonic/wiki/n8n-integration-guide?utm_source=extension"
+                                target="_blank">
+                                <img src="./icons/guide.svg" alt="" width="16px">
+                                <p>Using webhooks with n8n</p>
+                            </a>
+                        </div>
                     </div>
-                </form>
 
-                <hr />
-
-                <form class="form-field">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="auto-post-webhook" checked>
-                        <label for="auto-post-webhook">
-                            Automatically post transcript after each
-                            meeting, to webhook URL
-                        </label>
-                    </div>
-                </form>
-
-                <hr />
-
-                <form class="form-field">
-                    <div class="radio-item">
-                        <input type="radio" name="webhook-body-type" id="simple-webhook-body" checked />
-                        <label for="simple-webhook-body"><b>Simple webhook body</b>
-                            <br /><span class="sub-text">Pre-formatted data, suitable for no-code
-                                integrations</span>
-                        </label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="webhook-body-type" id="advanced-webhook-body" />
-                        <label for="advanced-webhook-body"><b>Advanced webhook body</b> <br />
-                            <span class="sub-text">Raw data, suitable for code integrations</span>
-                        </label>
-                    </div>
-                </form>
-            </div>
-
-
-            <div class="card">
-                <p class="card-heading">Webhook JSON body</p>
-                <details>
-                    <summary>Webhook body (simple)</summary>
-                    <div class="code-block accordion-content">
-                        <code>
+                    <div class="card">
+                        <p class="card-heading">Webhook JSON body</p>
+                        <details>
+                            <summary>Webhook body (simple)</summary>
+                            <div class="code-block accordion-content">
+                                <code>
                         <pre>
 {
     "webhookBodyType": "simple",
+    "meetingSoftware": "Google Meet",
     "meetingTitle": "Team meeting",
     "meetingStartTimestamp": "01/15/2024, 10:00 AM",
     "meetingEndTimestamp": "01/15/2024, 11:00 AM",
@@ -404,16 +454,17 @@
 }
 </pre>
                         </code>
-                    </div>
-                </details>
+                            </div>
+                        </details>
 
-                <details>
-                    <summary>Webhook body (advanced)</summary>
-                    <div class="code-block accordion-content">
-                        <code>
+                        <details>
+                            <summary>Webhook body (advanced)</summary>
+                            <div class="code-block accordion-content">
+                                <code>
                             <pre>
 {
     "webhookBodyType": "advanced",
+    "meetingSoftware": "Google Meet",
     "meetingTitle": "Team meeting",
     "meetingStartTimestamp": "2024-01-15T10:00:00.000Z",
     "meetingEndTimestamp": "2024-01-15T11:00:00.000Z",
@@ -444,26 +495,12 @@
 }
 </pre>
                     </code>
+                            </div>
+                        </details>
                     </div>
-                </details>
-                <hr />
-                <p class="card-heading">Helpful guides</p>
-                <div class="integration-card">
-                    <a class="integration-guide"
-                        href="https://github.com/vivek-nexus/transcriptonic/wiki/Google-Docs-integration-guide?utm_source=extension"
-                        target="_blank">
-                        <img src="./icons/guide.svg" alt="" width="16px">
-                        <p>Get transcripts on Google Docs</p>
-                    </a>
-                    <a class="integration-guide"
-                        href="https://github.com/vivek-nexus/transcriptonic/wiki/n8n-integration-guide?utm_source=extension"
-                        target="_blank">
-                        <img src="./icons/guide.svg" alt="" width="16px">
-                        <p>Using webhooks with n8n</p>
-                    </a>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 
     <script src="meetings.js"></script>
