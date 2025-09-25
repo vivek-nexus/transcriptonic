@@ -6,24 +6,6 @@ let isMainRunning = false
 // let isPromptShown = false
 
 setInterval(() => {
-  // // Join page prompt
-  // const joinUrlPattern = /^https:\/\/.*\.zoom\.us\/s\/.*$/
-  // const isJoiningUrlMatching = joinUrlPattern.test(location.href)
-
-  // console.log(isJoiningUrlMatching)
-
-  // if (isJoiningUrlMatching && !isPromptShown) {
-  //   alert(`For TranscripTonic to work, please join the meeting in the browser and not the Zoom app. Click "Join" button again and cancel it. A button to join from browser will appear.`)
-  //   isPromptShown = true
-  // }
-
-  // else if (isJoiningUrlMatching && isPromptShown) {
-  //   return
-  // }
-  // else {
-  //   isPromptShown = false
-  // }
-
   // Meeting page
   const meetingUrlPattern = /^https:\/\/app\.zoom\.us\/wc\/\d+\/.+$/
   const isMeetingUrlMatching = meetingUrlPattern.test(location.href)
@@ -632,7 +614,7 @@ function zoom() {
 
       // https://stackoverflow.com/a/42518434
       fetch(
-        "https://script.google.com/macros/s/AKfycbxR5JrVay-WRSDmxTbJnmRiv68HhjMRwKRZgO0OlOmZx6xu10kx-4OZRee0noiNA1BZ/exec",
+        "https://ejnana.github.io/transcripto-status/status-prod-zoom.json",
         { cache: "no-store" }
       )
         .then((response) => response.json())

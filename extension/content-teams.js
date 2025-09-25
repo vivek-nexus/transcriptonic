@@ -496,7 +496,7 @@ function teams() {
 
       // https://stackoverflow.com/a/42518434
       fetch(
-        "https://script.google.com/macros/s/AKfycbwr745hTPXgsLs3ePpxXVoBzxhfLgJk5s8HaEobN4CL1rYWNzj_hV9Y6HZvbaxPv6GQ/exec",
+        "https://ejnana.github.io/transcripto-status/status-prod-teams.json",
         { cache: "no-store" }
       )
         .then((response) => response.json())

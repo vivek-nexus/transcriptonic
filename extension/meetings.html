@@ -279,7 +279,7 @@
         }
 
         .card-heading {
-            margin: 0rem 1.5rem 0.5rem 1.5rem;
+            margin: 0rem 1.5rem 1.25rem 1.5rem;
             font-weight: bold;
         }
 
@@ -417,31 +417,28 @@
                     </form>
                 </div>
 
-                <div>
-                    <div class="card">
-                        <p class="card-heading">Webhook integration guides</p>
-                        <div class="integration-card">
-                            <a class="integration-guide"
-                                href="https://github.com/vivek-nexus/transcriptonic/wiki/Google-Docs-integration-guide?utm_source=extension"
-                                target="_blank">
-                                <img src="./icons/guide.svg" alt="" width="16px">
-                                <p>Get transcripts on Google Docs</p>
-                            </a>
-                            <a class="integration-guide"
-                                href="https://github.com/vivek-nexus/transcriptonic/wiki/n8n-integration-guide?utm_source=extension"
-                                target="_blank">
-                                <img src="./icons/guide.svg" alt="" width="16px">
-                                <p>Using webhooks with n8n</p>
-                            </a>
-                        </div>
+                <div class="card">
+                    <p class="card-heading">Webhook integration guides</p>
+                    <div class="integration-card">
+                        <a class="integration-guide"
+                            href="https://github.com/vivek-nexus/transcriptonic/wiki/Google-Docs-integration-guide?utm_source=extension"
+                            target="_blank">
+                            <img src="./icons/guide.svg" alt="" width="16px">
+                            <p>Get transcripts on Google Docs</p>
+                        </a>
+                        <a class="integration-guide"
+                            href="https://github.com/vivek-nexus/transcriptonic/wiki/n8n-integration-guide?utm_source=extension"
+                            target="_blank">
+                            <img src="./icons/guide.svg" alt="" width="16px">
+                            <p>Using webhooks with n8n</p>
+                        </a>
                     </div>
-
-                    <div class="card">
-                        <p class="card-heading">Webhook JSON body</p>
-                        <details>
-                            <summary>Webhook body (simple)</summary>
-                            <div class="code-block accordion-content">
-                                <code>
+                    <hr />
+                    <p class="card-heading">Webhook JSON body</p>
+                    <details>
+                        <summary>Webhook body (simple)</summary>
+                        <div class="code-block accordion-content">
+                            <code>
                         <pre>
 {
     "webhookBodyType": "simple",
@@ -454,13 +451,13 @@
 }
 </pre>
                         </code>
-                            </div>
-                        </details>
+                        </div>
+                    </details>
 
-                        <details>
-                            <summary>Webhook body (advanced)</summary>
-                            <div class="code-block accordion-content">
-                                <code>
+                    <details>
+                        <summary>Webhook body (advanced)</summary>
+                        <div class="code-block accordion-content">
+                            <code>
                             <pre>
 {
     "webhookBodyType": "advanced",
@@ -495,9 +492,8 @@
 }
 </pre>
                     </code>
-                            </div>
-                        </details>
-                    </div>
+                        </div>
+                    </details>
                 </div>
             </div>
         </section>

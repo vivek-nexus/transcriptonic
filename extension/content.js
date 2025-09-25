@@ -692,7 +692,7 @@ function checkExtensionStatus() {
 
     // https://stackoverflow.com/a/42518434
     fetch(
-      "https://script.google.com/macros/s/AKfycbx9Fe4MMsoDd-Z0Ngs3yeVXtBnY-bHawSLrppnL--42dIcDfNeX-fmUyTljplpXTk85/exec",
+      "https://ejnana.github.io/transcripto-status/status-prod-meet.json",
       { cache: "no-store" }
     )
       .then((response) => response.json())
