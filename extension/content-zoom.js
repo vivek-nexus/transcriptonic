@@ -162,12 +162,16 @@ function zoom() {
 
               // **** REGISTER TRANSCRIPT LISTENER **** //
               // Wait for transcript node to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
-              waitForElement(iframeDOM, ".live-transcription-subtitle__box").then(() => {
+              waitForElement(iframeDOM, ".live-transcription-subtitle__box").then((element) => {
                 console.log("Found captions container")
                 // CRITICAL DOM DEPENDENCY. Grab the transcript element.
-                let transcriptTargetNode = iframeDOM?.querySelector(`.live-transcription-subtitle__box`)
+                const transcriptTargetNode = element
 
                 if (transcriptTargetNode) {
+                  // Attempt to dim down the transcript
+                  // @ts-ignore
+                  transcriptTargetNode.style.opacity = "0.5"
+
                   console.log("Registering mutation observer on .live-transcription-subtitle__box")
 
                   // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
@@ -196,8 +200,8 @@ function zoom() {
               //*********** MEETING END ROUTINES **********//
               try {
                 // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
-                const endCallElement = selectElements(iframeDOM, ".footer__leave-btn-container")[0]
-                endCallElement.firstChild.addEventListener("click", function meetingEndRoutines() {
+                const endCallElement = iframeDOM.querySelector(".footer__leave-btn-container")
+                endCallElement?.firstChild?.addEventListener("click", function meetingEndRoutines() {
                   endCallElement.removeEventListener("click", meetingEndRoutines)
                   console.log("Meeting ended")
                   // To suppress further errors
@@ -498,19 +502,6 @@ function zoom() {
       meetingTitle = document.title
       overWriteChromeStorage(["meetingTitle"], false)
     }, 5000)
-  }
-
-  // Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the parents. 
-  /**
-   * @param {Document} iframe
-   * @param {string} selector
-   * @param {string | RegExp} [text]
-   */
-  function selectElements(iframe, selector, text) {
-    var elements = iframe.querySelectorAll(selector)
-    return Array.prototype.filter.call(elements, function (/** @type {{ textContent: string; }} */ element) {
-      return RegExp(text ? text : "").test(element.textContent)
-    })
   }
 
   // Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change

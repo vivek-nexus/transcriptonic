@@ -7,6 +7,7 @@ window.onload = function () {
   const manualModeRadio = document.querySelector("#manual-mode")
   const versionElement = document.querySelector("#version")
   const enableBeta = document.querySelector("#enable-beta")
+  // const notice = document.querySelector("#notice")
 
 
   if (versionElement) {
@@ -68,4 +69,8 @@ window.onload = function () {
       alert("Could not enable Zoom and Teams transcripts")
     })
   })
+
+  // notice?.addEventListener("click", () => {
+  //   alert("The transcript may not always be accurate and is only intended to aid in improving productivity. It is the responsibility of the user to ensure they comply with any applicable laws/rules.")
+  // })
 }

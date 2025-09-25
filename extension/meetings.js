@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const simpleWebhookBodyRadio = document.querySelector("#simple-webhook-body")
     const advancedWebhookBodyRadio = document.querySelector("#advanced-webhook-body")
     const recoverLastMeetingButton = document.querySelector("#recover-last-meeting")
+    const showAllButton = document.querySelector("#show-all")
 
     // Initial load of transcripts
     loadMeetings()
@@ -19,6 +20,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (document.visibilityState === "visible") {
             loadMeetings()
         }
+    })
+
+    chrome.storage.onChanged.addListener(() => {
+        loadMeetings()
     })
 
     if (recoverLastMeetingButton instanceof HTMLButtonElement) {
@@ -42,9 +47,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 else {
                     const parsedError = /** @type {ErrorObject} */ (response.message)
                     if (parsedError.errorCode === "013") {
-                        alert(response.message)
+                        alert(parsedError.errorMessage)
                     }
-                    if (parsedError.errorCode === "014") {
+                    else if (parsedError.errorCode === "014") {
                         alert("Nothing to recover—you're on top of the world!")
                     }
                     else {
@@ -125,6 +130,14 @@ document.addEventListener("DOMContentLoaded", function () {
             chrome.storage.sync.set({ webhookBodyType: advancedWebhookBodyRadio.checked ? "advanced" : "simple" }, function () { })
         })
     }
+
+    if (showAllButton instanceof HTMLButtonElement) {
+        showAllButton.addEventListener("click", () => {
+            const meetingsTableContainer = document.querySelector("#meetings-table-container")
+            meetingsTableContainer?.classList.remove("fade-mask")
+            showAllButton.setAttribute("style", "display:none;")
+        })
+    }
 })
 
 
@@ -159,7 +172,7 @@ function requestWebhookAndNotificationPermission(url) {
 
 // Load and display recent transcripts
 function loadMeetings() {
-    const meetingsTable = document.querySelector("#transcripts-table")
+    const meetingsTable = document.querySelector("#meetings-table")
 
     chrome.storage.local.get(["meetings"], function (resultLocalUntyped) {
         const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
@@ -169,17 +182,20 @@ function loadMeetings() {
 
 
             if (resultLocal.meetings && resultLocal.meetings.length > 0) {
+                const meetings = resultLocal.meetings
                 // Loop through the array in reverse order to list latest meeting first
-                for (let i = resultLocal.meetings.length - 1; i >= 0; i--) {
-                    const meeting = resultLocal.meetings[i]
+                for (let i = meetings.length - 1; i >= 0; i--) {
+                    const meeting = meetings[i]
                     const timestamp = new Date(meeting.meetingStartTimestamp).toLocaleString()
                     const durationString = getDuration(meeting.meetingStartTimestamp, meeting.meetingEndTimestamp)
 
                     const row = document.createElement("tr")
                     row.innerHTML = `
                     <td>
-                        ${meeting.meetingSoftware ? `<span title="${meeting.meetingSoftware}" aria-label="${meeting.meetingSoftware}" style="padding:0.1rem 0.25rem; margin-right:0.25rem; border: 1px solid white; border-radius: 0.25rem; font-size: small"><b>${meeting.meetingSoftware[0]}</b></span>` : ""} 
                         ${meeting.meetingTitle || meeting.title || "Google Meet call"}
+                    </td>
+                    <td>
+                     ${meeting.meetingSoftware ? meeting.meetingSoftware : ""} 
                     </td>
                     <td>${timestamp} &nbsp; &#9679; &nbsp; ${durationString}</td>
                     <td>
@@ -211,6 +227,12 @@ function loadMeetings() {
                     </td>
                 `
                     meetingsTable.appendChild(row)
+
+                    const meetingsTableContainer = document.querySelector("#meetings-table-container")
+                    if (meetingsTableContainer && meetingsTableContainer.clientHeight > 320) {
+                        meetingsTableContainer?.classList.add("fade-mask")
+                        document.querySelector("#show-all")?.setAttribute("style", "display: block")
+                    }
 
                     // Add event listener to the webhook post button
                     const downloadButton = row.querySelector(".download-button")

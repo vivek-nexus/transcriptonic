@@ -90,7 +90,7 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
                     // Fails with error codes: 009, 010, 011, 012
                     const parsedError = /** @type {ErrorObject} */ (error)
 
-                    console.error("Webhook retry failed:", error)
+                    console.error("Webhook retry failed:", parsedError)
                     /** @type {ExtensionResponse} */
                     const response = { success: false, message: parsedError }
                     sendResponse(response)

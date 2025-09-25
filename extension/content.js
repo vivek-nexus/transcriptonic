@@ -181,7 +181,7 @@ function meetingRoutines(uiType) {
       // Allow DOM to be updated and then register transcript mutation observer
       waitForElement(`div[role="region"][tabindex="0"]`).then(() => {
         // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
-        let transcriptTargetNode = document.querySelector(`div[role="region"][tabindex="0"]`)
+        const transcriptTargetNode = document.querySelector(`div[role="region"][tabindex="0"]`)
 
         if (transcriptTargetNode) {
           // Attempt to dim down the transcript
@@ -307,7 +307,10 @@ function transcriptMutationCallback(mutationsList) {
         /// In aria based selector case, the last people element is "Jump to bottom" button. So, pick up only if more than 1 element is available.
         if (people.length > 1) {
           // Get the last person
-          const person = people[people.length - 2]
+          let person = people[people.length - 2]
+          if (!person) {
+            person = people[people.length - 3]
+          }
           // CRITICAL DOM DEPENDENCY
           const currentPersonName = person.childNodes[0].textContent
           // CRITICAL DOM DEPENDENCY

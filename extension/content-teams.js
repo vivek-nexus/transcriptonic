@@ -128,14 +128,22 @@ function teams() {
       /** @type {MutationObserver} */
       let transcriptObserver
 
+      waitForElement(`[data-tid="closed-caption-renderer-wrapper"]`).then((element) => {
+        // Reduce the height from 43% to 20%
+        element?.setAttribute("style", "height:20%")
+      })
+
       // **** REGISTER TRANSCRIPT LISTENER **** //
       // Wait for transcript node to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
-      waitForElement(`[data-tid="closed-caption-v2-virtual-list-content"]`).then(() => {
+      waitForElement(`[data-tid="closed-caption-v2-virtual-list-content"]`).then((element) => {
         console.log("Found captions container")
         // CRITICAL DOM DEPENDENCY. Grab the transcript element.
-        let transcriptTargetNode = document.querySelector(`[data-tid="closed-caption-v2-virtual-list-content"]`)
+        const transcriptTargetNode = element
 
         if (transcriptTargetNode) {
+          // Attempt to dim down the transcript
+          transcriptTargetNode.setAttribute("style", "opacity:0.2")
+
           console.log(`Registering mutation observer on [data-tid="closed-caption-v2-virtual-list-content"]`)
 
           // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
@@ -164,8 +172,8 @@ function teams() {
       //*********** MEETING END ROUTINES **********//
       try {
         // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
-        const endCallElement1 = selectElements("#hangup-button")[0]
-        endCallElement1.addEventListener("click", function meetingEndRoutines() {
+        const endCallElement1 = document.querySelector("#hangup-button")?.parentElement
+        endCallElement1?.addEventListener("click", function meetingEndRoutines() {
           endCallElement1.removeEventListener("click", meetingEndRoutines)
           console.log("Meeting ended")
           // To suppress further errors
@@ -208,9 +216,6 @@ function teams() {
 
           const currentPersonName = mutationTarget?.parentElement?.previousSibling?.textContent
           const currentTranscriptText = mutationTarget?.textContent
-
-          console.log(currentPersonName)
-          console.log(currentTranscriptText)
 
           if (currentPersonName && currentTranscriptText) {
             // Starting fresh in a meeting or resume from no active transcript
@@ -369,18 +374,6 @@ function teams() {
     }, 5000)
   }
 
-  // Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the parents. 
-  /**
-   * @param {string} selector
-   * @param {string | RegExp} [text]
-   */
-  function selectElements(selector, text) {
-    var elements = document.querySelectorAll(selector)
-    return Array.prototype.filter.call(elements, function (/** @type {{ textContent: string; }} */ element) {
-      return RegExp(text ? text : "").test(element.textContent)
-    })
-  }
-
   // Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change
   /**
    * @param {string} selector
@@ -427,7 +420,7 @@ function teams() {
       text.innerHTML = extensionStatusJSON.message
 
       // Remove banner once transcript is on
-      waitForElement(`[data-tid="closed-caption-v2-virtual-list-content"]`).then(() => {
+      waitForElement(`[data-tid="closed-caption-renderer-wrapper"]`).then(() => {
         obj.style.display = "none"
       })
     }
