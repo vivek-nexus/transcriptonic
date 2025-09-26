@@ -308,7 +308,7 @@ function transcriptMutationCallback(mutationsList) {
         if (people.length > 1) {
           // Get the last person
           let person = people[people.length - 2]
-          if (!person) {
+          if (person.childNodes.length < 2) {
             person = people[people.length - 3]
           }
           // CRITICAL DOM DEPENDENCY
