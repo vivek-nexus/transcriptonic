@@ -15,6 +15,7 @@
 /**
  * @typedef {Object} WebhookBody
  * @property {"simple" | "advanced"} webhookBodyType simple or advanced
+ * @property {MeetingSoftware} meetingSoftware
  * @property {string} meetingTitle title of the meeting
  * @property {string} meetingStartTimestamp ISO timestamp of when the meeting started
  * @property {string} meetingEndTimestamp ISO timestamp of when the meeting ended
@@ -29,6 +30,7 @@
  * @typedef {Object} ResultLocal Local chrome storage
  * @property {ExtensionStatusJSON} extensionStatusJSON
  * @property {MeetingTabId} meetingTabId
+ * @property {MeetingSoftware} meetingSoftware
  * @property {MeetingTitle} meetingTitle
  * @property {MeetingStartTimestamp} meetingStartTimestamp
  * @property {Transcript} transcript
@@ -44,6 +46,7 @@
 */
 /**
  * @typedef {Object} Meeting
+ * @property {MeetingSoftware} [meetingSoftware]
  * @property {string | undefined} [meetingTitle] title of the meeting
  * @property {string | undefined} [title] title of the meeting (this is older key for meetingTitle key, in v3.1.0)
  * @property {string} meetingStartTimestamp ISO timestamp of when the meeting started
@@ -51,6 +54,10 @@
  * @property {TranscriptBlock[] | []} transcript array containing transcript blocks from the meeting
  * @property {ChatMessage[] | []} chatMessages array containing chat messages from the meeting
  * @property {"new" | "failed" | "successful"} webhookPostStatus status of the webhook post request
+ */
+
+/**
+ * @typedef {"Google Meet" | "Zoom" | "Teams" | "" | undefined} MeetingSoftware Google Meet or Zoom or undefined.
  */
 /**
  * @typedef {number | "processing" | null} MeetingTabId tab id of the meeting tab, captured when meeting starts. A valid value or "processing" indicates that a meeting is in progress. Set to null once meeting ends and associated processing is complete.
@@ -98,14 +105,44 @@
 
 
 
-/** 
+/**
  * @typedef {Object} ExtensionMessage Message sent by the calling script
- * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "retry_webhook_at_index" | "recover_last_meeting"} type type of message
+ * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "retry_webhook_at_index" | "recover_last_meeting" | "register_content_scripts"} type type of message
  * @property {number} [index] index of the meeting to process
  */
 
-/** 
+/**
  * @typedef {Object} ExtensionResponse Response sent by the called script
  * @property {boolean} success whether the message was processed successfully as per the request
- * @property {string} [message] message explaining success or failure
+ * @property {string | ErrorObject} [message] message explaining success or failure
  */
+
+/**
+ * @typedef {Object} ErrorObject Error Object
+ * @property {string} errorCode whether the message was processed successfully as per the request
+ * @property {string} errorMessage message explaining success or failure
+ */
+
+// CONTENT SCRIPT ERRORS
+// | Error Code | Error Message |
+// | :--- | :--- |
+// | **001** | "Transcript element not found in DOM" |
+// | **002** | "Chat messages element not found in DOM" |
+// | **003** | "Chat button element not found in DOM" |
+// | **004** | "Call end button element not found in DOM" |
+// | **005** | "Transcript mutation failed to process" |
+// | **006** | "Chat messages mutation failed to process" |
+// | **007** | "Meeting title element not found in DOM" |
+// | **008** | "Failed to fetch extension status" |
+// | **016** | "Recovery timed out" |
+
+// BACKGROUND SCRIPT ERRORS
+// | Error Code | Error Message |
+// | :--- | :--- |
+// | **009** | "Failed to read blob" |
+// | **010** | "Meeting at specified index not found" |
+// | **011** | "Webhook request failed with HTTP status code [number] [statusText]" |
+// | **012** | "No webhook URL configured" |
+// | **013** | "No meetings found. May be attend one?" |
+// | **014** | "Empty transcript and empty chatMessages" |
+// | **015** | "Invalid index" |

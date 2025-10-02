@@ -1,9 +1,9 @@
 # TranscripTonic
-Simple Google Meet transcripts. Private and open source.
+Simple Google Meet transcripts. Private and open source. Works on Chrome and Firefox.
 
 ![marquee-large](/assets/marquee-large.png)
 
-Extension status: 🟢 OPERATIONAL (v3.1.7)
+Extension status: 🟢 OPERATIONAL (v3.2.3)
 
 <br />
 <br />
@@ -21,9 +21,16 @@ View video on [YouTube](https://www.youtube.com/watch?v=ARL6HbkakX4)
 
 
 # Installation
+
+## Chrome
 <a href="https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag" target="_blank">
     <img src="https://developer.chrome.com/static/docs/webstore/branding/image/iNEddTyWiMfLSwFD6qGq.png" />
 </a>
+
+## Firefox
+Firefox users can install the extension using the unpacked installation method described below, or wait for the official Firefox Add-ons store release.
+
+**Note:** Firefox requires Manifest V2 format, so a separate `manifest-firefox.json` file is provided for Firefox compatibility.
 
 <br />
 <br />
@@ -69,7 +76,7 @@ When this happens, it might be possible to recover the transcript, but recovery 
 <br />
 
 # Privacy policy
-TranscripTonic Chrome extension does not collect any information from users in any manner, except anonymous errors and transcript download timestamp. All processing/transcript storage happens within the user's Chrome browser and does not leave the device, unless you configure a webhook and choose to post data to your webhook URL.
+TranscripTonic browser extension does not collect any information from users in any manner, except anonymous errors and transcript download timestamp. All processing/transcript storage happens within the user's browser and does not leave the device, unless you configure a webhook and choose to post data to your webhook URL.
 
 <br />
 <br />
@@ -81,12 +88,24 @@ The transcript may not always be accurate and is only intended to aid in improvi
 <br />
 
 # Installing unpacked extension
+This method works for both Chrome and Firefox browsers.
+
 1. Download the unpacked extension zip file from GitHub using this [link](https://raw.githubusercontent.com/vivek-nexus/transcriptonic/refs/heads/main/extension-unpacked.zip)
+
+## For Chrome:
 2. Open `chrome://extensions` in a new Chrome tab
 3. Enable "Developer mode" from top right corner
 4. Drag and drop the unpacked extension zip file to complete the installation process
 5. If drag and drop of zip file does not work, unzip the file. Click on "Load unpacked" in chrome extensions page and select the `extension-unpacked` folder to complete the installation process.
-6. Remove unpacked extension when no longer needed. Your meeting data of unpacked extension and extension installed from Chrome Store, are stored separately.
+
+## For Firefox:
+2. Open `about:debugging` in a new Firefox tab
+3. Click "This Firefox" in the left sidebar
+4. Click "Load Temporary Add-on"
+5. Unzip the downloaded file and navigate to the `extension-unpacked` folder
+6. **Important:** Select specifically the `manifest-firefox.json` file (NOT `manifest.json`)
+
+**Note:** Remove unpacked extension when no longer needed. Your meeting data of unpacked extension and extension installed from official stores are stored separately.
 
 <br />
 <br />

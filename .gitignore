@@ -1,1 +1,16 @@
-extension.zip
+# OS
+.DS_Store
+
+# Build outputs
+/dist/
+*.zip
+
+# Local scripts cache or temp
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor
+.idea/
+.vscode/
