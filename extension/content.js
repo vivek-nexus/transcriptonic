@@ -551,7 +551,7 @@ function updateMeetingTitle() {
       meetingTitleElement.title = "Edit meeting title for TranscripTonic"
       meetingTitleElement.style.cssText = `text-decoration: underline white; text-underline-offset: 4px;`
       if (location.pathname === `/${meetingTitleElement.innerText}`) {
-        showNotification({ status: 200, message: "<b>Give this meeting a name?</b><br/>Edit the underlined text in the bottom left corner" })
+        showNotification({ status: 200, message: "<b>Give this meeting a title?</b><br/>Edit the underlined text in the bottom left corner" })
       }
     }, 5000)
 
