@@ -132,7 +132,7 @@
 // | **004** | "Call end button element not found in DOM" |
 // | **005** | "Transcript mutation failed to process" |
 // | **006** | "Chat messages mutation failed to process" |
-// | **007** | "Meeting title element not found in DOM" |
+// | **007** | "Meeting title element not found in DOM" (currently not in use) |
 // | **008** | "Failed to fetch extension status" |
 // | **016** | "Recovery timed out" |
 

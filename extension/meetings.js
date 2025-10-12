@@ -2,6 +2,8 @@
 /// <reference path="../types/chrome.d.ts" />
 /// <reference path="../types/index.js" />
 
+let isMeetingsTableExpanded = false
+
 document.addEventListener("DOMContentLoaded", function () {
     const webhookUrlForm = document.querySelector("#webhook-url-form")
     const webhookUrlInput = document.querySelector("#webhook-url")
@@ -85,21 +87,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Handle URL input changes
         webhookUrlInput.addEventListener("input", function () {
-            saveButton.disabled = !webhookUrlInput.value || !webhookUrlInput.checkValidity()
+            saveButton.disabled = !webhookUrlInput.checkValidity()
         })
 
         // Save webhook URL, auto-post setting, and webhook body type
         webhookUrlForm.addEventListener("submit", function (e) {
             e.preventDefault()
             const webhookUrl = webhookUrlInput.value
-            if (webhookUrl && webhookUrlInput.checkValidity()) {
+            if (webhookUrl === "") {
+                // Save webhook URL and settings
+                chrome.storage.sync.set({
+                    webhookUrl: webhookUrl
+                }, function () {
+                    alert("Webhook URL saved!")
+                })
+            }
+            else if (webhookUrl && webhookUrlInput.checkValidity()) {
                 // Request runtime permission for the webhook URL
                 requestWebhookAndNotificationPermission(webhookUrl).then(() => {
                     // Save webhook URL and settings
                     chrome.storage.sync.set({
-                        webhookUrl: webhookUrl,
-                        autoPostWebhookAfterMeeting: autoPostCheckbox.checked,
-                        webhookBodyType: advancedWebhookBodyRadio.checked ? "advanced" : "simple"
+                        webhookUrl: webhookUrl
                     }, function () {
                         alert("Webhook URL saved!")
                     })
@@ -136,6 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const meetingsTableContainer = document.querySelector("#meetings-table-container")
             meetingsTableContainer?.classList.remove("fade-mask")
             showAllButton.setAttribute("style", "display:none;")
+            isMeetingsTableExpanded = true
         })
     }
 })
@@ -229,7 +238,7 @@ function loadMeetings() {
                     meetingsTable.appendChild(row)
 
                     const meetingsTableContainer = document.querySelector("#meetings-table-container")
-                    if (meetingsTableContainer && meetingsTableContainer.clientHeight > 320) {
+                    if (!isMeetingsTableExpanded && meetingsTableContainer && (meetingsTableContainer.clientHeight > 320)) {
                         meetingsTableContainer?.classList.add("fade-mask")
                         document.querySelector("#show-all")?.setAttribute("style", "display: block")
                     }

@@ -655,8 +655,8 @@ function registerContentScripts(showNotification = true) {
                                     chrome.notifications.create({
                                         type: "basic",
                                         iconUrl: "icon.png",
-                                        title: "Zoom and Teams transcripts enabled!",
-                                        message: "Please join Zoom/Teams meetings on the browser. Refresh any existing Zoom/Teams pages."
+                                        title: "Enabled! Join Zoom/Teams meetings on the browser",
+                                        message: "Refresh any existing Zoom/Teams pages"
                                     })
                                 }
                             })

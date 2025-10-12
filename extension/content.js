@@ -308,7 +308,7 @@ function transcriptMutationCallback(mutationsList) {
         if (people.length > 1) {
           // Get the last person
           let person = people[people.length - 2]
-          if (person.childNodes.length < 2) {
+          if (person && (person.childNodes.length < 2)) {
             person = people[people.length - 3]
           }
           // CRITICAL DOM DEPENDENCY
@@ -539,28 +539,27 @@ function pulseStatus() {
 
 // Grabs updated meeting title, if available
 function updateMeetingTitle() {
-  try {
-    waitForElement(".u6vdEc").then(() => {
-      // Pick up meeting name after a delay, since Google meet updates meeting name after a delay
-      setTimeout(() => {
-        // NON CRITICAL DOM DEPENDENCY
-        const meetingTitleElement = document.querySelector(".u6vdEc")
-        if (meetingTitleElement?.textContent) {
-          meetingTitle = meetingTitleElement.textContent
-          overWriteChromeStorage(["meetingTitle"], false)
-        } else {
-          throw new Error("Meeting title element not found in DOM")
-        }
-      }, 5000)
-    })
-  } catch (err) {
-    console.error(err)
+  waitForElement(".u6vdEc").then((element) => {
+    const meetingTitleElement = /** @type {HTMLDivElement} */ (element)
+    meetingTitleElement?.setAttribute("contenteditable", "true")
 
-    if (!hasMeetingEnded) {
-      logError("007", err)
+    meetingTitleElement?.addEventListener("input", handleMeetingTitleElementChange)
+
+    // Pick up meeting name after a delay, since Google meet updates meeting name after a delay
+    setTimeout(() => {
+      handleMeetingTitleElementChange()
+      meetingTitleElement.title = "Edit meeting title for TranscripTonic"
+      meetingTitleElement.style.cssText = `text-decoration: underline white; text-underline-offset: 4px;`
+      if (location.pathname === `/${meetingTitleElement.innerText}`) {
+        showNotification({ status: 200, message: "<b>Give this meeting a title?</b><br/>Edit the underlined text in the bottom left corner" })
+      }
+    }, 5000)
+
+    function handleMeetingTitleElementChange() {
+      meetingTitle = meetingTitleElement.innerText
+      overWriteChromeStorage(["meetingTitle"], false)
     }
-  }
-
+  })
 }
 
 // Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the parents. 
@@ -702,7 +701,7 @@ function checkExtensionStatus() {
         // Disable extension if version is below the min version
         if (!meetsMinVersion(chrome.runtime.getManifest().version, minVersion)) {
           extensionStatusJSON.status = 400
-          extensionStatusJSON.message = `<strong>TranscripTonic is not running</strong> <br /> Please update to v${minVersion} by following <a href="https://github.com/vivek-nexus/transcriptonic/wiki/Manually-update-TranscripTonic" target="_blank">these instructions</a>`
+          extensionStatusJSON.message = `<strong>TranscripTonic is not running</strong> <br /> Please force update to v${minVersion} by following <a href="https://github.com/vivek-nexus/transcriptonic/wiki/Manually-update-TranscripTonic" target="_blank">these instructions</a>`
         }
         else {
           // Update status based on response
