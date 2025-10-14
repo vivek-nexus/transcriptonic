@@ -301,20 +301,28 @@ function transcriptMutationCallback(mutationsList) {
   mutationsList.forEach(() => {
     try {
       // CRITICAL DOM DEPENDENCY. Get all people in the transcript
-      const people = document.querySelector(`div[role="region"][tabindex="0"]`)?.children
+      const people = document.querySelector(`div[role="region"][tabindex="0"]`)?.childNodes
 
       if (people) {
         /// In aria based selector case, the last people element is "Jump to bottom" button. So, pick up only if more than 1 element is available.
         if (people.length > 1) {
           // Get the last person
+          /** @type {undefined | ChildNode} */
           let person = people[people.length - 2]
+          // Sometimes there is a dummy non-people div element at last but one position, which is detected by less than two childNodes within
           if (person && (person.childNodes.length < 2)) {
             person = people[people.length - 3]
           }
-          // CRITICAL DOM DEPENDENCY
-          const currentPersonName = person.childNodes[0].textContent
-          // CRITICAL DOM DEPENDENCY
-          const currentTranscriptText = person.childNodes[1].textContent
+
+          let currentPersonName
+          let currentTranscriptText
+
+          if (person && person.childNodes.length >= 2) {
+            // CRITICAL DOM DEPENDENCY
+            currentPersonName = person.childNodes[0].textContent
+            // CRITICAL DOM DEPENDENCY
+            currentTranscriptText = person.childNodes[1].textContent
+          }
 
           if (currentPersonName && currentTranscriptText) {
             // Starting fresh in a meeting or resume from no active transcript
@@ -542,18 +550,18 @@ function updateMeetingTitle() {
   waitForElement(".u6vdEc").then((element) => {
     const meetingTitleElement = /** @type {HTMLDivElement} */ (element)
     meetingTitleElement?.setAttribute("contenteditable", "true")
+    meetingTitleElement.title = "Edit meeting title for TranscripTonic"
+    meetingTitleElement.style.cssText = `text-decoration: underline white; text-underline-offset: 4px;`
 
     meetingTitleElement?.addEventListener("input", handleMeetingTitleElementChange)
 
     // Pick up meeting name after a delay, since Google meet updates meeting name after a delay
     setTimeout(() => {
       handleMeetingTitleElementChange()
-      meetingTitleElement.title = "Edit meeting title for TranscripTonic"
-      meetingTitleElement.style.cssText = `text-decoration: underline white; text-underline-offset: 4px;`
       if (location.pathname === `/${meetingTitleElement.innerText}`) {
         showNotification({ status: 200, message: "<b>Give this meeting a title?</b><br/>Edit the underlined text in the bottom left corner" })
       }
-    }, 5000)
+    }, 7000)
 
     function handleMeetingTitleElementChange() {
       meetingTitle = meetingTitleElement.innerText
