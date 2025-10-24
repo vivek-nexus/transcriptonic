@@ -52,7 +52,6 @@ let extensionStatusJSON
 
 
 
-
 // Attempt to recover last meeting, if any. Abort if it takes more than 2 seconds to prevent current meeting getting messed up.
 Promise.race([
   recoverLastMeeting(),
@@ -155,8 +154,7 @@ function meetingRoutines(uiType) {
 
 
     //*********** MEETING START ROUTINES **********//
-    // Pick up meeting name after a delay, since Google meet updates meeting name after a delay
-    setTimeout(() => updateMeetingTitle(), 5000)
+    updateMeetingTitle()
 
     /** @type {MutationObserver} */
     let transcriptObserver
@@ -172,10 +170,12 @@ function meetingRoutines(uiType) {
       // Click captions icon for non manual operation modes. Async operation.
       chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
-        if (resultSync.operationMode === "manual")
+        if (resultSync.operationMode === "manual") {
           console.log("Manual mode selected, leaving transcript off")
-        else
+        }
+        else {
           captionsButton.click()
+        }
       })
 
       // Allow DOM to be updated and then register transcript mutation observer
@@ -196,24 +196,20 @@ function meetingRoutines(uiType) {
         else {
           throw new Error("Transcript element not found in DOM")
         }
-      }).catch((err) => {
-        console.error(err)
-        isTranscriptDomErrorCaptured = true
-        showNotification(extensionStatusJSON_bug)
-
-        logError("001", err)
       })
-    }).catch((err) => {
-      console.error(err)
-      isTranscriptDomErrorCaptured = true
-      showNotification(extensionStatusJSON_bug)
+        .catch((err) => {
+          console.error(err)
+          isTranscriptDomErrorCaptured = true
+          showNotification(extensionStatusJSON_bug)
 
-      logError("001", err)
+          logError("001", err)
+        })
     })
 
 
     // **** REGISTER CHAT MESSAGES LISTENER **** //
-    try {
+    // Wait for chat icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the chat icon is still not visible.
+    waitForElement(".google-symbols", "chat").then(() => {
       const chatMessagesButton = selectElements(".google-symbols", "chat")[0]
       // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
       chatMessagesButton.click()
@@ -241,13 +237,14 @@ function meetingRoutines(uiType) {
           logError("002", err)
         }
       })
-    } catch (err) {
-      console.error(err)
-      isChatMessagesDomErrorCaptured = true
-      showNotification(extensionStatusJSON_bug)
+    })
+      .catch((err) => {
+        console.error(err)
+        isChatMessagesDomErrorCaptured = true
+        showNotification(extensionStatusJSON_bug)
 
-      logError("003", err)
-    }
+        logError("003", err)
+      })
 
     // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
     if (!isTranscriptDomErrorCaptured && !isChatMessagesDomErrorCaptured) {
@@ -304,20 +301,28 @@ function transcriptMutationCallback(mutationsList) {
   mutationsList.forEach(() => {
     try {
       // CRITICAL DOM DEPENDENCY. Get all people in the transcript
-      const people = document.querySelector(`div[role="region"][tabindex="0"]`)?.children
+      const people = document.querySelector(`div[role="region"][tabindex="0"]`)?.childNodes
 
       if (people) {
         /// In aria based selector case, the last people element is "Jump to bottom" button. So, pick up only if more than 1 element is available.
         if (people.length > 1) {
           // Get the last person
+          /** @type {undefined | ChildNode} */
           let person = people[people.length - 2]
-          if (person.childNodes.length < 2) {
+          // Sometimes there is a dummy non-people div element at last but one position, which is detected by less than two childNodes within
+          if (person && (person.childNodes.length < 2)) {
             person = people[people.length - 3]
           }
-          // CRITICAL DOM DEPENDENCY
-          const currentPersonName = person.childNodes[0].textContent
-          // CRITICAL DOM DEPENDENCY
-          const currentTranscriptText = person.childNodes[1].textContent
+
+          let currentPersonName
+          let currentTranscriptText
+
+          if (person && person.childNodes.length >= 2) {
+            // CRITICAL DOM DEPENDENCY
+            currentPersonName = person.childNodes[0].textContent
+            // CRITICAL DOM DEPENDENCY
+            currentTranscriptText = person.childNodes[1].textContent
+          }
 
           if (currentPersonName && currentTranscriptText) {
             // Starting fresh in a meeting or resume from no active transcript
@@ -542,22 +547,27 @@ function pulseStatus() {
 
 // Grabs updated meeting title, if available
 function updateMeetingTitle() {
-  try {
-    // NON CRITICAL DOM DEPENDENCY
-    const meetingTitleElement = document.querySelector(".u6vdEc")
-    if (meetingTitleElement?.textContent) {
-      meetingTitle = meetingTitleElement.textContent
-      overWriteChromeStorage(["meetingTitle"], false)
-    } else {
-      throw new Error("Meeting title element not found in DOM")
-    }
-  } catch (err) {
-    console.error(err)
+  waitForElement(".u6vdEc").then((element) => {
+    const meetingTitleElement = /** @type {HTMLDivElement} */ (element)
+    meetingTitleElement?.setAttribute("contenteditable", "true")
+    meetingTitleElement.title = "Edit meeting title for TranscripTonic"
+    meetingTitleElement.style.cssText = `text-decoration: underline white; text-underline-offset: 4px;`
 
-    if (!hasMeetingEnded) {
-      logError("007", err)
+    meetingTitleElement?.addEventListener("input", handleMeetingTitleElementChange)
+
+    // Pick up meeting name after a delay, since Google meet updates meeting name after a delay
+    setTimeout(() => {
+      handleMeetingTitleElementChange()
+      if (location.pathname === `/${meetingTitleElement.innerText}`) {
+        showNotification({ status: 200, message: "<b>Give this meeting a title?</b><br/>Edit the underlined text in the bottom left corner" })
+      }
+    }, 7000)
+
+    function handleMeetingTitleElementChange() {
+      meetingTitle = meetingTitleElement.innerText
+      overWriteChromeStorage(["meetingTitle"], false)
     }
-  }
+  })
 }
 
 // Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the parents. 
@@ -699,7 +709,7 @@ function checkExtensionStatus() {
         // Disable extension if version is below the min version
         if (!meetsMinVersion(chrome.runtime.getManifest().version, minVersion)) {
           extensionStatusJSON.status = 400
-          extensionStatusJSON.message = `<strong>TranscripTonic is not running</strong> <br /> Please update to v${minVersion} by following <a href="https://github.com/vivek-nexus/transcriptonic/wiki/Manually-update-TranscripTonic" target="_blank">these instructions</a>`
+          extensionStatusJSON.message = `<strong>TranscripTonic is not running</strong> <br /> Please force update to v${minVersion} by following <a href="https://github.com/vivek-nexus/transcriptonic/wiki/Manually-update-TranscripTonic" target="_blank">these instructions</a>`
         }
         else {
           // Update status based on response

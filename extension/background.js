@@ -28,24 +28,28 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
     }
 
     if (message.type === "meeting_ended") {
-        processLastMeeting()
-            .then(() => {
-                /** @type {ExtensionResponse} */
-                const response = { success: true }
-                sendResponse(response)
-            })
-            .catch((error) => {
-                // Fails with error codes: 009, 010, 011, 012, 013, 014
-                const parsedError = /** @type {ErrorObject} */ (error)
+        // Prevents double downloading of transcript from tab closed event listener. Also prevents available update from being applied, during meeting post processing.
+        chrome.storage.local.set({ meetingTabId: "processing" }, function () {
+            console.log("Meeting tab id set to processing meeting")
 
-                /** @type {ExtensionResponse} */
-                const response = { success: false, message: parsedError }
-                sendResponse(response)
-            })
-            .finally(() => {
-                // Invalidate tab id since transcript is downloaded, prevents double downloading of transcript from tab closed event listener
-                clearTabIdAndApplyUpdate()
-            })
+            processLastMeeting()
+                .then(() => {
+                    /** @type {ExtensionResponse} */
+                    const response = { success: true }
+                    sendResponse(response)
+                })
+                .catch((error) => {
+                    // Fails with error codes: 009, 010, 011, 012, 013, 014
+                    const parsedError = /** @type {ErrorObject} */ (error)
+
+                    /** @type {ExtensionResponse} */
+                    const response = { success: false, message: parsedError }
+                    sendResponse(response)
+                })
+                .finally(() => {
+                    clearTabIdAndApplyUpdate()
+                })
+        })
     }
 
     if (message.type === "download_transcript_at_index") {
@@ -114,6 +118,23 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
                 sendResponse(response)
             })
     }
+
+    if (message.type === "register_content_scripts") {
+        registerContentScripts().then((message) => {
+            /** @type {ExtensionResponse} */
+            const response = { success: true, message: message }
+            sendResponse(response)
+        })
+            .catch((error) => {
+                // Fails with error codes: not defined
+                const parsedError = /** @type {ErrorObject} */ (error)
+
+                /** @type {ExtensionResponse} */
+                const response = { success: false, message: parsedError }
+                sendResponse(response)
+            })
+    }
+
     return true
 })
 
@@ -125,9 +146,13 @@ chrome.tabs.onRemoved.addListener(function (tabId) {
         if (tabId === resultLocal.meetingTabId) {
             console.log("Successfully intercepted tab close")
 
-            processLastMeeting().finally(() => {
-                // Clearing meetingTabId to prevent misfires of onRemoved until next meeting actually starts
-                clearTabIdAndApplyUpdate()
+            // Prevent misfires of onRemoved until next meeting. Also prevents available update from being applied, during meeting post processing.
+            chrome.storage.local.set({ meetingTabId: "processing" }, function () {
+                console.log("Meeting tab id set to processing meeting")
+
+                processLastMeeting().finally(() => {
+                    clearTabIdAndApplyUpdate()
+                })
             })
         }
     })
@@ -140,14 +165,30 @@ chrome.runtime.onUpdateAvailable.addListener(() => {
         const result = /** @type {ResultLocal} */ (resultUntyped)
 
         if (result.meetingTabId) {
-            // There is an active meeting, defer the update
+            // There is an active meeting(values: tabId or processing), defer the update
             chrome.storage.local.set({ isDeferredUpdatedAvailable: true }, function () {
                 console.log("Deferred update flag set")
             })
         } else {
-            // No active meeting, apply the update immediately. Meeting tab id is invalidated only post meeting operations are done, so no race conditions.
+            // No active meeting, apply the update immediately. Meeting tab id is nullified only post meeting operations are done, so no race conditions.
             console.log("No active meeting, applying update immediately")
             chrome.runtime.reload()
+        }
+    })
+})
+
+// Register content scripts whenever runtime permission is provided by the user
+chrome.permissions.onAdded.addListener((event) => {
+    if (event.origins?.includes("https://*.zoom.us/*") && event.origins?.includes("https://teams.live.com/*") && event.origins?.includes("https://teams.microsoft.com/*")) {
+        registerContentScripts()
+    }
+})
+
+// Re-register content scripts whenever extension in installed or updated, provided permissions are available
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.permissions.getAll().then((permissions) => {
+        if (permissions.origins?.includes("https://*.zoom.us/*") && permissions.origins?.includes("https://teams.live.com/*") && permissions.origins?.includes("https://teams.microsoft.com/*")) {
+            registerContentScripts(false)
         }
     })
 })
@@ -436,17 +477,19 @@ function postTranscriptToWebhook(index) {
                                 resolve("Webhook posted successfully")
                             })
                         }).catch(error => {
+                            console.error(error)
                             // Update failure status.
                             // @ts-ignore - Pointless type error about resultLocal.meetings being undefined, which is already checked above.
                             resultLocal.meetings[index].webhookPostStatus = "failed"
                             chrome.storage.local.set({ meetings: resultLocal.meetings }, function () {
-                                // Notify user of webhook failure
+                                // Create notification and open webhooks page
                                 chrome.notifications.create({
                                     type: "basic",
                                     iconUrl: "icon.png",
                                     title: "Could not post webhook!",
-                                    message: `Webhook failed: ${error && error.message ? error.message : error}`
+                                    message: "Click to view status and retry. Check console for more details."
                                 }, function (notificationId) {
+                                    // Handle notification click
                                     chrome.notifications.onClicked.addListener(function (clickedNotificationId) {
                                         if (clickedNotificationId === notificationId) {
                                             chrome.tabs.create({ url: "meetings.html" })
@@ -505,6 +548,7 @@ function getChatMessagesString(chatMessages) {
 }
 
 function clearTabIdAndApplyUpdate() {
+    // Nullify to indicate end of meeting processing
     chrome.storage.local.set({ meetingTabId: null }, function () {
         console.log("Meeting tab id cleared for next meeting")
 
@@ -553,6 +597,83 @@ function recoverLastMeeting() {
                 reject({ errorCode: "013", errorMessage: "No meetings found. May be attend one?" })
             }
         })
+    })
+}
+
+/**
+ * @param {boolean} [showNotification]
+ */
+function registerContentScripts(showNotification = true) {
+    return new Promise((resolve, reject) => {
+        chrome.scripting
+            .getRegisteredContentScripts()
+            .then((scripts) => {
+                let isContentZoomRegistered = false
+                let isContentTeamsRegistered = false
+                scripts.forEach((script) => {
+                    if (script.id === "content-zoom") {
+                        isContentZoomRegistered = true
+                        console.log("Zoom content script already registered")
+                    }
+                    if (script.id === "content-teams") {
+                        isContentTeamsRegistered = true
+                        console.log("Teams content script already registered")
+                    }
+                })
+
+                if (isContentTeamsRegistered && isContentTeamsRegistered) {
+                    resolve("Zoom and Teams content scripts already registered")
+                    return
+                }
+
+                const promises = []
+
+                if (!isContentZoomRegistered) {
+                    const zoomRegistrationPromise = chrome.scripting.registerContentScripts([{
+                        id: "content-zoom",
+                        js: ["content-zoom.js"],
+                        matches: ["https://*.zoom.us/*"],
+                        runAt: "document_end",
+                    }])
+                    promises.push(zoomRegistrationPromise)
+                }
+
+                if (!isContentTeamsRegistered) {
+                    const teamsRegistrationPromise = chrome.scripting.registerContentScripts([{
+                        id: "content-teams",
+                        js: ["content-teams.js"],
+                        matches: ["https://teams.live.com/*", "https://teams.microsoft.com/"],
+                        runAt: "document_end",
+                    }])
+                    promises.push(teamsRegistrationPromise)
+                }
+
+                Promise.all(promises)
+                    .then(() => {
+                        console.log("Both Zoom and Teams content scripts registered successfully.")
+                        resolve("Zoom and Teams content scripts registered")
+
+                        if (showNotification) {
+                            chrome.permissions.contains({
+                                permissions: ["notifications"]
+                            }).then((hasPermission) => {
+                                if (hasPermission) {
+                                    chrome.notifications.create({
+                                        type: "basic",
+                                        iconUrl: "icon.png",
+                                        title: "Enabled! Join Zoom/Teams meetings on the browser",
+                                        message: "Refresh any existing Zoom/Teams pages"
+                                    })
+                                }
+                            })
+                        }
+                    })
+                    .catch((error) => {
+                        // This block runs if EITHER Zoom OR Teams registration fails.
+                        console.error("One or more content script registrations failed.", error)
+                        reject("Failed to register one or more content scripts")
+                    })
+            })
     })
 }
 
