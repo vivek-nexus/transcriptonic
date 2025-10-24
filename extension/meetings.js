@@ -335,3 +335,30 @@ function getDuration(meetingStartTimestamp, meetingEndTimestamp) {
         ? `${durationHours}h ${remainingMinutes}m`
         : `${durationMinutes}m`
 }
+
+// Add Firefox download support
+if (typeof browser !== 'undefined' && /firefox/i.test(navigator.userAgent)) {
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        if (message.type === 'download_transcript_blob') {
+            try {
+                const blob = new Blob([message.blobContent], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = message.fileName;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+                if (sendResponse) sendResponse({ success: true });
+            } catch (e) {
+                if (sendResponse) sendResponse({ success: false });
+            }
+            return true;
+        }
+    });
+    // If meetings.html is opened by the background script, focus the window
+    window.focus();
+}

@@ -352,55 +352,61 @@ function downloadTranscript(index, isWebhookEnabled) {
                 content += "Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)"
                 content += "\n---------------"
 
-                const blob = new Blob([content], { type: "text/plain" })
+                if (isFirefox()) {
+                    // Firefox: use message passing to meetings.html for download
+                    sendDownloadToMeetingsPage(fileName, content, resolve, reject);
+                } else {
+                    // Chrome: use downloads API
+                    const blob = new Blob([content], { type: "text/plain" })
 
-                // Read the blob as a data URL
-                const reader = new FileReader()
+                    // Read the blob as a data URL
+                    const reader = new FileReader()
 
-                // Read the blob
-                reader.readAsDataURL(blob)
+                    // Read the blob
+                    reader.readAsDataURL(blob)
 
-                // Download as text file, once blob is read
-                reader.onload = function (event) {
-                    if (event.target?.result) {
-                        const dataUrl = event.target.result
+                    // Download as text file, once blob is read
+                    reader.onload = function (event) {
+                        if (event.target?.result) {
+                            const dataUrl = event.target.result
 
-                        // Create a download with Chrome Download API
-                        chrome.downloads.download({
-                            // @ts-ignore
-                            url: dataUrl,
-                            filename: fileName,
-                            conflictAction: "uniquify"
-                        }).then(() => {
-                            console.log("Transcript downloaded")
-                            resolve("Transcript downloaded successfully")
-
-                            // Increment anonymous transcript generated count to a Google sheet
-                            fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}&meetingSoftware=${meeting.meetingSoftware}`, {
-                                mode: "no-cors"
-                            })
-                        }).catch((err) => {
-                            console.error(err)
+                            // Create a download with Chrome Download API
                             chrome.downloads.download({
                                 // @ts-ignore
                                 url: dataUrl,
-                                filename: "TranscripTonic/Transcript.txt",
+                                filename: fileName,
                                 conflictAction: "uniquify"
-                            })
-                            console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
-                            resolve("Transcript downloaded successfully with default file name")
+                            }).then(() => {
+                                console.log("Transcript downloaded")
+                                resolve("Transcript downloaded successfully")
 
-                            // Logs anonymous errors to a Google sheet for swift debugging   
-                            fetch(`https://script.google.com/macros/s/AKfycbwN-bVkVv3YX4qvrEVwG9oSup0eEd3R22kgKahsQ3bCTzlXfRuaiO7sUVzH9ONfhL4wbA/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}&meetingSoftware=${meeting.meetingSoftware}`, { mode: "no-cors" })
+                                // Increment anonymous transcript generated count to a Google sheet
+                                fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}&meetingSoftware=${meeting.meetingSoftware}`, {
+                                    mode: "no-cors"
+                                })
+                            }).catch((err) => {
+                                console.error(err)
+                                chrome.downloads.download({
+                                    // @ts-ignore
+                                    url: dataUrl,
+                                    filename: "TranscripTonic/Transcript.txt",
+                                    conflictAction: "uniquify"
+                                })
+                                console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
+                                resolve("Transcript downloaded successfully with default file name")
 
-                            // Increment anonymous transcript generated count to a Google sheet
-                            fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}&meetingSoftware=${meeting.meetingSoftware}`, {
-                                mode: "no-cors"
+                                // Logs anonymous errors to a Google sheet for swift debugging   
+                                fetch(`https://script.google.com/macros/s/AKfycbwN-bVkVv3YX4qvrEVwG9oSup0eEd3R22kgKahsQ3bCTzlXfRuaiO7sUVzH9ONfhL4wbA/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}&meetingSoftware=${meeting.meetingSoftware}`, { mode: "no-cors" })
+
+                                // Increment anonymous transcript generated count to a Google sheet
+                                fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}&meetingSoftware=${meeting.meetingSoftware}`, {
+                                    mode: "no-cors"
+                                })
                             })
-                        })
-                    }
-                    else {
-                        reject({ errorCode: "009", errorMessage: "Failed to read blob" })
+                        }
+                        else {
+                            reject({ errorCode: "009", errorMessage: "Failed to read blob" })
+                        }
                     }
                 }
             }
@@ -669,4 +675,72 @@ function registerContentScripts(showNotification = true) {
                     })
             })
     })
+}
+
+function isFirefox() {
+    // @ts-ignore - browser is a Firefox-specific global
+    return typeof browser !== 'undefined' && /firefox/i.test(navigator.userAgent);
+}
+
+/**
+ * Firefox-compatible download handler that sends blob to meetings.html
+ * @param {string} fileName 
+ * @param {string} content 
+ * @param {Function} resolve 
+ * @param {Function} reject 
+ */
+function sendDownloadToMeetingsPage(fileName, content, resolve, reject) {
+    // Find or open meetings.html, then send the download message
+    chrome.tabs.query({}, function (tabs) {
+        let meetingsTab = tabs.find(tab => tab.url && tab.url.includes('meetings.html'));
+        if (meetingsTab && meetingsTab.id) {
+            chrome.tabs.update(meetingsTab.id, { active: true }, function () {
+                if (meetingsTab.id) {
+                    chrome.tabs.sendMessage(
+                        meetingsTab.id,
+                        {
+                            type: "download_transcript_blob",
+                            fileName: fileName,
+                            blobContent: content
+                        },
+                        function (response) {
+                            if (response && response.success) {
+                                resolve("Transcript downloaded successfully (Firefox)");
+                            } else {
+                                reject(new Error("Failed to trigger download in Firefox (meetings.html)"));
+                            }
+                        }
+                    );
+                }
+            });
+        } else {
+            // Open meetings.html in a new tab
+            chrome.tabs.create({ url: chrome.runtime.getURL('meetings.html'), active: true }, function (newTab) {
+                // Wait for the tab to load, then send the message
+                const listener = function (tabId, changeInfo) {
+                    if (tabId === newTab.id && changeInfo.status === 'complete') {
+                        chrome.tabs.onUpdated.removeListener(listener);
+                        if (newTab.id) {
+                            chrome.tabs.sendMessage(
+                                newTab.id,
+                                {
+                                    type: "download_transcript_blob",
+                                    fileName: fileName,
+                                    blobContent: content
+                                },
+                                function (response) {
+                                    if (response && response.success) {
+                                        resolve("Transcript downloaded successfully (Firefox)");
+                                    } else {
+                                        reject(new Error("Failed to trigger download in Firefox (new meetings.html)"));
+                                    }
+                                }
+                            );
+                        }
+                    }
+                };
+                chrome.tabs.onUpdated.addListener(listener);
+            });
+        }
+    });
 }

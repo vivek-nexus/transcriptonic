@@ -1,4 +1,5 @@
 {
+  "_comment": "This is the Chrome/Manifest V3 version. Firefox users should use manifest-firefox.json (Manifest V2)",
   "manifest_version": 3,
   "name": "TranscripTonic",
   "version": "3.2.5",
@@ -43,5 +44,11 @@
   ],
   "background": {
     "service_worker": "background.js"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icon.png", "popup.html", "meetings.html"],
+      "matches": ["https://meet.google.com/*"]
+    }
+  ]
 }
