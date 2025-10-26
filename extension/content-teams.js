@@ -136,7 +136,7 @@ function teams() {
           // Allow keyboard event listener to be ready
           setTimeout(() => {
             dispatchLiveCaptionsShortcut()
-            // Show message to enable because keyboard shortcut does not work on Mac
+            // Show message to enable because keyboard shortcut does not work in guest meetings or on Mac
             showNotification(extensionStatusJSON)
           }, 2000)
         }
@@ -186,9 +186,14 @@ function teams() {
       //*********** MEETING END ROUTINES **********//
       try {
         // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
-        const endCallElement1 = document.querySelector("#hangup-button")?.parentElement
-        endCallElement1?.addEventListener("click", function meetingEndRoutines() {
-          endCallElement1.removeEventListener("click", meetingEndRoutines)
+        let endCallElement = document.querySelector("#hangup-button")
+        if (endCallElement?.nextElementSibling?.tagName === "button") {
+          endCallElement = /** @type {Element} */ (document.querySelector("#hangup-button")?.parentElement)
+        }
+        endCallElement?.addEventListener("click", meetingEndRoutines)
+
+        function meetingEndRoutines() {
+          endCallElement?.removeEventListener("click", meetingEndRoutines)
           console.log("Meeting ended")
           // To suppress further errors
           hasMeetingEnded = true
@@ -202,7 +207,7 @@ function teams() {
           }
           // Save to chrome storage and send message to download transcript from background script
           overWriteChromeStorage(["transcript", "chatMessages"], true)
-        })
+        }
       } catch (err) {
         console.error(err)
         showNotification(extensionStatusJSON_bug)
@@ -462,10 +467,10 @@ function teams() {
       obj.style.cssText = `color: #2A9ACA; ${commonCSS}`
       text.innerHTML = extensionStatusJSON.message
 
-      // Remove banner after 5s
-      setTimeout(() => {
+      // Remove banner once transcript is on
+      waitForElement(`[data-tid="closed-caption-renderer-wrapper"]`).then(() => {
         obj.style.display = "none"
-      }, 5000)
+      })
     }
     else {
       obj.style.cssText = `color: orange; ${commonCSS}`
