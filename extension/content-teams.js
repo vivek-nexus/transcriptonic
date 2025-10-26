@@ -125,12 +125,31 @@ function teams() {
       //*********** MEETING START ROUTINES **********//
       updateMeetingTitle()
 
+      // Fire captions shortcut based on operation mode. Async operation.
+      chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
+        const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+        if (resultSync.operationMode === "manual") {
+          console.log("Manual mode selected, leaving transcript off")
+          showNotification({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions, if needed (More > Language > Captions)" })
+        }
+        else {
+          // Allow keyboard event listener to be ready
+          setTimeout(() => {
+            dispatchLiveCaptionsShortcut()
+          }, 2000)
+        }
+      })
+
+
       /** @type {MutationObserver} */
       let transcriptObserver
 
       waitForElement(`[data-tid="closed-caption-renderer-wrapper"]`).then((element) => {
         // Reduce the height from 43% to 20%
         element?.setAttribute("style", "height:20%")
+
+        // Show confirmation message from extensionStatusJSON, once observation has started
+        showNotification(extensionStatusJSON)
       })
 
       // **** REGISTER TRANSCRIPT LISTENER **** //
@@ -164,10 +183,6 @@ function teams() {
           logError("001", err)
         })
 
-      // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
-      if (!isTranscriptDomErrorCaptured) {
-        showNotification(extensionStatusJSON)
-      }
 
       //*********** MEETING END ROUTINES **********//
       try {
@@ -395,6 +410,35 @@ function teams() {
     return document.querySelector(selector)
   }
 
+
+  function dispatchLiveCaptionsShortcut() {
+    let key, code, modifiers
+
+    // Mac: Command+Shift+A
+    key = 'a'
+    code = 'KeyA'
+    modifiers = { metaKey: true, shiftKey: true, bubbles: true }
+
+    let event = new KeyboardEvent('keydown', {
+      key: key,
+      code: code,
+      ...modifiers // Apply the OS-specific modifiers
+    })
+    document.dispatchEvent(event)
+
+    // Windows: Alt+Shift+C (defaulting non-Mac to Windows)
+    key = 'c'
+    code = 'KeyC'
+    modifiers = { altKey: true, shiftKey: true, bubbles: true }
+
+    event = new KeyboardEvent('keydown', {
+      key: key,
+      code: code,
+      ...modifiers // Apply the OS-specific modifiers
+    })
+    document.dispatchEvent(event)
+  }
+
   // Shows a responsive notification of specified type and message
   /**
    * @param {ExtensionStatusJSON} extensionStatusJSON
@@ -419,10 +463,10 @@ function teams() {
       obj.style.cssText = `color: #2A9ACA; ${commonCSS}`
       text.innerHTML = extensionStatusJSON.message
 
-      // Remove banner once transcript is on
-      waitForElement(`[data-tid="closed-caption-renderer-wrapper"]`).then(() => {
+      // Remove banner after 5s
+      setTimeout(() => {
         obj.style.display = "none"
-      })
+      }, 5000)
     }
     else {
       obj.style.cssText = `color: orange; ${commonCSS}`
@@ -492,7 +536,7 @@ function teams() {
   function checkExtensionStatus() {
     return new Promise((resolve, reject) => {
       // Set default value as 200
-      extensionStatusJSON = { status: 200, message: "TranscripTonic is ready <br /> <b>Please switch on Teams captions to begin (More > Captions)</b>" }
+      extensionStatusJSON = { status: 200, message: "<b>TranscripTonic is running</b> <br /> Do not turn off captions" }
 
       // https://stackoverflow.com/a/42518434
       fetch(

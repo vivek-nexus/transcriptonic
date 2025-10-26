@@ -325,7 +325,7 @@ function zoom() {
    *
    * @param {string} string1 The original string.
    * @param {string} string2 The modified string.
-   * @returns {string|null} The new part of the string, or null if no common part is found.
+   * @returns {string} The new part of the string, or string2 if no common part is found.
    */
   function findNewPart(string1, string2) {
     // Scenario 1: string2 has characters added to the end.
@@ -339,7 +339,7 @@ function zoom() {
       if (string2.startsWith(tempString1)) {
         return string2.substring(tempString1.length)
       }
-      // Chop off one character from the beginning of the temporary string.
+      // Chop off one character from the beginning of the temporary string for next loop iteration
       tempString1 = tempString1.substring(1)
     }
 
