@@ -136,6 +136,8 @@ function teams() {
           // Allow keyboard event listener to be ready
           setTimeout(() => {
             dispatchLiveCaptionsShortcut()
+            // Show message to enable because keyboard shortcut does not work on Mac
+            showNotification(extensionStatusJSON)
           }, 2000)
         }
       })
@@ -147,9 +149,6 @@ function teams() {
       waitForElement(`[data-tid="closed-caption-renderer-wrapper"]`).then((element) => {
         // Reduce the height from 43% to 20%
         element?.setAttribute("style", "height:20%")
-
-        // Show confirmation message from extensionStatusJSON, once observation has started
-        showNotification(extensionStatusJSON)
       })
 
       // **** REGISTER TRANSCRIPT LISTENER **** //
@@ -536,7 +535,7 @@ function teams() {
   function checkExtensionStatus() {
     return new Promise((resolve, reject) => {
       // Set default value as 200
-      extensionStatusJSON = { status: 200, message: "<b>TranscripTonic is running</b> <br /> Do not turn off captions" }
+      extensionStatusJSON = { status: 200, message: "TranscripTonic is ready <br /> <b>Please switch on Teams captions to begin (More > Captions)</b>" }
 
       // https://stackoverflow.com/a/42518434
       fetch(
