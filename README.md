@@ -1,9 +1,9 @@
 # TranscripTonic
-Simple Google Meet transcripts. Private and open source.
+Simple Google Meet transcripts. Private and open source. Zoom and Teams transcripts in beta.
 
 ![marquee-large](/assets/marquee-large.png)
 
-Extension status: 🟢 OPERATIONAL (v3.2.6)
+Extension status: 🟢 OPERATIONAL (v3.2.7)
 
 <br />
 <br />

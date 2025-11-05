@@ -136,7 +136,7 @@ function teams() {
           // Allow keyboard event listener to be ready
           setTimeout(() => {
             dispatchLiveCaptionsShortcut()
-            // Show message to enable because keyboard shortcut does not work in guest meetings or on Mac
+            // Show message to enable because keyboard shortcut does not work in guest meetings
             showNotification(extensionStatusJSON)
           }, 2000)
         }
@@ -184,36 +184,34 @@ function teams() {
 
 
       //*********** MEETING END ROUTINES **********//
-      try {
-        // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
-        let endCallElement = document.querySelector("#hangup-button")
-        if (endCallElement?.nextElementSibling?.tagName === "button") {
-          endCallElement = /** @type {Element} */ (document.querySelector("#hangup-button")?.parentElement)
-        }
-        endCallElement?.addEventListener("click", meetingEndRoutines)
-
-        function meetingEndRoutines() {
-          endCallElement?.removeEventListener("click", meetingEndRoutines)
-          console.log("Meeting ended")
-          // To suppress further errors
-          hasMeetingEnded = true
-          if (transcriptObserver) {
-            transcriptObserver.disconnect()
+      waitForElement(`#hangup-button`).then(() => {
+        // For some reason, capturing the reference to #hangup-button immediately is not working. Need to wait for a moment.
+        setTimeout(() => {
+          // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
+          let endCallElement = document.querySelector("#hangup-button")
+          if (endCallElement?.nextElementSibling?.tagName === "BUTTON") {
+            endCallElement = /** @type {Element} */ (endCallElement?.parentElement)
           }
+          endCallElement?.addEventListener("click", meetingEndRoutines)
 
-          // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
-          if ((personNameBuffer !== "") && (transcriptTextBuffer !== "")) {
-            pushBufferToTranscript()
+          function meetingEndRoutines() {
+            endCallElement?.removeEventListener("click", meetingEndRoutines)
+            console.log("Meeting ended")
+            // To suppress further errors
+            hasMeetingEnded = true
+            if (transcriptObserver) {
+              transcriptObserver.disconnect()
+            }
+
+            // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
+            if ((personNameBuffer !== "") && (transcriptTextBuffer !== "")) {
+              pushBufferToTranscript()
+            }
+            // Save to chrome storage and send message to download transcript from background script
+            overWriteChromeStorage(["transcript", "chatMessages"], true)
           }
-          // Save to chrome storage and send message to download transcript from background script
-          overWriteChromeStorage(["transcript", "chatMessages"], true)
-        }
-      } catch (err) {
-        console.error(err)
-        showNotification(extensionStatusJSON_bug)
-
-        logError("004", err)
-      }
+        }, 1000)
+      })
     })
   }
 
@@ -540,7 +538,7 @@ function teams() {
   function checkExtensionStatus() {
     return new Promise((resolve, reject) => {
       // Set default value as 200
-      extensionStatusJSON = { status: 200, message: "TranscripTonic is ready <br /> <b>Please switch on Teams captions to begin (More > Captions)</b>" }
+      extensionStatusJSON = { status: 200, message: "<b>TranscripTonic is ready, enabling captions...</b> <br /> Please enable manually if not successful (More > Captions)" }
 
       // https://stackoverflow.com/a/42518434
       fetch(
