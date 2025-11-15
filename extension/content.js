@@ -406,17 +406,18 @@ function chatMessagesMutationCallback(mutationsList) {
       // Attempt to parse messages only if at least one message exists
       if (chatMessagesElement && chatMessagesElement.children.length > 0) {
         // CRITICAL DOM DEPENDENCY. Get the last message that was sent/received.
-        const chatMessageElement = chatMessagesElement.lastChild
+        const chatMessageElement = chatMessagesElement.lastChild?.firstChild?.firstChild?.lastChild
         // CRITICAL DOM DEPENDENCY
-        const personName = chatMessageElement?.firstChild?.firstChild?.textContent
+        const personAndTimestampElement = chatMessageElement?.firstChild
+        const personName = personAndTimestampElement?.childNodes.length === 1 ? userName : personAndTimestampElement?.firstChild?.textContent
         const timestamp = new Date().toISOString()
-        // CRITICAL DOM DEPENDENCY. Some mutations will have some noisy text at the end, which is handled in pushUniqueChatBlock function.
-        const chatMessageText = chatMessageElement?.lastChild?.lastChild?.textContent
+        // CRITICAL DOM DEPENDENCY
+        const chatMessageText = chatMessageElement?.lastChild?.lastChild?.firstChild?.firstChild?.firstChild?.textContent
 
         if (personName && chatMessageText) {
           /**@type {ChatMessage} */
           const chatMessageBlock = {
-            "personName": personName === "You" ? userName : personName,
+            "personName": personName,
             "timestamp": timestamp,
             "chatMessageText": chatMessageText
           }
@@ -459,14 +460,14 @@ function pushBufferToTranscript() {
   overWriteChromeStorage(["transcript"], false)
 }
 
-// Pushes object to array only if it doesn't already exist. chatMessage is checked for substring since some trailing text(keep Pin message) is present from a button that allows to pin the message.
+// Pushes object to array only if it doesn't already exist.
 /**
  * @param {ChatMessage} chatBlock
  */
 function pushUniqueChatBlock(chatBlock) {
   const isExisting = chatMessages.some(item =>
-    item.personName === chatBlock.personName &&
-    chatBlock.chatMessageText.includes(item.chatMessageText)
+    (item.personName === chatBlock.personName) &&
+    (chatBlock.chatMessageText === item.chatMessageText)
   )
   if (!isExisting) {
     console.log(chatBlock)

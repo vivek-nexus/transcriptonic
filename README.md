@@ -3,7 +3,7 @@ Simple Google Meet transcripts. Private and open source. Zoom and Teams transcri
 
 ![marquee-large](/assets/marquee-large.png)
 
-Extension status: 🟢 OPERATIONAL (v3.2.7)
+Extension status: 🟢 OPERATIONAL (v3.2.8)
 
 <br />
 <br />
