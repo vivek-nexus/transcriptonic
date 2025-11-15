@@ -293,8 +293,8 @@ function meetingRoutines(uiType) {
 
 
 //*********** CALLBACK FUNCTIONS **********//
-// Callback function to execute when transcription mutations are observed. 
 /**
+ * @description Callback function to execute when transcription mutations are observed.
  * @param {MutationRecord[]} mutationsList
  */
 function transcriptMutationCallback(mutationsList) {
@@ -394,8 +394,8 @@ function transcriptMutationCallback(mutationsList) {
   })
 }
 
-// Callback function to execute when chat messages mutations are observed. 
 /**
+ * @description Callback function to execute when chat messages mutations are observed.
  * @param {MutationRecord[]} mutationsList
  */
 function chatMessagesMutationCallback(mutationsList) {
@@ -450,7 +450,9 @@ function chatMessagesMutationCallback(mutationsList) {
 
 
 //*********** HELPER FUNCTIONS **********//
-// Pushes data in the buffer to transcript array as a transcript block
+/**
+ * @description Pushes data in the buffer to transcript array as a transcript block
+ */
 function pushBufferToTranscript() {
   transcript.push({
     "personName": personNameBuffer === "You" ? userName : personNameBuffer,
@@ -460,8 +462,8 @@ function pushBufferToTranscript() {
   overWriteChromeStorage(["transcript"], false)
 }
 
-// Pushes object to array only if it doesn't already exist.
 /**
+ * @description Pushes object to array only if it doesn't already exist.
  * @param {ChatMessage} chatBlock
  */
 function pushUniqueChatBlock(chatBlock) {
@@ -476,8 +478,8 @@ function pushUniqueChatBlock(chatBlock) {
   }
 }
 
-// Saves specified variables to chrome storage. Optionally, can send message to background script to download, post saving.
 /**
+ * @description Saves specified variables to chrome storage. Optionally, can send message to background script to download, post saving.
  * @param {Array<"meetingSoftware"  | "meetingTitle" | "meetingStartTimestamp" | "transcript" | "chatMessages">} keys
  * @param {boolean} sendDownloadMessage
  */
@@ -518,6 +520,9 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
   })
 }
 
+/**
+ * @description Provides a visual cue to indicate the extension is actively working.
+ */
 function pulseStatus() {
   const statusActivityCSS = `position: fixed;
     top: 0px;
@@ -546,7 +551,9 @@ function pulseStatus() {
 }
 
 
-// Grabs updated meeting title, if available
+/**
+ * @description Grabs updated meeting title, if available
+ */
 function updateMeetingTitle() {
   waitForElement(".u6vdEc").then((element) => {
     const meetingTitleElement = /** @type {HTMLDivElement} */ (element)
@@ -571,8 +578,8 @@ function updateMeetingTitle() {
   })
 }
 
-// Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the parents. 
 /**
+ * @description Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the parents.
  * @param {string} selector
  * @param {string | RegExp} text
  */
@@ -583,8 +590,8 @@ function selectElements(selector, text) {
   })
 }
 
-// Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change
 /**
+ * @description Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change
  * @param {string} selector
  * @param {string | RegExp} [text]
  */
@@ -604,8 +611,8 @@ async function waitForElement(selector, text) {
   return document.querySelector(selector)
 }
 
-// Shows a responsive notification of specified type and message
 /**
+ * @description Shows a responsive notification of specified type and message
  * @param {ExtensionStatusJSON} extensionStatusJSON
  */
 function showNotification(extensionStatusJSON) {
@@ -666,8 +673,8 @@ const commonCSS = `background: rgb(255 255 255 / 100%);
     box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;`
 
 
-// Logs anonymous errors to a Google sheet for swift debugging   
 /**
+ * @description Logs anonymous errors to a Google sheet for swift debugging
  * @param {string} code
  * @param {any} err
  */
@@ -676,6 +683,7 @@ function logError(code, err) {
 }
 
 /**
+ * @description Checks if the installed extension version meets the minimum required version.
  * @param {string} oldVer
  * @param {string} newVer
  */
@@ -691,8 +699,9 @@ function meetsMinVersion(oldVer, newVer) {
   return true
 }
 
-
-// Fetches extension status from GitHub and saves to chrome storage. Defaults to 200, if remote server is unavailable.
+/**
+ * @description Fetches extension status from GitHub and saves to chrome storage. Defaults to 200, if remote server is unavailable.
+ */
 function checkExtensionStatus() {
   return new Promise((resolve, reject) => {
     // Set default value as 200
@@ -730,6 +739,9 @@ function checkExtensionStatus() {
   })
 }
 
+/**
+ * @description Attempts to recover last meeting to the best possible extent.
+ */
 function recoverLastMeeting() {
   return new Promise((resolve, reject) => {
     /** @type {ExtensionMessage} */

@@ -220,8 +220,8 @@ function teams() {
 
 
   //*********** CALLBACK FUNCTIONS **********//
-  // Callback function to execute when transcription mutations are observed. 
   /**
+   * @description Callback function to execute when transcription mutations are observed.
    * @param {MutationRecord[]} mutationsList
    */
   function transcriptMutationCallback(mutationsList) {
@@ -302,7 +302,9 @@ function teams() {
 
   //*********** HELPER FUNCTIONS **********//
 
-  // Pushes data in the buffer to transcript array as a transcript block
+  /**
+    * @description Pushes data in the buffer to transcript array as a transcript block
+    */
   function pushBufferToTranscript() {
     transcript.push({
       "personName": personNameBuffer,
@@ -313,8 +315,8 @@ function teams() {
     overWriteChromeStorage(["transcript"], false)
   }
 
-  // Saves specified variables to chrome storage. Optionally, can send message to background script to download, post saving.
   /**
+   * @description Saves specified variables to chrome storage. Optionally, can send message to background script to download, post saving.
    * @param {Array<"meetingSoftware"  | "meetingTitle" | "meetingStartTimestamp" | "transcript" | "chatMessages">} keys
    * @param {boolean} sendDownloadMessage
    */
@@ -355,6 +357,9 @@ function teams() {
     })
   }
 
+  /**
+   * @description Provides a visual cue to indicate the extension is actively working.
+   */
   function pulseStatus() {
     const statusActivityCSS = `position: fixed;
     top: 0px;
@@ -382,7 +387,9 @@ function teams() {
   }
 
 
-  // Grabs updated meeting title, if available
+  /**
+   * @description Grabs updated meeting title, if available
+   */
   function updateMeetingTitle() {
     setTimeout(() => {
       // NON CRITICAL DOM DEPENDENCY
@@ -391,8 +398,8 @@ function teams() {
     }, 5000)
   }
 
-  // Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change
   /**
+   * @description Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change
    * @param {string} selector
    * @param {string | RegExp} [text]
    */
@@ -424,7 +431,7 @@ function teams() {
     let event = new KeyboardEvent('keydown', {
       key: key,
       code: code,
-      ...modifiers // Apply the OS-specific modifiers
+      ...modifiers
     })
     document.dispatchEvent(event)
 
@@ -436,13 +443,13 @@ function teams() {
     event = new KeyboardEvent('keydown', {
       key: key,
       code: code,
-      ...modifiers // Apply the OS-specific modifiers
+      ...modifiers
     })
     document.dispatchEvent(event)
   }
 
-  // Shows a responsive notification of specified type and message
   /**
+   * @description Shows a responsive notification of specified type and message
    * @param {ExtensionStatusJSON} extensionStatusJSON
    */
   function showNotification(extensionStatusJSON) {
@@ -507,8 +514,8 @@ function teams() {
     box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;`
 
 
-  // Logs anonymous errors to a Google sheet for swift debugging   
   /**
+   * @description Logs anonymous errors to a Google sheet for swift debugging
    * @param {string} code
    * @param {any} err
    */
@@ -517,6 +524,7 @@ function teams() {
   }
 
   /**
+   * @description Checks if the installed extension version meets the minimum required version.
    * @param {string} oldVer
    * @param {string} newVer
    */
@@ -534,7 +542,9 @@ function teams() {
 
 
 
-  // Fetches extension status from GitHub and saves to chrome storage. Defaults to 200, if remote server is unavailable.
+  /**
+   * @description Fetches extension status from GitHub and saves to chrome storage. Defaults to 200, if remote server is unavailable.
+   */
   function checkExtensionStatus() {
     return new Promise((resolve, reject) => {
       // Set default value as 200
@@ -572,6 +582,9 @@ function teams() {
     })
   }
 
+  /**
+   * @description Attempts to recover last meeting to the best possible extent.
+   */
   function recoverLastMeeting() {
     return new Promise((resolve, reject) => {
       /** @type {ExtensionMessage} */
