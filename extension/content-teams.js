@@ -40,6 +40,10 @@ function teams() {
   let transcript = []
 
   // Buffer variables to dump values, which get pushed to transcript array as transcript blocks, at defined conditions
+  /**
+   * @type {HTMLElement | null}
+   */
+  let transcriptTargetBuffer
   let personNameBuffer = "", transcriptTextBuffer = "", timestampBuffer = ""
 
   // Chat messages array that holds one or more chat messages of the meeting
@@ -235,36 +239,29 @@ function teams() {
           const currentTranscriptText = mutationTarget?.textContent
 
           if (currentPersonName && currentTranscriptText) {
-            // Starting fresh in a meeting or resume from no active transcript
-            if (transcriptTextBuffer === "") {
+            // Starting fresh in a meeting
+            if (!transcriptTargetBuffer) {
+              transcriptTargetBuffer = mutation.target.parentElement
               personNameBuffer = currentPersonName
               timestampBuffer = new Date().toISOString()
               transcriptTextBuffer = currentTranscriptText
             }
             // Some prior transcript buffer exists
             else {
-              // New person started speaking 
-              if (personNameBuffer !== currentPersonName) {
-                // Grab any updates and ush previous person's transcript as a block
-                transcriptTextBuffer = currentTranscriptText
+              // New transcript UI block
+              if (transcriptTargetBuffer !== mutation.target.parentElement) {
+                // Push previous transcript block
                 pushBufferToTranscript()
 
                 // Update buffers for next mutation and store transcript block timestamp
+                transcriptTargetBuffer = mutation.target.parentElement
                 personNameBuffer = currentPersonName
                 timestampBuffer = new Date().toISOString()
                 transcriptTextBuffer = currentTranscriptText
               }
-              // Same person speaking more
+              // Same transcript UI block being appended
               else {
-                if ((currentTranscriptText.length - transcriptTextBuffer.length) < -50) {
-                  // Push the long transcript
-                  pushBufferToTranscript()
-
-                  // Store transcript block timestamp for next transcript block of same person
-                  timestampBuffer = new Date().toISOString()
-                }
-
-                // Update buffers for next mutation
+                // Update buffer for next mutation
                 transcriptTextBuffer = currentTranscriptText
               }
             }
