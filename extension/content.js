@@ -22,6 +22,10 @@ let userName = "You"
 let transcript = []
 
 // Buffer variables to dump values, which get pushed to transcript array as transcript blocks, at defined conditions
+/**
+   * @type {HTMLElement | null}
+   */
+let transcriptTargetBuffer
 let personNameBuffer = "", transcriptTextBuffer = "", timestampBuffer = ""
 
 // Chat messages array that holds one or more chat messages of the meeting
@@ -184,9 +188,6 @@ function meetingRoutines(uiType) {
         const transcriptTargetNode = document.querySelector(`div[role="region"][tabindex="0"]`)
 
         if (transcriptTargetNode) {
-          // Attempt to dim down the transcript
-          transcriptTargetNode.setAttribute("style", "opacity:0.2")
-
           // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
           transcriptObserver = new MutationObserver(transcriptMutationCallback)
 
@@ -298,79 +299,42 @@ function meetingRoutines(uiType) {
  * @param {MutationRecord[]} mutationsList
  */
 function transcriptMutationCallback(mutationsList) {
-  mutationsList.forEach(() => {
+  mutationsList.forEach((mutation) => {
     try {
-      // CRITICAL DOM DEPENDENCY. Get all people in the transcript
-      const people = document.querySelector(`div[role="region"][tabindex="0"]`)?.childNodes
+      if (mutation.type === "characterData") {
+        const currentPersonName = mutation.target.parentElement?.previousSibling?.textContent
+        const currentTranscriptText = mutation.target.parentElement?.textContent
 
-      if (people) {
-        /// In aria based selector case, the last people element is "Jump to bottom" button. So, pick up only if more than 1 element is available.
-        if (people.length > 1) {
-          // Get the last person
-          /** @type {undefined | ChildNode} */
-          let person = people[people.length - 2]
-          // Sometimes there is a dummy non-people div element at last but one position, which is detected by less than two childNodes within
-          if (person && (person.childNodes.length < 2)) {
-            person = people[people.length - 3]
+        if (currentPersonName && currentTranscriptText) {
+          // Attempt to dim down the transcript
+          mutation.target.parentElement?.parentElement?.setAttribute("style", "opacity:0.2")
+
+          // Starting fresh in a meeting
+          if (!transcriptTargetBuffer) {
+            transcriptTargetBuffer = mutation.target.parentElement
+            personNameBuffer = currentPersonName
+            timestampBuffer = new Date().toISOString()
+            transcriptTextBuffer = currentTranscriptText
           }
+          // Some prior transcript buffer exists
+          else {
+            // New transcript UI block
+            if (transcriptTargetBuffer !== mutation.target.parentElement) {
+              // Push previous transcript block
+              pushBufferToTranscript()
 
-          let currentPersonName
-          let currentTranscriptText
-
-          if (person && person.childNodes.length >= 2) {
-            // CRITICAL DOM DEPENDENCY
-            currentPersonName = person.childNodes[0].textContent
-            // CRITICAL DOM DEPENDENCY
-            currentTranscriptText = person.childNodes[1].textContent
-          }
-
-          if (currentPersonName && currentTranscriptText) {
-            // Starting fresh in a meeting or resume from no active transcript
-            if (transcriptTextBuffer === "") {
+              // Update buffers for next mutation and store transcript block timestamp
+              transcriptTargetBuffer = mutation.target.parentElement
               personNameBuffer = currentPersonName
               timestampBuffer = new Date().toISOString()
               transcriptTextBuffer = currentTranscriptText
             }
-            // Some prior transcript buffer exists
+            // Same transcript UI block being appended
             else {
-              // New person started speaking 
-              if (personNameBuffer !== currentPersonName) {
-                // Push previous person's transcript as a block
-                pushBufferToTranscript()
-
-                // Update buffers for next mutation and store transcript block timestamp
-                personNameBuffer = currentPersonName
-                timestampBuffer = new Date().toISOString()
-                transcriptTextBuffer = currentTranscriptText
-              }
-              // Same person speaking more
-              else {
-                // When the same person speaks for more than 30 min (approx), Meet drops very long transcript for current person and starts over, which is detected by current transcript string being significantly smaller than the previous one
-                if ((currentTranscriptText.length - transcriptTextBuffer.length) < -250) {
-                  // Push the long transcript
-                  pushBufferToTranscript()
-
-                  // Store transcript block timestamp for next transcript block of same person
-                  timestampBuffer = new Date().toISOString()
-                }
-
-                // Update buffers for next mutation
-                transcriptTextBuffer = currentTranscriptText
-              }
+              // Update buffer for next mutation
+              transcriptTextBuffer = currentTranscriptText
             }
           }
-        }
-        // No people found in transcript DOM
-        else {
-          // No transcript yet or the last person stopped speaking(and no one has started speaking next)
-          console.log("No active transcript")
-          // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
-          if ((personNameBuffer !== "") && (transcriptTextBuffer !== "")) {
-            pushBufferToTranscript()
-          }
-          // Update buffers for the next person in the next mutation
-          personNameBuffer = ""
-          transcriptTextBuffer = ""
         }
       }
 
