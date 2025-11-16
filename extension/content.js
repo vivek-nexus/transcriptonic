@@ -22,6 +22,10 @@ let userName = "You"
 let transcript = []
 
 // Buffer variables to dump values, which get pushed to transcript array as transcript blocks, at defined conditions
+/**
+   * @type {HTMLElement | null}
+   */
+let transcriptTargetBuffer
 let personNameBuffer = "", transcriptTextBuffer = "", timestampBuffer = ""
 
 // Chat messages array that holds one or more chat messages of the meeting
@@ -184,9 +188,6 @@ function meetingRoutines(uiType) {
         const transcriptTargetNode = document.querySelector(`div[role="region"][tabindex="0"]`)
 
         if (transcriptTargetNode) {
-          // Attempt to dim down the transcript
-          transcriptTargetNode.setAttribute("style", "opacity:0.2")
-
           // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
           transcriptObserver = new MutationObserver(transcriptMutationCallback)
 
@@ -293,84 +294,47 @@ function meetingRoutines(uiType) {
 
 
 //*********** CALLBACK FUNCTIONS **********//
-// Callback function to execute when transcription mutations are observed. 
 /**
+ * @description Callback function to execute when transcription mutations are observed.
  * @param {MutationRecord[]} mutationsList
  */
 function transcriptMutationCallback(mutationsList) {
-  mutationsList.forEach(() => {
+  mutationsList.forEach((mutation) => {
     try {
-      // CRITICAL DOM DEPENDENCY. Get all people in the transcript
-      const people = document.querySelector(`div[role="region"][tabindex="0"]`)?.childNodes
+      if (mutation.type === "characterData") {
+        const currentPersonName = mutation.target.parentElement?.previousSibling?.textContent
+        const currentTranscriptText = mutation.target.parentElement?.textContent
 
-      if (people) {
-        /// In aria based selector case, the last people element is "Jump to bottom" button. So, pick up only if more than 1 element is available.
-        if (people.length > 1) {
-          // Get the last person
-          /** @type {undefined | ChildNode} */
-          let person = people[people.length - 2]
-          // Sometimes there is a dummy non-people div element at last but one position, which is detected by less than two childNodes within
-          if (person && (person.childNodes.length < 2)) {
-            person = people[people.length - 3]
+        if (currentPersonName && currentTranscriptText) {
+          // Attempt to dim down the transcript
+          mutation.target.parentElement?.parentElement?.setAttribute("style", "opacity:0.2")
+
+          // Starting fresh in a meeting
+          if (!transcriptTargetBuffer) {
+            transcriptTargetBuffer = mutation.target.parentElement
+            personNameBuffer = currentPersonName
+            timestampBuffer = new Date().toISOString()
+            transcriptTextBuffer = currentTranscriptText
           }
+          // Some prior transcript buffer exists
+          else {
+            // New transcript UI block
+            if (transcriptTargetBuffer !== mutation.target.parentElement) {
+              // Push previous transcript block
+              pushBufferToTranscript()
 
-          let currentPersonName
-          let currentTranscriptText
-
-          if (person && person.childNodes.length >= 2) {
-            // CRITICAL DOM DEPENDENCY
-            currentPersonName = person.childNodes[0].textContent
-            // CRITICAL DOM DEPENDENCY
-            currentTranscriptText = person.childNodes[1].textContent
-          }
-
-          if (currentPersonName && currentTranscriptText) {
-            // Starting fresh in a meeting or resume from no active transcript
-            if (transcriptTextBuffer === "") {
+              // Update buffers for next mutation and store transcript block timestamp
+              transcriptTargetBuffer = mutation.target.parentElement
               personNameBuffer = currentPersonName
               timestampBuffer = new Date().toISOString()
               transcriptTextBuffer = currentTranscriptText
             }
-            // Some prior transcript buffer exists
+            // Same transcript UI block being appended
             else {
-              // New person started speaking 
-              if (personNameBuffer !== currentPersonName) {
-                // Push previous person's transcript as a block
-                pushBufferToTranscript()
-
-                // Update buffers for next mutation and store transcript block timestamp
-                personNameBuffer = currentPersonName
-                timestampBuffer = new Date().toISOString()
-                transcriptTextBuffer = currentTranscriptText
-              }
-              // Same person speaking more
-              else {
-                // When the same person speaks for more than 30 min (approx), Meet drops very long transcript for current person and starts over, which is detected by current transcript string being significantly smaller than the previous one
-                if ((currentTranscriptText.length - transcriptTextBuffer.length) < -250) {
-                  // Push the long transcript
-                  pushBufferToTranscript()
-
-                  // Store transcript block timestamp for next transcript block of same person
-                  timestampBuffer = new Date().toISOString()
-                }
-
-                // Update buffers for next mutation
-                transcriptTextBuffer = currentTranscriptText
-              }
+              // Update buffer for next mutation
+              transcriptTextBuffer = currentTranscriptText
             }
           }
-        }
-        // No people found in transcript DOM
-        else {
-          // No transcript yet or the last person stopped speaking(and no one has started speaking next)
-          console.log("No active transcript")
-          // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
-          if ((personNameBuffer !== "") && (transcriptTextBuffer !== "")) {
-            pushBufferToTranscript()
-          }
-          // Update buffers for the next person in the next mutation
-          personNameBuffer = ""
-          transcriptTextBuffer = ""
         }
       }
 
@@ -394,8 +358,8 @@ function transcriptMutationCallback(mutationsList) {
   })
 }
 
-// Callback function to execute when chat messages mutations are observed. 
 /**
+ * @description Callback function to execute when chat messages mutations are observed.
  * @param {MutationRecord[]} mutationsList
  */
 function chatMessagesMutationCallback(mutationsList) {
@@ -406,17 +370,18 @@ function chatMessagesMutationCallback(mutationsList) {
       // Attempt to parse messages only if at least one message exists
       if (chatMessagesElement && chatMessagesElement.children.length > 0) {
         // CRITICAL DOM DEPENDENCY. Get the last message that was sent/received.
-        const chatMessageElement = chatMessagesElement.lastChild
+        const chatMessageElement = chatMessagesElement.lastChild?.firstChild?.firstChild?.lastChild
         // CRITICAL DOM DEPENDENCY
-        const personName = chatMessageElement?.firstChild?.firstChild?.textContent
+        const personAndTimestampElement = chatMessageElement?.firstChild
+        const personName = personAndTimestampElement?.childNodes.length === 1 ? userName : personAndTimestampElement?.firstChild?.textContent
         const timestamp = new Date().toISOString()
-        // CRITICAL DOM DEPENDENCY. Some mutations will have some noisy text at the end, which is handled in pushUniqueChatBlock function.
-        const chatMessageText = chatMessageElement?.lastChild?.lastChild?.textContent
+        // CRITICAL DOM DEPENDENCY
+        const chatMessageText = chatMessageElement?.lastChild?.lastChild?.firstChild?.firstChild?.firstChild?.textContent
 
         if (personName && chatMessageText) {
           /**@type {ChatMessage} */
           const chatMessageBlock = {
-            "personName": personName === "You" ? userName : personName,
+            "personName": personName,
             "timestamp": timestamp,
             "chatMessageText": chatMessageText
           }
@@ -449,7 +414,9 @@ function chatMessagesMutationCallback(mutationsList) {
 
 
 //*********** HELPER FUNCTIONS **********//
-// Pushes data in the buffer to transcript array as a transcript block
+/**
+ * @description Pushes data in the buffer to transcript array as a transcript block
+ */
 function pushBufferToTranscript() {
   transcript.push({
     "personName": personNameBuffer === "You" ? userName : personNameBuffer,
@@ -459,14 +426,14 @@ function pushBufferToTranscript() {
   overWriteChromeStorage(["transcript"], false)
 }
 
-// Pushes object to array only if it doesn't already exist. chatMessage is checked for substring since some trailing text(keep Pin message) is present from a button that allows to pin the message.
 /**
+ * @description Pushes object to array only if it doesn't already exist.
  * @param {ChatMessage} chatBlock
  */
 function pushUniqueChatBlock(chatBlock) {
   const isExisting = chatMessages.some(item =>
-    item.personName === chatBlock.personName &&
-    chatBlock.chatMessageText.includes(item.chatMessageText)
+    (item.personName === chatBlock.personName) &&
+    (chatBlock.chatMessageText === item.chatMessageText)
   )
   if (!isExisting) {
     console.log(chatBlock)
@@ -475,8 +442,8 @@ function pushUniqueChatBlock(chatBlock) {
   }
 }
 
-// Saves specified variables to chrome storage. Optionally, can send message to background script to download, post saving.
 /**
+ * @description Saves specified variables to chrome storage. Optionally, can send message to background script to download, post saving.
  * @param {Array<"meetingSoftware"  | "meetingTitle" | "meetingStartTimestamp" | "transcript" | "chatMessages">} keys
  * @param {boolean} sendDownloadMessage
  */
@@ -517,6 +484,9 @@ function overWriteChromeStorage(keys, sendDownloadMessage) {
   })
 }
 
+/**
+ * @description Provides a visual cue to indicate the extension is actively working.
+ */
 function pulseStatus() {
   const statusActivityCSS = `position: fixed;
     top: 0px;
@@ -545,7 +515,9 @@ function pulseStatus() {
 }
 
 
-// Grabs updated meeting title, if available
+/**
+ * @description Grabs updated meeting title, if available
+ */
 function updateMeetingTitle() {
   waitForElement(".u6vdEc").then((element) => {
     const meetingTitleElement = /** @type {HTMLDivElement} */ (element)
@@ -570,8 +542,8 @@ function updateMeetingTitle() {
   })
 }
 
-// Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the parents. 
 /**
+ * @description Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the parents.
  * @param {string} selector
  * @param {string | RegExp} text
  */
@@ -582,8 +554,8 @@ function selectElements(selector, text) {
   })
 }
 
-// Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change
 /**
+ * @description Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change
  * @param {string} selector
  * @param {string | RegExp} [text]
  */
@@ -603,8 +575,8 @@ async function waitForElement(selector, text) {
   return document.querySelector(selector)
 }
 
-// Shows a responsive notification of specified type and message
 /**
+ * @description Shows a responsive notification of specified type and message
  * @param {ExtensionStatusJSON} extensionStatusJSON
  */
 function showNotification(extensionStatusJSON) {
@@ -665,8 +637,8 @@ const commonCSS = `background: rgb(255 255 255 / 100%);
     box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;`
 
 
-// Logs anonymous errors to a Google sheet for swift debugging   
 /**
+ * @description Logs anonymous errors to a Google sheet for swift debugging
  * @param {string} code
  * @param {any} err
  */
@@ -675,6 +647,7 @@ function logError(code, err) {
 }
 
 /**
+ * @description Checks if the installed extension version meets the minimum required version.
  * @param {string} oldVer
  * @param {string} newVer
  */
@@ -690,8 +663,9 @@ function meetsMinVersion(oldVer, newVer) {
   return true
 }
 
-
-// Fetches extension status from GitHub and saves to chrome storage. Defaults to 200, if remote server is unavailable.
+/**
+ * @description Fetches extension status from GitHub and saves to chrome storage. Defaults to 200, if remote server is unavailable.
+ */
 function checkExtensionStatus() {
   return new Promise((resolve, reject) => {
     // Set default value as 200
@@ -729,6 +703,9 @@ function checkExtensionStatus() {
   })
 }
 
+/**
+ * @description Attempts to recover last meeting to the best possible extent.
+ */
 function recoverLastMeeting() {
   return new Promise((resolve, reject) => {
     /** @type {ExtensionMessage} */
