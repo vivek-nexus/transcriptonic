@@ -636,7 +636,7 @@ function registerContentScripts(showNotification = true) {
                     const teamsRegistrationPromise = chrome.scripting.registerContentScripts([{
                         id: "content-teams",
                         js: ["content-teams.js"],
-                        matches: ["https://teams.live.com/*", "https://teams.microsoft.com/"],
+                        matches: ["https://teams.live.com/*", "https://teams.microsoft.com/*"],
                         runAt: "document_end",
                     }])
                     promises.push(teamsRegistrationPromise)
