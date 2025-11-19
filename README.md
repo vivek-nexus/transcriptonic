@@ -1,9 +1,11 @@
 # TranscripTonic
-Simple Google Meet transcripts. Private and open source. Zoom and Teams transcripts in beta.
+Simple Google Meet transcripts. Private and open source. 
+> Zoom and Teams transcripts in beta. <a href="https://github.com/vivek-nexus/transcriptonic/wiki/Zoom-and-Teams-beta-testing" target="_blank">Learn
+          more</a>.
 
 ![marquee-large](/assets/marquee-large.png)
 
-Extension status: 🟢 OPERATIONAL (v3.2.8)
+Extension status: 🟢 OPERATIONAL (v3.2.9)
 
 <br />
 <br />
