@@ -2,28 +2,21 @@
 /// <reference path="../types/chrome.d.ts" />
 /// <reference path="../types/index.js" />
 
-let isTeamsRunning = false
+let isTeamsInjected = false
 
 setInterval(() => {
-  // Meeting page
+  // Meeting lobby
   const isJoinButtonFound = document.querySelector("#prejoin-join-button")
-  console.log(isTeamsRunning)
 
   // On the meeting lobby and main teams function is not running, inject it
-  // This won't cause multiple main teams injections into the current meeting because when the previous meeting ended, all UI elements are gone, destroying the corresponding event listeners
-  if (isJoinButtonFound && !isTeamsRunning) {
+  // This won't cause multiple main teams injections into the current meeting because when the previous meeting ends, all UI elements are gone, destroying the corresponding event listeners
+  if (isJoinButtonFound && !isTeamsInjected) {
     teams()
-    isTeamsRunning = true
+    isTeamsInjected = true
   }
-  // Main teams function already injected, don't do anything
-  else if (isJoinButtonFound && isTeamsRunning) {
-    return
-  }
-  // Already in a meeting, reset flag to allow injection of main teams function, whenever meeting lobby is encountered next
-  // OR 
-  // Not the right URL, set flag to allow injection of main teams function, whenever meeting lobby is encountered next
-  else {
-    isTeamsRunning = false
+  // Reset flag for next meeting lobby visit
+  if (!isJoinButtonFound) {
+    isTeamsInjected = false
   }
 }, 2000)
 
