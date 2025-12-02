@@ -2,26 +2,29 @@
 /// <reference path="../types/chrome.d.ts" />
 /// <reference path="../types/index.js" />
 
-let isMainRunning = false
+let isZoomRunning = false
 // let isPromptShown = false
 
 setInterval(() => {
   // Meeting page
-  const meetingUrlPattern = /^https:\/\/app\.zoom\.us\/wc\/\d+\/.+$/
-  const isMeetingUrlMatching = meetingUrlPattern.test(location.href)
+  const zoomUrlPattern = /^https:\/\/app\.zoom\.us\/wc\/\d+\/.+$/
+  const isZoomUrlMatching = zoomUrlPattern.test(location.href)
 
-  // If on the URL and main is not running, call main
-  if (isMeetingUrlMatching && !isMainRunning) {
+  // On the meeting page and main zoom function is not running, inject it
+  // This won't cause multiple main zoom injections into the current meeting because when the previous meeting ended, all UI elements are gone, destroying the corresponding event listeners
+  if (isZoomUrlMatching && !isZoomRunning) {
     zoom()
-    isMainRunning = true
+    isZoomRunning = true
   }
-  // Main already running on the right URL, don't do anything
-  else if (isMeetingUrlMatching && isMainRunning) {
+  // Main zoom function already injected, don't do anything
+  else if (isZoomUrlMatching && isZoomRunning) {
     return
   }
-  // Not the right URL, so reset main for next visit
+  // Already in a meeting, reset flag to allow injection of main zoom function, whenever meeting page is encountered next
+  // OR 
+  // Not the right URL, set flag to allow injection of main zoom function, whenever meeting page is encountered next
   else {
-    isMainRunning = false
+    isZoomRunning = false
   }
 }, 2000)
 

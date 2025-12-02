@@ -5,14 +5,14 @@
 <head>
   <title>TranscripTonic</title>
   <style>
-    @import url("https://fonts.googleapis.com/css2?family=SUSE:wght@400;700&display=swap");
+    @import url("https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400;700&?family=SUSE:wght@700&display=swap");
 
     body {
-      width: 540px;
+      width: 560px;
       padding: 1.5rem;
       background: #071f29;
       color: #C0C0C0;
-      font-family: "SUSE", sans-serif;
+      font-family: "TASA Explorer", sans-serif;
       font-size: 1rem;
     }
 
@@ -22,17 +22,13 @@
     }
 
     .header {
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
     }
 
     .header-content {
       display: flex;
       align-items: center;
       justify-content: space-between;
-    }
-
-    .header-text {
-      color: #2A9ACA;
     }
 
     .header-description {
@@ -73,6 +69,7 @@
 
     .sub-text {
       color: #a0a0a0;
+      font-size: small;
     }
 
     input {
@@ -102,7 +99,7 @@
       font-size: 1rem;
       text-decoration: underline;
       text-underline-offset: 4px;
-      font-family: "SUSE", sans-serif;
+      font-family: "TASA Explorer", sans-serif;
       background: transparent;
       border: none;
       cursor: pointer;
@@ -139,6 +136,11 @@
       height: 24px;
       width: auto;
     }
+
+    .right-arrow {
+      font-family: "SUSE", sans-serif;
+      font-size: small;
+    }
   </style>
 </head>
 
@@ -170,7 +172,8 @@
         </label>
       </div>
       <!-- <hr class="divider" /> -->
-      <p class="sub-text">In both modes, transcript will be downloaded as a text file at the end of each meeting
+      <p class="sub-text" style="font-size: small;">In both modes, transcript will be downloaded as a text file at the
+        end of each meeting
       </p>
     </div>
 
@@ -182,7 +185,7 @@
       <p style="margin-top: 0px;">You can integrate
         TranscripTonic with your
         favourite tools like <b>Google Docs, Notion, n8n and more</b> using <a href="meetings.html#webhooks"
-          target="_blank"><b>webhooks -></b></a></p>
+          target="_blank"><b>webhooks <span class="right-arrow">&rarr;</span></b></a></p>
     </div>
 
     <div>
@@ -195,7 +198,7 @@
           more</a>
       </div>
       <div class="footer">
-        <a href="./meetings.html" target="_blank">Last 10 meetings -></a>
+        <a href="./meetings.html" target="_blank">Last 10 meetings <span class="right-arrow">&rarr;</span></a>
         <div>
           <a href="https://github.com/vivek-nexus/transcriptonic#readme" target="_blank">Get help</a>
           <span class="footer-separator">&#9679;</span>
