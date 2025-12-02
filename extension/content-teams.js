@@ -2,24 +2,21 @@
 /// <reference path="../types/chrome.d.ts" />
 /// <reference path="../types/index.js" />
 
-let isMainRunningTeams = false
+let isTeamsInjected = false
 
 setInterval(() => {
-  // Meeting page
+  // Meeting lobby
   const isJoinButtonFound = document.querySelector("#prejoin-join-button")
 
-  // If on the meeting lobby and main is not running, call teams
-  if (isJoinButtonFound && !isMainRunningTeams) {
+  // On the meeting lobby and main teams function is not running, inject it
+  // This won't cause multiple main teams injections into the current meeting because when the previous meeting ends, all UI elements are gone, destroying the corresponding event listeners
+  if (isJoinButtonFound && !isTeamsInjected) {
     teams()
-    isMainRunningTeams = true
+    isTeamsInjected = true
   }
-  // Main already running on the right URL, don't do anything
-  else if (isJoinButtonFound && isMainRunningTeams) {
-    return
-  }
-  // Not the right URL, so reset main for next visit
-  else {
-    isMainRunningTeams = false
+  // Reset flag for next meeting lobby visit
+  if (!isJoinButtonFound) {
+    isTeamsInjected = false
   }
 }, 2000)
 
@@ -146,16 +143,14 @@ function teams() {
         }
       })
 
-
-      /** @type {MutationObserver} */
-      let transcriptObserver
-
-      waitForElement(`[data-tid="closed-caption-renderer-wrapper"]`).then((element) => {
+      waitForElement(`.f419p8h`).then((element) => {
         // Reduce the height from 43% to 20%
         element?.setAttribute("style", "height:20%")
       })
 
       // **** REGISTER TRANSCRIPT LISTENER **** //
+      /** @type {MutationObserver} */
+      let transcriptObserver
       // Wait for transcript node to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
       waitForElement(`[data-tid="closed-caption-v2-virtual-list-content"]`).then((element) => {
         console.log("Found captions container")

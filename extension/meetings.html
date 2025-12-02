@@ -6,18 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TranscripTonic—Meetings</title>
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=SUSE:wght@400;700&display=swap");
+        @import url("https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400;700&display=swap");
 
         html {
             scroll-behavior: smooth;
         }
 
         body {
-            font-family: "SUSE", sans-serif;
+            font-family: "TASA Explorer", sans-serif;
             padding: 1.5rem 3rem;
             color: #C0C0C0;
             background: #071f29;
             font-size: 1rem;
+            accent-color: #2A9ACA;
         }
 
         h1 {
@@ -35,12 +36,19 @@
             overflow-x: auto;
         }
 
+        @media screen and (max-width: 600px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .card {
             /* grid-column: 1; */
             background: rgba(255, 255, 255, 0.1);
             padding: 1.5rem 0rem;
             border-radius: 8px;
             margin-bottom: 1rem;
+            container-type: inline-size;
         }
 
         h2 {
@@ -109,9 +117,10 @@
             cursor: pointer;
         }
 
-        .sub-text {
+        .sub-text:not(p) {
             font-weight: normal;
             color: #a0a0a0;
+            font-size: small;
         }
 
         input[type="url"] {
@@ -121,7 +130,7 @@
             border-radius: 4px 0px 0px 4px;
             background: rgba(255, 255, 255, 0.1);
             color: #C0C0C0;
-            font-family: "SUSE", sans-serif;
+            font-family: "TASA Explorer", sans-serif;
             box-sizing: border-box;
         }
 
@@ -161,7 +170,7 @@
             border: none;
             padding: 0.5rem 1rem;
             border-radius: 4px;
-            font-family: "SUSE", sans-serif;
+            font-family: "TASA Explorer", sans-serif;
             font-weight: bold;
             cursor: pointer;
         }
@@ -288,6 +297,12 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.75rem;
+        }
+
+        @container (width < 600px) {
+            .integration-card {
+                grid-template-columns: 1fr;
+            }
         }
 
         .integration-guide {

@@ -75,8 +75,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 webhookUrlInput.value = resultSync.webhookUrl
                 saveButton.disabled = !webhookUrlInput.checkValidity()
             }
-            // Set checkbox state, default to true if not set
-            autoPostCheckbox.checked = resultSync.autoPostWebhookAfterMeeting !== false
+
+            // Set checkbox state, default to true if not defined
+            autoPostCheckbox.checked = resultSync.autoPostWebhookAfterMeeting === false ? false : true
+            // Save value (needed to set value when not defined)
+            chrome.storage.sync.set({
+                autoPostWebhookAfterMeeting: autoPostCheckbox.checked,
+            }, function () { })
+
             // Set radio button state, default to simple if not set
             if (resultSync.webhookBodyType === "advanced") {
                 advancedWebhookBodyRadio.checked = true
