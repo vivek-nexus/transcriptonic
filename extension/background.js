@@ -184,12 +184,24 @@ chrome.permissions.onAdded.addListener((event) => {
     }
 })
 
-// Re-register content scripts whenever extension in installed or updated, provided permissions are available
+
 chrome.runtime.onInstalled.addListener(() => {
+    // Re-register content scripts whenever extension is installed or updated, provided permissions are available
     chrome.permissions.getAll().then((permissions) => {
         if (permissions.origins?.includes("https://*.zoom.us/*") && permissions.origins?.includes("https://teams.live.com/*") && permissions.origins?.includes("https://teams.microsoft.com/*")) {
             registerContentScripts(false)
         }
+    })
+
+    // Set defaults values
+    chrome.storage.sync.get(["autoPostWebhookAfterMeeting", "operationMode", "webhookBodyType", "webhookUrl"], function (resultSyncUntyped) {
+        const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+
+        chrome.storage.sync.set({
+            autoPostWebhookAfterMeeting: resultSync.autoPostWebhookAfterMeeting === false ? false : true,
+            operationMode: resultSync.operationMode === "manual" ? "manual" : "auto",
+            webhookBodyType: resultSync.webhookBodyType === "advanced" ? "advanced" : "simple",
+        }, function () { })
     })
 })
 

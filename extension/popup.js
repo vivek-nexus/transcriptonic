@@ -18,15 +18,13 @@ window.onload = function () {
     const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
 
     if (autoModeRadio instanceof HTMLInputElement && manualModeRadio instanceof HTMLInputElement) {
-      if (resultSync.operationMode === undefined) {
-        autoModeRadio.checked = true
-      }
-      else if (resultSync.operationMode === "auto") {
-        autoModeRadio.checked = true
-      }
-      else if (resultSync.operationMode === "manual") {
+      if (resultSync.operationMode === "manual") {
         manualModeRadio.checked = true
       }
+      else {
+        autoModeRadio.checked = true
+      }
+
 
       autoModeRadio.addEventListener("change", function () {
         chrome.storage.sync.set({ operationMode: "auto" }, function () { })
