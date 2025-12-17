@@ -203,7 +203,9 @@ function loadMeetings() {
                     const row = document.createElement("tr")
                     row.innerHTML = `
                     <td>
+                        <div contenteditable="true" class="meeting-title" data-index="${i}" style="text-decoration: underline #a0a0a0; text-underline-offset: 6px;" title="Rename">
                         ${meeting.meetingTitle || meeting.title || "Google Meet call"}
+                    </div>
                     </td>
                     <td>
                      ${meeting.meetingSoftware ? meeting.meetingSoftware : ""} 
@@ -226,23 +228,36 @@ function loadMeetings() {
                         )()}
                     </td>
                     <td>
-                        <div style="min-width: 128px; display: flex; gap: 1rem;">
-                            <button class="download-button" data-index="${i}">
-                                <img src="./icons/download.svg" alt="Download this meeting transcript">
+                        <div style="display: flex; gap: 1rem; justify-content: end">
+                            <button class="download-button" data-index="${i}" title="Download" aria-label="Download this meeting transcript">
+                                <img src="./icons/download.svg" alt="">
                             </button>
-                            <button class="post-button" data-index="${i}">
-                                ${meeting.webhookPostStatus === "new" ? `Post` : `Repost`}
-                                <img src="./icons/webhook.svg" alt="" width="16px">
+                            <button class="post-button" data-index="${i}" title="${meeting.webhookPostStatus === "new" ? `Post webhook` : `Repost webhook`}" aria-label="${meeting.webhookPostStatus === "new" ? `` : ``}">
+                                ${meeting.webhookPostStatus === "new" ? `` : ``}
+                                <img src="./icons/webhook.svg" alt="">
+                            </button>
+                            &nbsp;
+                             <button class="delete-button" data-index="${i}" title="Delete" aria-label="Delete this meeting">
+                                <img src="./icons/delete.svg" alt="">
                             </button>
                         </div>
                     </td>
                 `
                     meetingsTable.appendChild(row)
 
-                    const meetingsTableContainer = document.querySelector("#meetings-table-container")
-                    if (!isMeetingsTableExpanded && meetingsTableContainer && (meetingsTableContainer.clientHeight > 320)) {
-                        meetingsTableContainer?.classList.add("fade-mask")
-                        document.querySelector("#show-all")?.setAttribute("style", "display: block")
+                    // Add event listener to meeting title input
+                    const meetingTitleInput = row.querySelector(".meeting-title")
+                    if (meetingTitleInput instanceof HTMLDivElement) {
+                        meetingTitleInput.addEventListener("blur", function () {
+                            const updatedMeeting = /** @type {Meeting} */ {
+                                ...meeting,
+                                meetingTitle: meetingTitleInput.innerText
+                            }
+                            meetings[i] = updatedMeeting
+                            chrome.storage.local.set({ meetings: meetings }, function () {
+                                console.log("Meeting title updated")
+                            })
+                        })
                     }
 
                     // Add event listener to the webhook post button
@@ -258,7 +273,6 @@ function loadMeetings() {
                             }
                             chrome.runtime.sendMessage(message, (responseUntyped) => {
                                 const response = /** @type {ExtensionResponse} */ (responseUntyped)
-                                loadMeetings()
                                 if (!response.success) {
                                     alert("Could not download transcript")
                                     const parsedError = /** @type {ErrorObject} */ (response.message)
@@ -314,6 +328,24 @@ function loadMeetings() {
                             })
                         })
                     }
+
+                    // Add event listener to the meeting delete button
+                    const deleteButton = row.querySelector(".delete-button")
+                    if (deleteButton instanceof HTMLButtonElement) {
+                        deleteButton.addEventListener("click", function () {
+                            if (confirm("Delete this meeting?")) {
+                                meetings.splice(i, 1)
+                                chrome.storage.local.set({ meetings: meetings }, function () {
+                                    console.log("Meeting title updated")
+                                })
+                            }
+                        })
+                    }
+                }
+                const meetingsTableContainer = document.querySelector("#meetings-table-container")
+                if (!isMeetingsTableExpanded && meetingsTableContainer && (meetingsTableContainer.clientHeight > 280)) {
+                    meetingsTableContainer?.classList.add("fade-mask")
+                    document.querySelector("#show-all")?.setAttribute("style", "display: block")
                 }
             }
             else {

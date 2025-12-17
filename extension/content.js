@@ -302,37 +302,46 @@ function transcriptMutationCallback(mutationsList) {
   mutationsList.forEach((mutation) => {
     try {
       if (mutation.type === "characterData") {
-        const currentPersonName = mutation.target.parentElement?.previousSibling?.textContent
-        const currentTranscriptText = mutation.target.parentElement?.textContent
+        const mutationTarget = mutation.target.parentElement
+        const mutationSiblings = [...mutationTarget?.parentElement?.children || []]
+        const isLastElement = mutationSiblings[mutationSiblings.length - 1] === mutationTarget ? true : false
 
-        if (currentPersonName && currentTranscriptText) {
-          // Attempt to dim down the transcript
-          mutation.target.parentElement?.parentElement?.setAttribute("style", "opacity:0.2")
+        // Pick up only last elements since Meet mutates previous blocks to make minor corrections. Picking them up leads to repetitive transcript blocks in the result.
+        if (isLastElement) {
+          const currentPersonName = mutationTarget?.previousSibling?.textContent
+          const currentTranscriptText = mutationTarget?.textContent
 
-          // Starting fresh in a meeting
-          if (!transcriptTargetBuffer) {
-            transcriptTargetBuffer = mutation.target.parentElement
-            personNameBuffer = currentPersonName
-            timestampBuffer = new Date().toISOString()
-            transcriptTextBuffer = currentTranscriptText
-          }
-          // Some prior transcript buffer exists
-          else {
-            // New transcript UI block
-            if (transcriptTargetBuffer !== mutation.target.parentElement) {
-              // Push previous transcript block
-              pushBufferToTranscript()
+          if (currentPersonName && currentTranscriptText) {
+            // Attempt to dim down the transcript
+            [...mutationTarget?.parentElement?.children || []].forEach((item) => {
+              item.setAttribute("style", "opacity:0.2")
+            })
 
-              // Update buffers for next mutation and store transcript block timestamp
-              transcriptTargetBuffer = mutation.target.parentElement
+            // Starting fresh in a meeting
+            if (!transcriptTargetBuffer) {
+              transcriptTargetBuffer = mutationTarget
               personNameBuffer = currentPersonName
               timestampBuffer = new Date().toISOString()
               transcriptTextBuffer = currentTranscriptText
             }
-            // Same transcript UI block being appended
+            // Some prior transcript buffer exists
             else {
-              // Update buffer for next mutation
-              transcriptTextBuffer = currentTranscriptText
+              // New transcript UI block
+              if (transcriptTargetBuffer !== mutationTarget) {
+                // Push previous transcript block
+                pushBufferToTranscript()
+
+                // Update buffers for next mutation and store transcript block timestamp
+                transcriptTargetBuffer = mutationTarget
+                personNameBuffer = currentPersonName
+                timestampBuffer = new Date().toISOString()
+                transcriptTextBuffer = currentTranscriptText
+              }
+              // Same transcript UI block being appended
+              else {
+                // Update buffer for next mutation
+                transcriptTextBuffer = currentTranscriptText
+              }
             }
           }
         }
@@ -433,7 +442,7 @@ function pushBufferToTranscript() {
 function pushUniqueChatBlock(chatBlock) {
   const isExisting = chatMessages.some(item =>
     (item.personName === chatBlock.personName) &&
-    (chatBlock.chatMessageText === item.chatMessageText)
+    (item.chatMessageText === chatBlock.chatMessageText)
   )
   if (!isExisting) {
     console.log(chatBlock)
