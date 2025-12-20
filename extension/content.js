@@ -302,47 +302,66 @@ function transcriptMutationCallback(mutationsList) {
   mutationsList.forEach((mutation) => {
     try {
       if (mutation.type === "characterData") {
-        const mutationTarget = mutation.target.parentElement
-        const mutationSiblings = [...mutationTarget?.parentElement?.children || []]
-        const isLastElement = mutationSiblings[mutationSiblings.length - 1] === mutationTarget ? true : false
+        const mutationTargetElement = mutation.target.parentElement
+        const transcriptUIBlocks = [...mutationTargetElement?.parentElement?.parentElement?.children || []]
+        const isLastButSecondElement = transcriptUIBlocks[transcriptUIBlocks.length - 3] === mutationTargetElement?.parentElement ? true : false
 
-        // Pick up only last elements since Meet mutates previous blocks to make minor corrections. Picking them up leads to repetitive transcript blocks in the result.
-        if (isLastElement) {
-          const currentPersonName = mutationTarget?.previousSibling?.textContent
-          const currentTranscriptText = mutationTarget?.textContent
+        // Pick up only last second element (the last and last but one are non transcript elements), since Meet mutates previous blocks to make minor corrections. Picking them up leads to repetitive transcript blocks in the result.
+        if (isLastButSecondElement) {
+          // Attempt to dim down the current transcript
+          [...transcriptUIBlocks[transcriptUIBlocks.length - 3].children].forEach((item) => {
+            item.setAttribute("style", "opacity:0.2")
+          })
+
+          const currentPersonName = mutationTargetElement?.previousSibling?.textContent
+          const currentTranscriptText = mutationTargetElement?.textContent
 
           if (currentPersonName && currentTranscriptText) {
-            // Attempt to dim down the transcript
-            [...mutationTarget?.parentElement?.children || []].forEach((item) => {
-              item.setAttribute("style", "opacity:0.2")
-            })
-
-            // Starting fresh in a meeting
-            if (!transcriptTargetBuffer) {
-              transcriptTargetBuffer = mutationTarget
+            // Starting fresh in a meeting or resume from no active transcript
+            if (transcriptTextBuffer === "") {
               personNameBuffer = currentPersonName
               timestampBuffer = new Date().toISOString()
               transcriptTextBuffer = currentTranscriptText
             }
             // Some prior transcript buffer exists
             else {
-              // New transcript UI block
-              if (transcriptTargetBuffer !== mutationTarget) {
-                // Push previous transcript block
+              // New person started speaking 
+              if (personNameBuffer !== currentPersonName) {
+                // Push previous person's transcript as a block
                 pushBufferToTranscript()
 
                 // Update buffers for next mutation and store transcript block timestamp
-                transcriptTargetBuffer = mutationTarget
                 personNameBuffer = currentPersonName
                 timestampBuffer = new Date().toISOString()
                 transcriptTextBuffer = currentTranscriptText
               }
-              // Same transcript UI block being appended
+              // Same person speaking more
               else {
-                // Update buffer for next mutation
+                // When the same person speaks for more than 30 min (approx), Meet drops very long transcript for current person and starts over, which is detected by current transcript string being significantly smaller than the previous one
+                if ((currentTranscriptText.length - transcriptTextBuffer.length) < -250) {
+                  // Push the long transcript
+                  pushBufferToTranscript()
+
+                  // Store transcript block timestamp for next transcript block of same person
+                  timestampBuffer = new Date().toISOString()
+                }
+
+                // Update buffers for next mutation
                 transcriptTextBuffer = currentTranscriptText
               }
             }
+          }
+          // No people found in transcript DOM
+          else {
+            // No transcript yet or the last person stopped speaking(and no one has started speaking next)
+            console.log("No active transcript")
+            // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
+            if ((personNameBuffer !== "") && (transcriptTextBuffer !== "")) {
+              pushBufferToTranscript()
+            }
+            // Update buffers for the next person in the next mutation
+            personNameBuffer = ""
+            transcriptTextBuffer = ""
           }
         }
       }
