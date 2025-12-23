@@ -233,6 +233,10 @@
             align-items: center;
         }
 
+        #meetings-table-container {
+            overflow-x: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -267,7 +271,9 @@
             font-weight: bold
         }
 
-        .download-button {
+        .download-button,
+        .delete-button,
+        .post-button {
             background: transparent;
             color: #2A9ACA;
             border: none;
@@ -275,16 +281,7 @@
             display: flex;
             flex-direction: column;
             justify-content: end;
-        }
-
-        .post-button {
-            background: transparent;
-            color: #2A9ACA;
-            border: 1px solid #2A9ACA;
-            padding: 0.25rem 0.5rem;
-            display: flex;
-            gap: 0.25rem;
-            align-items: center;
+            font-size: smaller;
         }
 
         .card-heading {
@@ -367,7 +364,7 @@
                             <th>Meeting software</th>
                             <th>Meeting start time and duration</th>
                             <th>Webhook status</th>
-                            <th>Actions</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody id="meetings-table">
@@ -376,7 +373,8 @@
                 </table>
             </div>
             <button id="show-all" style="display: none;">Show
-                all</button>
+                all
+            </button>
         </section>
 
         <section id="webhooks">
