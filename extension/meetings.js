@@ -203,7 +203,7 @@ function loadMeetings() {
                     const row = document.createElement("tr")
                     row.innerHTML = `
                     <td>
-                        <div contenteditable="true" class="meeting-title" data-index="${i}" style="text-decoration: underline #a0a0a0; text-underline-offset: 6px;" title="Rename">
+                        <div contenteditable="true" class="meeting-title" data-index="${i}" title="Rename">
                         ${meeting.meetingTitle || meeting.title || "Google Meet call"}
                     </div>
                     </td>

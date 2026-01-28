@@ -308,15 +308,15 @@ function transcriptMutationCallback(mutationsList) {
 
         // Pick up only last second element (the last and last but one are non transcript elements), since Meet mutates previous blocks to make minor corrections. Picking them up leads to repetitive transcript blocks in the result.
         if (isLastButSecondElement) {
-          // Attempt to dim down the current transcript
-          [...transcriptUIBlocks[transcriptUIBlocks.length - 3].children].forEach((item) => {
-            item.setAttribute("style", "opacity:0.2")
-          })
-
           const currentPersonName = mutationTargetElement?.previousSibling?.textContent
           const currentTranscriptText = mutationTargetElement?.textContent
 
           if (currentPersonName && currentTranscriptText) {
+            // Attempt to dim down the current transcript
+            [...transcriptUIBlocks[transcriptUIBlocks.length - 3].children].forEach((item) => {
+              item.setAttribute("style", "opacity:0.2")
+            })
+
             // Starting fresh in a meeting or resume from no active transcript
             if (transcriptTextBuffer === "") {
               personNameBuffer = currentPersonName
