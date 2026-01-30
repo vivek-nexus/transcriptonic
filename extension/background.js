@@ -12,6 +12,75 @@ const timeFormat = {
     hour12: true
 }
 
+// --- Download bridge for MV3 service worker -> meetings.html (DOM context) ---
+/** @type {chrome.runtime.Port | null} */
+let meetingsPort = null
+/** @type {number | null} */
+let autoOpenedMeetingsTabId = null
+
+chrome.runtime.onConnect.addListener((port) => {
+    if (port.name === 'meetings') {
+        meetingsPort = port
+        port.onDisconnect.addListener(() => {
+            if (meetingsPort === port) {
+                meetingsPort = null
+                autoOpenedMeetingsTabId = null
+            }
+        })
+    }
+})
+
+/**
+ * Ensure we have a DOM-capable extension page connected (meetings.html),
+ * so we can create Blob URLs / anchor downloads (service workers lack URL.createObjectURL).
+ * @returns {Promise<chrome.runtime.Port>}
+ */
+function ensureMeetingsPort() {
+    return new Promise((resolve, reject) => {
+        if (meetingsPort) return resolve(meetingsPort)
+
+        // Open meetings.html in a background tab (inactive) so it can connect back via runtime.connect
+        const url = chrome.runtime.getURL('meetings.html')
+        chrome.tabs.create({ url, active: false }, (tab) => {
+            autoOpenedMeetingsTabId = tab?.id ?? null
+
+            const timeoutMs = 5000
+            const start = Date.now()
+            const timer = setInterval(() => {
+                if (meetingsPort) {
+                    clearInterval(timer)
+                    resolve(meetingsPort)
+                } else if (Date.now() - start > timeoutMs) {
+                    clearInterval(timer)
+                    reject(new Error('meetings.html did not connect in time'))
+                }
+            }, 50)
+        })
+    })
+}
+
+/**
+ * Ask meetings.html to download a transcript using Blob + <a download>, which preserves filenames in Brave.
+ * @param {string} filename
+ * @param {string} content
+ */
+function downloadViaMeetingsPage(filename, content) {
+    return ensureMeetingsPort().then((port) => {
+        port.postMessage({ type: 'download_transcript_payload', filename, content })
+
+        // If we auto-opened the tab just for downloading, close it shortly after triggering download.
+        if (autoOpenedMeetingsTabId !== null) {
+            const tabIdToClose = autoOpenedMeetingsTabId
+            autoOpenedMeetingsTabId = null
+            setTimeout(() => {
+                chrome.tabs.remove(tabIdToClose)
+            }, 2000)
+        }
+    })
+}
+// --- End download bridge ---
+
+
 
 chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendResponse) {
     const message = /** @type {ExtensionMessage} */ (messageUnTyped)
@@ -345,13 +414,9 @@ function downloadTranscript(index, isWebhookEnabled) {
                     sanitisedMeetingTitle = meeting.title.replaceAll(invalidFilenameRegex, "_")
                 }
 
-                // Format timestamp for human-readable filename and sanitise to prevent invalid filenames
-                const timestamp = new Date(meeting.meetingStartTimestamp)
-                const formattedTimestamp = timestamp.toLocaleString("default", timeFormat).replace(/[\/:]/g, "-")
-
-                const prefix = meeting.meetingSoftware ? `${meeting.meetingSoftware} transcript` : "Transcript"
-
-                const fileName = `TranscripTonic/${prefix}-${sanitisedMeetingTitle} at ${formattedTimestamp} on.txt`
+                // Use meeting title as the filename.
+                // (Brave + MV3: we download via meetings.html using <a download>, which cannot create subfolders.)
+                const fileName = `${sanitisedMeetingTitle}.txt`
 
 
                 // Format transcript and chatMessages content
@@ -364,57 +429,25 @@ function downloadTranscript(index, isWebhookEnabled) {
                 content += "Transcript saved using TranscripTonic Chrome extension (https://chromewebstore.google.com/detail/ciepnfnceimjehngolkijpnbappkkiag)"
                 content += "\n---------------"
 
-                const blob = new Blob([content], { type: "text/plain" })
+                // Download via meetings.html (DOM context) because Brave ignores filenames for data: downloads from service workers.
+                downloadViaMeetingsPage(fileName, content)
+                    .then(() => {
+                        console.log("Transcript downloaded")
+                        resolve("Transcript downloaded successfully")
 
-                // Read the blob as a data URL
-                const reader = new FileReader()
-
-                // Read the blob
-                reader.readAsDataURL(blob)
-
-                // Download as text file, once blob is read
-                reader.onload = function (event) {
-                    if (event.target?.result) {
-                        const dataUrl = event.target.result
-
-                        // Create a download with Chrome Download API
-                        chrome.downloads.download({
-                            // @ts-ignore
-                            url: dataUrl,
-                            filename: fileName,
-                            conflictAction: "uniquify"
-                        }).then(() => {
-                            console.log("Transcript downloaded")
-                            resolve("Transcript downloaded successfully")
-
-                            // Increment anonymous transcript generated count to a Google sheet
-                            fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}&meetingSoftware=${meeting.meetingSoftware}`, {
-                                mode: "no-cors"
-                            })
-                        }).catch((err) => {
-                            console.error(err)
-                            chrome.downloads.download({
-                                // @ts-ignore
-                                url: dataUrl,
-                                filename: "TranscripTonic/Transcript.txt",
-                                conflictAction: "uniquify"
-                            })
-                            console.log("Invalid file name. Transcript downloaded to TranscripTonic directory with simple file name.")
-                            resolve("Transcript downloaded successfully with default file name")
-
-                            // Logs anonymous errors to a Google sheet for swift debugging   
-                            fetch(`https://script.google.com/macros/s/AKfycbwN-bVkVv3YX4qvrEVwG9oSup0eEd3R22kgKahsQ3bCTzlXfRuaiO7sUVzH9ONfhL4wbA/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}&meetingSoftware=${meeting.meetingSoftware}`, { mode: "no-cors" })
-
-                            // Increment anonymous transcript generated count to a Google sheet
-                            fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}&meetingSoftware=${meeting.meetingSoftware}`, {
-                                mode: "no-cors"
-                            })
+                        // Increment anonymous transcript generated count to a Google sheet
+                        fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}&meetingSoftware=${meeting.meetingSoftware}`, {
+                            mode: "no-cors"
                         })
-                    }
-                    else {
-                        reject({ errorCode: "009", errorMessage: "Failed to read blob" })
-                    }
-                }
+                    })
+                    .catch((err) => {
+                        console.error(err)
+                        reject({ errorCode: "009", errorMessage: "Failed to download transcript" })
+
+                        // Logs anonymous errors to a Google sheet for swift debugging
+                        fetch(`https://script.google.com/macros/s/AKfycbwN-bVkVv3YX4qvrEVwG9oSup0eEd3R22kgKahsQ3bCTzlXfRuaiO7sUVzH9ONfhL4wbA/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}&meetingSoftware=${meeting.meetingSoftware}`, { mode: "no-cors" })
+                    })
+
             }
             else {
                 reject({ errorCode: "010", errorMessage: "Meeting at specified index not found" })

@@ -4,6 +4,40 @@
 
 let isMeetingsTableExpanded = false
 
+// Keep a live connection to the service worker so it can ask this page (DOM context) to download transcripts.
+// Service workers in MV3 do not have URL.createObjectURL, and Brave may ignore filenames for data: downloads.
+const meetingsPort = chrome.runtime.connect({ name: 'meetings' })
+
+/**
+ * Trigger a local download using Blob + <a download>.
+ * Note: <a download> does not support subdirectories, so we strip any path prefix.
+ * @param {string} filename
+ * @param {string} content
+ */
+function downloadTextFile(filename, content) {
+    const baseName = filename.split('/').pop() || 'Transcript.txt'
+    const blob = new Blob([content], { type: 'text/plain' })
+    // URL.createObjectURL is available in this page context.
+    // @ts-ignore
+    const url = URL.createObjectURL(blob)
+
+    const a = document.createElement('a')
+    a.href = url
+    a.download = baseName
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+
+    // @ts-ignore
+    URL.revokeObjectURL(url)
+}
+
+meetingsPort.onMessage.addListener((msg) => {
+    if (msg && msg.type === 'download_transcript_payload' && typeof msg.content === 'string' && typeof msg.filename === 'string') {
+        downloadTextFile(msg.filename, msg.content)
+    }
+})
+
 document.addEventListener("DOMContentLoaded", function () {
     const webhookUrlForm = document.querySelector("#webhook-url-form")
     const webhookUrlInput = document.querySelector("#webhook-url")
