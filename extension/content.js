@@ -641,7 +641,8 @@ function showNotification(extensionStatusJSON) {
         const response = /** @type {ExtensionResponse} */ (responseUntyped)
         console.log(response)
         if (!response.success) {
-          text.innerHTML += `<br/><br/> <b>Zoom and Teams transcripts are in beta. Click to enable.</b>`
+          text.innerHTML += `<br/><br/> <b>Teams and Zoom transcripts are in beta. <u>Click to enable.</u></b>`
+          obj.style.cssText += extensionStatusJSON.showBetaMessage ? `cursor: pointer;` : ``
           text.addEventListener("click", () => {
             /** @type {ExtensionMessage} */
             const message = {

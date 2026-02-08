@@ -49,7 +49,7 @@ window.onload = function () {
           const response = /** @type {ExtensionResponse} */ (responseUntyped)
           // Prevent alert as well as notification from background script
           if (response.success) {
-            if (response.message !== "Zoom and Teams content scripts registered") {
+            if (response.message !== "Teams and Zoom content scripts registered") {
               alert("Already enabled! Go ahead, enjoy your day!")
             }
           }
@@ -64,7 +64,7 @@ window.onload = function () {
       }
     }).catch((error) => {
       console.error(error)
-      alert("Could not enable Zoom and Teams transcripts")
+      alert("Could not enable Teams and Zoom transcripts")
     })
   })
 

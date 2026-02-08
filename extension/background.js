@@ -631,7 +631,7 @@ function enableBeta() {
             }
         }).catch((error) => {
             console.error(error)
-            reject("Could not enable Zoom and Teams transcripts")
+            reject("Could not enable Teams and Zoom transcripts")
         })
     })
 }
@@ -660,7 +660,7 @@ function registerContentScripts(showNotification = true) {
                         })
 
                         if (isContentTeamsRegistered && isContentTeamsRegistered) {
-                            resolve("Zoom and Teams content scripts already registered")
+                            resolve("Teams and Zoom content scripts already registered")
                             return
                         }
 
@@ -688,8 +688,8 @@ function registerContentScripts(showNotification = true) {
 
                         Promise.all(promises)
                             .then(() => {
-                                console.log("Both Zoom and Teams content scripts registered successfully.")
-                                resolve("Zoom and Teams content scripts registered")
+                                console.log("Both Teams and Zoom content scripts registered successfully.")
+                                resolve("Teams and Zoom content scripts registered")
 
                                 if (showNotification) {
                                     chrome.permissions.contains({
