@@ -135,6 +135,23 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
             })
     }
 
+    if (message.type === "enable_beta") {
+        enableBeta().then((message) => {
+            /** @type {ExtensionResponse} */
+            const response = { success: true, message: message }
+            sendResponse(response)
+        })
+            .catch((error) => {
+                // Fails with error codes: not defined
+                const parsedError = /** @type {ErrorObject} */ (error)
+
+                /** @type {ExtensionResponse} */
+                const response = { success: false, message: parsedError }
+                sendResponse(response)
+            })
+    }
+
+
     return true
 })
 
@@ -179,19 +196,13 @@ chrome.runtime.onUpdateAvailable.addListener(() => {
 
 // Register content scripts whenever runtime permission is provided by the user
 chrome.permissions.onAdded.addListener((event) => {
-    if (event.origins?.includes("https://*.zoom.us/*") && event.origins?.includes("https://teams.live.com/*") && event.origins?.includes("https://teams.microsoft.com/*")) {
-        registerContentScripts()
-    }
+    registerContentScripts()
 })
 
 
 chrome.runtime.onInstalled.addListener(() => {
-    // Re-register content scripts whenever extension is installed or updated, provided permissions are available
-    chrome.permissions.getAll().then((permissions) => {
-        if (permissions.origins?.includes("https://*.zoom.us/*") && permissions.origins?.includes("https://teams.live.com/*") && permissions.origins?.includes("https://teams.microsoft.com/*")) {
-            registerContentScripts(false)
-        }
-    })
+    // Re-register content scripts whenever extension is installed or updated, provided permissions are available. Suppress notification for silent background operation.
+    registerContentScripts(false)
 
     // Set defaults values
     chrome.storage.sync.get(["autoPostWebhookAfterMeeting", "operationMode", "webhookBodyType", "webhookUrl"], function (resultSyncUntyped) {
@@ -606,79 +617,106 @@ function recoverLastMeeting() {
     })
 }
 
+function enableBeta() {
+    return new Promise((resolve, reject) => {
+        chrome.permissions.request({
+            origins: ["https://*.zoom.us/*", "https://teams.live.com/*", "https://teams.microsoft.com/*"],
+            permissions: ["notifications"]
+        }).then((granted) => {
+            if (granted) {
+                resolve("Permissions granted")
+            }
+            else {
+                reject("Permissions denied")
+            }
+        }).catch((error) => {
+            console.error(error)
+            reject("Could not enable Zoom and Teams transcripts")
+        })
+    })
+}
+
 /**
  * @param {boolean} [showNotification]
  */
 function registerContentScripts(showNotification = true) {
     return new Promise((resolve, reject) => {
-        chrome.scripting
-            .getRegisteredContentScripts()
-            .then((scripts) => {
-                let isContentZoomRegistered = false
-                let isContentTeamsRegistered = false
-                scripts.forEach((script) => {
-                    if (script.id === "content-zoom") {
-                        isContentZoomRegistered = true
-                        console.log("Zoom content script already registered")
-                    }
-                    if (script.id === "content-teams") {
-                        isContentTeamsRegistered = true
-                        console.log("Teams content script already registered")
-                    }
-                })
+        chrome.permissions.getAll().then((permissions) => {
+            if (permissions.origins?.includes("https://*.zoom.us/*") && permissions.origins?.includes("https://teams.live.com/*") && permissions.origins?.includes("https://teams.microsoft.com/*")) {
+                chrome.scripting
+                    .getRegisteredContentScripts()
+                    .then((scripts) => {
+                        let isContentZoomRegistered = false
+                        let isContentTeamsRegistered = false
+                        scripts.forEach((script) => {
+                            if (script.id === "content-zoom") {
+                                isContentZoomRegistered = true
+                                console.log("Zoom content script already registered")
+                            }
+                            if (script.id === "content-teams") {
+                                isContentTeamsRegistered = true
+                                console.log("Teams content script already registered")
+                            }
+                        })
 
-                if (isContentTeamsRegistered && isContentTeamsRegistered) {
-                    resolve("Zoom and Teams content scripts already registered")
-                    return
-                }
+                        if (isContentTeamsRegistered && isContentTeamsRegistered) {
+                            resolve("Zoom and Teams content scripts already registered")
+                            return
+                        }
 
-                const promises = []
+                        const promises = []
 
-                if (!isContentZoomRegistered) {
-                    const zoomRegistrationPromise = chrome.scripting.registerContentScripts([{
-                        id: "content-zoom",
-                        js: ["content-zoom.js"],
-                        matches: ["https://*.zoom.us/*"],
-                        runAt: "document_end",
-                    }])
-                    promises.push(zoomRegistrationPromise)
-                }
+                        if (!isContentZoomRegistered) {
+                            const zoomRegistrationPromise = chrome.scripting.registerContentScripts([{
+                                id: "content-zoom",
+                                js: ["content-zoom.js"],
+                                matches: ["https://*.zoom.us/*"],
+                                runAt: "document_end",
+                            }])
+                            promises.push(zoomRegistrationPromise)
+                        }
 
-                if (!isContentTeamsRegistered) {
-                    const teamsRegistrationPromise = chrome.scripting.registerContentScripts([{
-                        id: "content-teams",
-                        js: ["content-teams.js"],
-                        matches: ["https://teams.live.com/*", "https://teams.microsoft.com/*"],
-                        runAt: "document_end",
-                    }])
-                    promises.push(teamsRegistrationPromise)
-                }
+                        if (!isContentTeamsRegistered) {
+                            const teamsRegistrationPromise = chrome.scripting.registerContentScripts([{
+                                id: "content-teams",
+                                js: ["content-teams.js"],
+                                matches: ["https://teams.live.com/*", "https://teams.microsoft.com/*"],
+                                runAt: "document_end",
+                            }])
+                            promises.push(teamsRegistrationPromise)
+                        }
 
-                Promise.all(promises)
-                    .then(() => {
-                        console.log("Both Zoom and Teams content scripts registered successfully.")
-                        resolve("Zoom and Teams content scripts registered")
+                        Promise.all(promises)
+                            .then(() => {
+                                console.log("Both Zoom and Teams content scripts registered successfully.")
+                                resolve("Zoom and Teams content scripts registered")
 
-                        if (showNotification) {
-                            chrome.permissions.contains({
-                                permissions: ["notifications"]
-                            }).then((hasPermission) => {
-                                if (hasPermission) {
-                                    chrome.notifications.create({
-                                        type: "basic",
-                                        iconUrl: "icon.png",
-                                        title: "Enabled! Join Zoom/Teams meetings on the browser",
-                                        message: "Refresh any existing Zoom/Teams pages"
+                                if (showNotification) {
+                                    chrome.permissions.contains({
+                                        permissions: ["notifications"]
+                                    }).then((hasPermission) => {
+                                        if (hasPermission) {
+                                            chrome.notifications.create({
+                                                type: "basic",
+                                                iconUrl: "icon.png",
+                                                title: "Enabled! Join Zoom/Teams meetings on the browser",
+                                                message: "Refresh any existing Zoom/Teams pages"
+                                            })
+                                        }
                                     })
                                 }
                             })
-                        }
+                            .catch((error) => {
+                                // This block runs if EITHER Zoom OR Teams registration fails.
+                                console.error("One or more content script registrations failed.", error)
+                                reject("Failed to register one or more content scripts")
+                            })
                     })
-                    .catch((error) => {
-                        // This block runs if EITHER Zoom OR Teams registration fails.
-                        console.error("One or more content script registrations failed.", error)
-                        reject("Failed to register one or more content scripts")
-                    })
-            })
+            }
+            else {
+                reject("Insufficient permissions")
+                return
+            }
+        })
     })
 }

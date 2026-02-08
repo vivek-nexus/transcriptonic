@@ -630,6 +630,34 @@ function showNotification(extensionStatusJSON) {
   if (extensionStatusJSON.status === 200) {
     obj.style.cssText = `color: #2A9ACA; ${commonCSS}`
     text.innerHTML = extensionStatusJSON.message
+
+    // Add beta message
+    if (extensionStatusJSON.showBetaMessage) {
+      /** @type {ExtensionMessage} */
+      const message = {
+        type: "register_content_scripts",
+      }
+      chrome.runtime.sendMessage(message, (responseUntyped) => {
+        const response = /** @type {ExtensionResponse} */ (responseUntyped)
+        console.log(response)
+        if (!response.success) {
+          text.innerHTML += `<br/><br/> <b>Zoom and Teams transcripts are in beta. Click to enable.</b>`
+          text.addEventListener("click", () => {
+            /** @type {ExtensionMessage} */
+            const message = {
+              type: "enable_beta",
+            }
+            chrome.runtime.sendMessage(message, function (responseUntyped) {
+              const response = /** @type {ExtensionResponse} */ (responseUntyped)
+              console.log(response)
+              if (!response.success) {
+                alert(response.message)
+              }
+            })
+          })
+        }
+      })
+    }
   }
   else {
     obj.style.cssText = `color: orange; ${commonCSS}`
@@ -717,6 +745,7 @@ function checkExtensionStatus() {
           // Update status based on response
           extensionStatusJSON.status = result.status
           extensionStatusJSON.message = result.message
+          extensionStatusJSON.showBetaMessage = (result.showBetaMessage === true)
         }
 
         console.log("Extension status fetched and saved")
@@ -751,7 +780,6 @@ function recoverLastMeeting() {
     })
   })
 }
-
 
 
 

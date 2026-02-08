@@ -43,6 +43,7 @@
  * @typedef {Object} ExtensionStatusJSON
  * @property {number} status status of the extension
  * @property {string} message message of the status
+ * @property {boolean} [showBetaMessage] show beta enablement
 */
 /**
  * @typedef {Object} Meeting
@@ -107,7 +108,7 @@
 
 /**
  * @typedef {Object} ExtensionMessage Message sent by the calling script
- * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "retry_webhook_at_index" | "recover_last_meeting" | "register_content_scripts"} type type of message
+ * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "retry_webhook_at_index" | "recover_last_meeting" | "register_content_scripts" | "enable_beta"} type type of message
  * @property {number} [index] index of the meeting to process
  */
 
