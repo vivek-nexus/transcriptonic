@@ -135,11 +135,23 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
             })
     }
 
-    if (message.type === "enable_beta") {
+    if ((message.type === "enable_beta") || (message.type === "enable_beta_with_notification")) {
+        const showNotification = (message.type === "enable_beta_with_notification")
+
         enableBeta().then((message) => {
-            /** @type {ExtensionResponse} */
-            const response = { success: true, message: message }
-            sendResponse(response)
+            registerContentScripts(showNotification).then((message) => {
+                /** @type {ExtensionResponse} */
+                const response = { success: true, message: message }
+                sendResponse(response)
+            })
+                .catch((error) => {
+                    // Fails with error codes: not defined
+                    const parsedError = /** @type {ErrorObject} */ (error)
+
+                    /** @type {ExtensionResponse} */
+                    const response = { success: false, message: parsedError }
+                    sendResponse(response)
+                })
         })
             .catch((error) => {
                 // Fails with error codes: not defined
@@ -194,9 +206,12 @@ chrome.runtime.onUpdateAvailable.addListener(() => {
     })
 })
 
-// Register content scripts whenever runtime permission is provided by the user
+// Register content scripts whenever runtime permission change—mostly serves as a backup for changes made outside the UI.
 chrome.permissions.onAdded.addListener((event) => {
-    registerContentScripts()
+    // Prevent competing with explicit content script registrations
+    setTimeout(() => {
+        registerContentScripts()
+    }, 2000)
 })
 
 
@@ -639,7 +654,7 @@ function enableBeta() {
 /**
  * @param {boolean} [showNotification]
  */
-function registerContentScripts(showNotification = true) {
+function registerContentScripts(showNotification = false) {
     return new Promise((resolve, reject) => {
         chrome.permissions.getAll().then((permissions) => {
             if (permissions.origins?.includes("https://*.zoom.us/*") && permissions.origins?.includes("https://teams.live.com/*") && permissions.origins?.includes("https://teams.microsoft.com/*")) {
@@ -699,8 +714,8 @@ function registerContentScripts(showNotification = true) {
                                             chrome.notifications.create({
                                                 type: "basic",
                                                 iconUrl: "icon.png",
-                                                title: "Enabled! Join Zoom/Teams meetings on the browser",
-                                                message: "Refresh any existing Zoom/Teams pages"
+                                                title: "Enabled!",
+                                                message: "Join Teams/Zoom meetings on the browser. Refresh any existing Zoom/Teams pages"
                                             })
                                         }
                                     })

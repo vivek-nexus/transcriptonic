@@ -36,35 +36,24 @@ window.onload = function () {
   })
 
   enableBeta?.addEventListener("click", () => {
-    chrome.permissions.request({
-      origins: ["https://*.zoom.us/*", "https://teams.live.com/*", "https://teams.microsoft.com/*"],
-      permissions: ["notifications"]
-    }).then((granted) => {
-      if (granted) {
-        /** @type {ExtensionMessage} */
-        const message = {
-          type: "register_content_scripts",
+
+    /** @type {ExtensionMessage} */
+    const message = {
+      type: "enable_beta_with_notification",
+    }
+    chrome.runtime.sendMessage(message, function (responseUntyped) {
+      const response = /** @type {ExtensionResponse} */ (responseUntyped)
+      if (response.success) {
+        if (response.message === "Teams and Zoom content scripts registered") {
+          alert("Enabled! Join Teams/Zoom meetings on the browser. Refresh any existing Zoom/Teams pages")
         }
-        chrome.runtime.sendMessage(message, (responseUntyped) => {
-          const response = /** @type {ExtensionResponse} */ (responseUntyped)
-          // Prevent alert as well as notification from background script
-          if (response.success) {
-            if (response.message !== "Teams and Zoom content scripts registered") {
-              alert("Already enabled! Go ahead, enjoy your day!")
-            }
-          }
-          else {
-            console.error(response.message)
-            alert("Failed to enable. Please try again.")
-          }
-        })
+        else {
+          alert("Already enabled! Go ahead, enjoy your day!")
+        }
       }
       else {
-        alert("Permission denied")
+        alert(response.message)
       }
-    }).catch((error) => {
-      console.error(error)
-      alert("Could not enable Teams and Zoom transcripts")
     })
   })
 

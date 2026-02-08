@@ -639,7 +639,6 @@ function showNotification(extensionStatusJSON) {
       }
       chrome.runtime.sendMessage(message, (responseUntyped) => {
         const response = /** @type {ExtensionResponse} */ (responseUntyped)
-        console.log(response)
         if (!response.success) {
           text.innerHTML += `<br/><br/> <b>Teams and Zoom transcripts are in beta. <u>Click to enable.</u></b>`
           obj.style.cssText += extensionStatusJSON.showBetaMessage ? `cursor: pointer;` : ``
@@ -650,8 +649,15 @@ function showNotification(extensionStatusJSON) {
             }
             chrome.runtime.sendMessage(message, function (responseUntyped) {
               const response = /** @type {ExtensionResponse} */ (responseUntyped)
-              console.log(response)
-              if (!response.success) {
+              if (response.success) {
+                if (response.message === "Teams and Zoom content scripts registered") {
+                  alert("Enabled! Join Teams/Zoom meetings on the browser. Refresh any existing Zoom/Teams pages.")
+                }
+                else {
+                  alert("Already enabled! Go ahead, enjoy your day!")
+                }
+              }
+              else {
                 alert(response.message)
               }
             })
