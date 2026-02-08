@@ -2,7 +2,7 @@
 /// <reference path="../types/chrome.d.ts" />
 /// <reference path="../types/index.js" />
 
-let isZoomRunning = false
+let isZoomInjected = false
 
 setInterval(() => {
   // Meeting page
@@ -11,13 +11,13 @@ setInterval(() => {
 
   // On the meeting page and main zoom function is not running, inject it
   // This won't cause multiple main zoom injections into the current meeting because when the previous meeting ends, all UI elements are gone, destroying the corresponding event listeners
-  if (isZoomUrlMatching && !isZoomRunning) {
+  if (isZoomUrlMatching && !isZoomInjected) {
     zoom()
-    isZoomRunning = true
+    isZoomInjected = true
   }
   // Set flag to false when meetings ends and the tab navigates to a non matching URL, or simply the current URL is a non meeting URL
   if (!isZoomUrlMatching) {
-    isZoomRunning = false
+    isZoomInjected = false
   }
 }, 2000)
 
@@ -120,7 +120,7 @@ function zoom() {
 
           // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
           if (iframeDOM) {
-            waitForElement(iframeDOM, "#audioOptionMenu").then(() => {
+            waitForElement(iframe, "#audioOptionMenu").then(() => {
               console.log("Meeting started")
               /** @type {ExtensionMessage} */
               const message = {
@@ -140,7 +140,7 @@ function zoom() {
 
               // **** REGISTER TRANSCRIPT LISTENER **** //
               // Wait for transcript node to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
-              waitForElement(iframeDOM, ".live-transcription-subtitle__box").then((element) => {
+              waitForElement(iframe, ".live-transcription-subtitle__box").then((element) => {
                 console.log("Found captions container")
                 // CRITICAL DOM DEPENDENCY. Grab the transcript element.
                 const transcriptTargetNode = element
@@ -446,33 +446,38 @@ function zoom() {
    * @description Provides a visual cue to indicate the extension is actively working.
    */
   function pulseStatus() {
-    const statusActivityCSS = `position: fixed;
+    try {
+      const statusActivityCSS = `position: fixed;
     top: 0px;
     width: 100%;
     height: 4px;
     z-index: 100;
     transition: background-color 0.3s ease-in
   `
-    const iframe = /** @type {HTMLIFrameElement} */ (document.querySelector("#webclient"))
-    const iframeDOM = iframe.contentDocument
+      const iframe = /** @type {HTMLIFrameElement} */ (document.querySelector("#webclient"))
+      const iframeDOM = iframe.contentDocument
 
-    if (iframeDOM) {
-      /** @type {HTMLDivElement | null}*/
-      let activityStatus = iframeDOM.querySelector(`#transcriptonic-status`)
-      if (!activityStatus) {
-        let html = iframeDOM.querySelector("html")
-        activityStatus = iframeDOM.createElement("div")
-        activityStatus.setAttribute("id", "transcriptonic-status")
-        activityStatus.style.cssText = `background-color: #2A9ACA; ${statusActivityCSS}`
-        html?.appendChild(activityStatus)
-      }
-      else {
-        activityStatus.style.cssText = `background-color: #2A9ACA; ${statusActivityCSS}`
-      }
+      if (iframeDOM) {
+        /** @type {HTMLDivElement | null}*/
+        let activityStatus = iframeDOM.querySelector(`#transcriptonic-status`)
+        if (!activityStatus) {
+          let html = iframeDOM.querySelector("html")
+          activityStatus = iframeDOM.createElement("div")
+          activityStatus.setAttribute("id", "transcriptonic-status")
+          activityStatus.style.cssText = `background-color: #2A9ACA; ${statusActivityCSS}`
+          html?.appendChild(activityStatus)
+        }
+        else {
+          activityStatus.style.cssText = `background-color: #2A9ACA; ${statusActivityCSS}`
+        }
 
-      setTimeout(() => {
-        activityStatus.style.cssText = `background-color: transparent; ${statusActivityCSS}`
-      }, 3000)
+        setTimeout(() => {
+          activityStatus.style.cssText = `background-color: transparent; ${statusActivityCSS}`
+        }, 3000)
+      }
+    }
+    catch (error) {
+      console.error(error)
     }
   }
 
@@ -490,20 +495,27 @@ function zoom() {
 
   /**
    * @description Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change
-   * @param {Document} iframe
+   * @param {HTMLIFrameElement | Document} iframe
    * @param {string} selector
    * @param {string | RegExp} [text]
    */
   async function waitForElement(iframe, selector, text) {
+    let document
+    if (iframe instanceof Document) {
+      document = iframe
+    }
+    else {
+      document = /** @type {Document} */ (iframe.contentDocument)
+    }
     if (text) {
       // loops for every animation frame change, until the required element is found
-      while (!Array.from(iframe.querySelectorAll(selector)).find(element => element.textContent === text)) {
+      while (!Array.from(document.querySelectorAll(selector)).find(element => element.textContent === text)) {
         await new Promise((resolve) => requestAnimationFrame(resolve))
       }
     }
     else {
       // loops for every animation frame change, until the required element is found
-      while (!iframe.querySelector(selector)) {
+      while (!document.querySelector(selector)) {
         await new Promise((resolve) => requestAnimationFrame(resolve))
       }
     }
@@ -539,7 +551,7 @@ function zoom() {
         text.innerHTML = extensionStatusJSON.message
 
         // Remove banner once transcript is on
-        waitForElement(iframeDOM, ".live-transcription-subtitle__box").then(() => {
+        waitForElement(iframe, ".live-transcription-subtitle__box").then(() => {
           obj.style.display = "none"
         })
       }
