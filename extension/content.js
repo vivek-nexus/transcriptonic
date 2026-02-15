@@ -640,8 +640,8 @@ function showNotification(extensionStatusJSON) {
       chrome.runtime.sendMessage(message, (responseUntyped) => {
         const response = /** @type {ExtensionResponse} */ (responseUntyped)
         if (!response.success) {
-          text.innerHTML += `<br/><br/> <b>Teams and Zoom transcripts are in beta. <u>Click to enable.</u></b>`
-          obj.style.cssText += extensionStatusJSON.showBetaMessage ? `cursor: pointer;` : ``
+          text.innerHTML += `<br/><br/> <b style="color:orange;">Teams and Zoom transcripts are in beta. <u>Click to enable.</u></b>`
+          obj.style.cssText += `cursor: pointer;`
           text.addEventListener("click", () => {
             /** @type {ExtensionMessage} */
             const message = {
