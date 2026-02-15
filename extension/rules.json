@@ -1,0 +1,18 @@
+[
+    {
+        "id": 1,
+        "priority": 1,
+        "action": {
+            "type": "redirect",
+            "redirect": {
+                "regexSubstitution": "https://app.zoom.us/wc/\\1/start?fromPWA=1&\\2"
+            }
+        },
+        "condition": {
+            "regexFilter": "^https://.*\\.zoom\\.us/j/(\\d+)\\?(.*pwd=.*)",
+            "resourceTypes": [
+                "main_frame"
+            ]
+        }
+    }
+]

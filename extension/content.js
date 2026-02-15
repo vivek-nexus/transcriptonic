@@ -642,6 +642,7 @@ function showNotification(extensionStatusJSON) {
         if (!response.success) {
           text.innerHTML += `<br/><br/> <b style="color:orange;">Teams and Zoom transcripts are in beta. <u>Click to enable.</u></b>`
           obj.style.cssText += `cursor: pointer;`
+
           text.addEventListener("click", () => {
             /** @type {ExtensionMessage} */
             const message = {
