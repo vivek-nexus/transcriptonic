@@ -519,7 +519,7 @@ function zoom() {
         await new Promise((resolve) => requestAnimationFrame(resolve))
       }
     }
-    return iframe.querySelector(selector)
+    return document.querySelector(selector)
   }
 
   /**
