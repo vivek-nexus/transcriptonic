@@ -651,7 +651,7 @@ function showNotification(extensionStatusJSON) {
             chrome.runtime.sendMessage(message, function (responseUntyped) {
               const response = /** @type {ExtensionResponse} */ (responseUntyped)
               if (response.success) {
-                if (response.message === "Enabled") {
+                if (response.message === "Teams and Zoom content scripts registered") {
                   alert("Enabled! Join Teams/Zoom meetings on the browser. Refresh any existing Zoom/Teams pages.")
                 }
                 else {
