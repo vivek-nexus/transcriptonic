@@ -44,7 +44,7 @@ window.onload = function () {
     chrome.runtime.sendMessage(message, function (responseUntyped) {
       const response = /** @type {ExtensionResponse} */ (responseUntyped)
       if (response.success) {
-        if (response.message === "Teams and Zoom content scripts registered") {
+        if (response.message === "Enabled") {
           alert("Enabled! Join Teams/Zoom meetings on the browser. Refresh any existing Zoom/Teams pages")
         }
         else {
