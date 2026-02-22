@@ -89,7 +89,10 @@
  * @property {OperationMode} operationMode
  * @property {WebhookBodyType} webhookBodyType
  * @property {WebhookUrl} webhookUrl
- */
+ * @property {wantGoogleMeet} wantGoogleMeet
+ * @property {wantTeams} wantTeams
+ * @property {wantZoom} wantZoom
+*/
 
 /**
  * @typedef {boolean} AutoPostWebhookAfterMeeting Whether to automatically post the webhook after each meeting
@@ -103,14 +106,24 @@
 /**
  * @typedef {string} WebhookUrl URL of the webhook
  */
+/**
+ * @typedef {boolean} WantGoogleMeet Indicates whether user explicitly opted in for Google Meet. Does not necessarily mean Google Meet is enabled for them. Only an indicator to re-inject content scripts between reloads.
+ */
+/**
+ * @typedef {boolean} WantTeams Indicates whether user explicitly opted in for Teams. Does not necessarily mean Teams is enabled for them. Only an indicator to re-inject content scripts between reloads.
+ */
+/**
+ * @typedef {boolean} WantZoom Indicates whether user explicitly opted in for Zoom. Does not necessarily mean Zoom is enabled for them. Only an indicator to re-inject content scripts between reloads.
+ */
 
 
 
 /**
  * @typedef {Object} ExtensionMessage Message sent by the calling script
- * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "retry_webhook_at_index" | "recover_last_meeting" | "register_content_scripts" | "enable_beta" | "enable_beta_with_notification"} type type of message
+ * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "retry_webhook_at_index" | "recover_last_meeting" | "get_platform_status" | "enable_platform" | "disable_platform" | "open_popup"} type type of message
  * @property {number} [index] index of the meeting to process
- */
+ * @property {Platform} [platform] index of the meeting to process
+*/
 
 /**
  * @typedef {Object} ExtensionResponse Response sent by the called script
@@ -122,6 +135,10 @@
  * @typedef {Object} ErrorObject Error Object
  * @property {string} errorCode whether the message was processed successfully as per the request
  * @property {string} errorMessage message explaining success or failure
+ */
+
+/**
+ * @typedef {"google_meet" | "teams" | "zoom"} Platform URL of the webhook
  */
 
 // CONTENT SCRIPT ERRORS
