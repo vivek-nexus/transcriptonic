@@ -1,0 +1,34 @@
+[
+    {
+        "id": 1,
+        "priority": 1,
+        "action": {
+            "type": "redirect",
+            "redirect": {
+                "regexSubstitution": "https://\\1zoom.us/wc/\\2/join?fromPWA=1&\\3"
+            }
+        },
+        "condition": {
+            "regexFilter": "^https://([^.]+\\.)?zoom\\.us/j/(\\d+)(?:\\?(.*))?$",
+            "resourceTypes": [
+                "main_frame"
+            ]
+        }
+    },
+    {
+        "id": 2,
+        "priority": 1,
+        "action": {
+            "type": "redirect",
+            "redirect": {
+                "regexSubstitution": "https://\\1zoom.us/wc/\\2/start?fromPWA=1&\\3"
+            }
+        },
+        "condition": {
+            "regexFilter": "^https://([^.]+\\.)?zoom\\.us/s/(\\d+)(?:\\?(.*))?$",
+            "resourceTypes": [
+                "main_frame"
+            ]
+        }
+    }
+]

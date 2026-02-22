@@ -50,6 +50,18 @@
       text-align: left;
     }
 
+    .platform-toggles {
+      display: flex;
+      gap: 1.5rem;
+      /* margin-bottom: 1rem; */
+    }
+
+    .checkbox-group {
+      display: flex;
+      gap: 0.25rem;
+      align-items: flex-end;
+    }
+
     ul {
       padding-inline-start: 20px;
     }
@@ -101,7 +113,8 @@
     }
 
     .divider {
-      border-color: #a0a0a0;
+      border: 1px solid #2a9aca33;
+      margin: 1rem 0rem;
     }
 
     .beta {
@@ -152,7 +165,26 @@
       </div>
     </div>
 
+
+
     <div class="get-started">
+      <div>
+        <div class="platform-toggles">
+          <div class="checkbox-group">
+            <input type="checkbox" id="enable-google-meet" />
+            <label for="enable-google-meet"><b>Google Meet</b></label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="enable-teams" />
+            <label for="enable-teams"><b>Teams</b> (beta)</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="enable-zoom" />
+            <label for="enable-zoom"><b>Zoom</b> (beta)</label>
+          </div>
+        </div>
+      </div>
+      <hr class="divider" />
       <div class="radio-item">
         <input type="radio" name="mode" id="auto-mode" />
         <label for="auto-mode"><b>Auto mode</b>
@@ -162,7 +194,7 @@
       <div class="radio-item">
         <input type="radio" name="mode" id="manual-mode" />
         <label for="manual-mode"><b>Manual mode</b> <br />
-          <span class="sub-text">Switch on transcript as needed using the CC icon in Google Meet</span>
+          <span class="sub-text">Switch on transcript as needed during the meeting</span>
         </label>
       </div>
       <!-- <hr class="divider" /> -->
@@ -183,14 +215,14 @@
     </div>
 
     <div>
-      <div class="beta" style="justify-content: flex-start;">
+      <!-- <div class="beta" style="justify-content: flex-start;">
         <p style="margin: 0; color: orange"><b>Teams and Zoom transcripts are in beta:</b></p>
-        <!-- <span class="footer-separator"></span> -->
+        <span class="footer-separator"></span>
         <button id="enable-beta">Enable</button>
         <span>or&nbsp;&nbsp;</span>
         <a href="https://github.com/vivek-nexus/transcriptonic/wiki/Zoom-and-Teams-beta-testing" target="_blank">learn
           more</a>
-      </div>
+      </div> -->
       <div class="footer">
         <a href="./meetings.html" target="_blank">Last 10 meetings <span class="right-arrow">&rarr;</span></a>
         <div>
