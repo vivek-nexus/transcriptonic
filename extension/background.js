@@ -819,7 +819,7 @@ function registerContentScript(platform, showNotification = true) {
                                                     type: "basic",
                                                     iconUrl: "icon.png",
                                                     title: "Enabled!",
-                                                    message: platform === "google_meet" ? `Refresh any existing meeting pages` : `Join ${platform === "teams" ? `Teams` : `Zoom`} meetings on the browser. Refresh any existing pages.`
+                                                    message: platform === "google_meet" ? `Refresh any existing meeting pages` : ` ${platform === "teams" ? `Join Teams meetings on the browser` : `Zoom meetings will automatically open in the browser`}. Refresh any existing pages.`
                                                 })
                                             }
                                         })
