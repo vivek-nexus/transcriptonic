@@ -124,6 +124,29 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
         }
     }
 
+    if (message.type === "save_to_obsidian_at_index") {
+        if ((typeof message.index === "number") && (message.index >= 0)) {
+            saveToObsidian(message.index)
+                .then((result) => {
+                    /** @type {ExtensionResponse} */
+                    const response = { success: true, message: result }
+                    sendResponse(response)
+                })
+                .catch((error) => {
+                    const parsedError = /** @type {ErrorObject} */ (error)
+
+                    /** @type {ExtensionResponse} */
+                    const response = { success: false, message: parsedError }
+                    sendResponse(response)
+                })
+        }
+        else {
+            /** @type {ExtensionResponse} */
+            const response = { success: false, message: { errorCode: "015", errorMessage: "Invalid index" } }
+            sendResponse(response)
+        }
+    }
+
     if (message.type === "recover_last_meeting") {
         recoverLastMeeting().then((message) => {
             /** @type {ExtensionResponse} */
@@ -293,13 +316,15 @@ chrome.runtime.onInstalled.addListener(() => {
     reRegisterContentScripts()
 
     // Set defaults values
-    chrome.storage.sync.get(["autoPostWebhookAfterMeeting", "operationMode", "webhookBodyType", "webhookUrl"], function (resultSyncUntyped) {
+    chrome.storage.sync.get(["autoPostWebhookAfterMeeting", "operationMode", "webhookBodyType", "webhookUrl", "autoSaveObsidianAfterMeeting", "disableTranscriptDownload"], function (resultSyncUntyped) {
         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
 
         chrome.storage.sync.set({
             autoPostWebhookAfterMeeting: resultSync.autoPostWebhookAfterMeeting === false ? false : true,
             operationMode: resultSync.operationMode === "manual" ? "manual" : "auto",
             webhookBodyType: resultSync.webhookBodyType === "advanced" ? "advanced" : "simple",
+            autoSaveObsidianAfterMeeting: resultSync.autoSaveObsidianAfterMeeting === true ? true : false,
+            disableTranscriptDownload: resultSync.disableTranscriptDownload === true ? true : false,
         }, function () { })
     })
 })
@@ -313,7 +338,7 @@ function processLastMeeting() {
             .then(() => {
                 chrome.storage.local.get(["meetings"], function (resultLocalUntyped) {
                     const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
-                    chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (resultSyncUntyped) {
+                    chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting", "autoSaveObsidianAfterMeeting", "obsidianVaultName", "disableTranscriptDownload"], function (resultSyncUntyped) {
                         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
 
                         // Create an array of promises to execute in parallel
@@ -324,18 +349,25 @@ function processLastMeeting() {
                         // @ts-ignore - Because this line exists in the resolved promise from pickupLastMeetingFromStorage, which clearly means that at least one meeting exists and resultLocal.meetings cannot be undefined.
                         const lastIndex = resultLocal.meetings.length - 1
 
-                        // Promise to download transcript
-                        promises.push(
-                            downloadTranscript(
-                                lastIndex,
-                                // Just for anonymous analytics
-                                resultSync.webhookUrl && resultSync.autoPostWebhookAfterMeeting ? true : false
+                        // Promise to download transcript (unless disabled)
+                        if (!resultSync.disableTranscriptDownload) {
+                            promises.push(
+                                downloadTranscript(
+                                    lastIndex,
+                                    // Just for anonymous analytics
+                                    resultSync.webhookUrl && resultSync.autoPostWebhookAfterMeeting ? true : false
+                                )
                             )
-                        )
+                        }
 
                         // Promise to post webhook if enabled
                         if (resultSync.autoPostWebhookAfterMeeting && resultSync.webhookUrl) {
                             promises.push(postTranscriptToWebhook(lastIndex))
+                        }
+
+                        // Promise to save to Obsidian if enabled
+                        if (resultSync.autoSaveObsidianAfterMeeting && resultSync.obsidianVaultName) {
+                            promises.push(saveToObsidian(lastIndex))
                         }
 
                         // Execute all promises in parallel
@@ -650,6 +682,134 @@ function getChatMessagesString(chatMessages) {
         })
     }
     return chatMessagesString
+}
+
+/**
+ * Format a date as YYYY-MM-DD
+ * @param {Date} date
+ */
+function formatDateYMD(date) {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, "0")
+    const day = String(date.getDate()).padStart(2, "0")
+    const hours = String(date.getHours()).padStart(2, "0")
+    const minutes = String(date.getMinutes()).padStart(2, "0")
+    return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
+/**
+ * Save meeting transcript to Obsidian via obsidian://new URI
+ * @param {number} index
+ * @throws error codes: 010, 016, 017
+ */
+function saveToObsidian(index) {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(["meetings"], function (resultLocalUntyped) {
+            const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
+            chrome.storage.sync.get(["obsidianVaultName", "obsidianFolder", "obsidianExtraFrontmatter"], function (resultSyncUntyped) {
+                const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+
+                if (!resultSync.obsidianVaultName) {
+                    reject({ errorCode: "016", errorMessage: "No Obsidian vault name configured" })
+                    return
+                }
+
+                if (resultLocal.meetings && resultLocal.meetings[index]) {
+                    const meeting = resultLocal.meetings[index]
+
+                    // Extract unique attendees from transcript
+                    const attendeeSet = new Set()
+                    if (meeting.transcript && meeting.transcript.length > 0) {
+                        meeting.transcript.forEach(block => {
+                            if (block.personName) {
+                                attendeeSet.add(block.personName)
+                            }
+                        })
+                    }
+                    const attendees = Array.from(attendeeSet).join(", ")
+
+                    // Format dates
+                    const startDate = new Date(meeting.meetingStartTimestamp)
+                    const endDate = new Date(meeting.meetingEndTimestamp)
+                    const meetingStartYMD = formatDateYMD(startDate)
+                    const meetingEndYMD = formatDateYMD(endDate)
+
+                    // Build frontmatter
+                    let content = `---\n`
+                    content += `Meeting Start: ${meetingStartYMD}\n`
+                    content += `Meeting End: ${meetingEndYMD}\n`
+                    content += `Attendees: ${attendees}\n`
+                    if (resultSync.obsidianExtraFrontmatter) {
+                        content += resultSync.obsidianExtraFrontmatter.trim() + `\n`
+                    }
+                    content += `---\n\n`
+
+                    // Append transcript body
+                    content += getTranscriptString(meeting.transcript)
+
+                    // Append chat messages if non-empty
+                    const chatStr = getChatMessagesString(meeting.chatMessages)
+                    if (chatStr.trim().length > 0) {
+                        content += `\n---------------\nCHAT MESSAGES\n---------------\n\n`
+                        content += chatStr
+                    }
+
+                    // Build note name
+                    const meetingTitle = (meeting.meetingTitle || meeting.title || "Meeting").replace(/[\/\\]/g, "-")
+                    const formattedTimestamp = startDate.toLocaleString("default", timeFormat).replace(/[\/:]/g, "-")
+                    const noteName = `${meetingTitle} - ${formattedTimestamp}`
+
+                    // Prepend folder path if configured
+                    const folder = resultSync.obsidianFolder?.replace(/^\/+|\/+$/g, "")
+                    const fullNotePath = folder ? `${folder}/${noteName}` : noteName
+
+                    // Build obsidian URI
+                    const obsidianUri = `obsidian://new?vault=${encodeURIComponent(resultSync.obsidianVaultName)}&file=${encodeURIComponent(fullNotePath)}&content=${encodeURIComponent(content)}`
+
+                    // Check URI length — fall back to .md download if > 200KB
+                    if (obsidianUri.length > 200 * 1024) {
+                        // Fall back to downloading as .md file
+                        const blob = new Blob([content], { type: "text/markdown" })
+                        const reader = new FileReader()
+                        reader.readAsDataURL(blob)
+                        reader.onload = function (event) {
+                            if (event.target?.result) {
+                                const dataUrl = event.target.result
+                                chrome.downloads.download({
+                                    // @ts-ignore
+                                    url: dataUrl,
+                                    filename: `TranscripTonic/${noteName}.md`,
+                                    conflictAction: "uniquify"
+                                }).then(() => {
+                                    resolve("fallback_download")
+                                }).catch(() => {
+                                    chrome.downloads.download({
+                                        // @ts-ignore
+                                        url: dataUrl,
+                                        filename: "TranscripTonic/Meeting.md",
+                                        conflictAction: "uniquify"
+                                    }).then(() => {
+                                        resolve("fallback_download")
+                                    })
+                                })
+                            }
+                            else {
+                                reject({ errorCode: "009", errorMessage: "Failed to read blob" })
+                            }
+                        }
+                    }
+                    else {
+                        // Open Obsidian URI
+                        chrome.tabs.create({ url: obsidianUri })
+                        resolve("opened_in_obsidian")
+                    }
+                }
+                else {
+                    reject({ errorCode: "010", errorMessage: "Meeting at specified index not found" })
+                }
+            })
+        })
+    })
 }
 
 function clearTabIdAndApplyUpdate() {
