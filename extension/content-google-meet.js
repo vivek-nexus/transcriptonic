@@ -193,61 +193,6 @@ function meetingRoutines(uiType) {
 
           // Start observing the transcript element and chat messages element for configured mutations
           transcriptObserver.observe(transcriptTargetNode, mutationConfig)
-
-          // Intercept captions toggle to keep captions always on for transcription.
-          // Instead of turning captions off, toggle their visibility via CSS.
-          // Inject a stylesheet that hides the captions overlay and expands the
-          // video tile area to fill the freed space. Uses !important to override
-          // Google Meet's inline styles. Toggled via a class on <html>.
-          const captionsToggleStyle = document.createElement("style")
-          captionsToggleStyle.textContent = `
-            html.transcriptonic-hide-captions .fJsklc:has([jscontroller="D1tHje"]) {
-              position: fixed !important;
-              top: -9999px !important;
-              left: -9999px !important;
-              width: 1px !important;
-              height: 1px !important;
-              overflow: hidden !important;
-              opacity: 0 !important;
-              pointer-events: none !important;
-            }
-          `
-          document.head.appendChild(captionsToggleStyle)
-
-          let areCaptionsVisible = false
-          function toggleCaptionsVisibility() {
-            areCaptionsVisible = !areCaptionsVisible
-            document.documentElement.classList.toggle("transcriptonic-hide-captions", !areCaptionsVisible)
-            window.dispatchEvent(new Event("resize"))
-          }
-
-          // Hide captions and reclaim space on load
-          document.documentElement.classList.add("transcriptonic-hide-captions")
-          window.dispatchEvent(new Event("resize"))
-
-          // Intercept "c" keyboard shortcut on window in capture phase
-          // (fires before Google Meet's document-level handlers)
-          window.addEventListener("keydown", function (e) {
-            if (e.key === "c" && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
-              const activeEl = document.activeElement
-              if (!(activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA" || activeEl.isContentEditable))) {
-                e.stopImmediatePropagation()
-                e.preventDefault()
-                toggleCaptionsVisibility()
-                window.dispatchEvent(new Event("resize"))
-              }
-            }
-          }, true)
-
-          // Intercept captions button click at document level in capture phase
-          document.addEventListener("click", function (e) {
-            const target = /** @type {HTMLElement} */ (e.target)
-            if (target.closest && captionsButton.parentElement?.parentElement?.contains(target)) {
-              e.stopImmediatePropagation()
-              e.preventDefault()
-              toggleCaptionsVisibility()
-            }
-          }, true)
         }
         else {
           throw new Error("Transcript element not found in DOM")

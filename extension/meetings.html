@@ -123,20 +123,15 @@
             font-size: small;
         }
 
-        input[type="url"],
-        input[type="text"] {
+        input[type="url"] {
             width: 100%;
             padding: 0.45rem;
             border: 1px solid #2A9ACA;
-            border-radius: 4px;
+            border-radius: 4px 0px 0px 4px;
             background: rgba(255, 255, 255, 0.1);
             color: #C0C0C0;
             font-family: "TASA Explorer", sans-serif;
             box-sizing: border-box;
-        }
-
-        input[type="url"] {
-            border-radius: 4px 0px 0px 4px;
         }
 
         .checkbox-group {
@@ -290,8 +285,7 @@
 
         .download-button,
         .delete-button,
-        .post-button,
-        .obsidian-button {
+        .post-button {
             background: transparent;
             color: #2A9ACA;
             border: none;
@@ -526,80 +520,6 @@
 }
 </pre>
                     </code>
-                        </div>
-                    </details>
-                </div>
-            </div>
-        </section>
-
-        <section id="obsidian">
-            <h2 style="margin-bottom: 0;">Save transcripts to Obsidian</h2>
-
-            <p style="margin-top: 0.5rem" class="sub-text">Save meeting notes directly to your Obsidian vault using
-                the <code>obsidian://</code> URI scheme. Obsidian must be installed on your computer.</p>
-
-            <div class="grid-container">
-                <div class="card">
-                    <div class="webhook-header" style="display: flex; gap: 0.5rem; align-items: center;">
-                        <p class="card-heading">Configure Obsidian</p>
-                        <img src="./icons/obsidian.svg" alt="" width="20px">
-                    </div>
-                    <form id="obsidian-form" class="form-field">
-                        <label for="obsidian-vault-name">Vault name <span class="sub-text">(required)</span></label>
-                        <div class="input-group" style="margin-bottom: 1rem;">
-                            <input type="text" id="obsidian-vault-name" placeholder="My Vault" required>
-                        </div>
-                        <label for="obsidian-folder">Folder <span class="sub-text">(optional)</span></label>
-                        <div class="input-group" style="margin-bottom: 1rem;">
-                            <input type="text" id="obsidian-folder" placeholder="Meetings">
-                        </div>
-                        <label for="obsidian-extra-frontmatter">Extra frontmatter <span class="sub-text">(optional)</span></label>
-                        <div class="input-group" style="margin-bottom: 1rem;">
-                            <textarea id="obsidian-extra-frontmatter" rows="3" placeholder="base: &quot;[[Meetings.base]]&quot;&#10;Status: New" style="width: 100%; padding: 0.45rem; border: 1px solid #2A9ACA; border-radius: 4px; background: rgba(255, 255, 255, 0.1); color: #C0C0C0; font-family: 'TASA Explorer', sans-serif; box-sizing: border-box; resize: vertical;"></textarea>
-                        </div>
-                        <button type="submit" id="save-obsidian">Save</button>
-                    </form>
-
-                    <hr />
-
-                    <form class="form-field">
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="auto-save-obsidian">
-                            <label for="auto-save-obsidian">
-                                Automatically save to Obsidian after each meeting
-                            </label>
-                        </div>
-                    </form>
-
-                    <hr />
-
-                    <form class="form-field">
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="disable-transcript-download">
-                            <label for="disable-transcript-download">
-                                Disable .txt transcript download after each meeting
-                            </label>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="card">
-                    <div class="webhook-header" style="display: flex; gap: 0.5rem; align-items: center;">
-                        <p class="card-heading">Obsidian help</p>
-                    </div>
-                    <p class="card-heading">Note format</p>
-                    <div class="code-block" style="margin: 0rem 1.5rem;">
-                        <code><pre id="obsidian-note-preview"></pre></code>
-                    </div>
-                    <hr />
-                    <details>
-                        <summary>Requirements</summary>
-                        <div class="accordion-content" style="margin-top: 0.5rem;">
-                            <ul>
-                                <li>Obsidian must be installed on your computer</li>
-                                <li>The vault name must match exactly (case-sensitive)</li>
-                                <li>Very long transcripts will be downloaded as <code>.md</code> files instead</li>
-                            </ul>
                         </div>
                     </details>
                 </div>

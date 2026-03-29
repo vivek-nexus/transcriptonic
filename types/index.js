@@ -92,11 +92,6 @@
  * @property {wantGoogleMeet} wantGoogleMeet
  * @property {wantTeams} wantTeams
  * @property {wantZoom} wantZoom
- * @property {string} [obsidianVaultName]
- * @property {string} [obsidianFolder]
- * @property {string} [obsidianExtraFrontmatter]
- * @property {boolean} [autoSaveObsidianAfterMeeting]
- * @property {boolean} [disableTranscriptDownload]
 */
 
 /**
@@ -125,7 +120,7 @@
 
 /**
  * @typedef {Object} ExtensionMessage Message sent by the calling script
- * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "retry_webhook_at_index" | "save_to_obsidian_at_index" | "recover_last_meeting" | "get_platform_status" | "enable_platform" | "disable_platform" | "open_popup"} type type of message
+ * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "retry_webhook_at_index" | "recover_last_meeting" | "get_platform_status" | "enable_platform" | "disable_platform" | "open_popup"} type type of message
  * @property {number} [index] index of the meeting to process
  * @property {Platform} [platform] index of the meeting to process
 */

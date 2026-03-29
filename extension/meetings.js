@@ -149,104 +149,6 @@ document.addEventListener("DOMContentLoaded", function () {
             isMeetingsTableExpanded = true
         })
     }
-
-    // Obsidian settings
-    const obsidianForm = document.querySelector("#obsidian-form")
-    const obsidianVaultNameInput = document.querySelector("#obsidian-vault-name")
-    const obsidianFolderInput = document.querySelector("#obsidian-folder")
-    const obsidianExtraFrontmatterInput = document.querySelector("#obsidian-extra-frontmatter")
-    const autoSaveObsidianCheckbox = document.querySelector("#auto-save-obsidian")
-    const disableTranscriptDownloadCheckbox = document.querySelector("#disable-transcript-download")
-
-    const obsidianNotePreview = document.querySelector("#obsidian-note-preview")
-
-    if (obsidianForm instanceof HTMLFormElement && obsidianVaultNameInput instanceof HTMLInputElement && obsidianFolderInput instanceof HTMLInputElement && obsidianExtraFrontmatterInput instanceof HTMLTextAreaElement) {
-
-        function updateNotePreview() {
-            if (!(obsidianNotePreview instanceof HTMLPreElement)) return
-            const folder = obsidianFolderInput.value.trim().replace(/^\/+|\/+$/g, "")
-            const extra = obsidianExtraFrontmatterInput.value
-            const path = folder ? `${folder}/Quarterly Review - 01-30-2026, 10-00 AM` : "Quarterly Review - 01-30-2026, 10-00 AM"
-
-            let preview = `${path}.md\n\n`
-            preview += `---\n`
-            preview += `Meeting Start: 2026-01-30\n`
-            preview += `Meeting End: 2026-01-30\n`
-            preview += `Attendees: Michael Scott, Dwight Schrute\n`
-            if (extra.trim()) {
-                preview += extra.trim() + `\n`
-            }
-            preview += `---\n\n`
-            preview += `Michael Scott (01/30/2026, 10:00 AM)\n`
-            preview += `That's what she said!\n\n`
-            preview += `Dwight Schrute (01/30/2026, 10:01 AM)\n`
-            preview += `Identity theft is not a joke, Jim!`
-
-            obsidianNotePreview.textContent = preview
-        }
-
-        // Update preview on input changes
-        obsidianFolderInput.addEventListener("input", updateNotePreview)
-        obsidianExtraFrontmatterInput.addEventListener("input", updateNotePreview)
-
-        // Load saved Obsidian settings
-        chrome.storage.sync.get(["obsidianVaultName", "obsidianFolder", "obsidianExtraFrontmatter", "autoSaveObsidianAfterMeeting", "disableTranscriptDownload"], function (resultSyncUntyped) {
-            const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
-
-            if (resultSync.obsidianVaultName) {
-                obsidianVaultNameInput.value = resultSync.obsidianVaultName
-            }
-            if (resultSync.obsidianFolder) {
-                obsidianFolderInput.value = resultSync.obsidianFolder
-            }
-            if (resultSync.obsidianExtraFrontmatter) {
-                obsidianExtraFrontmatterInput.value = resultSync.obsidianExtraFrontmatter
-            }
-            if (autoSaveObsidianCheckbox instanceof HTMLInputElement) {
-                autoSaveObsidianCheckbox.checked = resultSync.autoSaveObsidianAfterMeeting === true
-            }
-            if (disableTranscriptDownloadCheckbox instanceof HTMLInputElement) {
-                disableTranscriptDownloadCheckbox.checked = resultSync.disableTranscriptDownload === true
-            }
-
-            updateNotePreview()
-        })
-
-        // Save Obsidian settings
-        obsidianForm.addEventListener("submit", function (e) {
-            e.preventDefault()
-            const vaultName = obsidianVaultNameInput.value.trim()
-            if (!vaultName) {
-                alert("Please enter a vault name")
-                return
-            }
-            chrome.storage.sync.set({
-                obsidianVaultName: vaultName,
-                obsidianFolder: obsidianFolderInput.value.trim(),
-                obsidianExtraFrontmatter: obsidianExtraFrontmatterInput.value
-            }, function () {
-                alert("Obsidian settings saved!")
-            })
-        })
-    }
-
-    // Auto save "auto save to Obsidian" setting
-    if (autoSaveObsidianCheckbox instanceof HTMLInputElement) {
-        autoSaveObsidianCheckbox.addEventListener("change", function () {
-            chrome.storage.sync.set({
-                autoSaveObsidianAfterMeeting: autoSaveObsidianCheckbox.checked,
-            }, function () { })
-        })
-    }
-
-    // Auto save "disable transcript download" setting
-    if (disableTranscriptDownloadCheckbox instanceof HTMLInputElement) {
-        disableTranscriptDownloadCheckbox.addEventListener("change", function () {
-            chrome.storage.sync.set({
-                disableTranscriptDownload: disableTranscriptDownloadCheckbox.checked,
-            }, function () { })
-        })
-    }
 })
 
 
@@ -333,9 +235,6 @@ function loadMeetings() {
                             <button class="post-button" data-index="${i}" title="${meeting.webhookPostStatus === "new" ? `Post webhook` : `Repost webhook`}" aria-label="${meeting.webhookPostStatus === "new" ? `` : ``}">
                                 ${meeting.webhookPostStatus === "new" ? `` : ``}
                                 <img src="./icons/webhook.svg" alt="">
-                            </button>
-                            <button class="obsidian-button" data-index="${i}" title="Save to Obsidian">
-                                <img src="./icons/obsidian.svg" alt="">
                             </button>
                             &nbsp;
                              <button class="delete-button" data-index="${i}" title="Delete" aria-label="Delete this meeting">
@@ -425,43 +324,6 @@ function loadMeetings() {
                                 }
                                 else {
                                     alert("Please provide a webhook URL")
-                                }
-                            })
-                        })
-                    }
-
-                    // Add event listener to the Obsidian button
-                    const obsidianButton = row.querySelector(".obsidian-button")
-                    if (obsidianButton instanceof HTMLButtonElement) {
-                        obsidianButton.addEventListener("click", function () {
-                            chrome.storage.sync.get(["obsidianVaultName"], function (resultSyncUntyped) {
-                                const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
-                                if (resultSync.obsidianVaultName) {
-                                    const index = parseInt(obsidianButton.getAttribute("data-index") ?? "-1")
-                                    /** @type {ExtensionMessage} */
-                                    const message = {
-                                        type: "save_to_obsidian_at_index",
-                                        index: index
-                                    }
-                                    chrome.runtime.sendMessage(message, (responseUntyped) => {
-                                        const response = /** @type {ExtensionResponse} */ (responseUntyped)
-                                        if (response.success) {
-                                            if (response.message === "fallback_download") {
-                                                alert("Transcript was too long for the Obsidian URI. It has been downloaded as an .md file instead.")
-                                            }
-                                        }
-                                        else {
-                                            const parsedError = /** @type {ErrorObject} */ (response.message)
-                                            alert("Could not save to Obsidian")
-                                            if (typeof parsedError === 'object') {
-                                                console.error(parsedError.errorMessage)
-                                            }
-                                        }
-                                    })
-                                }
-                                else {
-                                    alert("Please configure your Obsidian vault name first")
-                                    document.querySelector("#obsidian")?.scrollIntoView({ behavior: "smooth" })
                                 }
                             })
                         })
