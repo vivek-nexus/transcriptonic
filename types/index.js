@@ -145,7 +145,7 @@
 // | Error Code | Error Message |
 // | :--- | :--- |
 // | **001** | "Transcript element not found in DOM" |
-// | **002** | "Chat messages element not found in DOM" |
+// | **002** | "Chat messages element not found in DOM" (currently not in use) |
 // | **003** | "Chat button element not found in DOM" |
 // | **004** | "Call end button element not found in DOM" |
 // | **005** | "Transcript mutation failed to process" |

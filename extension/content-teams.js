@@ -151,7 +151,7 @@ function teams() {
       // **** REGISTER TRANSCRIPT LISTENER **** //
       /** @type {MutationObserver} */
       let transcriptObserver
-      // Wait for transcript node to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
+      // Wait for transcript node to be visible
       waitForElement(`[data-tid="closed-caption-v2-virtual-list-content"]`).then((element) => {
         console.log("Found captions container")
         // CRITICAL DOM DEPENDENCY. Grab the transcript element.
