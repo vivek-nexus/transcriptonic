@@ -98,7 +98,7 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
         }
     }
 
-    if (message.type === "retry_webhook_at_index") {
+    if (message.type === "post_webhook_at_index") {
         if ((typeof message.index === "number") && (message.index >= 0)) {
             // Handle webhook retry
             postTranscriptToWebhook(message.index)
@@ -293,11 +293,12 @@ chrome.runtime.onInstalled.addListener(() => {
     reRegisterContentScripts()
 
     // Set defaults values
-    chrome.storage.sync.get(["autoPostWebhookAfterMeeting", "operationMode", "webhookBodyType", "webhookUrl"], function (resultSyncUntyped) {
+    chrome.storage.sync.get(["autoPostWebhookAfterMeeting", "autoDownloadFileAfterMeeting", "operationMode", "webhookBodyType", "webhookUrl"], function (resultSyncUntyped) {
         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
 
         chrome.storage.sync.set({
             autoPostWebhookAfterMeeting: resultSync.autoPostWebhookAfterMeeting === false ? false : true,
+            autoDownloadFileAfterMeeting: resultSync.autoDownloadFileAfterMeeting === false ? false : true,
             operationMode: resultSync.operationMode === "manual" ? "manual" : "auto",
             webhookBodyType: resultSync.webhookBodyType === "advanced" ? "advanced" : "simple",
         }, function () { })
@@ -313,7 +314,7 @@ function processLastMeeting() {
             .then(() => {
                 chrome.storage.local.get(["meetings"], function (resultLocalUntyped) {
                     const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
-                    chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting"], function (resultSyncUntyped) {
+                    chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting", "autoDownloadFileAfterMeeting"], function (resultSyncUntyped) {
                         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
 
                         // Create an array of promises to execute in parallel
@@ -325,13 +326,15 @@ function processLastMeeting() {
                         const lastIndex = resultLocal.meetings.length - 1
 
                         // Promise to download transcript
-                        promises.push(
-                            downloadTranscript(
-                                lastIndex,
-                                // Just for anonymous analytics
-                                resultSync.webhookUrl && resultSync.autoPostWebhookAfterMeeting ? true : false
+                        if (resultSync.autoDownloadFileAfterMeeting) {
+                            promises.push(
+                                downloadTranscript(
+                                    lastIndex,
+                                    // Just for anonymous analytics
+                                    resultSync.webhookUrl && resultSync.autoPostWebhookAfterMeeting ? true : false
+                                )
                             )
-                        )
+                        }
 
                         // Promise to post webhook if enabled
                         if (resultSync.autoPostWebhookAfterMeeting && resultSync.webhookUrl) {

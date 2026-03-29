@@ -86,6 +86,7 @@
 /**
  * @typedef {Object} ResultSync Sync chrome storage
  * @property {AutoPostWebhookAfterMeeting} autoPostWebhookAfterMeeting
+ * @property {AutoDownloadFileAfterMeeting} autoDownloadFileAfterMeeting
  * @property {OperationMode} operationMode
  * @property {WebhookBodyType} webhookBodyType
  * @property {WebhookUrl} webhookUrl
@@ -96,6 +97,9 @@
 
 /**
  * @typedef {boolean} AutoPostWebhookAfterMeeting Whether to automatically post the webhook after each meeting
+ */
+/**
+ * @typedef {boolean} AutoDownloadFileAfterMeeting Whether to automatically download the transcript file after each meeting
  */
 /**
  * @typedef {"auto" | "manual"} OperationMode mode of the extension which decides whether to automatically capture transcripts or let the user decide per meeting basis
@@ -120,7 +124,7 @@
 
 /**
  * @typedef {Object} ExtensionMessage Message sent by the calling script
- * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "retry_webhook_at_index" | "recover_last_meeting" | "get_platform_status" | "enable_platform" | "disable_platform" | "open_popup"} type type of message
+ * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "post_webhook_at_index" | "recover_last_meeting" | "get_platform_status" | "enable_platform" | "disable_platform" | "open_popup"} type type of message
  * @property {number} [index] index of the meeting to process
  * @property {Platform} [platform] index of the meeting to process
 */
