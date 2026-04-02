@@ -135,6 +135,9 @@ function zoom() {
               //*********** MEETING START ROUTINES **********//
               updateMeetingTitle()
 
+              // Ask user to switch on captions
+              showNotification(extensionStatusJSON)
+
               /** @type {MutationObserver} */
               let transcriptObserver
 
@@ -170,13 +173,6 @@ function zoom() {
 
                   logError("001", err)
                 })
-                .finally(() => {
-                  // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
-                  if (!isTranscriptDomErrorCaptured) {
-                    showNotification(extensionStatusJSON)
-                  }
-                })
-
 
 
               //*********** MEETING END ROUTINES **********//

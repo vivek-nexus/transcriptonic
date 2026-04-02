@@ -154,6 +154,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 autoDownloadCheckbox.parentElement.style.display = autoPostCheckbox.checked ? "flex" : "none"
                 if (!autoPostCheckbox.checked && autoDownloadCheckbox instanceof HTMLInputElement) {
                     autoDownloadCheckbox.checked = true
+                    chrome.storage.sync.set({
+                        autoDownloadFileAfterMeeting: true,
+                    }, function () { })
                 }
             }
         }
