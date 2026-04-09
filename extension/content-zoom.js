@@ -135,33 +135,37 @@ function zoom() {
               //*********** MEETING START ROUTINES **********//
               updateMeetingTitle()
 
+              // Ask user to switch on captions
+              showNotification(extensionStatusJSON)
+
               /** @type {MutationObserver} */
               let transcriptObserver
 
               // **** REGISTER TRANSCRIPT LISTENER **** //
-              // Wait for transcript node to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
-              waitForElement(iframe, ".live-transcription-subtitle__box").then((element) => {
-                console.log("Found captions container")
-                // CRITICAL DOM DEPENDENCY. Grab the transcript element.
-                const transcriptTargetNode = element
+              // Wait for transcript node to be visible
+              waitForElement(iframe, ".live-transcription-subtitle__box").
+                then((element) => {
+                  console.log("Found captions container")
+                  // CRITICAL DOM DEPENDENCY. Grab the transcript element.
+                  const transcriptTargetNode = element
 
-                if (transcriptTargetNode) {
-                  // Attempt to dim down the transcript
-                  // @ts-ignore
-                  transcriptTargetNode.style.opacity = "0.5"
+                  if (transcriptTargetNode) {
+                    // Attempt to dim down the transcript
+                    // @ts-ignore
+                    transcriptTargetNode.style.opacity = "0.5"
 
-                  console.log("Registering mutation observer on .live-transcription-subtitle__box")
+                    console.log("Registering mutation observer on .live-transcription-subtitle__box")
 
-                  // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
-                  transcriptObserver = new MutationObserver(transcriptMutationCallback)
+                    // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
+                    transcriptObserver = new MutationObserver(transcriptMutationCallback)
 
-                  // Start observing the transcript element and chat messages element for configured mutations
-                  transcriptObserver.observe(transcriptTargetNode, mutationConfig)
-                }
-                else {
-                  throw new Error("Transcript element not found in DOM")
-                }
-              })
+                    // Start observing the transcript element and chat messages element for configured mutations
+                    transcriptObserver.observe(transcriptTargetNode, mutationConfig)
+                  }
+                  else {
+                    throw new Error("Transcript element not found in DOM")
+                  }
+                })
                 .catch((err) => {
                   console.error(err)
                   isTranscriptDomErrorCaptured = true
@@ -170,10 +174,6 @@ function zoom() {
                   logError("001", err)
                 })
 
-              // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
-              if (!isTranscriptDomErrorCaptured) {
-                showNotification(extensionStatusJSON)
-              }
 
               //*********** MEETING END ROUTINES **********//
               try {

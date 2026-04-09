@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const webhookUrlInput = document.querySelector("#webhook-url")
     const saveButton = document.querySelector("#save-webhook")
     const autoPostCheckbox = document.querySelector("#auto-post-webhook")
+    const autoDownloadCheckbox = document.querySelector("#auto-download-file")
     const simpleWebhookBodyRadio = document.querySelector("#simple-webhook-body")
     const advancedWebhookBodyRadio = document.querySelector("#advanced-webhook-body")
     const recoverLastMeetingButton = document.querySelector("#recover-last-meeting")
@@ -68,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
         saveButton.disabled = true
 
         // Load saved webhook URL, auto-post setting, and webhook body type
-        chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting", "webhookBodyType"], function (resultSyncUntyped) {
+        chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting", "autoDownloadFileAfterMeeting", "webhookBodyType"], function (resultSyncUntyped) {
             const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
 
             if (resultSync.webhookUrl) {
@@ -78,6 +79,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Set checkbox state
             autoPostCheckbox.checked = resultSync.autoPostWebhookAfterMeeting
+            if (autoDownloadCheckbox instanceof HTMLInputElement) {
+                autoDownloadCheckbox.checked = resultSync.autoDownloadFileAfterMeeting !== false
+            }
+            updateAutoDownloadCheckBox()
 
             // Set radio button state
             if (resultSync.webhookBodyType === "advanced") {
@@ -125,8 +130,36 @@ document.addEventListener("DOMContentLoaded", function () {
             // Save webhook URL and settings
             chrome.storage.sync.set({
                 autoPostWebhookAfterMeeting: autoPostCheckbox.checked,
-            }, function () { })
+            }, function () {
+                updateAutoDownloadCheckBox()
+            })
         })
+
+        if (autoDownloadCheckbox instanceof HTMLInputElement) {
+            autoDownloadCheckbox.addEventListener("change", function () {
+                if (!autoDownloadCheckbox.checked) {
+                    if (!confirm("Text file serves as a harmless backup, you sure you don't need it?")) {
+                        autoDownloadCheckbox.checked = true
+                        return
+                    }
+                }
+                chrome.storage.sync.set({
+                    autoDownloadFileAfterMeeting: autoDownloadCheckbox.checked,
+                }, function () { })
+            })
+        }
+
+        function updateAutoDownloadCheckBox() {
+            if (autoDownloadCheckbox?.parentElement instanceof HTMLDivElement && autoPostCheckbox instanceof HTMLInputElement) {
+                autoDownloadCheckbox.parentElement.style.display = autoPostCheckbox.checked ? "flex" : "none"
+                if (!autoPostCheckbox.checked && autoDownloadCheckbox instanceof HTMLInputElement) {
+                    autoDownloadCheckbox.checked = true
+                    chrome.storage.sync.set({
+                        autoDownloadFileAfterMeeting: true,
+                    }, function () { })
+                }
+            }
+        }
 
         // Auto save webhook body type
         simpleWebhookBodyRadio.addEventListener("change", function () {
@@ -301,7 +334,7 @@ function loadMeetings() {
                                         const index = parseInt(webhookPostButton.getAttribute("data-index") ?? "-1")
                                         /** @type {ExtensionMessage} */
                                         const message = {
-                                            type: "retry_webhook_at_index",
+                                            type: "post_webhook_at_index",
                                             index: index
                                         }
                                         chrome.runtime.sendMessage(message, (responseUntyped) => {

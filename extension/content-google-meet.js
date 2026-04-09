@@ -100,10 +100,7 @@ checkExtensionStatus().finally(() => {
       }, 100)
     })
 
-    // 1. Meet UI prior to July/Aug 2024
-    // meetingRoutines(1)
-
-    // 2. Meet UI post July/Aug 2024
+    // Meet UI post July/Aug 2024
     meetingRoutines(2)
   }
   else {
@@ -128,12 +125,6 @@ function meetingRoutines(uiType) {
   }
   // Different selector data for different UI versions
   switch (uiType) {
-    case 1:
-      meetingEndIconData.selector = ".google-material-icons"
-      meetingEndIconData.text = "call_end"
-      captionsIconData.selector = ".material-icons-extended"
-      captionsIconData.text = "closed_caption_off"
-      break
     case 2:
       meetingEndIconData.selector = ".google-symbols"
       meetingEndIconData.text = "call_end"
@@ -165,80 +156,91 @@ function meetingRoutines(uiType) {
     /** @type {MutationObserver} */
     let chatMessagesObserver
 
-    // **** REGISTER TRANSCRIPT LISTENER **** //
+    // **** REGISTER TRANSCRIPT AND CHAT MESSAGES LISTENERS **** //
+    // REGISTER TRANSCRIPT LISTENER
     // Wait for captions icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
-    waitForElement(captionsIconData.selector, captionsIconData.text).then(() => {
-      // CRITICAL DOM DEPENDENCY
-      const captionsButton = selectElements(captionsIconData.selector, captionsIconData.text)[0]
+    waitForElement(captionsIconData.selector, captionsIconData.text)
+      .then(() => {
+        // CRITICAL DOM DEPENDENCY
+        const captionsButton = selectElements(captionsIconData.selector, captionsIconData.text)[0]
 
-      // Click captions icon for non manual operation modes. Async operation.
-      chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
-        const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
-        if (resultSync.operationMode === "manual") {
-          console.log("Manual mode selected, leaving transcript off")
-        }
-        else {
-          captionsButton.click()
-        }
+        // Click captions icon for non manual operation modes. Async operation.
+        chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
+          const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+          if (resultSync.operationMode === "manual") {
+            console.log("Manual mode selected, leaving transcript off")
+          }
+          else {
+            captionsButton.click()
+          }
+        })
+
+        // Allow DOM to be updated. Once updated, next "then" block will be executed.
+        return waitForElement(`div[role="region"][tabindex="0"]`)
+          .then(targetNode => (targetNode))
       })
-
-      // Allow DOM to be updated and then register transcript mutation observer
-      waitForElement(`div[role="region"][tabindex="0"]`).then(() => {
+      .then((targetNode) => {
         // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
-        const transcriptTargetNode = document.querySelector(`div[role="region"][tabindex="0"]`)
+        const transcriptTargetNode = targetNode
 
         if (transcriptTargetNode) {
-          // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
+          // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any website transcript can be picked up during the meeting, independent of the operation mode.
           transcriptObserver = new MutationObserver(transcriptMutationCallback)
 
           // Start observing the transcript element and chat messages element for configured mutations
           transcriptObserver.observe(transcriptTargetNode, mutationConfig)
+
+          // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
+          chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
+            const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+            if (resultSync.operationMode === "manual") {
+              showNotification({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
+            }
+            else {
+              showNotification(extensionStatusJSON)
+            }
+          })
         }
         else {
           throw new Error("Transcript element not found in DOM")
         }
       })
-        .catch((err) => {
-          console.error(err)
-          isTranscriptDomErrorCaptured = true
-          showNotification(extensionStatusJSON_bug)
+      .catch((err) => {
+        console.error(err)
+        isTranscriptDomErrorCaptured = true
+        showNotification(extensionStatusJSON_bug)
 
-          logError("001", err)
-        })
-    })
+        logError("001", err)
+      })
 
 
-    // **** REGISTER CHAT MESSAGES LISTENER **** //
+    // REGISTER CHAT MESSAGES LISTENER
     // Wait for chat icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the chat icon is still not visible.
-    waitForElement(".google-symbols", "chat").then(() => {
-      const chatMessagesButton = selectElements(".google-symbols", "chat")[0]
-      // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
-      chatMessagesButton.click()
+    waitForElement(".google-symbols", "chat")
+      .then(() => {
+        const chatMessagesButton = selectElements(".google-symbols", "chat")[0]
+        // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
+        chatMessagesButton.click()
 
-      // Allow DOM to be updated, close chat messages and then register chatMessage mutation observer
-      waitForElement(`div[aria-live="polite"].Ge9Kpc`).then(() => {
+        // Allow DOM to be updated. Once updated, next "then" block will be executed.
+        return waitForElement(`div[aria-live="polite"].Ge9Kpc`)
+          .then(targetNode => ({ targetNode, chatMessagesButton }))
+      })
+      .then(({ targetNode, chatMessagesButton }) => {
+        // Click again to close the chat messages 
         chatMessagesButton.click()
         // CRITICAL DOM DEPENDENCY. Grab the chat messages element. This element is present, irrespective of chat ON/OFF, once it appears for this first time.
-        try {
-          const chatMessagesTargetNode = document.querySelector(`div[aria-live="polite"].Ge9Kpc`)
+        const chatMessagesTargetNode = targetNode
 
-          // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
-          if (chatMessagesTargetNode) {
-            chatMessagesObserver = new MutationObserver(chatMessagesMutationCallback)
-            chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
-          }
-          else {
-            throw new Error("Chat messages element not found in DOM")
-          }
-        } catch (err) {
-          console.error(err)
-          isChatMessagesDomErrorCaptured = true
-          showNotification(extensionStatusJSON_bug)
-
-          logError("002", err)
+        // Create chat messages observer instance linked to the callback function. Registered irrespective of operation mode.
+        if (chatMessagesTargetNode) {
+          chatMessagesObserver = new MutationObserver(chatMessagesMutationCallback)
+          chatMessagesObserver.observe(chatMessagesTargetNode, mutationConfig)
+        }
+        else {
+          throw new Error("Chat messages element not found in DOM")
         }
       })
-    })
       .catch((err) => {
         console.error(err)
         isChatMessagesDomErrorCaptured = true
@@ -246,19 +248,6 @@ function meetingRoutines(uiType) {
 
         logError("003", err)
       })
-
-    // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
-    if (!isTranscriptDomErrorCaptured && !isChatMessagesDomErrorCaptured) {
-      chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
-        const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
-        if (resultSync.operationMode === "manual") {
-          showNotification({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
-        }
-        else {
-          showNotification(extensionStatusJSON)
-        }
-      })
-    }
 
     //*********** MEETING END ROUTINES **********//
     try {
@@ -752,7 +741,7 @@ function checkExtensionStatus() {
         // Disable extension if version is below the min version
         if (!meetsMinVersion(chrome.runtime.getManifest().version, minVersion)) {
           extensionStatusJSON.status = 400
-          extensionStatusJSON.message = `<strong>TranscripTonic is not running</strong> <br /> Please force update to v${minVersion} by following <a href="https://github.com/vivek-nexus/transcriptonic/wiki/Manually-update-TranscripTonic" target="_blank">these instructions</a>`
+          extensionStatusJSON.message = `<strong>TranscripTonic is not running</strong> <br /> Please update to v${minVersion} by following <a href="https://github.com/vivek-nexus/transcriptonic/wiki/Manually-update-TranscripTonic" target="_blank">these instructions</a>`
         }
         else {
           // Update status based on response
