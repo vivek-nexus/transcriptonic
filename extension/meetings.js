@@ -182,6 +182,8 @@ document.addEventListener("DOMContentLoaded", function () {
             isMeetingsTableExpanded = true
         })
     }
+
+    handlePermissions()
 })
 
 
@@ -385,6 +387,91 @@ function loadMeetings() {
                 meetingsTable.innerHTML = `<tr><td colspan="4">Your next meeting will show up here</td></tr>`
             }
         }
+    })
+}
+
+function handlePermissions() {
+    chrome.scripting
+        .getRegisteredContentScripts()
+        .then((scripts) => {
+            console.log(scripts)
+        })
+
+    chrome.storage.sync.get(["wantGoogleMeet", "wantTeams", "wantZoom"], function (resultSyncUntyped) {
+        const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+
+        console.log(resultSync)
+
+        /** @type {Platform[]} */
+        const wantedPlatforms = []
+        //  Consider enabled if user has not explicitly opted out
+        if (resultSync.wantGoogleMeet) {
+            wantedPlatforms.push("google_meet")
+        }
+        if (resultSync.wantTeams) {
+            wantedPlatforms.push("teams")
+        }
+        if (resultSync.wantZoom) {
+            wantedPlatforms.push("zoom")
+        }
+
+        console.log(`Wanted platforms: ${wantedPlatforms}`)
+        /** @type {ExtensionMessage} */
+        const message = {
+            type: "get_platform_permission_status",
+            platform: wantedPlatforms
+        }
+        chrome.runtime.sendMessage(message, (responseUntyped) => {
+            const response = /** @type {ExtensionResponse} */ (responseUntyped)
+            if (response.success) {
+                console.log(response.message)
+
+                /** @type {Platform[]} */
+                const permissionMissingPlatforms = []
+
+                for (let i = 0; i < wantedPlatforms.length; i++) {
+                    if (Array.isArray(response.message) && response.message[i] === "Disabled") {
+                        permissionMissingPlatforms.push(wantedPlatforms[i])
+                    }
+                }
+
+                if (permissionMissingPlatforms.length > 0) {
+                    const dialog = document.getElementById('permission-dialog')
+                    const confirmBtn = document.getElementById('confirm-btn')
+                    const cancelBtn = document.getElementById('cancel-btn')
+
+                    // Show the modal
+                    dialog?.showModal()
+                    confirmBtn?.focus()
+
+                    // Handle the "Confirm" action
+                    confirmBtn?.addEventListener("click", () => {
+                        dialog?.close()
+
+                        // This execution context is now considered a "User Gesture"
+                        const disableMsg = {
+                            type: "disable_platform",
+                            platform: permissionMissingPlatforms
+                        }
+
+                        chrome.runtime.sendMessage(disableMsg, (response) => {
+                            if (response.success) {
+                                chrome.runtime.sendMessage({
+                                    type: "enable_platform",
+                                    platform: permissionMissingPlatforms
+                                })
+                            }
+                        })
+                    })
+
+                    // Handle the "Cancel" action
+                    cancelBtn?.addEventListener("click", () => {
+                        dialog?.close()
+                    })
+
+                }
+            }
+        })
     })
 }
 

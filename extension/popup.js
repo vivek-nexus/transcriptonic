@@ -3,6 +3,12 @@
 /// <reference path="../types/index.js" />
 
 window.onload = function () {
+  chrome.scripting
+    .getRegisteredContentScripts()
+    .then((scripts) => {
+      console.log(scripts)
+    })
+
   const autoModeRadio = document.querySelector("#auto-mode")
   const manualModeRadio = document.querySelector("#manual-mode")
   const versionElement = document.querySelector("#version")
@@ -45,7 +51,7 @@ window.onload = function () {
   function syncPlatformStatus(element, platform) {
     /** @type {ExtensionMessage} */
     const message = {
-      type: "get_platform_status",
+      type: "get_platform_enablement_status",
       platform: platform
     }
     chrome.runtime.sendMessage(message, (responseUntyped) => {
@@ -58,6 +64,20 @@ window.onload = function () {
     element.addEventListener("change", () => {
       const type = element.checked ? "enable_platform" : "disable_platform"
 
+      switch (platform) {
+        case "google_meet":
+          chrome.storage.sync.set({ wantGoogleMeet: element.checked }, function () { })
+          break
+        case "teams":
+          chrome.storage.sync.set({ wantTeams: element.checked }, function () { })
+          break
+        case "zoom":
+          chrome.storage.sync.set({ wantZoom: element.checked }, function () { })
+          break
+        default:
+          break
+      }
+
       /** @type {ExtensionMessage} */
       const message = {
         type: type,
@@ -65,22 +85,7 @@ window.onload = function () {
       }
       chrome.runtime.sendMessage(message, (responseUntyped) => {
         const response = /** @type {ExtensionResponse} */ (responseUntyped)
-        if (response.success) {
-          switch (platform) {
-            case "google_meet":
-              chrome.storage.sync.set({ wantGoogleMeet: element.checked }, function () { })
-              break
-            case "teams":
-              chrome.storage.sync.set({ wantTeams: element.checked }, function () { })
-              break
-            case "zoom":
-              chrome.storage.sync.set({ wantZoom: element.checked }, function () { })
-              break
-            default:
-              break
-          }
-        }
-        else {
+        if (!response.success) {
           element.checked = !element.checked // Revert on failure
           console.error(`Failed to toggle ${platform}:`, response.message)
         }

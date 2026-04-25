@@ -12,24 +12,28 @@ const timeFormat = {
     hour12: true
 }
 
+/** @type {Object<string, { id: string, js: string[], matches: string[], excludeMatches: string[], permissions: chrome.runtime.ManifestPermissions[] }>} */
 const PLATFORM_CONFIGS = {
     "google_meet": {
         id: "content-google-meet",
         js: ["content-google-meet.js"],
         matches: ["https://meet.google.com/*"],
-        excludeMatches: ["https://meet.google.com/", "https://meet.google.com/landing"]
+        excludeMatches: ["https://meet.google.com/", "https://meet.google.com/landing"],
+        permissions: ["notifications"]
+    },
+    "teams": {
+        id: "content-teams",
+        js: ["content-teams.js"],
+        matches: ["https://teams.live.com/*", "https://teams.microsoft.com/*", "https://teams.cloud.microsoft/*"],
+        excludeMatches: [],
+        permissions: ["notifications"]
     },
     "zoom": {
         id: "content-zoom",
         js: ["content-zoom.js"],
         matches: ["https://*.zoom.us/*"],
-        excludeMatches: []
-    },
-    "teams": {
-        id: "content-teams",
-        js: ["content-teams.js"],
-        matches: ["https://teams.live.com/*", "https://teams.microsoft.com/*"],
-        excludeMatches: []
+        excludeMatches: [],
+        permissions: ["notifications", "declarativeNetRequestWithHostAccess"]
     }
 }
 
@@ -68,6 +72,9 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
                     sendResponse(response)
                 })
                 .finally(() => {
+                    setTimeout(() => {
+                        checkPermissionsAndOpenMeetingsPage()
+                    }, 10000)
                     clearTabIdAndApplyUpdate()
                 })
         })
@@ -140,8 +147,8 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
             })
     }
 
-    if (message.type === "get_platform_status") {
-        /** @type {Platform} */
+    if (message.type === "get_platform_enablement_status") {
+        /** @type {Platform | Platform[]} */
         let platform = message.platform || "google_meet"
 
         getContentScriptStatus(platform)
@@ -161,14 +168,39 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
             })
     }
 
+    if (message.type === "get_platform_permission_status") {
+        /** @type {Platform | Platform[]} */
+        let platform = message.platform || "google_meet"
+
+        getPermissionStatus(platform)
+            .then((status) => {
+                /** @type {ExtensionResponse} */
+                const response = {
+                    success: true,
+                    message: status
+                }
+                sendResponse(response)
+            })
+            .catch((error) => {
+                const parsedError = /** @type {ErrorObject} */ (error)
+                /** @type {ExtensionResponse} */
+                const response = { success: false, message: parsedError }
+                sendResponse(response)
+            })
+    }
+
     if ((message.type === "enable_platform")) {
-        /** @type {Platform} */
+        /** @type {Platform | Platform[]} */
         let platform = message.platform || "google_meet"
 
         requestPlatformPermission(platform).then(() => {
             // After permissions are granted, register both the scripts and the redirect rule for zoom
             const promises = [registerContentScript(platform)]
-            if (platform === "zoom") {
+
+            const platformsArray = Array.isArray(platform) ? platform : [platform]
+            const hasZoom = platformsArray.includes("zoom")
+
+            if (hasZoom) {
                 promises.push(registerZoomRedirect())
             }
 
@@ -196,13 +228,16 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
     }
 
     if (message.type === "disable_platform") {
-        /** @type {Platform} */
+        /** @type {Platform | Platform[]} */
         let platform = message.platform || "google_meet"
 
         // To disable, we simply unregister the content scripts and any redirect rules
         const promises = [deregisterContentScript(platform)]
 
-        if (platform === "zoom") {
+        const platformsArray = Array.isArray(platform) ? platform : [platform]
+        const hasZoom = platformsArray.includes("zoom")
+
+        if (hasZoom) {
             promises.push(deregisterZoomRedirect())
         }
 
@@ -234,7 +269,6 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
             sendResponse(response)
         })
     }
-
 
 
     return true
@@ -283,15 +317,23 @@ chrome.runtime.onUpdateAvailable.addListener(() => {
 chrome.permissions.onAdded.addListener((event) => {
     // Prevent competing with explicit content script registrations
     setTimeout(() => {
+        /** @type {Platform[]} */
+        const platforms = ["google_meet", "teams", "zoom"]
+        /** @type {Promise<any>[]} */
+        const deRegisterPromises = [deregisterContentScript(platforms), deregisterZoomRedirect()]
+
+        Promise.all(deRegisterPromises)
+            .then(() => {
+                console.log("De-registered all content scripts. Starting re-registration...")
+
+            })
+
         reRegisterContentScripts()
     }, 2000)
 })
 
 
 chrome.runtime.onInstalled.addListener(() => {
-    // Re-register content scripts whenever extension is installed or updated, provided permissions are available. Suppress notification for silent background operation.
-    reRegisterContentScripts()
-
     // Set defaults values
     chrome.storage.sync.get(["autoPostWebhookAfterMeeting", "autoDownloadFileAfterMeeting", "operationMode", "webhookBodyType", "webhookUrl"], function (resultSyncUntyped) {
         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
@@ -301,7 +343,13 @@ chrome.runtime.onInstalled.addListener(() => {
             autoDownloadFileAfterMeeting: resultSync.autoDownloadFileAfterMeeting === false ? false : true,
             operationMode: resultSync.operationMode === "manual" ? "manual" : "auto",
             webhookBodyType: resultSync.webhookBodyType === "advanced" ? "advanced" : "simple",
-        }, function () { })
+            wantGoogleMeet: resultSync.wantGoogleMeet === false ? false : true,
+            wantTeams: resultSync.wantTeams === true ? true : false,
+            wantZoom: resultSync.wantZoom === true ? true : false
+        }, function () {
+            // Re-register content scripts whenever extension is installed or updated, provided permissions are available. Suppress notification for silent background operation.
+            reRegisterContentScripts()
+        })
     })
 })
 
@@ -328,11 +376,7 @@ function processLastMeeting() {
                         // Promise to download transcript
                         if (resultSync.autoDownloadFileAfterMeeting) {
                             promises.push(
-                                downloadTranscript(
-                                    lastIndex,
-                                    // Just for anonymous analytics
-                                    resultSync.webhookUrl && resultSync.autoPostWebhookAfterMeeting ? true : false
-                                )
+                                downloadTranscript(lastIndex)
                             )
                         }
 
@@ -345,6 +389,12 @@ function processLastMeeting() {
                         Promise.all(promises)
                             .then(() => {
                                 resolve("Meeting processing and download/webhook posting complete")
+                                // Increment anonymous transcript generated count to a Google sheet
+                                // @ts-ignore - Because this line exists in the resolved promise from pickupLastMeetingFromStorage, which clearly means that at least one meeting exists and resultLocal.meetings cannot be undefined.
+                                const meetingSoftware = resultLocal.meetings[lastIndex].meetingSoftware
+                                fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${resultSync.webhookUrl && resultSync.autoPostWebhookAfterMeeting}&meetingSoftware=${meetingSoftware}`, {
+                                    mode: "no-cors"
+                                })
                             })
                             .catch(error => {
                                 // Fails with error codes: 009, 010, 011, 012
@@ -425,7 +475,7 @@ function pickupLastMeetingFromStorage() {
 
 /**
  * @param {number} index
- * @param {boolean} isWebhookEnabled
+ * @param {boolean} [isWebhookEnabled]
  * @throws error codes: 009, 010
  */
 function downloadTranscript(index, isWebhookEnabled) {
@@ -488,11 +538,6 @@ function downloadTranscript(index, isWebhookEnabled) {
                         }).then(() => {
                             console.log("Transcript downloaded")
                             resolve("Transcript downloaded successfully")
-
-                            // Increment anonymous transcript generated count to a Google sheet
-                            fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}&meetingSoftware=${meeting.meetingSoftware}`, {
-                                mode: "no-cors"
-                            })
                         }).catch((err) => {
                             console.error(err)
                             chrome.downloads.download({
@@ -506,11 +551,6 @@ function downloadTranscript(index, isWebhookEnabled) {
 
                             // Logs anonymous errors to a Google sheet for swift debugging   
                             fetch(`https://script.google.com/macros/s/AKfycbwN-bVkVv3YX4qvrEVwG9oSup0eEd3R22kgKahsQ3bCTzlXfRuaiO7sUVzH9ONfhL4wbA/exec?version=${chrome.runtime.getManifest().version}&code=009&error=${encodeURIComponent(err)}&meetingSoftware=${meeting.meetingSoftware}`, { mode: "no-cors" })
-
-                            // Increment anonymous transcript generated count to a Google sheet
-                            fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}&meetingSoftware=${meeting.meetingSoftware}`, {
-                                mode: "no-cors"
-                            })
                         })
                     }
                     else {
@@ -709,169 +749,290 @@ function recoverLastMeeting() {
 }
 
 /**
- * @param {Platform} platform
+ * @param {string|string[]} platform
  */
-function requestPlatformPermission(platform) {
-    return new Promise((resolve, reject) => {
-        const config = PLATFORM_CONFIGS[platform]
+function getPermissionStatus(platform) {
+    /**
+     * @param {string} p
+     * @returns {Promise<string>}
+     */
+    function fetchSinglePlatformStatus(p) {
+        return new Promise((resolve, reject) => {
+            const config = PLATFORM_CONFIGS[p]
 
-        chrome.permissions.request({
-            origins: config.matches,
-            permissions: ["notifications", "declarativeNetRequestWithHostAccess"]
-        }).then((granted) => {
-            if (granted) {
-                resolve("Permissions granted")
+            if (!config) {
+                reject(`Invalid platform: ${p}`)
+                return
             }
-            else {
-                reject("Permissions denied")
-            }
-        }).catch((error) => {
-            console.error(error)
-            reject(`Could not get permissions for ${platform}`)
-        })
-    })
-}
 
-/**
- * @param {Platform} platform
- */
-function getContentScriptStatus(platform) {
-    return new Promise((resolve, reject) => {
-        const config = PLATFORM_CONFIGS[platform]
-
-        if (!config) {
-            reject(`Invalid platform: ${platform}`)
-            return
-        }
-
-        chrome.scripting
-            .getRegisteredContentScripts()
-            .then((scripts) => {
-                const isRegistered = scripts.some(s => s.id === config.id)
-
-                if (isRegistered) {
+            chrome.permissions.contains({
+                origins: config.matches,
+                permissions: config.permissions
+            }).then(function (hasPermission) {
+                if (hasPermission) {
                     resolve("Enabled")
                 } else {
                     resolve("Disabled")
                 }
             })
+        })
+    }
+
+    if (Array.isArray(platform)) {
+        // Multi-platform path
+        return Promise.all(platform.map(function (p) {
+            return fetchSinglePlatformStatus(p)
+        }))
+    } else {
+        // Single platform path
+        return fetchSinglePlatformStatus(platform)
+    }
+}
+
+
+/**
+ * @param {Platform|Platform[]} platform
+ */
+function requestPlatformPermission(platform) {
+    return new Promise((resolve, reject) => {
+        const platforms = Array.isArray(platform) ? platform : [platform]
+
+        // Map each platform to its config, then flatten the resulting nested arrays
+        const allOrigins = platforms.flatMap(p => PLATFORM_CONFIGS[p]?.matches || [])
+        const allPermissions = platforms.flatMap(p => PLATFORM_CONFIGS[p]?.permissions || [])
+
+        // Use Set to handle duplicates
+        const request = {
+            origins: [...new Set(allOrigins)],
+            permissions: [...new Set(allPermissions)]
+        }
+
+        chrome.permissions.request(request)
+            .then((granted) => {
+                granted ? resolve("Permissions granted") : reject("Permissions denied")
+            })
             .catch((error) => {
-                console.error(`Error fetching status for ${platform}:`, error)
-                reject(`Could not retrieve status for ${platform}`)
+                console.error(error)
+                reject(`Could not get permissions for ${platforms.join(", ")}`)
             })
     })
 }
 
 /**
- * @param {Platform} platform
+ * @param {Platform|Platform[]} platform
  */
-function getPermissionStatus(platform) {
-    return new Promise((resolve, reject) => {
-        const config = PLATFORM_CONFIGS[platform]
+function getContentScriptStatus(platform) {
+    /**
+    * @param {string} p
+    * @returns {Promise<string>}
+    */
+    function getSinglePlatformContentScriptStatus(p) {
+        return new Promise((resolve, reject) => {
+            const config = PLATFORM_CONFIGS[p]
 
-        if (!config) {
-            reject(`Invalid platform: ${platform}`)
-            return
-        }
+            if (!config) {
+                reject(`Invalid platform: ${p}`)
+                return
+            }
 
-        chrome.permissions.contains({ origins: config.matches }).then((hasPermission) => {
-            if (hasPermission) {
-                resolve("Enabled")
-            }
-            else {
-                resolve("Disabled")
-            }
+            chrome.scripting
+                .getRegisteredContentScripts()
+                .then((scripts) => {
+                    const isRegistered = scripts.some(s => s.id === config.id)
+
+                    if (isRegistered) {
+                        resolve("Enabled")
+                    } else {
+                        resolve("Disabled")
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error fetching status for ${p}:`, error)
+                    reject(`Could not retrieve status for ${p}`)
+                })
         })
-    })
+    }
+
+    if (Array.isArray(platform)) {
+        // Multi-platform path
+        return Promise.all(platform.map(function (p) {
+            return getSinglePlatformContentScriptStatus(p)
+        }))
+    } else {
+        // Single platform path
+        return getSinglePlatformContentScriptStatus(platform)
+    }
 }
 
 /**
- * @param {Platform} platform
+ * @param {Platform|Platform[]} platform
  */
 function registerContentScript(platform, showNotification = true) {
-    return new Promise((resolve, reject) => {
-        const config = PLATFORM_CONFIGS[platform]
+    /**
+     * @param {string} p
+     * @returns {Promise<string>}
+     */
+    function registerSinglePlatformContentScript(p) {
+        return new Promise((resolve, reject) => {
+            const config = PLATFORM_CONFIGS[p]
 
-        chrome.permissions.contains({ origins: config.matches }).then((hasPermission) => {
-            if (hasPermission) {
-                chrome.scripting
-                    .getRegisteredContentScripts()
-                    .then((scripts) => {
-                        let isRegistered = scripts.some(s => s.id === config.id)
+            // Map each match to a permission check
+            const permissionChecks = config.matches.map(pattern =>
+                chrome.permissions.contains({ origins: [pattern] }).then(result => result ? pattern : null)
+            )
 
-                        if (isRegistered) {
-                            console.log(`${platform} content script already registered`)
-                            resolve(`Content script already registered`)
-                        } else {
-                            chrome.scripting.registerContentScripts([{
-                                id: config.id,
-                                js: config.js,
-                                matches: config.matches,
-                                excludeMatches: config.excludeMatches,
-                                runAt: "document_end",
-                            }])
-                                .then(() => {
-                                    console.log(`${platform} content script registered successfully.`)
+            Promise.all(permissionChecks).then((results) => {
+                // Filter to get only patterns with existing permissions
+                const allowedMatches = results.filter(pattern => pattern !== null)
 
-                                    if (showNotification) {
-                                        chrome.permissions.contains({
-                                            permissions: ["notifications"]
-                                        }).then((hasNotifyPermission) => {
-                                            if (hasNotifyPermission) {
-                                                chrome.notifications.create({
-                                                    type: "basic",
-                                                    iconUrl: "icon.png",
-                                                    title: "Enabled!",
-                                                    message: platform === "google_meet" ? `Refresh any existing meeting pages` : ` ${platform === "teams" ? `Join Teams meetings on the browser` : `Zoom meetings will automatically open in the browser`}. Refresh any existing pages.`
-                                                })
-                                            }
-                                        })
-                                    }
-                                    resolve(`Content script registered`)
-                                })
-                                .catch((error) => {
-                                    console.error(`${platform} registration failed.`, error)
-                                    reject(`Failed to register content script`)
-                                })
-                        }
-                    })
-            } else {
-                reject(`Insufficient permissions`)
-            }
+                console.log(`${p} requirement: ${config.matches}`)
+                console.log(`${p} currently allowed: ${allowedMatches}`)
+
+                if (allowedMatches.length > 0) {
+                    chrome.scripting
+                        .getRegisteredContentScripts()
+                        .then((scripts) => {
+                            let isRegistered = scripts.some(s => s.id === config.id)
+
+                            if (isRegistered) {
+                                console.log(`${p} content script already registered`)
+                                resolve(`Content script already registered`)
+                            } else {
+                                chrome.scripting.registerContentScripts([{
+                                    id: config.id,
+                                    js: config.js,
+                                    matches: allowedMatches,
+                                    excludeMatches: config.excludeMatches,
+                                    runAt: "document_end",
+                                }])
+                                    .then(() => {
+                                        console.log(`${p} content script registered successfully.`)
+
+                                        if (showNotification) {
+                                            chrome.permissions.contains({
+                                                permissions: ["notifications"]
+                                            }).then((hasNotifyPermission) => {
+                                                if (hasNotifyPermission) {
+                                                    chrome.notifications.create({
+                                                        type: "basic",
+                                                        iconUrl: "icon.png",
+                                                        title: "Enabled!",
+                                                        message: p === "google_meet" ? `Refresh any existing meeting pages` : ` ${p === "teams" ? `Join Teams meetings on the browser` : `Zoom meetings will automatically open in the browser`}. Refresh any existing pages.`
+                                                    })
+                                                }
+                                            })
+                                        }
+                                        resolve(`Content script registered`)
+                                    })
+                                    .catch((error) => {
+                                        console.error(`${p} registration failed.`, error)
+                                        reject(`Failed to register content script`)
+                                    })
+                            }
+                        })
+                } else {
+                    reject(`Insufficient permissions`)
+                }
+            })
         })
-    })
+    }
+
+    if (Array.isArray(platform)) {
+        // Multi-platform path
+        return Promise.all(platform.map(function (p) {
+            return registerSinglePlatformContentScript(p)
+        }))
+    } else {
+        // Single platform path
+        return registerSinglePlatformContentScript(platform)
+    }
 }
+
+/**
+ * @param {Platform|Platform[]} platform
+ */
+function deregisterContentScript(platform) {
+    /**
+    * @param {string} p
+    * @returns {Promise<string>}
+    */
+    function deregisterSinglePlatformContentScript(p) {
+        return new Promise((resolve, reject) => {
+            const config = PLATFORM_CONFIGS[p]
+
+            chrome.scripting
+                .getRegisteredContentScripts()
+                .then((scripts) => {
+                    let isRegistered = scripts.some(s => s.id === config.id)
+
+                    if (!isRegistered) {
+                        console.log(`${p} content script not registered`)
+                        resolve(`Content script not registered`)
+                    } else {
+                        chrome.scripting.unregisterContentScripts({
+                            ids: [config.id]
+                        })
+                            .then(() => {
+                                console.log(`${p} content script deregistered successfully.`)
+                                resolve(`Content script deregistered`)
+                            })
+                            .catch((error) => {
+                                console.error(`${p} deregistration failed.`, error)
+                                reject(`Failed to deregister content script`)
+                            })
+                    }
+                })
+        })
+    }
+
+    if (Array.isArray(platform)) {
+        // Multi-platform path
+        return Promise.all(platform.map(function (p) {
+            return deregisterSinglePlatformContentScript(p)
+        }))
+    } else {
+        // Single platform path
+        return deregisterSinglePlatformContentScript(platform)
+    }
+}
+
 
 function reRegisterContentScripts() {
     chrome.storage.sync.get(["wantGoogleMeet", "wantTeams", "wantZoom"], function (resultSyncUntyped) {
         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
 
-        Promise.all([
-            getPermissionStatus("google_meet"),
-            getPermissionStatus("teams"),
-            getPermissionStatus("zoom")
-        ]).then((results) => {
-            const promises = []
+        /** @type {Promise<any>[]} */
+        const reRegisterPromises = []
 
-            // Register content scripts if permissions are available and if user has not explicitly opted out
-            if (results[0] === "Enabled" && (resultSync.wantGoogleMeet !== false)) {
-                promises.push(registerContentScript("google_meet", false))
-            }
-            if (results[1] === "Enabled" && (resultSync.wantTeams !== false)) {
-                promises.push(registerContentScript("teams", false))
-            }
-            if (results[2] === "Enabled" && (resultSync.wantZoom !== false)) {
-                promises.push(registerContentScript("zoom", false))
-                promises.push(registerZoomRedirect())
-            }
+        /** @type {Platform[]} */
+        const wantedPlatforms = []
 
-            Promise.all(promises)
-                .catch((error) => {
-                    console.log(error)
-                })
-        })
+        // Register content scripts if permissions are available and if user has not explicitly opted out
+        if (resultSync.wantGoogleMeet) {
+            wantedPlatforms.push("google_meet")
+        }
+        if (resultSync.wantTeams) {
+            wantedPlatforms.push("teams")
+        }
+        if (resultSync.wantZoom) {
+            wantedPlatforms.push("zoom")
+            reRegisterPromises.push(registerZoomRedirect())
+        }
+
+        if (wantedPlatforms.length > 0) {
+            reRegisterPromises.push(registerContentScript(wantedPlatforms, false))
+        }
+
+        Promise.all(reRegisterPromises)
+            .then(() => {
+                console.log("Permitted scripts re-registered successfully.")
+            })
+            .catch((error) => {
+                console.log(error)
+            })
     })
 }
+
 
 function registerZoomRedirect() {
     return new Promise((resolve, reject) => {
@@ -907,38 +1068,6 @@ function registerZoomRedirect() {
                 return
             }
         })
-    })
-}
-
-/**
- * @param {Platform} platform
- */
-function deregisterContentScript(platform) {
-    return new Promise((resolve, reject) => {
-        const config = PLATFORM_CONFIGS[platform]
-
-        chrome.scripting
-            .getRegisteredContentScripts()
-            .then((scripts) => {
-                let isRegistered = scripts.some(s => s.id === config.id)
-
-                if (!isRegistered) {
-                    console.log(`${platform} content script not registered`)
-                    resolve(`Content script not registered`)
-                } else {
-                    chrome.scripting.unregisterContentScripts({
-                        ids: [config.id]
-                    })
-                        .then(() => {
-                            console.log(`${platform} content script deregistered successfully.`)
-                            resolve(`Content script deregistered`)
-                        })
-                        .catch((error) => {
-                            console.error(`${platform} deregistration failed.`, error)
-                            reject(`Failed to deregister content script`)
-                        })
-                }
-            })
     })
 }
 
@@ -981,5 +1110,50 @@ function openExtensionPopup() {
                 console.error("Failed to open popup:", error)
                 reject("Failed to open popup")
             })
+    })
+}
+
+function checkPermissionsAndOpenMeetingsPage() {
+    console.log("Check permissions")
+    chrome.storage.sync.get(["wantGoogleMeet", "wantTeams", "wantZoom"], function (resultSyncUntyped) {
+        const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+
+        /** @type {Platform[]} */
+        const wantedPlatforms = []
+        //  Consider enabled if user has not explicitly opted out
+        if (resultSync.wantGoogleMeet) {
+            wantedPlatforms.push("google_meet")
+        }
+        if (resultSync.wantTeams) {
+            wantedPlatforms.push("teams")
+        }
+        if (resultSync.wantZoom) {
+            wantedPlatforms.push("zoom")
+        }
+
+        /** @type {ExtensionMessage} */
+        const message = {
+            type: "get_platform_permission_status",
+            platform: wantedPlatforms
+        }
+        getPermissionStatus(wantedPlatforms).then((result) => {
+            console.log(result)
+
+            /** @type {Platform[]} */
+            const permissionMissingPlatforms = []
+
+            for (let i = 0; i < wantedPlatforms.length; i++) {
+                if (Array.isArray(result) && result[i] === "Disabled") {
+                    permissionMissingPlatforms.push(wantedPlatforms[i])
+                }
+            }
+
+            if (permissionMissingPlatforms.length > 0) {
+                console.log(permissionMissingPlatforms)
+                chrome.tabs.create({
+                    url: chrome.runtime.getURL("meetings.html")
+                })
+            }
+        })
     })
 }

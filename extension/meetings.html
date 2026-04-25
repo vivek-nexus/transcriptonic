@@ -12,7 +12,8 @@
             scroll-behavior: smooth;
         }
 
-        body {
+        body,
+        dialog {
             font-family: "TASA Explorer", sans-serif;
             padding: 1.5rem 3rem;
             color: #C0C0C0;
@@ -222,7 +223,9 @@
             align-items: center;
         }
 
-        #recover-last-meeting {
+        #recover-last-meeting,
+        #confirm-btn,
+        #cancel-btn {
             background: transparent;
             color: #2A9ACA;
             border: 1px solid #2A9ACA;
@@ -361,6 +364,15 @@
 
 
     <div style="margin: 0px auto; max-width: 1440px;">
+        <dialog id="permission-dialog">
+            <p>TranscripTonic needs additional permissions to function smoothly. <br /> <br /> Please review and
+                approve?</p>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button id="cancel-btn" value="cancel">Later</button>
+                <button id="confirm-btn" value="default">Review</button>
+            </div>
+        </dialog>
+
         <h1>TranscripTonic</h1>
 
         <section id="last-10-meetings">
