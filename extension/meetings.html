@@ -21,6 +21,26 @@
             accent-color: #2A9ACA;
         }
 
+        dialog {
+            padding: 1.5rem 2rem;
+            color: #C0C0C0;
+            background: #071f29;
+            font-size: 1rem;
+            border: 1px solid #2a9aca33;
+            border-radius: 0.5rem;
+        }
+
+        dialog::backdrop {
+            background-color: black;
+            opacity: 0.75;
+        }
+
+        #later-button {
+            background: transparent;
+            color: #2A9ACA;
+            border: 1px solid #2A9ACA;
+        }
+
         h1 {
             margin: 0.5rem 0rem 1.5rem 0rem;
         }
@@ -361,6 +381,19 @@
 
 
     <div style="margin: 0px auto; max-width: 1440px;">
+        <dialog id="permission-dialog" closedby="any">
+            <p style="margin-bottom: 1rem;">TranscripTonic needs additional permissions to function smoothly.
+                <br />Please review and
+                approve?
+                <br /><br />
+                <span class="sub-text">PS: Sorry for hijacking whatever you were doing :(</span>
+            </p>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button id="later-button">Later</button>
+                <button id="review-button">Review</button>
+            </div>
+        </dialog>
+
         <h1>TranscripTonic</h1>
 
         <section id="last-10-meetings">
