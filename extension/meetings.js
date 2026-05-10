@@ -436,16 +436,18 @@ function handlePermissions() {
                 }
 
                 if (permissionMissingPlatforms.length > 0) {
-                    const dialog = document.getElementById('permission-dialog')
-                    const confirmBtn = document.getElementById('confirm-btn')
-                    const cancelBtn = document.getElementById('cancel-btn')
+                    const dialog = document.querySelector('#permission-dialog')
+                    const reviewButton = /** @type {HTMLButtonElement} */ (document.querySelector('#review-button'))
+                    const laterButton = /** @type {HTMLButtonElement} */ (document.querySelector('#later-button'))
 
                     // Show the modal
+                    // @ts-ignore
                     dialog?.showModal()
-                    confirmBtn?.focus()
+                    reviewButton?.focus()
 
                     // Handle the "Confirm" action
-                    confirmBtn?.addEventListener("click", () => {
+                    reviewButton?.addEventListener("click", () => {
+                        // @ts-ignore
                         dialog?.close()
 
                         // This execution context is now considered a "User Gesture"
@@ -465,7 +467,8 @@ function handlePermissions() {
                     })
 
                     // Handle the "Cancel" action
-                    cancelBtn?.addEventListener("click", () => {
+                    laterButton?.addEventListener("click", () => {
+                        // @ts-ignore
                         dialog?.close()
                     })
 

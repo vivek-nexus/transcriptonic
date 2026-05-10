@@ -37,6 +37,9 @@ const PLATFORM_CONFIGS = {
     }
 }
 
+const ALARM_NAME = "dailyPermissionCheck"
+const INTERVAL_IN_MINUTES = 24 * 60 // 24 hours
+
 
 chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendResponse) {
     const message = /** @type {ExtensionMessage} */ (messageUnTyped)
@@ -287,6 +290,9 @@ chrome.tabs.onRemoved.addListener(function (tabId) {
                 console.log("Meeting tab id set to processing meeting")
 
                 processLastMeeting().finally(() => {
+                    setTimeout(() => {
+                        checkPermissionsAndOpenMeetingsPage()
+                    }, 10000)
                     clearTabIdAndApplyUpdate()
                 })
             })
@@ -335,8 +341,10 @@ chrome.permissions.onAdded.addListener((event) => {
 
 chrome.runtime.onInstalled.addListener(() => {
     // Set defaults values
-    chrome.storage.sync.get(["autoPostWebhookAfterMeeting", "autoDownloadFileAfterMeeting", "operationMode", "webhookBodyType", "webhookUrl"], function (resultSyncUntyped) {
+    chrome.storage.sync.get(["autoPostWebhookAfterMeeting", "autoDownloadFileAfterMeeting", "operationMode", "webhookBodyType", "webhookUrl", "wantGoogleMeet", "wantTeams", "wantZoom"], function (resultSyncUntyped) {
         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+
+        console.log(resultSync.wantTeams)
 
         chrome.storage.sync.set({
             autoPostWebhookAfterMeeting: resultSync.autoPostWebhookAfterMeeting === false ? false : true,
@@ -350,7 +358,31 @@ chrome.runtime.onInstalled.addListener(() => {
             // Re-register content scripts whenever extension is installed or updated, provided permissions are available. Suppress notification for silent background operation.
             reRegisterContentScripts()
         })
+
+        chrome.storage.local.get(["meetings"], function (resultLocalUntyped) {
+            const resultLocal = /** @type {ResultLocal} */ (resultLocalUntyped)
+
+            const shouldNotify = resultLocal.meetings?.some((meeting) => (meeting.meetingSoftware === "Teams" || meeting.meetingSoftware === "Zoom"))
+
+            if (shouldNotify) {
+                chrome.notifications.create({
+                    type: "basic",
+                    iconUrl: "icon.png",
+                    title: "IMPORTANT and sorry!",
+                    message: "Please re-enable Teams/Zoom from the extension popup. It might accidentally disabled a few hours ago in the recent update :("
+                })
+            }
+        })
+
+        checkAndCreateAlarm()
     })
+})
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+    if (alarm.name === ALARM_NAME) {
+        console.log("Alarm triggered: Running daily check...")
+        checkPermissionsAndOpenMeetingsPage()
+    }
 })
 
 // Download transcripts, post webhook if URL is enabled and available
@@ -392,7 +424,8 @@ function processLastMeeting() {
                                 // Increment anonymous transcript generated count to a Google sheet
                                 // @ts-ignore - Because this line exists in the resolved promise from pickupLastMeetingFromStorage, which clearly means that at least one meeting exists and resultLocal.meetings cannot be undefined.
                                 const meetingSoftware = resultLocal.meetings[lastIndex].meetingSoftware
-                                fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${resultSync.webhookUrl && resultSync.autoPostWebhookAfterMeeting}&meetingSoftware=${meetingSoftware}`, {
+                                const isWebhookEnabled = resultSync.webhookUrl && resultSync.autoPostWebhookAfterMeeting ? true : false
+                                fetch(`https://script.google.com/macros/s/AKfycbxgUPDKDfreh2JIs8pIC-9AyQJxq1lx9Q1qI2SVBjJRvXQrYCPD2jjnBVQmds2mYeD5nA/exec?version=${chrome.runtime.getManifest().version}&isWebhookEnabled=${isWebhookEnabled}&meetingSoftware=${meetingSoftware}`, {
                                     mode: "no-cors"
                                 })
                             })
@@ -885,9 +918,6 @@ function registerContentScript(platform, showNotification = true) {
                 // Filter to get only patterns with existing permissions
                 const allowedMatches = results.filter(pattern => pattern !== null)
 
-                console.log(`${p} requirement: ${config.matches}`)
-                console.log(`${p} currently allowed: ${allowedMatches}`)
-
                 if (allowedMatches.length > 0) {
                     chrome.scripting
                         .getRegisteredContentScripts()
@@ -1155,5 +1185,18 @@ function checkPermissionsAndOpenMeetingsPage() {
                 })
             }
         })
+    })
+}
+
+function checkAndCreateAlarm() {
+    chrome.alarms.get(ALARM_NAME, (alarm) => {
+        if (!alarm) {
+            chrome.alarms.create(ALARM_NAME, {
+                periodInMinutes: INTERVAL_IN_MINUTES
+            })
+            console.log(`Alarm "${ALARM_NAME}" created successfully.`)
+        } else {
+            console.log(`Alarm "${ALARM_NAME}" already exists. Next scheduled run:`, new Date(alarm.scheduledTime))
+        }
     })
 }
