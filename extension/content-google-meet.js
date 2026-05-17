@@ -155,6 +155,32 @@ function meetingRoutines(uiType) {
     let transcriptObserver
     /** @type {MutationObserver} */
     let chatMessagesObserver
+    /** @type {Element | null} */
+    let transcriptTargetNode = null
+    /** @type {ReturnType<typeof setInterval> | undefined} */
+    let captionsReattachInterval
+
+    // (Re)attaches the transcript observer. Used at startup and whenever Meet
+    // replaces the captions region (CC toggle / language change), which would
+    // otherwise leave the observer on a detached node and silently stop capturing.
+    /** @param {Element} node */
+    function attachTranscriptObserver(node) {
+      // Flush any in-flight buffer so text captured before the discontinuity
+      // is preserved and not merged with the post-reattach captions.
+      if ((personNameBuffer !== "") && (transcriptTextBuffer !== "")) {
+        pushBufferToTranscript()
+      }
+      personNameBuffer = ""
+      transcriptTextBuffer = ""
+      timestampBuffer = ""
+
+      if (transcriptObserver) {
+        transcriptObserver.disconnect()
+      }
+      transcriptTargetNode = node
+      transcriptObserver = new MutationObserver(transcriptMutationCallback)
+      transcriptObserver.observe(node, mutationConfig)
+    }
 
     // **** REGISTER TRANSCRIPT AND CHAT MESSAGES LISTENERS **** //
     // REGISTER TRANSCRIPT LISTENER
@@ -180,30 +206,40 @@ function meetingRoutines(uiType) {
           .then(targetNode => (targetNode))
       })
       .then((targetNode) => {
-        // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
-        const transcriptTargetNode = targetNode
-
-        if (transcriptTargetNode) {
-          // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any website transcript can be picked up during the meeting, independent of the operation mode.
-          transcriptObserver = new MutationObserver(transcriptMutationCallback)
-
-          // Start observing the transcript element and chat messages element for configured mutations
-          transcriptObserver.observe(transcriptTargetNode, mutationConfig)
-
-          // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
-          chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
-            const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
-            if (resultSync.operationMode === "manual") {
-              showNotification({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
-            }
-            else {
-              showNotification(extensionStatusJSON)
-            }
-          })
-        }
-        else {
+        if (!targetNode) {
           throw new Error("Transcript element not found in DOM")
         }
+
+        // Initial attach
+        attachTranscriptObserver(targetNode)
+
+        // Meet detaches/replaces the captions region when the user toggles CC off/on
+        // (and sometimes on caption language change). Poll for that case and re-attach,
+        // otherwise the observer goes silent for the rest of the meeting.
+        captionsReattachInterval = setInterval(() => {
+          if (hasMeetingEnded) {
+            return
+          }
+          const currentNode = document.querySelector(`div[role="region"][tabindex="0"]`)
+          if (!currentNode) {
+            return
+          }
+          if (!transcriptTargetNode || currentNode !== transcriptTargetNode || !transcriptTargetNode.isConnected) {
+            console.log("TranscripTonic: captions region replaced, re-attaching observer")
+            attachTranscriptObserver(currentNode)
+          }
+        }, 2000)
+
+        // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
+        chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
+          const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+          if (resultSync.operationMode === "manual") {
+            showNotification({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
+          }
+          else {
+            showNotification(extensionStatusJSON)
+          }
+        })
       })
       .catch((err) => {
         console.error(err)
@@ -255,6 +291,9 @@ function meetingRoutines(uiType) {
       selectElements(meetingEndIconData.selector, meetingEndIconData.text)[0].parentElement.parentElement.addEventListener("click", () => {
         // To suppress further errors
         hasMeetingEnded = true
+        if (captionsReattachInterval) {
+          clearInterval(captionsReattachInterval)
+        }
         if (transcriptObserver) {
           transcriptObserver.disconnect()
         }
