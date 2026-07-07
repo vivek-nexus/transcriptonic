@@ -75,9 +75,9 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
                     sendResponse(response)
                 })
                 .finally(() => {
-                    setTimeout(() => {
-                        checkPermissionsAndOpenMeetingsPage()
-                    }, 10000)
+                    // setTimeout(() => {
+                    //     checkPermissionsAndOpenMeetingsPage()
+                    // }, 10000)
                     clearTabIdAndApplyUpdate()
                 })
         })
@@ -290,9 +290,9 @@ chrome.tabs.onRemoved.addListener(function (tabId) {
                 console.log("Meeting tab id set to processing meeting")
 
                 processLastMeeting().finally(() => {
-                    setTimeout(() => {
-                        checkPermissionsAndOpenMeetingsPage()
-                    }, 10000)
+                    // setTimeout(() => {
+                    //     checkPermissionsAndOpenMeetingsPage()
+                    // }, 10000)
                     clearTabIdAndApplyUpdate()
                 })
             })
@@ -366,7 +366,7 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === ALARM_NAME) {
         console.log("Alarm triggered: Running daily check...")
-        checkPermissionsAndOpenMeetingsPage()
+        // checkPermissionsAndOpenMeetingsPage()
     }
 })
 
