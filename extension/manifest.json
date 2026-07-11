@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TranscripTonic",
-  "version": "3.3.6",
+  "version": "3.3.7",
   "description": "Simple Google Meet transcripts. Private and open source.",
   "action": {
     "default_icon": "icon.png",
@@ -31,7 +31,8 @@
     "https://teams.cloud.microsoft/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background/index.js",
+    "type": "module"
   },
   "declarative_net_request": {
     "rule_resources": [
