@@ -31,7 +31,7 @@
     "https://teams.cloud.microsoft/*"
   ],
   "background": {
-    "service_worker": "background/index.js",
+    "service_worker": "background-script/index.js",
     "type": "module"
   },
   "declarative_net_request": {

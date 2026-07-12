@@ -3,7 +3,7 @@
 /// <reference path="../../types/index.js" />
 
 import { getTranscriptString, getChatMessagesString } from './utils.js'
-import { timeFormat } from './config.js'
+import { TIMEFORMAT } from './config.js'
 
 /**
  * @param {number} index
@@ -31,7 +31,7 @@ export function downloadTranscript(index, isWebhookEnabled) {
 
                 // Format timestamp for human-readable filename and sanitise to prevent invalid filenames
                 const timestamp = new Date(meeting.meetingStartTimestamp)
-                const formattedTimestamp = timestamp.toLocaleString("default", timeFormat).replace(/[\/:]/g, "-")
+                const formattedTimestamp = timestamp.toLocaleString("default", TIMEFORMAT).replace(/[\/:]/g, "-")
 
                 const prefix = meeting.meetingSoftware ? `${meeting.meetingSoftware} transcript` : "Transcript"
 
@@ -131,8 +131,8 @@ export function postTranscriptToWebhook(index) {
                                 webhookBodyType: "simple",
                                 meetingSoftware: meeting.meetingSoftware ? meeting.meetingSoftware : "",
                                 meetingTitle: meeting.meetingTitle || meeting.title || "",
-                                meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
-                                meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toLocaleString("default", timeFormat).toUpperCase(),
+                                meetingStartTimestamp: new Date(meeting.meetingStartTimestamp).toLocaleString("default", TIMEFORMAT).toUpperCase(),
+                                meetingEndTimestamp: new Date(meeting.meetingEndTimestamp).toLocaleString("default", TIMEFORMAT).toUpperCase(),
                                 transcript: getTranscriptString(meeting.transcript),
                                 chatMessages: getChatMessagesString(meeting.chatMessages)
                             }

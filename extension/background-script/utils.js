@@ -2,7 +2,7 @@
 /// <reference path="../../types/chrome.d.ts" />
 /// <reference path="../../types/index.js" />
 
-import { ALARM_NAME, INTERVAL_IN_MINUTES, timeFormat } from "./config.js"
+import { ALARM_NAME, INTERVAL_IN_MINUTES, TIMEFORMAT } from "./config.js"
 import { processLastMeeting } from "./meetings.js"
 import { getPermissionStatus } from "./platforms.js"
 
@@ -28,7 +28,7 @@ export function getTranscriptString(transcript) {
     let transcriptString = ""
     if (transcript.length > 0) {
         transcript.forEach(transcriptBlock => {
-            transcriptString += `${transcriptBlock.personName} (${new Date(transcriptBlock.timestamp).toLocaleString("default", timeFormat).toUpperCase()})\n`
+            transcriptString += `${transcriptBlock.personName} (${new Date(transcriptBlock.timestamp).toLocaleString("default", TIMEFORMAT).toUpperCase()})\n`
             transcriptString += transcriptBlock.transcriptText
             transcriptString += "\n\n"
         })
@@ -45,7 +45,7 @@ export function getChatMessagesString(chatMessages) {
     let chatMessagesString = ""
     if (chatMessages.length > 0) {
         chatMessages.forEach(chatMessage => {
-            chatMessagesString += `${chatMessage.personName} (${new Date(chatMessage.timestamp).toLocaleString("default", timeFormat).toUpperCase()})\n`
+            chatMessagesString += `${chatMessage.personName} (${new Date(chatMessage.timestamp).toLocaleString("default", TIMEFORMAT).toUpperCase()})\n`
             chatMessagesString += chatMessage.chatMessageText
             chatMessagesString += "\n\n"
         })
