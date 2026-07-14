@@ -29,14 +29,26 @@ export const PLATFORM_CONFIGS = {
     },
     "teams": {
         id: "content-teams",
-        js: ["content-scripts/utils.js", "content-scripts/teams/utils.js", "content-scripts/teams/index.js"],
+        js: [
+            "content-scripts/common-config.js",
+            "content-scripts/common-utils.js",
+            "content-scripts/teams/config.js",
+            "content-scripts/teams/utils.js",
+            "content-scripts/teams/index.js"
+        ],
         matches: ["https://teams.live.com/*", "https://teams.microsoft.com/*", "https://teams.cloud.microsoft/*"],
         excludeMatches: [],
         permissions: ["notifications"]
     },
     "zoom": {
         id: "content-zoom",
-        js: ["content-scripts/utils.js", "content-scripts/zoom/utils.js", "content-scripts/zoom/index.js"],
+        js: [
+            "content-scripts/common-config.js",
+            "content-scripts/common-utils.js",
+            "content-scripts/zoom/config.js",
+            "content-scripts/zoom/utils.js",
+            "content-scripts/zoom/index.js"
+        ],
         matches: ["https://*.zoom.us/*"],
         excludeMatches: [],
         permissions: ["notifications", "declarativeNetRequestWithHostAccess"]

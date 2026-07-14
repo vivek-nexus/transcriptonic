@@ -96,10 +96,11 @@
  * @property {"new" | "failed" | "successful"} webhookPostStatus status of the webhook post request
  */
 
-/** @typedef {Object} Buffer
- * @property  {string} personNameBuffer
+/** @typedef {Object} StateTranscriptBlock
+ * @property  {string} timestamp
+ * @property {Element | null} mutationTargetElement
+ * @property  {string} personName
  * @property  {string} transcriptTextBuffer
- * @property  {string} timestampBuffer
 */
 
 /**
@@ -109,7 +110,7 @@
  * @property {string} userName
  * @property {TranscriptBlock[]} transcript array containing transcript blocks from the meeting
  * @property {ChatMessage[]} chatMessages array containing chat messages from the meeting
- * @property {Buffer} buffer buffer variables to dump values, which get pushed to transcript array as transcript blocks, at defined conditions
+ * @property {StateTranscriptBlock} stateTranscriptBlock buffer variables to dump values, which get pushed to transcript array as transcript blocks, at defined conditions
  * @property {string} meetingStartTimestamp ISO timestamp of when the most recent meeting started
  * @property {string} meetingTitle title of the most recent meeting
  * @property { Element | null} transcriptTargetNode

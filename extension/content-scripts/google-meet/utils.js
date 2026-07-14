@@ -14,7 +14,7 @@ function selectElements(selector, text) {
  * @description Shows a responsive notification of specified type and message
  * @param {ExtensionStatusJSON} extensionStatusJSON
  */
-function showNotification(extensionStatusJSON) {
+function showNotificationGoogleMeet(extensionStatusJSON) {
     // Banner CSS
     let html = document.querySelector("html")
     let obj = document.createElement("div")
@@ -53,8 +53,8 @@ function showNotification(extensionStatusJSON) {
  * @description Grabs updated meeting title, if available
  * @param {ContentScriptState} state
  */
-function updateMeetingTitle(state) {
-    waitForElement(SELECTORS.MEETING_TITLE).then((element) => {
+function updateMeetingTitleGoogleMeet(state) {
+    waitForElement(SELECTORS_GOOGLE_MEET.MEETING_TITLE).then((element) => {
         const meetingTitleElement = /** @type {HTMLDivElement} */ (element)
         meetingTitleElement?.setAttribute("contenteditable", "true")
         meetingTitleElement.title = "Edit meeting title for TranscripTonic"
@@ -82,11 +82,11 @@ function updateMeetingTitle(state) {
  * @param {ContentScriptState} state
  */
 function captureUserName(state) {
-    waitForElement(SELECTORS.USER_NAME).then(() => {
+    waitForElement(SELECTORS_GOOGLE_MEET.USER_NAME).then(() => {
         // Poll the element until the textContent loads from network or until meeting starts
         const captureUserNameInterval = setInterval(() => {
             if (!state.hasMeetingStarted) {
-                const capturedUserName = document.querySelector(SELECTORS.USER_NAME)?.textContent
+                const capturedUserName = document.querySelector(SELECTORS_GOOGLE_MEET.USER_NAME)?.textContent
                 if (capturedUserName) {
                     state.userName = capturedUserName
                     clearInterval(captureUserNameInterval)
@@ -123,12 +123,13 @@ function pushUniqueChatBlock(state, chatBlock) {
 */
 function handleTranscriptObserver(state, node) {
     // Flush any in-flight buffer so text captured before the discontinuity is preserved and not merged with the post-reattach captions.
-    if ((state.buffer.personNameBuffer !== "") && (state.buffer.transcriptTextBuffer !== "")) {
+
+    if ((state.stateTranscriptBlock.personName !== "") && (state.buffer.transcriptTextBuffer !== "")) {
         pushBufferToTranscript(state)
     }
-    state.buffer.personNameBuffer = ""
-    state.buffer.transcriptTextBuffer = ""
-    state.buffer.timestampBuffer = ""
+    state.stateTranscriptBlock.personName = ""
+    state.stateTranscriptBlock.transcriptTextBuffer = ""
+    state.stateTranscriptBlock.timestamp = ""
 
     if (state.transcriptObserver) {
         state.transcriptObserver.disconnect()
@@ -143,7 +144,7 @@ function handleTranscriptObserver(state, node) {
             clearInterval(captionsReattachInterval)
             return
         }
-        const currentNode = document.querySelector(SELECTORS.TRANSCRIPT_REGION)
+        const currentNode = document.querySelector(SELECTORS_GOOGLE_MEET.TRANSCRIPT_REGION)
         if (!currentNode) {
             return
         }

@@ -168,7 +168,7 @@ export function registerContentScript(platform, showNotification = true) {
                                                 if (hasNotifyPermission) {
                                                     chrome.notifications.create({
                                                         type: "basic",
-                                                        iconUrl: "icon.png",
+                                                        iconUrl: "../icon.png",
                                                         title: "Enabled!",
                                                         message: p === "google_meet" ? `Refresh any existing meeting pages` : ` ${p === "teams" ? `Join Teams meetings on the browser` : `Zoom meetings will automatically open in the browser`}. Refresh any existing pages.`
                                                     })

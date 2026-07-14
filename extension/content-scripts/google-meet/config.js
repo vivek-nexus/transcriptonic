@@ -1,4 +1,4 @@
-const SELECTORS = {
+const SELECTORS_GOOGLE_MEET = {
     USER_NAME: ".awLEm",
     MEETING_TITLE: ".u6vdEc",
     GOOGLE_SYMBOLS: ".google-symbols",

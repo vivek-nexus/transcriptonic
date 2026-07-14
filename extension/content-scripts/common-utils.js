@@ -15,10 +15,12 @@ function createContentScriptState(meetingSoftware, platform) {
         userName: "You",
         transcript: [],
         chatMessages: [],
-        buffer: {
-            personNameBuffer: "",
+        stateTranscriptBlock: {
+            timestamp: "",
+            mutationTargetElement: null,
+            personName: "",
             transcriptTextBuffer: "",
-            timestampBuffer: "",
+
         },
         meetingStartTimestamp: new Date().toISOString(),
         meetingTitle: document.title,
@@ -165,11 +167,23 @@ async function waitForElement(selector, text, iframe = null) {
  */
 function pushBufferToTranscript(state) {
     state.transcript.push({
-        "personName": state.buffer.personNameBuffer === "You" ? state.userName : state.buffer.personNameBuffer,
-        "timestamp": state.buffer.timestampBuffer,
-        "transcriptText": state.buffer.transcriptTextBuffer
+        "personName": state.stateTranscriptBlock.personName === "You" ? state.userName : state.stateTranscriptBlock.personName,
+        "timestamp": state.stateTranscriptBlock.timestamp,
+        "transcriptText": state.stateTranscriptBlock.transcriptTextBuffer
     })
     overWriteChromeStorage(state, ["transcript"], false)
+}
+
+/**
+ * @description Waits and grabs meeting title from document title
+ * @param {ContentScriptState} state
+ */
+function updateMeetingTitle(state) {
+    setTimeout(() => {
+        // NON CRITICAL DOM DEPENDENCY
+        state.meetingTitle = document.title
+        overWriteChromeStorage(state, ["meetingTitle"], false)
+    }, 5000)
 }
 
 function pulseStatus() {
@@ -196,6 +210,19 @@ function pulseStatus() {
     setTimeout(() => {
         activityStatus.style.cssText = `background-color: transparent; ${statusActivityCSS}`
     }, 3000)
+}
+
+/**
+   * @description Logs active transcript to console
+   * @param {ContentScriptState} state
+   */
+function logTranscriptToConsole(state) {
+    if (state.stateTranscriptBlock.transcriptTextBuffer.length > 125) {
+        console.log(state.stateTranscriptBlock.transcriptTextBuffer.slice(0, 50) + "   ...   " + state.stateTranscriptBlock.transcriptTextBuffer.slice(-50))
+    }
+    else {
+        console.log(state.stateTranscriptBlock.transcriptTextBuffer)
+    }
 }
 
 /**

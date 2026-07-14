@@ -2,39 +2,39 @@
 /// <reference path="../../../types/chrome.d.ts" />
 /// <reference path="../../../types/index.js" />
 
-
-// Attempt to recover last meeting, if any. Abort if it takes more than 2 seconds to prevent current meeting getting messed up.
-Promise.race([
-    recoverLastMeeting(),
-    new Promise((_, reject) =>
-        setTimeout(() => reject({ errorCode: "016", errorMessage: "Recovery timed out" }), 2000)
-    )
-]).catch((error) => {
-    const parsedError = /** @type {ErrorObject} */ (error)
-    if ((parsedError.errorCode !== "013") && (parsedError.errorCode !== "014")) {
-        console.error(parsedError.errorMessage)
-    }
-}).finally(() => {
-    initGoogleMeet()
-})
+initGoogleMeet()
 
 function initGoogleMeet() {
-    const state = createContentScriptState("Google Meet", "google_meet")
-    // Push fresh state to chrome storage
-    overWriteChromeStorage(state, ["meetingSoftware", "meetingStartTimestamp", "meetingTitle", "transcript", "chatMessages"], false)
-
-    checkExtensionStatus(state).finally(() => {
-        console.log("Extension status " + state.extensionStatusJSON.status)
-
-        // Enable extension functions only if status is 200
-        if (state.extensionStatusJSON.status === 200) {
-            // Meet UI post July/Aug 2024
-            googleMeetRoutines(state, 2)
+    // Attempt to recover last meeting, if any. Abort if it takes more than 2 seconds to prevent current meeting getting messed up.
+    Promise.race([
+        recoverLastMeeting(),
+        new Promise((_, reject) =>
+            setTimeout(() => reject({ errorCode: "016", errorMessage: "Recovery timed out" }), 2000)
+        )
+    ]).catch((error) => {
+        const parsedError = /** @type {ErrorObject} */ (error)
+        if ((parsedError.errorCode !== "013") && (parsedError.errorCode !== "014")) {
+            console.error(parsedError.errorMessage)
         }
-        else {
-            // Show downtime message as extension status is 400
-            showNotification(state.extensionStatusJSON)
-        }
+    }).finally(() => {
+        // Initialise new state for current meeting
+        const state = createContentScriptState("Google Meet", "google_meet")
+        // Push fresh state to chrome storage
+        overWriteChromeStorage(state, ["meetingSoftware", "meetingStartTimestamp", "meetingTitle", "transcript", "chatMessages"], false)
+
+        checkExtensionStatus(state).finally(() => {
+            console.log("Extension status " + state.extensionStatusJSON.status)
+
+            // Enable extension functions only if status is 200
+            if (state.extensionStatusJSON.status === 200) {
+                // Meet UI post July/Aug 2024
+                googleMeetRoutines(state, 2)
+            }
+            else {
+                // Show downtime message as extension status is 400
+                showNotificationGoogleMeet(state.extensionStatusJSON)
+            }
+        })
     })
 }
 
@@ -47,7 +47,7 @@ function googleMeetRoutines(state, uiType) {
     captureUserName(state)
 
     // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
-    waitForElement(SELECTORS.GOOGLE_SYMBOLS, SELECTORS.TEXT_CALL_END).then(() => {
+    waitForElement(SELECTORS_GOOGLE_MEET.GOOGLE_SYMBOLS, SELECTORS_GOOGLE_MEET.TEXT_CALL_END).then(() => {
         console.log("Meeting started")
         /** @type {ExtensionMessage} */
         const message = {
@@ -67,10 +67,10 @@ function googleMeetRoutines(state, uiType) {
 
         // REGISTER TRANSCRIPT LISTENER
         // Wait for captions icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
-        waitForElement(SELECTORS.GOOGLE_SYMBOLS, SELECTORS.TEXT_CAPTIONS)
+        waitForElement(SELECTORS_GOOGLE_MEET.GOOGLE_SYMBOLS, SELECTORS_GOOGLE_MEET.TEXT_CAPTIONS)
             .then(() => {
                 // CRITICAL DOM DEPENDENCY
-                const captionsButton = selectElements(SELECTORS.GOOGLE_SYMBOLS, SELECTORS.TEXT_CAPTIONS)[0]
+                const captionsButton = selectElements(SELECTORS_GOOGLE_MEET.GOOGLE_SYMBOLS, SELECTORS_GOOGLE_MEET.TEXT_CAPTIONS)[0]
 
                 // Click captions icon for non manual operation modes. Async operation.
                 chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
@@ -84,7 +84,7 @@ function googleMeetRoutines(state, uiType) {
                 })
 
                 // Allow DOM to be updated. Once updated, next "then" block will be executed.
-                return waitForElement(SELECTORS.TRANSCRIPT_REGION)
+                return waitForElement(SELECTORS_GOOGLE_MEET.TRANSCRIPT_REGION)
                     .then(targetNode => (targetNode))
             })
             .then((targetNode) => {
@@ -97,10 +97,10 @@ function googleMeetRoutines(state, uiType) {
                     chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
                         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
                         if (resultSync.operationMode === "manual") {
-                            showNotification({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
+                            showNotificationGoogleMeet({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
                         }
                         else {
-                            showNotification(state.extensionStatusJSON)
+                            showNotificationGoogleMeet(state.extensionStatusJSON)
                         }
                     })
                 }
@@ -111,7 +111,7 @@ function googleMeetRoutines(state, uiType) {
             .catch((err) => {
                 console.error(err)
                 state.isTranscriptDomErrorCaptured = true
-                showNotification(extensionStatusJSON_bug)
+                showNotificationGoogleMeet(extensionStatusJSON_bug)
 
                 logError(state, "001", err)
             })
@@ -119,14 +119,14 @@ function googleMeetRoutines(state, uiType) {
 
         // REGISTER CHAT MESSAGES LISTENER
         // Wait for chat icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the chat icon is still not visible.
-        waitForElement(SELECTORS.GOOGLE_SYMBOLS, SELECTORS.TEXT_CHAT)
+        waitForElement(SELECTORS_GOOGLE_MEET.GOOGLE_SYMBOLS, SELECTORS_GOOGLE_MEET.TEXT_CHAT)
             .then(() => {
-                const chatMessagesButton = selectElements(SELECTORS.GOOGLE_SYMBOLS, SELECTORS.TEXT_CHAT)[0]
+                const chatMessagesButton = selectElements(SELECTORS_GOOGLE_MEET.GOOGLE_SYMBOLS, SELECTORS_GOOGLE_MEET.TEXT_CHAT)[0]
                 // Force open chat messages to make the required DOM to appear. Otherwise, the required chatMessages DOM element is not available.
                 chatMessagesButton.click()
 
                 // Allow DOM to be updated. Once updated, next "then" block will be executed.
-                return waitForElement(SELECTORS.CHAT_LIVE_REGION)
+                return waitForElement(SELECTORS_GOOGLE_MEET.CHAT_LIVE_REGION)
                     .then(targetNode => ({ targetNode, chatMessagesButton }))
             })
             .then(({ targetNode, chatMessagesButton }) => {
@@ -149,7 +149,7 @@ function googleMeetRoutines(state, uiType) {
             .catch((err) => {
                 console.error(err)
                 state.isChatMessagesDomErrorCaptured = true
-                showNotification(extensionStatusJSON_bug)
+                showNotificationGoogleMeet(extensionStatusJSON_bug)
 
                 logError(state, "003", err)
             })
@@ -157,7 +157,7 @@ function googleMeetRoutines(state, uiType) {
         //*********** MEETING END ROUTINES **********//
         try {
             // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
-            selectElements(SELECTORS.GOOGLE_SYMBOLS, SELECTORS.TEXT_CHAT)[0].parentElement.parentElement.addEventListener("click", () => {
+            selectElements(SELECTORS_GOOGLE_MEET.GOOGLE_SYMBOLS, SELECTORS_GOOGLE_MEET.TEXT_CHAT)[0].parentElement.parentElement.addEventListener("click", () => {
                 // To suppress further errors
                 state.hasMeetingEnded = true
 
@@ -169,7 +169,7 @@ function googleMeetRoutines(state, uiType) {
                 }
 
                 // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
-                if ((state.buffer.personNameBuffer !== "") && (state.buffer.transcriptTextBuffer !== "")) {
+                if ((state.stateTranscriptBlock.personName !== "") && (state.stateTranscriptBlock.transcriptTextBuffer !== "")) {
                     pushBufferToTranscript(state)
                 }
                 // Save to chrome storage and send message to download transcript from background script
@@ -177,7 +177,7 @@ function googleMeetRoutines(state, uiType) {
             })
         } catch (err) {
             console.error(err)
-            showNotification(extensionStatusJSON_bug)
+            showNotificationGoogleMeet(extensionStatusJSON_bug)
 
             logError(state, "004", err)
         }
@@ -209,36 +209,40 @@ function transcriptMutationCallback(state, mutationsList) {
                         })
 
                         // Starting fresh in a meeting or resume from no active transcript
-                        if (state.buffer.transcriptTextBuffer === "") {
-                            state.buffer.personNameBuffer = currentPersonName
-                            state.buffer.timestampBuffer = new Date().toISOString()
-                            state.buffer.transcriptTextBuffer = currentTranscriptText
+                        if (!state.stateTranscriptBlock.mutationTargetElement) {
+                            state.stateTranscriptBlock.mutationTargetElement = mutation.target.parentElement
+                            state.stateTranscriptBlock.personName = currentPersonName
+                            state.stateTranscriptBlock.timestamp = new Date().toISOString()
+                            state.stateTranscriptBlock.transcriptTextBuffer = currentTranscriptText
                         }
                         // Some prior transcript buffer exists
                         else {
                             // New person started speaking 
-                            if (state.buffer.personNameBuffer !== currentPersonName) {
+                            if (state.stateTranscriptBlock.mutationTargetElement !== mutation.target.parentElement) {
                                 // Push previous person's transcript as a block
                                 pushBufferToTranscript(state)
 
-                                // Update buffers for next mutation and store transcript block timestamp
-                                state.buffer.personNameBuffer = currentPersonName
-                                state.buffer.timestampBuffer = new Date().toISOString()
-                                state.buffer.transcriptTextBuffer = currentTranscriptText
+                                // Update stateTranscriptBlock for next mutation and store transcript block timestamp
+                                state.stateTranscriptBlock.mutationTargetElement = mutation.target.parentElement
+                                state.stateTranscriptBlock.personName = currentPersonName
+                                state.stateTranscriptBlock.timestamp = new Date().toISOString()
+                                state.stateTranscriptBlock.transcriptTextBuffer = currentTranscriptText
                             }
                             // Same person speaking more
                             else {
                                 // When the same person speaks for more than 30 min (approx), Meet drops very long transcript for current person and starts over, which is detected by current transcript string being significantly smaller than the previous one
-                                if ((currentTranscriptText.length - state.buffer.transcriptTextBuffer.length) < -250) {
+                                // TO VERIFY IF NEEDED
+                                if ((currentTranscriptText.length - state.stateTranscriptBlock.transcriptTextBuffer.length) < -250) {
                                     // Push the long transcript
                                     pushBufferToTranscript(state)
 
                                     // Store transcript block timestamp for next transcript block of same person
-                                    state.buffer.timestampBuffer = new Date().toISOString()
+                                    state.stateTranscriptBlock.mutationTargetElement = mutation.target.parentElement
+                                    state.stateTranscriptBlock.timestamp = new Date().toISOString()
                                 }
 
-                                // Update buffers for next mutation
-                                state.buffer.transcriptTextBuffer = currentTranscriptText
+                                // Update stateTranscriptBlock for next mutation
+                                state.stateTranscriptBlock.transcriptTextBuffer = currentTranscriptText
                             }
                         }
                     }
@@ -247,28 +251,24 @@ function transcriptMutationCallback(state, mutationsList) {
                         // No transcript yet or the last person stopped speaking(and no one has started speaking next)
                         console.log("No active transcript")
                         // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
-                        if ((state.buffer.personNameBuffer !== "") && (state.buffer.transcriptTextBuffer !== "")) {
+                        if ((state.stateTranscriptBlock.personName !== "") && (state.stateTranscriptBlock.transcriptTextBuffer !== "")) {
                             pushBufferToTranscript(state)
                         }
-                        // Update buffers for the next person in the next mutation
-                        state.buffer.personNameBuffer = ""
-                        state.buffer.transcriptTextBuffer = ""
+                        // Update stateTranscriptBlock for the next person in the next mutation
+                        state.stateTranscriptBlock.mutationTargetElement = null
+                        state.stateTranscriptBlock.personName = ""
+                        state.stateTranscriptBlock.transcriptTextBuffer = ""
                     }
                 }
             }
 
             // Logs to indicate that the extension is working
-            if (state.buffer.transcriptTextBuffer.length > 125) {
-                console.log(state.buffer.transcriptTextBuffer.slice(0, 50) + "   ...   " + state.buffer.transcriptTextBuffer.slice(-50))
-            }
-            else {
-                console.log(state.buffer.transcriptTextBuffer)
-            }
+            logTranscriptToConsole(state)
         } catch (err) {
             console.error(err)
             if (!state.isTranscriptDomErrorCaptured && !state.hasMeetingEnded) {
                 console.log(reportErrorMessage)
-                showNotification(extensionStatusJSON_bug)
+                showNotificationGoogleMeet(extensionStatusJSON_bug)
 
                 logError(state, "005", err)
             }
@@ -286,7 +286,7 @@ function chatMessagesMutationCallback(state, mutationsList) {
     mutationsList.forEach(() => {
         try {
             // CRITICAL DOM DEPENDENCY
-            const chatMessagesElement = document.querySelector(SELECTORS.CHAT_LIVE_REGION)
+            const chatMessagesElement = document.querySelector(SELECTORS_GOOGLE_MEET.CHAT_LIVE_REGION)
             // Attempt to parse messages only if at least one message exists
             if (chatMessagesElement && chatMessagesElement.children.length > 0) {
                 // CRITICAL DOM DEPENDENCY. Get the last message that was sent/received.
@@ -315,7 +315,7 @@ function chatMessagesMutationCallback(state, mutationsList) {
             console.error(err)
             if (!state.isChatMessagesDomErrorCaptured && !state.hasMeetingEnded) {
                 console.log(reportErrorMessage)
-                showNotification(extensionStatusJSON_bug)
+                showNotificationGoogleMeet(extensionStatusJSON_bug)
 
                 logError(state, "006", err)
             }
