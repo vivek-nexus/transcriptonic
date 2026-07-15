@@ -99,8 +99,6 @@ function teamsMeetingRoutines(state) {
     })
 
     // **** REGISTER TRANSCRIPT LISTENER **** //
-    /** @type {MutationObserver} */
-    let transcriptObserver
     // Wait for transcript node to be visible
     waitForElement(SELECTORS_TEAMS.CAPTIONS_REGION).then((element) => {
       console.log("Found captions container")
@@ -114,10 +112,10 @@ function teamsMeetingRoutines(state) {
         console.log(`Registering mutation observer on ${SELECTORS_TEAMS.CAPTIONS_REGION}`)
 
         // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
-        transcriptObserver = new MutationObserver((mutations) => transcriptMutationCallback(state, mutations))
+        state.transcriptObserver = new MutationObserver((mutations) => transcriptMutationCallbackTeams(state, mutations))
 
         // Start observing the transcript element and chat messages element for configured mutations
-        transcriptObserver.observe(state.transcriptTargetNode, mutationConfig)
+        state.transcriptObserver.observe(state.transcriptTargetNode, mutationConfig)
       }
       else {
         throw new Error("Transcript element not found in DOM")
@@ -148,8 +146,8 @@ function teamsMeetingRoutines(state) {
           console.log("Meeting ended")
           // To suppress further errors
           state.hasMeetingEnded = true
-          if (transcriptObserver) {
-            transcriptObserver.disconnect()
+          if (state.transcriptObserver) {
+            state.transcriptObserver.disconnect()
           }
 
           // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
@@ -172,7 +170,7 @@ function teamsMeetingRoutines(state) {
    * @param {ContentScriptState} state
    * @param {MutationRecord[]} mutationsList
    */
-function transcriptMutationCallback(state, mutationsList) {
+function transcriptMutationCallbackTeams(state, mutationsList) {
   mutationsList.forEach(async (mutation) => {
     try {
       // const transcriptTargetNode = document.querySelector(`[data-tid="closed-caption-v2-virtual-list-content"]`)

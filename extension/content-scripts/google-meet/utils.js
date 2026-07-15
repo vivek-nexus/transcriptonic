@@ -135,7 +135,7 @@ function handleTranscriptObserver(state, node) {
         state.transcriptObserver.disconnect()
     }
     state.transcriptTargetNode = node
-    state.transcriptObserver = new MutationObserver((mutations) => transcriptMutationCallback(state, mutations))
+    state.transcriptObserver = new MutationObserver((mutations) => transcriptMutationCallbackGoogleMeet(state, mutations))
     state.transcriptObserver.observe(node, mutationConfig)
 
     // Meet detaches/replaces the captions region when the user toggles CC off/on (and sometimes on caption language change). Poll for that case and re-attach, otherwise the observer goes silent for the rest of the meeting.

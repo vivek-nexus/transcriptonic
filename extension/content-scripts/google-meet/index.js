@@ -189,7 +189,7 @@ function googleMeetRoutines(state, uiType) {
  * @param {ContentScriptState} state
  * @param {MutationRecord[]} mutationsList
  */
-function transcriptMutationCallback(state, mutationsList) {
+function transcriptMutationCallbackGoogleMeet(state, mutationsList) {
     mutationsList.forEach((mutation) => {
         try {
             if (mutation.type === "characterData") {

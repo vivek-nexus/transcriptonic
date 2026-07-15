@@ -1,3 +1,7 @@
+// @ts-check
+/// <reference path="../../../types/chrome.d.ts" />
+/// <reference path="../../../types/index.js" />
+
 const SELECTORS_TEAMS = {
     PREJOIN_JOIN_BUTTON: "#prejoin-join-button",
     HANGUP_BUTTON: "#hangup-button",
