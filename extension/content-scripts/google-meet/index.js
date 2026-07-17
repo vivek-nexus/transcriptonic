@@ -91,7 +91,7 @@ function googleMeetRoutines(state, uiType) {
                 if (targetNode) {
                     // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
                     state.transcriptTargetNode = targetNode
-                    // Initial attach
+                    // Initial attach and monitor every 2s
                     startTranscriptMonitor(state)
 
                     // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode

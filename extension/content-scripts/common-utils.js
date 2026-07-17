@@ -162,6 +162,75 @@ async function waitForElement(selector, text, iframe = null) {
     return targetDoc.querySelector(selector)
 }
 
+/** 
+ * @description Single, flat polling monitor that handles initial attachment and all re-attachments.
+ * @param {ContentScriptState} state
+ */
+function startTranscriptMonitor(state) {
+    /** @type {Node | null} */
+    let currentObservedNode = null
+
+    const monitorInterval = setInterval(() => {
+        if (state.hasMeetingEnded) {
+            clearInterval(monitorInterval)
+            return
+        }
+
+        let activeNode
+
+        switch (state.platform) {
+            case "google_meet":
+                activeNode = document.querySelector(SELECTORS_GOOGLE_MEET.TRANSCRIPT_REGION)
+                break
+            case "teams":
+                activeNode = document.querySelector(SELECTORS_TEAMS.CAPTIONS_REGION)
+                break
+            case "zoom":
+                activeNode = document.querySelector(SELECTORS_ZOOM.TRANSCRIPT_CONTAINER)
+                break
+            default:
+                break
+        }
+        if (!activeNode) {
+            return
+        }
+
+        // If the active node is new, replaced, or disconnected, re-attach the observer
+        if (!currentObservedNode || activeNode !== currentObservedNode || !currentObservedNode.isConnected) {
+            console.log("TranscripTonic: Captions region detected/replaced. Attaching observer...")
+
+            // Flush any in-flight buffer to prevent losing text on transitions
+            pushBufferToTranscript(state)
+            state.stateTranscriptBlock.personName = ""
+            state.stateTranscriptBlock.transcriptTextBuffer = ""
+            state.stateTranscriptBlock.timestamp = ""
+
+            if (state.transcriptObserver) {
+                state.transcriptObserver.disconnect()
+            }
+
+            currentObservedNode = activeNode
+            state.transcriptObserver = new MutationObserver((mutations) => {
+                switch (state.platform) {
+                    case "google_meet":
+                        transcriptMutationCallbackGoogleMeet(state, mutations)
+                        break
+                    case "teams":
+                        transcriptMutationCallbackTeams(state, mutations)
+                        break
+                    case "zoom":
+                        transcriptMutationCallbackZoom(state, mutations)
+                        break
+                    default:
+                        break
+                }
+            }
+            )
+            state.transcriptObserver.observe(activeNode, mutationConfig)
+        }
+    }, 2000)
+}
+
 /**
  * @param {ContentScriptState} state
  */
