@@ -18,7 +18,6 @@ const LOGO_URL = "https://ejnana.github.io/transcripto-status/icon.png"
 const commonCSS = `background: rgb(255 255 255 / 100%); 
     backdrop-filter: blur(16px); 
     position: fixed;
-    top: 5%; 
     left: 0; 
     right: 0; 
     margin-left: auto; 

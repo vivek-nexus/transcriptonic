@@ -32,7 +32,7 @@ function initGoogleMeet() {
             }
             else {
                 // Show downtime message as extension status is 400
-                showNotificationGoogleMeet(state.extensionStatusJSON)
+                showNotificationGoogleMeet(state, state.extensionStatusJSON)
             }
         })
     })
@@ -90,17 +90,18 @@ function googleMeetRoutines(state, uiType) {
             .then((targetNode) => {
                 if (targetNode) {
                     // CRITICAL DOM DEPENDENCY. Grab the transcript element. This element is present, irrespective of captions ON/OFF, so this executes independent of operation mode.
+                    state.transcriptTargetNode = targetNode
                     // Initial attach
-                    handleTranscriptObserver(state, targetNode)
+                    startTranscriptMonitor(state)
 
                     // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
                     chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
                         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
                         if (resultSync.operationMode === "manual") {
-                            showNotificationGoogleMeet({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
+                            showNotificationGoogleMeet(state, { status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
                         }
                         else {
-                            showNotificationGoogleMeet(state.extensionStatusJSON)
+                            showNotificationGoogleMeet(state, state.extensionStatusJSON)
                         }
                     })
                 }
@@ -111,7 +112,7 @@ function googleMeetRoutines(state, uiType) {
             .catch((err) => {
                 console.error(err)
                 state.isTranscriptDomErrorCaptured = true
-                showNotificationGoogleMeet(extensionStatusJSON_bug)
+                showNotificationGoogleMeet(state, extensionStatusJSON_bug)
 
                 logError(state, "001", err)
             })
@@ -149,7 +150,7 @@ function googleMeetRoutines(state, uiType) {
             .catch((err) => {
                 console.error(err)
                 state.isChatMessagesDomErrorCaptured = true
-                showNotificationGoogleMeet(extensionStatusJSON_bug)
+                showNotificationGoogleMeet(state, extensionStatusJSON_bug)
 
                 logError(state, "003", err)
             })
@@ -157,7 +158,7 @@ function googleMeetRoutines(state, uiType) {
         //*********** MEETING END ROUTINES **********//
         try {
             // CRITICAL DOM DEPENDENCY. Event listener to capture meeting end button click by user
-            selectElements(SELECTORS_GOOGLE_MEET.GOOGLE_SYMBOLS, SELECTORS_GOOGLE_MEET.TEXT_CHAT)[0].parentElement.parentElement.addEventListener("click", () => {
+            selectElements(SELECTORS_GOOGLE_MEET.GOOGLE_SYMBOLS, SELECTORS_GOOGLE_MEET.TEXT_CALL_END)[0].parentElement.parentElement.addEventListener("click", () => {
                 // To suppress further errors
                 state.hasMeetingEnded = true
 
@@ -168,16 +169,14 @@ function googleMeetRoutines(state, uiType) {
                     state.chatMessagesObserver.disconnect()
                 }
 
-                // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
-                if ((state.stateTranscriptBlock.personName !== "") && (state.stateTranscriptBlock.transcriptTextBuffer !== "")) {
-                    pushBufferToTranscript(state)
-                }
+                // Push any data in the buffer variables to the transcript array. Needed to handle one or more speaking when meeting ends.
+                pushBufferToTranscript(state)
                 // Save to chrome storage and send message to download transcript from background script
                 overWriteChromeStorage(state, ["transcript", "chatMessages"], true)
             })
         } catch (err) {
             console.error(err)
-            showNotificationGoogleMeet(extensionStatusJSON_bug)
+            showNotificationGoogleMeet(state, extensionStatusJSON_bug)
 
             logError(state, "004", err)
         }
@@ -250,10 +249,8 @@ function transcriptMutationCallbackGoogleMeet(state, mutationsList) {
                     else {
                         // No transcript yet or the last person stopped speaking(and no one has started speaking next)
                         console.log("No active transcript")
-                        // Push data in the buffer variables to the transcript array, but avoid pushing blank ones.
-                        if ((state.stateTranscriptBlock.personName !== "") && (state.stateTranscriptBlock.transcriptTextBuffer !== "")) {
-                            pushBufferToTranscript(state)
-                        }
+                        // Push data in the buffer variables to the transcript array
+                        pushBufferToTranscript(state)
                         // Update stateTranscriptBlock for the next person in the next mutation
                         state.stateTranscriptBlock.mutationTargetElement = null
                         state.stateTranscriptBlock.personName = ""
@@ -268,7 +265,7 @@ function transcriptMutationCallbackGoogleMeet(state, mutationsList) {
             console.error(err)
             if (!state.isTranscriptDomErrorCaptured && !state.hasMeetingEnded) {
                 console.log(reportErrorMessage)
-                showNotificationGoogleMeet(extensionStatusJSON_bug)
+                showNotificationGoogleMeet(state, extensionStatusJSON_bug)
 
                 logError(state, "005", err)
             }
@@ -315,7 +312,7 @@ function chatMessagesMutationCallback(state, mutationsList) {
             console.error(err)
             if (!state.isChatMessagesDomErrorCaptured && !state.hasMeetingEnded) {
                 console.log(reportErrorMessage)
-                showNotificationGoogleMeet(extensionStatusJSON_bug)
+                showNotificationGoogleMeet(state, extensionStatusJSON_bug)
 
                 logError(state, "006", err)
             }

@@ -50,7 +50,7 @@ function initTeams() {
         }
         else {
           // Show downtime message as extension status is 400
-          showNotificationTeams(state.extensionStatusJSON)
+          showNotificationTeams(state, state.extensionStatusJSON)
         }
       })
     })
@@ -81,14 +81,14 @@ function teamsMeetingRoutines(state) {
       const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
       if (resultSync.operationMode === "manual") {
         console.log("Manual mode selected, leaving transcript off")
-        showNotificationTeams({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions, if needed (More > Language > Captions)" })
+        showNotificationTeams(state, { status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions, if needed (More > Language > Captions)" })
       }
       else {
         // Allow keyboard event listener to be ready
         setTimeout(() => {
           dispatchLiveCaptionsShortcut()
           // Show message to enable because keyboard shortcut does not work in guest meetings
-          showNotificationTeams(state.extensionStatusJSON)
+          showNotificationTeams(state, state.extensionStatusJSON)
         }, 2000)
       }
     })
@@ -124,7 +124,7 @@ function teamsMeetingRoutines(state) {
       .catch((err) => {
         console.error(err)
         state.isTranscriptDomErrorCaptured = true
-        showNotificationTeams(extensionStatusJSON_bug)
+        showNotificationTeams(state, extensionStatusJSON_bug)
 
         logError(state, "001", err)
       })
@@ -150,10 +150,8 @@ function teamsMeetingRoutines(state) {
             state.transcriptObserver.disconnect()
           }
 
-          // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
-          if ((state.stateTranscriptBlock.personName !== "") && (state.stateTranscriptBlock.transcriptTextBuffer !== "")) {
-            pushBufferToTranscript(state)
-          }
+          // Push any data in the buffer variables to the transcript array. Needed to handle one or more speaking when meeting ends.
+          pushBufferToTranscript(state)
           // Save to chrome storage and send message to download transcript from background script
           overWriteChromeStorage(state, ["transcript", "chatMessages"], true)
         }
@@ -217,7 +215,7 @@ function transcriptMutationCallbackTeams(state, mutationsList) {
       console.error(err)
       if (!state.isTranscriptDomErrorCaptured && !state.hasMeetingEnded) {
         console.log(reportErrorMessage)
-        showNotificationTeams(extensionStatusJSON_bug)
+        showNotificationTeams(state, extensionStatusJSON_bug)
 
         logError(state, "005", err)
       }

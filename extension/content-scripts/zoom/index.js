@@ -53,7 +53,7 @@ function initZoom() {
                 }
                 else {
                     // Show downtime message as extension status is 400
-                    showNotificationZoom(state.extensionStatusJSON)
+                    showNotificationZoom(state, state.extensionStatusJSON)
                 }
             })
         })
@@ -90,7 +90,7 @@ function zoomMeetingRoutines(state) {
                         updateMeetingTitle(state)
 
                         // Ask user to switch on captions
-                        showNotificationZoom(state.extensionStatusJSON)
+                        showNotificationZoom(state, state.extensionStatusJSON)
 
                         // **** REGISTER TRANSCRIPT LISTENER **** //
                         // Wait for transcript node to be visible
@@ -120,7 +120,7 @@ function zoomMeetingRoutines(state) {
                             .catch((err) => {
                                 console.error(err)
                                 state.isTranscriptDomErrorCaptured = true
-                                showNotificationZoom(extensionStatusJSON_bug)
+                                showNotificationZoom(state, extensionStatusJSON_bug)
 
                                 logError(state, "001", err)
                             })
@@ -139,16 +139,15 @@ function zoomMeetingRoutines(state) {
                                     state.transcriptObserver.disconnect()
                                 }
 
-                                // Push any data in the buffer variables to the transcript array, but avoid pushing blank ones. Needed to handle one or more speaking when meeting ends.
-                                if ((state.stateTranscriptBlock.personName !== "") && (state.stateTranscriptBlock.transcriptTextBuffer !== "")) {
-                                    pushBufferToTranscript(state)
-                                }
+                                // Push any data in the buffer variables to the transcript array. Needed to handle one or more speaking when meeting ends.
+
+                                pushBufferToTranscript(state)
                                 // Save to chrome storage and send message to download transcript from background script
                                 overWriteChromeStorage(state, ["transcript", "chatMessages"], true)
                             })
                         } catch (err) {
                             console.error(err)
-                            showNotificationZoom(extensionStatusJSON_bug)
+                            showNotificationZoom(state, extensionStatusJSON_bug)
 
                             logError(state, "004", err)
                         }
@@ -217,7 +216,7 @@ function transcriptMutationCallbackZoom(state, mutationsList) {
             console.error(err)
             if (!state.isTranscriptDomErrorCaptured && !state.hasMeetingEnded) {
                 console.log(reportErrorMessage)
-                showNotificationZoom(extensionStatusJSON_bug)
+                showNotificationZoom(state, extensionStatusJSON_bug)
 
                 logError(state, "005", err)
             }

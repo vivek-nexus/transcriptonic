@@ -166,12 +166,14 @@ async function waitForElement(selector, text, iframe = null) {
  * @param {ContentScriptState} state
  */
 function pushBufferToTranscript(state) {
-    state.transcript.push({
-        "personName": state.stateTranscriptBlock.personName === "You" ? state.userName : state.stateTranscriptBlock.personName,
-        "timestamp": state.stateTranscriptBlock.timestamp,
-        "transcriptText": state.stateTranscriptBlock.transcriptTextBuffer
-    })
-    overWriteChromeStorage(state, ["transcript"], false)
+    if ((state.stateTranscriptBlock.personName !== "") && (state.stateTranscriptBlock.transcriptTextBuffer !== "")) {
+        state.transcript.push({
+            "personName": state.stateTranscriptBlock.personName === "You" ? state.userName : state.stateTranscriptBlock.personName,
+            "timestamp": state.stateTranscriptBlock.timestamp,
+            "transcriptText": state.stateTranscriptBlock.transcriptTextBuffer
+        })
+        overWriteChromeStorage(state, ["transcript"], false)
+    }
 }
 
 /**
@@ -250,5 +252,18 @@ function meetsMinVersion(oldVer, newVer) {
         if (a < b) return true
     }
     return true
+}
+
+/**
+ * 
+ * @param {Platform} platform 
+ * @param {number} status 
+ * @returns 
+ */
+function getCommonCSS(platform, status) {
+    const color = status === 200 ? "#2A9ACA" : "orange"
+    const position = platform === "teams" ? "bottom" : "top"
+
+    return `color: ${color}; ${position}: 5%; ${commonCSS};`
 }
 

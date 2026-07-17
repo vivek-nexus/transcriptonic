@@ -1,3 +1,7 @@
+// @ts-check
+/// <reference path="../../../types/chrome.d.ts" />
+/// <reference path="../../../types/index.js" />
+
 /**
  * @description Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the parents.
  * @param {string} selector
@@ -11,10 +15,11 @@ function selectElements(selector, text) {
 }
 
 /**
- * @description Shows a responsive notification of specified type and message
- * @param {ExtensionStatusJSON} extensionStatusJSON
- */
-function showNotificationGoogleMeet(extensionStatusJSON) {
+   * @description Shows a responsive notification of specified type and message
+   * @param {ContentScriptState} state
+   * @param {ExtensionStatusJSON} extensionStatusJSON
+   */
+function showNotificationGoogleMeet(state, extensionStatusJSON) {
     // Banner CSS
     let html = document.querySelector("html")
     let obj = document.createElement("div")
@@ -35,11 +40,11 @@ function showNotificationGoogleMeet(extensionStatusJSON) {
     }, 5000)
 
     if (extensionStatusJSON.status === 200) {
-        obj.style.cssText = `color: #2A9ACA; ${commonCSS}`
+        obj.style.cssText = getCommonCSS(state.platform, extensionStatusJSON.status)
         text.innerHTML = extensionStatusJSON.message
     }
     else {
-        obj.style.cssText = `color: orange; ${commonCSS}`
+        obj.style.cssText = getCommonCSS(state.platform, extensionStatusJSON.status)
         text.innerHTML = extensionStatusJSON.message
     }
 
@@ -66,7 +71,7 @@ function updateMeetingTitleGoogleMeet(state) {
         setTimeout(() => {
             handleMeetingTitleElementChange()
             if (location.pathname === `/${meetingTitleElement.innerText}`) {
-                showNotification({ status: 200, message: "<b>Give this meeting a title?</b><br/>Edit the underlined text in the bottom left corner" })
+                showNotificationGoogleMeet(state, { status: 200, message: "<b>Give this meeting a title?</b><br/>Edit the underlined text in the bottom left corner" })
             }
         }, 7000)
 
@@ -116,41 +121,44 @@ function pushUniqueChatBlock(state, chatBlock) {
     }
 }
 
-// Re attaches the transcript observer. Used at startup and whenever Meet replaces the captions region (CC toggle / language change).
 /** 
+ * @description Single, flat polling monitor that handles initial attachment and all re-attachments.
  * @param {ContentScriptState} state
- * @param {Element} node 
-*/
-function handleTranscriptObserver(state, node) {
-    // Flush any in-flight buffer so text captured before the discontinuity is preserved and not merged with the post-reattach captions.
+ */
+function startTranscriptMonitor(state) {
+    /** @type {Node | null} */
+    let currentObservedNode = null
 
-    if ((state.stateTranscriptBlock.personName !== "") && (state.buffer.transcriptTextBuffer !== "")) {
-        pushBufferToTranscript(state)
-    }
-    state.stateTranscriptBlock.personName = ""
-    state.stateTranscriptBlock.transcriptTextBuffer = ""
-    state.stateTranscriptBlock.timestamp = ""
-
-    if (state.transcriptObserver) {
-        state.transcriptObserver.disconnect()
-    }
-    state.transcriptTargetNode = node
-    state.transcriptObserver = new MutationObserver((mutations) => transcriptMutationCallbackGoogleMeet(state, mutations))
-    state.transcriptObserver.observe(node, mutationConfig)
-
-    // Meet detaches/replaces the captions region when the user toggles CC off/on (and sometimes on caption language change). Poll for that case and re-attach, otherwise the observer goes silent for the rest of the meeting.
-    const captionsReattachInterval = setInterval(() => {
+    const monitorInterval = setInterval(() => {
         if (state.hasMeetingEnded) {
-            clearInterval(captionsReattachInterval)
+            clearInterval(monitorInterval)
             return
         }
-        const currentNode = document.querySelector(SELECTORS_GOOGLE_MEET.TRANSCRIPT_REGION)
-        if (!currentNode) {
+
+        const activeNode = document.querySelector(SELECTORS_GOOGLE_MEET.TRANSCRIPT_REGION)
+        if (!activeNode) {
             return
         }
-        if (!state.transcriptTargetNode || currentNode !== state.transcriptTargetNode || !state.transcriptTargetNode.isConnected) {
-            console.log("TranscripTonic: captions region replaced, re-attaching observer")
-            handleTranscriptObserver(state, currentNode)
+
+        // If the active node is new, replaced, or disconnected, re-attach the observer
+        if (!currentObservedNode || activeNode !== currentObservedNode || !currentObservedNode.isConnected) {
+            console.log("TranscripTonic: Captions region detected/replaced. Attaching observer...")
+
+            // Flush any in-flight buffer to prevent losing text on transitions
+            pushBufferToTranscript(state)
+            state.stateTranscriptBlock.personName = ""
+            state.stateTranscriptBlock.transcriptTextBuffer = ""
+            state.stateTranscriptBlock.timestamp = ""
+
+            if (state.transcriptObserver) {
+                state.transcriptObserver.disconnect()
+            }
+
+            currentObservedNode = activeNode
+            state.transcriptObserver = new MutationObserver((mutations) =>
+                transcriptMutationCallbackGoogleMeet(state, mutations)
+            )
+            state.transcriptObserver.observe(activeNode, mutationConfig)
         }
     }, 2000)
 }
