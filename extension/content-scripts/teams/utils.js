@@ -1,13 +1,8 @@
-// @ts-check
-/// <reference path="../../../types/chrome.d.ts" />
-/// <reference path="../../../types/index.js" />
-
 /**
    * @description Shows a responsive notification of specified type and message
-   * @param {ContentScriptState} state
    * @param {ExtensionStatusJSON} extensionStatusJSON
    */
-function showNotificationTeams(state, extensionStatusJSON) {
+function showNotificationTeams(extensionStatusJSON) {
     // Banner CSS
     let html = document.querySelector("html")
     let obj = document.createElement("div")
@@ -24,7 +19,7 @@ function showNotificationTeams(state, extensionStatusJSON) {
     text.style.cssText = "margin-top: 1rem; margin-bottom:1rem; font-size: medium"
 
     if (extensionStatusJSON.status === 200) {
-        obj.style.cssText = getCommonCSS(state.platform, extensionStatusJSON.status)
+        obj.style.cssText = `color: #2A9ACA ; bottom: 5%; ${commonCSS}`
         text.innerHTML = extensionStatusJSON.message
 
         // Remove banner once transcript is on
@@ -33,7 +28,7 @@ function showNotificationTeams(state, extensionStatusJSON) {
         })
     }
     else {
-        obj.style.cssText = getCommonCSS(state.platform, extensionStatusJSON.status)
+        obj.style.cssText = `color: orange ; bottom: 5%; ${commonCSS}`
         text.innerHTML = extensionStatusJSON.message
 
         setTimeout(() => {

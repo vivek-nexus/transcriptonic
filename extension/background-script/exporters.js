@@ -1,7 +1,3 @@
-// @ts-check
-/// <reference path="../../types/chrome.d.ts" />
-/// <reference path="../../types/index.js" />
-
 import { getTranscriptString, getChatMessagesString } from './utils.js'
 import { TIMEFORMAT } from './config.js'
 

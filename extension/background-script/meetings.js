@@ -1,7 +1,3 @@
-// @ts-check
-/// <reference path="../../types/chrome.d.ts" />
-/// <reference path="../../types/index.js" />
-
 import { downloadTranscript, postTranscriptToWebhook } from './exporters.js'
 
 // Download transcripts, post webhook if URL is enabled and available

@@ -1,7 +1,3 @@
-// @ts-check
-/// <reference path="../../../types/chrome.d.ts" />
-/// <reference path="../../../types/index.js" />
-
 /**
  * @description Returns all elements of the specified selector type and specified textContent. Return array contains the actual element as well as all the parents.
  * @param {string} selector
@@ -16,10 +12,9 @@ function selectElements(selector, text) {
 
 /**
    * @description Shows a responsive notification of specified type and message
-   * @param {ContentScriptState} state
    * @param {ExtensionStatusJSON} extensionStatusJSON
    */
-function showNotificationGoogleMeet(state, extensionStatusJSON) {
+function showNotificationGoogleMeet(extensionStatusJSON) {
     // Banner CSS
     let html = document.querySelector("html")
     let obj = document.createElement("div")
@@ -40,11 +35,11 @@ function showNotificationGoogleMeet(state, extensionStatusJSON) {
     }, 5000)
 
     if (extensionStatusJSON.status === 200) {
-        obj.style.cssText = getCommonCSS(state.platform, extensionStatusJSON.status)
+        obj.style.cssText = `color: #2A9ACA; top: 5%; ${commonCSS}`
         text.innerHTML = extensionStatusJSON.message
     }
     else {
-        obj.style.cssText = getCommonCSS(state.platform, extensionStatusJSON.status)
+        obj.style.cssText = `color: orange; top: 5%; ${commonCSS}`
         text.innerHTML = extensionStatusJSON.message
     }
 
@@ -71,7 +66,7 @@ function updateMeetingTitleGoogleMeet(state) {
         setTimeout(() => {
             handleMeetingTitleElementChange()
             if (location.pathname === `/${meetingTitleElement.innerText}`) {
-                showNotificationGoogleMeet(state, { status: 200, message: "<b>Give this meeting a title?</b><br/>Edit the underlined text in the bottom left corner" })
+                showNotificationGoogleMeet({ status: 200, message: "<b>Give this meeting a title?</b><br/>Edit the underlined text in the bottom left corner" })
             }
         }, 7000)
 

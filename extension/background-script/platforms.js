@@ -1,7 +1,3 @@
-// @ts-check
-/// <reference path="../../types/chrome.d.ts" />
-/// <reference path="../../types/index.js" />
-
 import { PLATFORM_CONFIGS } from './config.js'
 
 /**

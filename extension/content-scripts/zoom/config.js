@@ -1,7 +1,3 @@
-// @ts-check
-/// <reference path="../../../types/chrome.d.ts" />
-/// <reference path="../../../types/index.js" />
-
 const SELECTORS_ZOOM = {
     IFRAME: "#webclient",
     AUDIO_OPTION_MENU: "#audioOptionMenu",

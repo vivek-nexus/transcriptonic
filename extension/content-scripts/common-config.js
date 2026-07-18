@@ -1,7 +1,3 @@
-// @ts-check
-/// <reference path="../../types/chrome.d.ts" />
-/// <reference path="../../types/index.js" />
-
 /** @type {ExtensionStatusJSON} */
 const extensionStatusJSON_bug = {
     "status": 400,

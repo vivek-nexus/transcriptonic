@@ -1,7 +1,3 @@
-// @ts-check
-/// <reference path="../../../types/chrome.d.ts" />
-/// <reference path="../../../types/index.js" />
-
 let isTeamsInjected = false
 
 setInterval(() => {
@@ -50,7 +46,7 @@ function initTeams() {
         }
         else {
           // Show downtime message as extension status is 400
-          showNotificationTeams(state, state.extensionStatusJSON)
+          showNotificationTeams(state.extensionStatusJSON)
         }
       })
     })
@@ -81,14 +77,14 @@ function teamsMeetingRoutines(state) {
       const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
       if (resultSync.operationMode === "manual") {
         console.log("Manual mode selected, leaving transcript off")
-        showNotificationTeams(state, { status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions, if needed (More > Language > Captions)" })
+        showNotificationTeams({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions, if needed (More > Language > Captions)" })
       }
       else {
         // Allow keyboard event listener to be ready
         setTimeout(() => {
           dispatchLiveCaptionsShortcut()
           // Show message to enable because keyboard shortcut does not work in guest meetings
-          showNotificationTeams(state, state.extensionStatusJSON)
+          showNotificationTeams(state.extensionStatusJSON)
         }, 2000)
       }
     })
@@ -122,7 +118,7 @@ function teamsMeetingRoutines(state) {
       .catch((err) => {
         console.error(err)
         state.isTranscriptDomErrorCaptured = true
-        showNotificationTeams(state, extensionStatusJSON_bug)
+        showNotificationTeams(extensionStatusJSON_bug)
 
         logError(state, "001", err)
       })
@@ -213,7 +209,7 @@ function transcriptMutationCallbackTeams(state, mutationsList) {
       console.error(err)
       if (!state.isTranscriptDomErrorCaptured && !state.hasMeetingEnded) {
         console.log(reportErrorMessage)
-        showNotificationTeams(state, extensionStatusJSON_bug)
+        showNotificationTeams(extensionStatusJSON_bug)
 
         logError(state, "005", err)
       }

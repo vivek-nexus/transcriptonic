@@ -1,7 +1,3 @@
-// @ts-check
-/// <reference path="../../../types/chrome.d.ts" />
-/// <reference path="../../../types/index.js" />
-
 initGoogleMeet()
 
 function initGoogleMeet() {
@@ -32,7 +28,7 @@ function initGoogleMeet() {
             }
             else {
                 // Show downtime message as extension status is 400
-                showNotificationGoogleMeet(state, state.extensionStatusJSON)
+                showNotificationGoogleMeet(state.extensionStatusJSON)
             }
         })
     })
@@ -98,10 +94,10 @@ function googleMeetRoutines(state, uiType) {
                     chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
                         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
                         if (resultSync.operationMode === "manual") {
-                            showNotificationGoogleMeet(state, { status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
+                            showNotificationGoogleMeet({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
                         }
                         else {
-                            showNotificationGoogleMeet(state, state.extensionStatusJSON)
+                            showNotificationGoogleMeet(state.extensionStatusJSON)
                         }
                     })
                 }
@@ -112,7 +108,7 @@ function googleMeetRoutines(state, uiType) {
             .catch((err) => {
                 console.error(err)
                 state.isTranscriptDomErrorCaptured = true
-                showNotificationGoogleMeet(state, extensionStatusJSON_bug)
+                showNotificationGoogleMeet(extensionStatusJSON_bug)
 
                 logError(state, "001", err)
             })
@@ -150,7 +146,7 @@ function googleMeetRoutines(state, uiType) {
             .catch((err) => {
                 console.error(err)
                 state.isChatMessagesDomErrorCaptured = true
-                showNotificationGoogleMeet(state, extensionStatusJSON_bug)
+                showNotificationGoogleMeet(extensionStatusJSON_bug)
 
                 logError(state, "003", err)
             })
@@ -176,7 +172,7 @@ function googleMeetRoutines(state, uiType) {
             })
         } catch (err) {
             console.error(err)
-            showNotificationGoogleMeet(state, extensionStatusJSON_bug)
+            showNotificationGoogleMeet(extensionStatusJSON_bug)
 
             logError(state, "004", err)
         }
@@ -265,7 +261,7 @@ function transcriptMutationCallbackGoogleMeet(state, mutationsList) {
             console.error(err)
             if (!state.isTranscriptDomErrorCaptured && !state.hasMeetingEnded) {
                 console.log(reportErrorMessage)
-                showNotificationGoogleMeet(state, extensionStatusJSON_bug)
+                showNotificationGoogleMeet(extensionStatusJSON_bug)
 
                 logError(state, "005", err)
             }
@@ -312,7 +308,7 @@ function chatMessagesMutationCallback(state, mutationsList) {
             console.error(err)
             if (!state.isChatMessagesDomErrorCaptured && !state.hasMeetingEnded) {
                 console.log(reportErrorMessage)
-                showNotificationGoogleMeet(state, extensionStatusJSON_bug)
+                showNotificationGoogleMeet(extensionStatusJSON_bug)
 
                 logError(state, "006", err)
             }

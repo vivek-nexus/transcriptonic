@@ -1,9 +1,4 @@
-// @ts-check
-/// <reference path="../../types/chrome.d.ts" />
-/// <reference path="../../types/index.js" />
-
 import { ALARM_NAME, INTERVAL_IN_MINUTES, TIMEFORMAT } from "./config.js"
-import { processLastMeeting } from "./meetings.js"
 import { getPermissionStatus } from "./platforms.js"
 
 

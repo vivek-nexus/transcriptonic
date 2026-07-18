@@ -1,7 +1,3 @@
-// @ts-check
-/// <reference path="../../types/chrome.d.ts" />
-/// <reference path="../../types/index.js" />
-
 /** @type {Intl.DateTimeFormatOptions} */
 export const TIMEFORMAT = {
     year: "numeric",

@@ -1,7 +1,3 @@
-// @ts-check
-/// <reference path="../../../types/chrome.d.ts" />
-/// <reference path="../../../types/index.js" />
-
 const SELECTORS_GOOGLE_MEET = {
     USER_NAME: ".awLEm",
     MEETING_TITLE: ".u6vdEc",

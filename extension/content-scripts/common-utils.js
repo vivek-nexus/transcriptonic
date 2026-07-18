@@ -1,7 +1,3 @@
-// @ts-check
-/// <reference path="../../types/chrome.d.ts" />
-/// <reference path="../../types/index.js" />
-
 /**
  * @description State Factory: Returns a pristine, isolated meeting state block.
  * @param {MeetingSoftware} meetingSoftware
@@ -162,13 +158,35 @@ async function waitForElement(selector, text, iframe = null) {
     return targetDoc.querySelector(selector)
 }
 
+/**
+ * @description Waits until an element matching the selector has the specified computed CSS property value.
+ * @param {string} selector - The selector to query (e.g., 'div[role="region"]')
+ * @param {string} cssProp - The camelCase or kebab-case CSS property (e.g., 'containerName')
+ * @param {string} cssPropValue - The expected value of the CSS property (e.g., 'captions-history')
+ */
+async function waitForElementByStyle(selector, cssProp, cssPropValue) {
+    while (true) {
+        const elements = Array.from(document.querySelectorAll(selector))
+        const matchedElement = elements.find(element => {
+            const computedStyle = window.getComputedStyle(element)
+            // Cast the string to a valid key type of CSSStyleDeclaration to satisfy the compiler
+            return computedStyle[/** @type {keyof CSSStyleDeclaration} */ (cssProp)] === cssPropValue
+        })
+
+        if (matchedElement) {
+            return matchedElement
+        }
+
+        await new Promise((resolve) => requestAnimationFrame(resolve))
+    }
+}
+
 /** 
  * @description Single, flat polling monitor that handles initial attachment and all re-attachments.
  * @param {ContentScriptState} state
  */
 function startTranscriptMonitor(state) {
-    /** @type {Node | null} */
-    let currentObservedNode = null
+    state.transcriptTargetNode = null
 
     const monitorInterval = setInterval(() => {
         if (state.hasMeetingEnded) {
@@ -191,12 +209,13 @@ function startTranscriptMonitor(state) {
             default:
                 break
         }
+
         if (!activeNode) {
             return
         }
 
         // If the active node is new, replaced, or disconnected, re-attach the observer
-        if (!currentObservedNode || activeNode !== currentObservedNode || !currentObservedNode.isConnected) {
+        if (!state.transcriptTargetNode || activeNode !== state.transcriptTargetNode || !state.transcriptTargetNode.isConnected) {
             console.log("TranscripTonic: Captions region detected/replaced. Attaching observer...")
 
             // Flush any in-flight buffer to prevent losing text on transitions
@@ -209,7 +228,8 @@ function startTranscriptMonitor(state) {
                 state.transcriptObserver.disconnect()
             }
 
-            currentObservedNode = activeNode
+            state.transcriptTargetNode = activeNode
+
             state.transcriptObserver = new MutationObserver((mutations) => {
                 switch (state.platform) {
                     case "google_meet":
@@ -224,8 +244,7 @@ function startTranscriptMonitor(state) {
                     default:
                         break
                 }
-            }
-            )
+            })
             state.transcriptObserver.observe(activeNode, mutationConfig)
         }
     }, 2000)
@@ -322,17 +341,3 @@ function meetsMinVersion(oldVer, newVer) {
     }
     return true
 }
-
-/**
- * 
- * @param {Platform} platform 
- * @param {number} status 
- * @returns 
- */
-function getCommonCSS(platform, status) {
-    const color = status === 200 ? "#2A9ACA" : "orange"
-    const position = platform === "teams" ? "bottom" : "top"
-
-    return `color: ${color}; ${position}: 5%; ${commonCSS};`
-}
-

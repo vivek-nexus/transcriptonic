@@ -1,9 +1,3 @@
-// @ts-check
-/// <reference path="../../../types/chrome.d.ts" />
-/// <reference path="../../../types/index.js" />
-
-
-
 let isZoomInjected = false
 
 setInterval(() => {
@@ -53,7 +47,7 @@ function initZoom() {
                 }
                 else {
                     // Show downtime message as extension status is 400
-                    showNotificationZoom(state, state.extensionStatusJSON)
+                    showNotificationZoom(state.extensionStatusJSON)
                 }
             })
         })
@@ -90,7 +84,7 @@ function zoomMeetingRoutines(state) {
                         updateMeetingTitle(state)
 
                         // Ask user to switch on captions
-                        showNotificationZoom(state, state.extensionStatusJSON)
+                        showNotificationZoom(state.extensionStatusJSON)
 
                         // **** REGISTER TRANSCRIPT LISTENER **** //
                         // Wait for transcript node to be visible
@@ -118,7 +112,7 @@ function zoomMeetingRoutines(state) {
                             .catch((err) => {
                                 console.error(err)
                                 state.isTranscriptDomErrorCaptured = true
-                                showNotificationZoom(state, extensionStatusJSON_bug)
+                                showNotificationZoom(extensionStatusJSON_bug)
 
                                 logError(state, "001", err)
                             })
@@ -145,7 +139,7 @@ function zoomMeetingRoutines(state) {
                             })
                         } catch (err) {
                             console.error(err)
-                            showNotificationZoom(state, extensionStatusJSON_bug)
+                            showNotificationZoom(extensionStatusJSON_bug)
 
                             logError(state, "004", err)
                         }
@@ -214,7 +208,7 @@ function transcriptMutationCallbackZoom(state, mutationsList) {
             console.error(err)
             if (!state.isTranscriptDomErrorCaptured && !state.hasMeetingEnded) {
                 console.log(reportErrorMessage)
-                showNotificationZoom(state, extensionStatusJSON_bug)
+                showNotificationZoom(extensionStatusJSON_bug)
 
                 logError(state, "005", err)
             }

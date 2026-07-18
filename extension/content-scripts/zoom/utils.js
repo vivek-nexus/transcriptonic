@@ -1,7 +1,3 @@
-// @ts-check
-/// <reference path="../../../types/chrome.d.ts" />
-/// <reference path="../../../types/index.js" />
-
 /**
    * @param {HTMLIFrameElement} iframe
    * @returns {Promise<boolean>}
@@ -21,10 +17,9 @@ function hasIframeLoaded(iframe) {
 
 /**
    * @description Shows a responsive notification of specified type and message
-   * @param {ContentScriptState} state
    * @param {ExtensionStatusJSON} extensionStatusJSON
    */
-function showNotificationZoom(state, extensionStatusJSON) {
+function showNotificationZoom(extensionStatusJSON) {
     const iframe = /** @type {HTMLIFrameElement} */ (document.querySelector(SELECTORS_ZOOM.IFRAME))
     const iframeDOM = iframe.contentDocument
 
@@ -45,7 +40,7 @@ function showNotificationZoom(state, extensionStatusJSON) {
         text.style.cssText = "margin-top: 1rem; margin-bottom:1rem"
 
         if (extensionStatusJSON.status === 200) {
-            obj.style.cssText = getCommonCSS(state.platform, extensionStatusJSON.status)
+            obj.style.cssText = `color: #2A9ACA ; top: 5%; ${commonCSS}`
             text.innerHTML = extensionStatusJSON.message
 
             // Remove banner once transcript is on
@@ -54,7 +49,7 @@ function showNotificationZoom(state, extensionStatusJSON) {
             })
         }
         else {
-            obj.style.cssText = getCommonCSS(state.platform, extensionStatusJSON.status)
+            obj.style.cssText = `color: orange ; top: 5%; ${commonCSS}`
             text.innerHTML = extensionStatusJSON.message
 
             setTimeout(() => {
