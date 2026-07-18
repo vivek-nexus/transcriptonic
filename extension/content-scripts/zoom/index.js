@@ -95,10 +95,6 @@ function zoomMeetingRoutines(state) {
                                 state.transcriptTargetNode = element
 
                                 if (state.transcriptTargetNode) {
-                                    // Attempt to dim down the transcript
-                                    // @ts-ignore
-                                    state.transcriptTargetNode.style.opacity = "0.5"
-
                                     console.log(`Registering mutation observer on ${SELECTORS_ZOOM.TRANSCRIPT_CONTAINER}`)
 
                                     // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.

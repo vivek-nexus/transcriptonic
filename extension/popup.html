@@ -52,13 +52,13 @@
 
     .platform-toggles {
       display: flex;
-      gap: 1.5rem;
+      gap: 2rem;
       /* margin-bottom: 1rem; */
     }
 
     .checkbox-group {
       display: flex;
-      gap: 0.25rem;
+      gap: 0.5rem;
       align-items: flex-end;
     }
 
@@ -194,13 +194,14 @@
       <div class="radio-item">
         <input type="radio" name="mode" id="manual-mode" />
         <label for="manual-mode"><b>Manual mode</b> <br />
-          <span class="sub-text">Switch on transcript as needed during the meeting</span>
+          <span class="sub-text">Switch on transcript when needed during the meeting</span>
         </label>
       </div>
-      <!-- <hr class="divider" /> -->
-      <p>In both modes, transcript will be downloaded as a text file at the
-        end of each meeting
-      </p>
+      <hr class="divider" />
+      <div class="checkbox-group">
+        <input type="checkbox" id="hide-captions" />
+        <label for="hide-captions"><b>Hide captions on the meeting UI</b></label>
+      </div>
     </div>
 
     <div class="get-started" style="display: flex; gap: 1rem; align-items: center;">

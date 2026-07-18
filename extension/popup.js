@@ -20,6 +20,8 @@ window.onload = function () {
   const teamsToggle = /** @type {HTMLInputElement} */ (document.querySelector("#enable-teams"))
   const zoomToggle = /** @type {HTMLInputElement} */ (document.querySelector("#enable-zoom"))
 
+  const hideCaptionsToggle = /** @type {HTMLInputElement} */ (document.querySelector("#hide-captions"))
+
   if (versionElement) {
     versionElement.innerHTML = `v${chrome.runtime.getManifest().version}`
   }
@@ -39,6 +41,17 @@ window.onload = function () {
       })
       manualModeRadio.addEventListener("change", function () {
         chrome.storage.sync.set({ operationMode: "manual" }, function () { })
+      })
+    }
+  })
+
+  chrome.storage.sync.get(["hideCaptions"], function (resultSyncUntyped) {
+    const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+    if (hideCaptionsToggle instanceof HTMLInputElement) {
+      hideCaptionsToggle.checked = resultSync.hideCaptions
+
+      hideCaptionsToggle.addEventListener("change", function () {
+        chrome.storage.sync.set({ hideCaptions: hideCaptionsToggle.checked }, function () { })
       })
     }
   })

@@ -188,7 +188,12 @@ async function waitForElementByStyle(selector, cssProp, cssPropValue) {
 function startTranscriptMonitor(state) {
     state.transcriptTargetNode = null
 
-    const monitorInterval = setInterval(() => {
+    // Call immediately
+    transcriptMonitor()
+    // Start monitoring
+    const monitorInterval = setInterval(transcriptMonitor, 2000)
+
+    function transcriptMonitor() {
         if (state.hasMeetingEnded) {
             clearInterval(monitorInterval)
             return
@@ -216,7 +221,12 @@ function startTranscriptMonitor(state) {
 
         // If the active node is new, replaced, or disconnected, re-attach the observer
         if (!state.transcriptTargetNode || activeNode !== state.transcriptTargetNode || !state.transcriptTargetNode.isConnected) {
-            console.log("TranscripTonic: Captions region detected/replaced. Attaching observer...")
+            if (!state.transcriptTargetNode) {
+                console.log("Captions region detected. Attaching observer...")
+            }
+            else if (activeNode !== state.transcriptTargetNode) {
+                console.log("Captions region replaced. Re-attaching observer...")
+            }
 
             // Flush any in-flight buffer to prevent losing text on transitions
             pushBufferToTranscript(state)
@@ -229,7 +239,6 @@ function startTranscriptMonitor(state) {
             }
 
             state.transcriptTargetNode = activeNode
-
             state.transcriptObserver = new MutationObserver((mutations) => {
                 switch (state.platform) {
                     case "google_meet":
@@ -246,8 +255,26 @@ function startTranscriptMonitor(state) {
                 }
             })
             state.transcriptObserver.observe(activeNode, mutationConfig)
+
+            // If specified, hide the whole transcript node
+            chrome.storage.sync.get(["hideCaptions"], function (resultSyncUntyped) {
+                const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+                if ((resultSync.hideCaptions === true) && (state.transcriptTargetNode)) {
+                    if (state.platform === "teams") {
+                        waitForElement(SELECTORS_TEAMS.CAPTIONS_REGION_WRAPPER).then((element) => {
+                            element?.setAttribute("style", `height:40px`)
+                        })
+                        waitForElement(SELECTORS_TEAMS.CAPTIONS_REGION).then((element) => {
+                            element?.setAttribute("style", `opacity:0`)
+                        })
+                    }
+                    else {
+                        state.transcriptTargetNode.setAttribute("style", `opacity:0; height:0px`)
+                    }
+                }
+            })
         }
-    }, 2000)
+    }
 }
 
 /**

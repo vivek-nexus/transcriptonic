@@ -198,11 +198,6 @@ function transcriptMutationCallbackGoogleMeet(state, mutationsList) {
                     const currentTranscriptText = mutationTargetElement?.textContent
 
                     if (currentPersonName && currentTranscriptText) {
-                        // Attempt to dim down the current transcript
-                        [...transcriptUIBlocks[transcriptUIBlocks.length - 3].children].forEach((item) => {
-                            item.setAttribute("style", "opacity:0.2")
-                        })
-
                         // Starting fresh in a meeting or resume from no active transcript
                         if (!state.stateTranscriptBlock.mutationTargetElement) {
                             state.stateTranscriptBlock.mutationTargetElement = mutation.target.parentElement

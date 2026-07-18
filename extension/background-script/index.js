@@ -315,7 +315,7 @@ chrome.permissions.onAdded.addListener((event) => {
 
 chrome.runtime.onInstalled.addListener(() => {
     // Set defaults values
-    chrome.storage.sync.get(["autoPostWebhookAfterMeeting", "autoDownloadFileAfterMeeting", "operationMode", "webhookBodyType", "webhookUrl", "wantGoogleMeet", "wantTeams", "wantZoom"], function (resultSyncUntyped) {
+    chrome.storage.sync.get(null, function (resultSyncUntyped) {
         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
 
         console.log(resultSync.wantTeams)
@@ -324,6 +324,7 @@ chrome.runtime.onInstalled.addListener(() => {
             autoPostWebhookAfterMeeting: resultSync.autoPostWebhookAfterMeeting === false ? false : true,
             autoDownloadFileAfterMeeting: resultSync.autoDownloadFileAfterMeeting === false ? false : true,
             operationMode: resultSync.operationMode === "manual" ? "manual" : "auto",
+            hideCaptions: resultSync.hideCaptions === true ? true : false,
             webhookBodyType: resultSync.webhookBodyType === "advanced" ? "advanced" : "simple",
             wantGoogleMeet: resultSync.wantGoogleMeet === false ? false : true,
             wantTeams: resultSync.wantTeams === true ? true : false,

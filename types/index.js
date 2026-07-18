@@ -33,6 +33,9 @@
  * @typedef {"auto" | "manual"} OperationMode mode of the extension which decides whether to automatically capture transcripts or let the user decide per meeting basis
  */
 /**
+ * @typedef {boolean} HideCaptions hide the captions on the UI by changing height and opacity
+ */
+/**
  * @typedef {"simple" | "advanced"} WebhookBodyType type of webhook body to use
  */
 /**
@@ -165,6 +168,7 @@
  * @property {AutoPostWebhookAfterMeeting} autoPostWebhookAfterMeeting
  * @property {AutoDownloadFileAfterMeeting} autoDownloadFileAfterMeeting
  * @property {OperationMode} operationMode
+ * @property {HideCaptions} hideCaptions
  * @property {WebhookBodyType} webhookBodyType
  * @property {WebhookUrl} webhookUrl
  * @property {WantGoogleMeet} wantGoogleMeet

@@ -89,11 +89,6 @@ function teamsMeetingRoutines(state) {
       }
     })
 
-    waitForElement(SELECTORS_TEAMS.CAPTIONS_REGION_WRAPPER).then((element) => {
-      // Reduce the height from 43% to 20%
-      element?.setAttribute("style", "height:20%")
-    })
-
     // **** REGISTER TRANSCRIPT LISTENER **** //
     // Wait for transcript node to be visible
     waitForElement(SELECTORS_TEAMS.CAPTIONS_REGION).then((element) => {
@@ -102,11 +97,6 @@ function teamsMeetingRoutines(state) {
       state.transcriptTargetNode = element
 
       if (state.transcriptTargetNode) {
-        // Attempt to dim down the transcript
-        state.transcriptTargetNode.setAttribute("style", "opacity:0.2")
-
-        console.log(`Registering mutation observer on ${SELECTORS_TEAMS.CAPTIONS_REGION}`)
-
         // Create transcript observer instance linked to the callback function. Registered irrespective of operation mode, so that any visible transcript can be picked up during the meeting, independent of the operation mode.
         // Initial attach and monitor every 2s
         startTranscriptMonitor(state)
