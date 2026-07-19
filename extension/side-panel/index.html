@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Transcript Sidebar</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400;700&display=swap");
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: "TASA Explorer", sans-serif;
+            background: #071f29;
+            color: #C0C0C0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            accent-color: #2A9ACA;
+        }
+
+        .header {
+            background: #2a9aca1a;
+            padding: 16px;
+            border-bottom: 1px solid #2a9aca33;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        /* Main scroll container */
+        #transcript-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+            background: transparent;
+        }
+
+        .transcript-block {
+            margin-bottom: 20px;
+        }
+
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .speaker-name {
+            color: #a0a0a0;
+        }
+
+        .block-time {
+            color: #a0a0a0;
+        }
+
+        .block-text {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #C0C0C0;
+            word-break: break-word;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1 id="meeting-title">Live Meeting Transcript</h1>
+    </div>
+
+    <div id="transcript-container"></div>
+
+    <script src="side-panel.js"></script>
+</body>
+
+</html>

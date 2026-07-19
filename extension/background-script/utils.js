@@ -84,6 +84,34 @@ export function openExtensionPopup() {
     })
 }
 
+/**
+ * Opens the side panel programmatically for the active tab
+ */
+export function openSidePanel() {
+    return new Promise((resolve, reject) => {
+        // Get the current active tab
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const activeTab = tabs[0]
+            if (!activeTab || !activeTab.id) {
+                console.error("No active tab found.")
+                reject("No active tab found")
+                return
+            }
+
+            // Open the side panel targeting that specific tab ID
+            chrome.sidePanel.open({ tabId: activeTab.id })
+                .then(() => {
+                    console.log("Side panel opened successfully")
+                    resolve("Side panel opened")
+                })
+                .catch((error) => {
+                    console.error("Failed to open side panel:", error)
+                    reject("Failed to open side panel")
+                })
+        })
+    })
+}
+
 export function checkPermissionsAndOpenMeetingsPage() {
     console.log("Check permissions")
     chrome.storage.sync.get(["wantGoogleMeet", "wantTeams", "wantZoom"], function (resultSyncUntyped) {

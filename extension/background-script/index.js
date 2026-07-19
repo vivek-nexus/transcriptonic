@@ -12,7 +12,10 @@ import {
     deregisterZoomRedirect,
 } from "./platforms.js"
 import {
-    clearTabIdAndApplyUpdate, openExtensionPopup, checkAndCreateAlarm
+    clearTabIdAndApplyUpdate,
+    openExtensionPopup,
+    checkAndCreateAlarm,
+    openSidePanel
 } from "./utils.js"
 
 chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendResponse) {
@@ -235,6 +238,22 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
         /** @type {Platform} */
 
         openExtensionPopup().then((message) => {
+            /** @type {ExtensionResponse} */
+            const response = { success: true, message: message }
+            sendResponse(response)
+        }).catch((error) => {
+            const parsedError = /** @type {ErrorObject} */ (error)
+
+            /** @type {ExtensionResponse} */
+            const response = { success: false, message: parsedError }
+            sendResponse(response)
+        })
+    }
+
+    if (message.type === "open_side_panel") {
+        /** @type {Platform} */
+
+        openSidePanel().then((message) => {
             /** @type {ExtensionResponse} */
             const response = { success: true, message: message }
             sendResponse(response)

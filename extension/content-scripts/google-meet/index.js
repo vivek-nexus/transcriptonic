@@ -23,8 +23,7 @@ function initGoogleMeet() {
 
             // Enable extension functions only if status is 200
             if (state.extensionStatusJSON.status === 200) {
-                // Meet UI post July/Aug 2024
-                googleMeetRoutines(state, 2)
+                googleMeetRoutines(state)
             }
             else {
                 // Show downtime message as extension status is 400
@@ -36,9 +35,8 @@ function initGoogleMeet() {
 
 /**
  * @param {ContentScriptState} state
- * @param {number} uiType
  */
-function googleMeetRoutines(state, uiType) {
+function googleMeetRoutines(state) {
     // NON CRITICAL DOM DEPENDENCY
     captureUserName(state)
 
@@ -54,6 +52,8 @@ function googleMeetRoutines(state, uiType) {
         // Update meeting startTimestamp
         state.meetingStartTimestamp = new Date().toISOString()
         overWriteChromeStorage(state, ["meetingStartTimestamp"], false)
+
+        renderFab()
 
 
         //*********** MEETING START ROUTINES **********//
@@ -250,8 +250,8 @@ function transcriptMutationCallbackGoogleMeet(state, mutationsList) {
                 }
             }
 
-            // Logs to indicate that the extension is working
-            logTranscriptToConsole(state)
+            // Rendered by the side panel
+            broadcastLiveBuffer(state)
         } catch (err) {
             console.error(err)
             if (!state.isTranscriptDomErrorCaptured && !state.hasMeetingEnded) {

@@ -56,6 +56,8 @@ function initTeams() {
  * @param {ContentScriptState} state
  */
 function teamsMeetingRoutines(state) {
+  renderFab()
+
   // CRITICAL DOM DEPENDENCY. Wait until the meeting end icon appears, used to detect meeting start
   waitForElement(SELECTORS_TEAMS.HANGUP_BUTTON).then(() => {
     console.log("Meeting started")
@@ -191,8 +193,8 @@ function transcriptMutationCallbackTeams(state, mutationsList) {
           }
         }
 
-        // Logs to indicate that the extension is working
-        logTranscriptToConsole(state)
+        // Rendered by the side panel
+        broadcastLiveBuffer(state)
       }
     }
     catch (err) {

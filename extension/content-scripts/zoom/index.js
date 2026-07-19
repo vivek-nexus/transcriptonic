@@ -80,6 +80,8 @@ function zoomMeetingRoutines(state) {
                         state.meetingStartTimestamp = new Date().toISOString()
                         overWriteChromeStorage(state, ["meetingStartTimestamp"], false)
 
+                        renderFab()
+
                         //*********** MEETING START ROUTINES **********//
                         updateMeetingTitle(state)
 
@@ -197,8 +199,8 @@ function transcriptMutationCallbackZoom(state, mutationsList) {
                 }
             }
 
-            // Logs to indicate that the extension is working
-            logTranscriptToConsole(state)
+            // Rendered by the side panel
+            broadcastLiveBuffer(state)
         }
         catch (err) {
             console.error(err)

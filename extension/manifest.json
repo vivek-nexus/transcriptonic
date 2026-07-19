@@ -5,7 +5,10 @@
   "description": "Simple Google Meet transcripts. Private and open source.",
   "action": {
     "default_icon": "icon.png",
-    "default_popup": "popup.html"
+    "default_popup": "popup/index.html"
+  },
+  "side_panel": {
+    "default_path": "side-panel/index.html"
   },
   "icons": {
     "128": "icon.png"
@@ -15,7 +18,8 @@
     "downloads",
     "scripting",
     "declarativeNetRequestWithHostAccess",
-    "alarms"
+    "alarms",
+    "sidePanel"
   ],
   "host_permissions": [
     "https://meet.google.com/*"

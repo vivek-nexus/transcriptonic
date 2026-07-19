@@ -1,7 +1,3 @@
-// @ts-check
-/// <reference path="../types/chrome.d.ts" />
-/// <reference path="../types/index.js" />
-
 window.onload = function () {
   chrome.scripting
     .getRegisteredContentScripts()

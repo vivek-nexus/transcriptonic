@@ -95,7 +95,6 @@ function overWriteChromeStorage(state, keys, sendDownloadMessage) {
     if (keys.includes("chatMessages")) objectToSave.chatMessages = state.chatMessages
 
     chrome.storage.local.set(objectToSave, function () {
-        pulseStatus()
         if (sendDownloadMessage) {
             /** @type {ExtensionMessage} */
             const message = { type: "meeting_ended" }
@@ -280,6 +279,24 @@ function startTranscriptMonitor(state) {
 /**
  * @param {ContentScriptState} state
  */
+function broadcastLiveBuffer(state) {
+    /** @type {ExtensionMessage} */
+    const message = { type: "broadcast_live_buffer" }
+    chrome.runtime.sendMessage({
+        message,
+        stateTranscriptBlock: {
+            personName: state.stateTranscriptBlock.personName,
+            timestamp: state.stateTranscriptBlock.timestamp,
+            transcriptText: state.stateTranscriptBlock.transcriptTextBuffer
+        }
+    }).catch(err => {
+        // Catch errors silently if sidebar is closed
+    })
+}
+
+/**
+ * @param {ContentScriptState} state
+ */
 function pushBufferToTranscript(state) {
     if ((state.stateTranscriptBlock.personName !== "") && (state.stateTranscriptBlock.transcriptTextBuffer !== "")) {
         state.transcript.push({
@@ -327,6 +344,39 @@ function pulseStatus() {
     setTimeout(() => {
         activityStatus.style.cssText = `background-color: transparent; ${statusActivityCSS}`
     }, 3000)
+}
+
+function renderFab() {
+    const fabCss = `position: fixed;
+    top: 50%;
+    bottom: 50%;
+    right: 8px;
+    height: 36px;
+    width: 36px;
+    border-radius: 36px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #071f29;
+    box-shadow: 0px 0px 4px 0px #2A9ACA;
+    cursor: pointer;
+    border: none;
+  `
+
+    let html = document.querySelector("html")
+    const fab = document.createElement("button")
+    fab.setAttribute("id", "transcriptonic-fab")
+    fab.style.cssText = `${fabCss}`
+    fab.innerHTML = `
+        <img src="https://ejnana.github.io/transcripto-status/icon.png" alt="TranscripTonic floating action button" style="width: 20px; height: 20px; object-fit: contain;" />
+    `
+    html?.appendChild(fab)
+    fab.addEventListener("click", () => {
+        /** @type {ExtensionMessage} */
+        const message = { type: "open_side_panel" }
+        chrome.runtime.sendMessage(message, () => { })
+    })
 }
 
 /**
