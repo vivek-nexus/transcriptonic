@@ -45,11 +45,11 @@ chrome.runtime.onMessage.addListener((messageUnTyped, sender, sendResponse) => {
 
 /**
  * Renders or updates the temporary live block at the absolute bottom
- * @param {Object} liveBlock 
+ * @param {StateTranscriptBlock} liveBlock 
  */
 function renderLiveBuffer(liveBlock) {
     // If the buffer is empty, don't show an empty block
-    if (!liveBlock.transcriptText.trim()) return
+    if (!liveBlock.transcriptTextBuffer.trim()) return
 
     const isUserAtBottom =
         (container.scrollHeight - container.scrollTop - container.clientHeight) <= SCROLL_THRESHOLD
@@ -64,7 +64,7 @@ function renderLiveBuffer(liveBlock) {
     } else {
         // Update the existing live element text content safely
         liveEl.querySelector('.speaker-name').textContent = liveBlock.personName
-        liveEl.querySelector('.block-text').textContent = liveBlock.transcriptText
+        liveEl.querySelector('.block-text').textContent = liveBlock.transcriptTextBuffer
     }
 
     if (isUserAtBottom) {

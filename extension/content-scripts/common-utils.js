@@ -208,7 +208,8 @@ function startTranscriptMonitor(state) {
                 activeNode = document.querySelector(SELECTORS_TEAMS.CAPTIONS_REGION)
                 break
             case "zoom":
-                activeNode = document.querySelector(SELECTORS_ZOOM.TRANSCRIPT_CONTAINER)
+                const iframe = /** @type {Document} */ (/** @type {HTMLIFrameElement} */(document.querySelector(SELECTORS_ZOOM.IFRAME))?.contentDocument)
+                activeNode = iframe.querySelector(SELECTORS_ZOOM.TRANSCRIPT_CONTAINER)
                 break
             default:
                 break
@@ -281,17 +282,16 @@ function startTranscriptMonitor(state) {
  */
 function broadcastLiveBuffer(state) {
     /** @type {ExtensionMessage} */
-    const message = { type: "broadcast_live_buffer" }
-    chrome.runtime.sendMessage({
-        message,
+    const message = {
+        type: "broadcast_live_buffer",
         stateTranscriptBlock: {
+            mutationTargetElement: null,
             personName: state.stateTranscriptBlock.personName,
             timestamp: state.stateTranscriptBlock.timestamp,
-            transcriptText: state.stateTranscriptBlock.transcriptTextBuffer
+            transcriptTextBuffer: state.stateTranscriptBlock.transcriptTextBuffer
         }
-    }).catch(err => {
-        // Catch errors silently if sidebar is closed
-    })
+    }
+    chrome.runtime.sendMessage(message, () => { })
 }
 
 /**
