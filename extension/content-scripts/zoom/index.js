@@ -168,7 +168,7 @@ function transcriptMutationCallbackZoom(state, mutationsList) {
                 const currentTranscriptText = currentTranscriptBlock.lastChild?.textContent
 
                 // Find person name using various strategies
-                const currentPersonName = getPersonName(currentTranscriptBlock, iframeDOM)
+                const currentPersonName = getPersonName(currentTranscriptBlock, iframeDOM) || "Person"
 
                 if (currentPersonName && currentTranscriptText) {
                     // Starting fresh in a meeting or resume from no active transcript
