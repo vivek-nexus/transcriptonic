@@ -3,6 +3,28 @@ const container = document.querySelector('#transcript-container')
 const SCROLL_THRESHOLD = 50
 const LIVE_BLOCK_ID = 'live-transcript-placeholder'
 
+// Make the element editable
+if (meetingTitle) {
+    meetingTitle.setAttribute("contenteditable", "true")
+
+    // Helper function to save current title
+    const saveTitle = () => {
+        const titleText = meetingTitle.innerText.trim()
+        chrome.storage.local.set({ meetingTitle: titleText })
+    }
+
+    // Save only when focus leaves the element
+    meetingTitle.addEventListener("blur", saveTitle)
+
+    // Prevent line breaks when pressing 'Enter'
+    meetingTitle.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault()
+            meetingTitle.blur()
+        }
+    })
+}
+
 chrome.storage.local.get(["meetingTitle", "transcript"], (result) => {
     if (result.meetingTitle) {
         const titleText = result.meetingTitle
