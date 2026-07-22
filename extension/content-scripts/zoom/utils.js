@@ -90,10 +90,8 @@ function getPersonName(currentTranscriptBlock, iframeDOM) {
             }
             // Generate a 10 digit constant hash from image url
             else {
-                getAvatarIdentifier(avatarSrc).then((hash) => {
-                    currentPersonName = "Person " + hash
-                    return currentPersonName
-                })
+                const hash = getAvatarIdentifier(avatarSrc)
+                currentPersonName = "Person " + hash
             }
         }
     }
@@ -105,33 +103,25 @@ function getPersonName(currentTranscriptBlock, iframeDOM) {
 }
 
 /**
-   * @param {string | undefined} url
-   */
+ * Synchronously generates a 10-character hash identifier from a string
+ * @param {string | undefined} url
+ * @returns {string}
+ */
 function getAvatarIdentifier(url) {
-    return new Promise((resolve, reject) => {
-        // Check if the URL is valid
-        if (!url || typeof url !== 'string') {
-            reject("invalid_url")
-        }
+    if (!url || typeof url !== 'string') {
+        return '0000000000'
+    }
 
-        try {
-            // Encode the URL into a buffer
-            const msgUint8 = new TextEncoder().encode(url)
+    // FNV-1a 32-bit hashing algorithm
+    let hash = 2166136261
+    for (let i = 0; i < url.length; i++) {
+        hash ^= url.charCodeAt(i)
+        // Multiply by 32-bit FNV prime: 16777619
+        hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24)
+    }
 
-            // Hash the URL using SHA-256
-            crypto.subtle.digest('SHA-256', msgUint8).then((hashBuffer) => {
-                // Convert the hash buffer to a hexadecimal string
-                const hashArray = Array.from(new Uint8Array(hashBuffer))
-                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-
-                // Return the first 10 characters of the hash as the identifier
-                resolve(hashHex.substring(0, 10))
-            })
-        } catch (error) {
-            console.error('Error hashing URL:', error)
-            reject("hashing_error")
-        }
-    })
+    // Convert unsigned 32-bit int to 10-digit zero-padded base-36 string
+    return (hash >>> 0).toString(36).padStart(10, '0').slice(0, 10)
 }
 
 /**

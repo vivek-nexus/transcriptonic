@@ -366,17 +366,94 @@ function renderFab() {
 
     let html = document.querySelector("html")
     const fab = document.createElement("button")
-    fab.setAttribute("id", "transcriptonic-fab")
+    fab.id = "transcriptonic-fab"
+    fab.ariaLabel = "TranscripTonic"
+    fab.title = "TranscripTonic"
     fab.style.cssText = `${fabCss}`
     fab.innerHTML = `
-        <img src="https://ejnana.github.io/transcripto-status/icon.png" alt="TranscripTonic floating action button" style="width: 20px; height: 20px; object-fit: contain;" />
+        <img src="https://ejnana.github.io/transcripto-status/icon.png" alt="TranscripTonic floating action button" draggable="false" style="width: 20px; height: 20px; object-fit: contain;" />
     `
     html?.appendChild(fab)
+    makeVerticallyDraggable(fab)
+
     fab.addEventListener("click", () => {
         /** @type {ExtensionMessage} */
         const message = { type: "open_side_panel" }
         chrome.runtime.sendMessage(message, () => { })
     })
+}
+
+/**
+ * @param {HTMLButtonElement} fab
+ */
+function makeVerticallyDraggable(fab) {
+    let isDragging = false
+    let startY = 0
+    let initialTop = 0
+    let hasMoved = false
+
+    const onPointerDown = (e) => {
+        isDragging = true
+        hasMoved = false
+
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY
+        startY = clientY
+        initialTop = fab.getBoundingClientRect().top
+
+        // Attach movement listeners to document so fast drags aren't lost
+        document.addEventListener("mousemove", onPointerMove)
+        document.addEventListener("mouseup", onPointerUp)
+        document.addEventListener("touchmove", onPointerMove, { passive: false })
+        document.addEventListener("touchend", onPointerUp)
+    }
+
+    const onPointerMove = (e) => {
+        if (!isDragging) return
+
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY
+        const deltaY = clientY - startY
+
+        // Threshold (3px) to differentiate click from drag
+        if (Math.abs(deltaY) > 3) {
+            hasMoved = true
+            if (e.cancelable) e.preventDefault() // Prevent scrolling on touch
+        }
+
+        let newTop = initialTop + deltaY
+
+        // Bound vertical position inside the visible viewport
+        const maxTop = window.innerHeight - fab.offsetHeight
+        newTop = Math.max(0, Math.min(newTop, maxTop))
+
+        fab.style.top = `${newTop}px`
+    }
+
+    const onPointerUp = () => {
+        isDragging = false
+        document.removeEventListener("mousemove", onPointerMove)
+        document.removeEventListener("mouseup", onPointerUp)
+        document.removeEventListener("touchmove", onPointerMove)
+        document.removeEventListener("touchend", onPointerUp)
+    }
+
+    fab.addEventListener("mousedown", onPointerDown)
+    fab.addEventListener("touchstart", onPointerDown, { passive: true })
+
+    // Block the 'click' event if the user dragged the button
+    fab.addEventListener("click", (e) => {
+        if (hasMoved) {
+            e.stopImmediatePropagation()
+            e.preventDefault()
+            hasMoved = false
+        }
+    }, true) // Capture phase ensures it runs before the side-panel click handler
+}
+
+function unmountFab() {
+    const fab = document.querySelector("#transcriptonic-fab")
+    if (fab) {
+        fab.remove()
+    }
 }
 
 /**

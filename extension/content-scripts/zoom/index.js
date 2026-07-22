@@ -134,6 +134,8 @@ function zoomMeetingRoutines(state) {
                                 pushBufferToTranscript(state)
                                 // Save to chrome storage and send message to download transcript from background script
                                 overWriteChromeStorage(state, ["transcript", "chatMessages"], true)
+
+                                unmountFab()
                             })
                         } catch (err) {
                             console.error(err)
