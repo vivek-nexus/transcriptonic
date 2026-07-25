@@ -37,6 +37,8 @@ function initGoogleMeet() {
  * @param {ContentScriptState} state
  */
 function googleMeetRoutines(state) {
+    renderFab()
+
     // NON CRITICAL DOM DEPENDENCY
     captureUserName(state)
 
@@ -52,8 +54,6 @@ function googleMeetRoutines(state) {
         // Update meeting startTimestamp
         state.meetingStartTimestamp = new Date().toISOString()
         overWriteChromeStorage(state, ["meetingStartTimestamp"], false)
-
-        renderFab()
 
 
         //*********** MEETING START ROUTINES **********//

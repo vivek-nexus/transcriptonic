@@ -57,6 +57,8 @@ function initZoom() {
  * @param {ContentScriptState} state
  */
 function zoomMeetingRoutines(state) {
+    renderFab()
+
     waitForElement(SELECTORS_ZOOM.IFRAME).then(() => {
         console.log(`Found iframe`)
         const iframe = /** @type {HTMLIFrameElement | null} */ (document.querySelector(SELECTORS_ZOOM.IFRAME))
@@ -79,8 +81,6 @@ function zoomMeetingRoutines(state) {
                         // Update meeting startTimestamp
                         state.meetingStartTimestamp = new Date().toISOString()
                         overWriteChromeStorage(state, ["meetingStartTimestamp"], false)
-
-                        renderFab()
 
                         //*********** MEETING START ROUTINES **********//
                         updateMeetingTitle(state)
