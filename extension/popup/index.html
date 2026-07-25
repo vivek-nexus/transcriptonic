@@ -52,13 +52,13 @@
 
     .platform-toggles {
       display: flex;
-      gap: 1.5rem;
+      gap: 2rem;
       /* margin-bottom: 1rem; */
     }
 
     .checkbox-group {
       display: flex;
-      gap: 0.25rem;
+      gap: 0.5rem;
       align-items: flex-end;
     }
 
@@ -161,7 +161,7 @@
             Simple Google Meet transcripts. Private and open source.
           </p>
         </div>
-        <img class="logo" src="./icon.png" alt="Extension icon" />
+        <img class="logo" src="./../icon.png" alt="Extension icon" />
       </div>
     </div>
 
@@ -194,23 +194,24 @@
       <div class="radio-item">
         <input type="radio" name="mode" id="manual-mode" />
         <label for="manual-mode"><b>Manual mode</b> <br />
-          <span class="sub-text">Switch on transcript as needed during the meeting</span>
+          <span class="sub-text">Switch on transcript when needed during the meeting</span>
         </label>
       </div>
-      <!-- <hr class="divider" /> -->
-      <p>In both modes, transcript will be downloaded as a text file at the
-        end of each meeting
-      </p>
+      <hr class="divider" />
+      <div class="checkbox-group">
+        <input type="checkbox" id="hide-captions" />
+        <label for="hide-captions"><b>Hide captions on the meeting UI</b></label>
+      </div>
     </div>
 
     <div class="get-started" style="display: flex; gap: 1rem; align-items: center;">
       <div style="display: flex; gap: 0.25rem; align-items: center;">
-        <img class="tool-logo" src="./icons/google-docs.svg" alt="Google Docs logo">
-        <img class="tool-logo" src="./icons/notion.svg" alt="Notion logo">
+        <img class="tool-logo" src="./../icons/google-docs.svg" alt="Google Docs logo">
+        <img class="tool-logo" src="./../icons/notion.svg" alt="Notion logo">
       </div>
       <p style="margin-top: 0px;">You can integrate
         TranscripTonic with your
-        favourite tools like <b>Google Docs, Notion, n8n and more</b> using <a href="meetings.html#webhooks"
+        favourite tools like <b>Google Docs, Notion, n8n and more</b> using <a href="../meetings.html#webhooks"
           target="_blank"><b>webhooks <span class="right-arrow">&rarr;</span></b></a></p>
     </div>
 
@@ -224,7 +225,7 @@
           more</a>
       </div> -->
       <div class="footer">
-        <a href="./meetings.html" target="_blank">Last 10 meetings <span class="right-arrow">&rarr;</span></a>
+        <a href="../meetings.html" target="_blank">Last 10 meetings <span class="right-arrow">&rarr;</span></a>
         <div>
           <a href="https://github.com/vivek-nexus/transcriptonic#readme" target="_blank">Get help</a>
           <span class="footer-separator">&#9679;</span>

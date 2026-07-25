@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
     }
 
-    handlePermissions()
+    // handlePermissions()
 })
 
 

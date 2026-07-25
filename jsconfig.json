@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "checkJs": true,
+    },
+    "include": [
+        "extension/**/*",
+        "types/**/*"
+    ]
+}

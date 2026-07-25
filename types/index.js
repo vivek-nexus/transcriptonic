@@ -1,4 +1,62 @@
 /**
+ * @typedef {"Google Meet" | "Zoom" | "Teams" | "" | undefined} MeetingSoftware Human friendly meeting software name.
+ */
+/**
+ * @typedef {"google_meet" | "teams" | "zoom"} Platform Meeting platform
+ */
+/**
+ * @typedef {number | "processing" | null} MeetingTabId tab id of the meeting tab, captured when meeting starts. A valid value or "processing" indicates that a meeting is in progress. Set to null once meeting ends and associated processing is complete.
+ */
+/**
+ * @typedef {string} MeetingStartTimestamp ISO timestamp of when the most recent meeting started, dumped by content script
+ */
+/**
+ * @typedef {string} MeetingTitle title of the most recent meeting, dumped by content script
+ */
+/**
+ * @typedef {TranscriptBlock[]} Transcript Transcript of the most recent meeting, dumped by content script
+ */
+/**
+ * @typedef {ChatMessage[]} ChatMessages Chat messages captured during the most recent meeting, dumped by content script
+ */
+/**
+ * @typedef {boolean} IsDeferredUpdatedAvailable whether the extension has a deferred updated waiting to be applied
+ */
+
+/**
+ * @typedef {boolean} AutoPostWebhookAfterMeeting Whether to automatically post the webhook after each meeting
+ */
+/**
+ * @typedef {boolean} AutoDownloadFileAfterMeeting Whether to automatically download the transcript file after each meeting
+ */
+/**
+ * @typedef {"auto" | "manual"} OperationMode mode of the extension which decides whether to automatically capture transcripts or let the user decide per meeting basis
+ */
+/**
+ * @typedef {boolean} HideCaptions hide the captions on the UI by changing height and opacity
+ */
+/**
+ * @typedef {"simple" | "advanced"} WebhookBodyType type of webhook body to use
+ */
+/**
+ * @typedef {string} WebhookUrl URL of the webhook
+ */
+/**
+ * @typedef {boolean} WantGoogleMeet Indicates whether user explicitly opted in for Google Meet. Does not necessarily mean Google Meet is enabled for them. Only an indicator to re-inject content scripts between reloads.
+ */
+/**
+ * @typedef {boolean} WantTeams Indicates whether user explicitly opted in for Teams. Does not necessarily mean Teams is enabled for them. Only an indicator to re-inject content scripts between reloads.
+ */
+/**
+ * @typedef {boolean} WantZoom Indicates whether user explicitly opted in for Zoom. Does not necessarily mean Zoom is enabled for them. Only an indicator to re-inject content scripts between reloads.
+ */
+
+
+
+
+
+
+/**
  * @typedef {Object} TranscriptBlock A chunk of transcript
  * @property {string} personName name of the person who spoke
  * @property {string} timestamp ISO timestamp of when the words were spoken
@@ -23,22 +81,6 @@
  * @property {ChatMessage[] | string} chatMessages chat messages as a formatted string or array containing chat messages from the meeting
  */
 
-
-
-// LOCAL CHROME STORAGE VARIABLES
-/**
- * @typedef {Object} ResultLocal Local chrome storage
- * @property {ExtensionStatusJSON} extensionStatusJSON
- * @property {MeetingTabId} meetingTabId
- * @property {MeetingSoftware} meetingSoftware
- * @property {MeetingTitle} meetingTitle
- * @property {MeetingStartTimestamp} meetingStartTimestamp
- * @property {Transcript} transcript
- * @property {ChatMessages} chatMessages
- * @property {IsDeferredUpdatedAvailable | undefined} isDeferredUpdatedAvailable
- * @property {Meeting[] | undefined} meetings
- */
-
 /**
  * @typedef {Object} ExtensionStatusJSON
  * @property {number} status status of the extension
@@ -57,76 +99,39 @@
  * @property {"new" | "failed" | "successful"} webhookPostStatus status of the webhook post request
  */
 
-/**
- * @typedef {"Google Meet" | "Zoom" | "Teams" | "" | undefined} MeetingSoftware Google Meet or Zoom or undefined.
- */
-/**
- * @typedef {number | "processing" | null} MeetingTabId tab id of the meeting tab, captured when meeting starts. A valid value or "processing" indicates that a meeting is in progress. Set to null once meeting ends and associated processing is complete.
- */
-/**
- * @typedef {string} MeetingStartTimestamp ISO timestamp of when the most recent meeting started, dumped by content script
- */
-/**
- * @typedef {string} MeetingTitle title of the most recent meeting, dumped by content script
- */
-/**
- * @typedef {TranscriptBlock[]} Transcript Transcript of the most recent meeting, dumped by content script
- */
-/**
- * @typedef {ChatMessage[]} ChatMessages Chat messages captured during the most recent meeting, dumped by content script
- */
-/**
- * @typedef {boolean} IsDeferredUpdatedAvailable whether the extension has a deferred updated waiting to be applied
- */
-
-
-
-
-// SYNC CHROME STORAGE VARIABLES
-/**
- * @typedef {Object} ResultSync Sync chrome storage
- * @property {AutoPostWebhookAfterMeeting} autoPostWebhookAfterMeeting
- * @property {AutoDownloadFileAfterMeeting} autoDownloadFileAfterMeeting
- * @property {OperationMode} operationMode
- * @property {WebhookBodyType} webhookBodyType
- * @property {WebhookUrl} webhookUrl
- * @property {wantGoogleMeet} wantGoogleMeet
- * @property {wantTeams} wantTeams
- * @property {wantZoom} wantZoom
+/** @typedef {Object} StateTranscriptBlock
+ * @property  {string} timestamp
+ * @property {Element | null} mutationTargetElement
+ * @property  {string} personName
+ * @property  {string} transcriptTextBuffer
 */
 
 /**
- * @typedef {boolean} AutoPostWebhookAfterMeeting Whether to automatically post the webhook after each meeting
+ * @typedef {Object} ContentScriptState
+ * @property {MeetingSoftware} meetingSoftware
+ * @property {Platform} platform
+ * @property {string} userName
+ * @property {TranscriptBlock[]} transcript array containing transcript blocks from the meeting
+ * @property {ChatMessage[]} chatMessages array containing chat messages from the meeting
+ * @property {StateTranscriptBlock} stateTranscriptBlock buffer variables to dump values, which get pushed to transcript array as transcript blocks, at defined conditions
+ * @property {string} meetingStartTimestamp ISO timestamp of when the most recent meeting started
+ * @property {string} meetingTitle title of the most recent meeting
+ * @property { Element | null} transcriptTargetNode
+ * @property { MutationObserver | null} transcriptObserver
+ * @property { Element | null} chatMessagesTargetNode
+ * @property { MutationObserver | null} chatMessagesObserver
+ * @property {boolean} isTranscriptDomErrorCaptured
+ * @property {boolean} isChatMessagesDomErrorCaptured
+ * @property {boolean} hasMeetingStarted
+ * @property {boolean} hasMeetingEnded
+ * @property {ExtensionStatusJSON} extensionStatusJSON
  */
-/**
- * @typedef {boolean} AutoDownloadFileAfterMeeting Whether to automatically download the transcript file after each meeting
- */
-/**
- * @typedef {"auto" | "manual"} OperationMode mode of the extension which decides whether to automatically capture transcripts or let the user decide per meeting basis
- */
-/**
- * @typedef {"simple" | "advanced"} WebhookBodyType type of webhook body to use
- */
-/**
- * @typedef {string} WebhookUrl URL of the webhook
- */
-/**
- * @typedef {boolean} WantGoogleMeet Indicates whether user explicitly opted in for Google Meet. Does not necessarily mean Google Meet is enabled for them. Only an indicator to re-inject content scripts between reloads.
- */
-/**
- * @typedef {boolean} WantTeams Indicates whether user explicitly opted in for Teams. Does not necessarily mean Teams is enabled for them. Only an indicator to re-inject content scripts between reloads.
- */
-/**
- * @typedef {boolean} WantZoom Indicates whether user explicitly opted in for Zoom. Does not necessarily mean Zoom is enabled for them. Only an indicator to re-inject content scripts between reloads.
- */
-
-
-
 /**
  * @typedef {Object} ExtensionMessage Message sent by the calling script
- * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "post_webhook_at_index" | "recover_last_meeting" | "get_platform_enablement_status" | "get_platform_permission_status" | "enable_platform" | "disable_platform" | "open_popup"} type type of message
+ * @property {"new_meeting_started" | "meeting_ended" | "download_transcript_at_index" | "post_webhook_at_index" | "recover_last_meeting" | "get_platform_enablement_status" | "get_platform_permission_status" | "enable_platform" | "disable_platform" | "open_popup" | "open_side_panel" | "broadcast_live_buffer"} type type of message
  * @property {number} [index] index of the meeting to process
  * @property {Platform | Platform[]} [platform] index of the meeting to process
+ * @property {StateTranscriptBlock} [stateTranscriptBlock]
 */
 
 /**
@@ -141,9 +146,38 @@
  * @property {string} errorMessage message explaining success or failure
  */
 
+
+
+
+// LOCAL CHROME STORAGE VARIABLES
 /**
- * @typedef {"google_meet" | "teams" | "zoom"} Platform URL of the webhook
+ * @typedef {Object} ResultLocal Local chrome storage
+ * @property {ExtensionStatusJSON} extensionStatusJSON
+ * @property {MeetingTabId} meetingTabId
+ * @property {MeetingSoftware} meetingSoftware
+ * @property {MeetingTitle} meetingTitle
+ * @property {MeetingStartTimestamp} meetingStartTimestamp
+ * @property {Transcript} transcript
+ * @property {ChatMessages} chatMessages
+ * @property {IsDeferredUpdatedAvailable | undefined} isDeferredUpdatedAvailable
+ * @property {Meeting[] | undefined} meetings
  */
+
+// SYNC CHROME STORAGE VARIABLES
+/**
+ * @typedef {Object} ResultSync Sync chrome storage
+ * @property {AutoPostWebhookAfterMeeting} autoPostWebhookAfterMeeting
+ * @property {AutoDownloadFileAfterMeeting} autoDownloadFileAfterMeeting
+ * @property {OperationMode} operationMode
+ * @property {HideCaptions} hideCaptions
+ * @property {WebhookBodyType} webhookBodyType
+ * @property {WebhookUrl} webhookUrl
+ * @property {WantGoogleMeet} wantGoogleMeet
+ * @property {WantTeams} wantTeams
+ * @property {WantZoom} wantZoom
+*/
+
+
 
 // CONTENT SCRIPT ERRORS
 // | Error Code | Error Message |
