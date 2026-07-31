@@ -1,11 +1,11 @@
 initGoogleMeet()
 
 function initGoogleMeet() {
-    // Attempt to recover last meeting, if any. Abort if it takes more than 2 seconds to prevent current meeting getting messed up.
+    // Attempt to recover last meeting, if any. Abort if it takes more than 15 seconds to prevent current meeting getting messed up.
     Promise.race([
         recoverLastMeeting(),
         new Promise((_, reject) =>
-            setTimeout(() => reject({ errorCode: "016", errorMessage: "Recovery timed out" }), 2000)
+            setTimeout(() => reject({ errorCode: "016", errorMessage: "Recovery timed out" }), 15000)
         )
     ]).catch((error) => {
         const parsedError = /** @type {ErrorObject} */ (error)

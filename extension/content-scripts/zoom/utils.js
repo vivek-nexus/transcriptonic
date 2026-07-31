@@ -76,27 +76,25 @@ function getPersonName(currentTranscriptBlock, iframeDOM) {
     if (currentPersonElement?.tagName === "IMG") {
         // @ts-ignore
         const avatarSrc = currentPersonElement.src
-        const avatarElements = iframeDOM?.querySelectorAll(`img[src="${avatarSrc}"]`)
+        const hash = getAvatarIdentifier(avatarSrc)
+        currentPersonName = "Person " + hash
+
+        // Try to read if avatarSrc and name is available in local storage
+        if ((localStorage.getItem(avatarSrc)) && (localStorage.getItem(avatarSrc)?.toString() !== "undefined")) {
+            currentPersonName = /** @type {string} */ (localStorage.getItem(avatarSrc))
+            return currentPersonName
+        }
+
         // Check if another image of same src exists on the page and grab name from the video tile
+        const avatarElements = iframeDOM?.querySelectorAll(`img[src="${avatarSrc}"]`)
         if (avatarElements && avatarElements.length > 1) {
-            currentPersonName = /** @type {string} */ (iframeDOM?.querySelectorAll(`img[src="${avatarSrc}"]`)[0]?.parentElement?.nextSibling?.textContent)
-            // Store avatarSrc and name in local storage for future meetings
-            localStorage.setItem(avatarSrc, currentPersonName)
-        }
-        // Try to read if avatarSrc and name is available in local storage 
-        else {
-            if (localStorage.getItem(avatarSrc)) {
-                currentPersonName = /** @type {string} */ (localStorage.getItem(avatarSrc))
-            }
-            // Generate a 10 digit constant hash from image url
-            else {
-                const hash = getAvatarIdentifier(avatarSrc)
-                currentPersonName = "Person " + hash
+            const personVideoTileElement = iframeDOM?.querySelectorAll(`img[src="${avatarSrc}"]`)[0]?.parentElement?.nextSibling
+            if (personVideoTileElement && personVideoTileElement.textContent) {
+                currentPersonName = personVideoTileElement.textContent
+                // Store avatarSrc and name in local storage for future meetings
+                localStorage.setItem(avatarSrc, currentPersonName)
             }
         }
-    }
-    else {
-        currentPersonName = /** @type {string} */ (currentPersonElement?.textContent)
     }
 
     return currentPersonName
