@@ -186,11 +186,15 @@ async function waitForElementByStyle(selector, cssProp, cssPropValue) {
  */
 function startTranscriptMonitor(state) {
     state.transcriptTargetNode = null
+    /**
+     * @type {number | undefined}
+     */
+    let monitorInterval = undefined
 
     // Call immediately
     transcriptMonitor()
     // Start monitoring
-    const monitorInterval = setInterval(transcriptMonitor, 2000)
+    monitorInterval = setInterval(transcriptMonitor, 2000)
 
     function transcriptMonitor() {
         if (state.hasMeetingEnded) {
@@ -347,32 +351,56 @@ function pulseStatus() {
 }
 
 function renderFab() {
-    const fabCss = `position: fixed;
-    top: 50%;
-    bottom: 50%;
-    right: 8px;
-    height: 36px;
-    width: 36px;
-    border-radius: 36px;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #071f29;
-    box-shadow: 0px 0px 4px 0px #2A9ACA;
-    cursor: pointer;
-    border: none;
-  `
+    const fabCss = `
+        position: fixed;
+        top: 50%;
+        bottom: 50%;
+        right: 8px;
+        height: 36px;
+        width: 36px;
+        border-radius: 36px;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #071f29;
+        box-shadow: 0px 0px 4px 0px #2A9ACA;
+        cursor: pointer;
+        border: none;
+        padding: 0;
+        overflow: visible;
+    `
 
-    let html = document.querySelector("html")
+    const html = document.querySelector("html")
     const fab = document.createElement("button")
     fab.id = "transcriptonic-fab"
     fab.ariaLabel = "TranscripTonic"
     fab.title = "TranscripTonic"
-    fab.style.cssText = `${fabCss}`
+    fab.style.cssText = fabCss
+
+    const logoUrl = "https://ejnana.github.io/transcripto-status/icon.png"
+
     fab.innerHTML = `
-        <img src="https://ejnana.github.io/transcripto-status/icon.png" alt="TranscripTonic floating action button" draggable="false" style="width: 20px; height: 20px; object-fit: contain;" />
+        <div id="fab-main-content" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+            <img id="fab-default-logo" src="${logoUrl}" alt="TranscripTonic" draggable="false" style="width: 20px; height: 20px; object-fit: contain;" />
+            <span id="fab-letter-mark" style="display: none; color: #ffffff; font-weight: bold; font-size: 16px; text-transform: uppercase; font-family: sans-serif;"></span>
+        </div>
+
+        <img id="fab-mini-badge" src="${logoUrl}" alt="Active Badge" draggable="false" style="
+            display: none;
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: #071f29;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+            object-fit: contain;
+            pointer-events: none;
+        " />
     `
+
     html?.appendChild(fab)
     makeVerticallyDraggable(fab)
 
@@ -380,6 +408,19 @@ function renderFab() {
         /** @type {ExtensionMessage} */
         const message = { type: "open_side_panel" }
         chrome.runtime.sendMessage(message, () => { })
+    })
+
+    // 1. Initial storage query on load
+    chrome.storage.local.get(["transcript"], (resultUntyped) => {
+        const result = /** @type {ResultLocal} */ (resultUntyped)
+        updateFabState(fab, result.transcript)
+    })
+
+    // 2. Storage event listener for ongoing updates
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName === "local" && changes.transcript) {
+            updateFabState(fab, changes.transcript.newValue)
+        }
     })
 }
 
@@ -447,6 +488,41 @@ function makeVerticallyDraggable(fab) {
             hasMoved = false
         }
     }, true) // Capture phase ensures it runs before the side-panel click handler
+}
+
+/**
+ * Updates the FAB visual state based on the current transcript data.
+ * @param {HTMLElement} fab 
+ * @param {TranscriptBlock[] | undefined} transcript 
+ */
+function updateFabState(fab, transcript) {
+    if (!fab) return
+
+    const defaultLogo = fab.querySelector("#fab-default-logo")
+    const letterMark = fab.querySelector("#fab-letter-mark")
+    const miniBadge = fab.querySelector("#fab-mini-badge")
+
+    if (transcript && transcript.length > 0) {
+        const lastSpeaker = transcript[transcript.length - 1]?.personName
+
+        if (lastSpeaker && lastSpeaker.trim() !== "") {
+            const initial = lastSpeaker.trim().charAt(0)
+
+            // Active Speaker State: Show letter mark + corner badge, hide central logo
+            if (defaultLogo) defaultLogo.style.display = "none"
+            if (letterMark) {
+                letterMark.textContent = initial
+                letterMark.style.display = "inline"
+            }
+            if (miniBadge) miniBadge.style.display = "block"
+            return
+        }
+    }
+
+    // Default State: Fallback to central logo, hide mark + badge
+    if (defaultLogo) defaultLogo.style.display = "block"
+    if (letterMark) letterMark.style.display = "none"
+    if (miniBadge) miniBadge.style.display = "none"
 }
 
 function unmountFab() {
