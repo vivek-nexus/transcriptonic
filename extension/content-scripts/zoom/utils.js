@@ -66,16 +66,15 @@ function showNotificationZoom(extensionStatusJSON) {
 
 /**
    * @description Find person name using various strategies
-   * @param {ChildNode} currentTranscriptBlock
-   * @param {Document | null | undefined} iframeDOM
+   * @param {ChildNode} mutationTargetElement
    */
-function getPersonName(currentTranscriptBlock, iframeDOM) {
-    const currentPersonElement =  /** @type {HTMLElement | null} */ (currentTranscriptBlock.firstChild)
+function getPersonName(mutationTargetElement) {
+    const avatarElement =  /** @type {HTMLElement | null} */ (mutationTargetElement?.previousSibling)
     let currentPersonName = ""
 
-    if (currentPersonElement?.tagName === "IMG") {
+    if (avatarElement?.tagName === "IMG") {
         // @ts-ignore
-        const avatarSrc = currentPersonElement.src
+        const avatarSrc = avatarElement.src
         const hash = getAvatarIdentifier(avatarSrc)
         currentPersonName = "Person " + hash
 
@@ -86,6 +85,8 @@ function getPersonName(currentTranscriptBlock, iframeDOM) {
         }
 
         // Check if another image of same src exists on the page and grab name from the video tile
+        const iframe = /** @type {HTMLIFrameElement | null} */ (document.querySelector(SELECTORS_ZOOM.IFRAME))
+        const iframeDOM = iframe?.contentDocument
         const avatarElements = iframeDOM?.querySelectorAll(`img[src="${avatarSrc}"]`)
         if (avatarElements && avatarElements.length > 1) {
             const personVideoTileElement = iframeDOM?.querySelectorAll(`img[src="${avatarSrc}"]`)[0]?.parentElement?.nextSibling

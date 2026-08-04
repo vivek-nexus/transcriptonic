@@ -160,49 +160,46 @@ function zoomMeetingRoutines(state) {
 function transcriptMutationCallbackZoom(state, mutationsList) {
     mutationsList.forEach(async (mutation) => {
         try {
-            const iframe = /** @type {HTMLIFrameElement | null} */ (document.querySelector(SELECTORS_ZOOM.IFRAME))
-            const iframeDOM = iframe?.contentDocument
-            const transcriptTargetNode = iframeDOM?.querySelector(SELECTORS_ZOOM.TRANSCRIPT_CONTAINER)
+            if (mutation.type === "characterData") {
+                const mutationTargetElement = mutation.target.parentElement
+                const currentTranscriptText = mutationTargetElement?.textContent
 
-            const currentTranscriptBlock = transcriptTargetNode?.lastChild
+                if (currentTranscriptText) {
+                    // Find person name using various strategies
+                    const currentPersonName = getPersonName(mutationTargetElement) || "Person"
 
-            if (currentTranscriptBlock && currentTranscriptBlock.childNodes.length > 1) {
-                const currentTranscriptText = currentTranscriptBlock.lastChild?.textContent
-
-                // Find person name using various strategies
-                const currentPersonName = getPersonName(currentTranscriptBlock, iframeDOM) || "Person"
-
-                if (currentPersonName && currentTranscriptText) {
-                    // Starting fresh in a meeting or resume from no active transcript
-                    if (state.stateTranscriptBlock.transcriptTextBuffer === "") {
-                        state.stateTranscriptBlock.personName = currentPersonName
-                        state.stateTranscriptBlock.timestamp = new Date().toISOString()
-                        state.stateTranscriptBlock.transcriptTextBuffer = currentTranscriptText
-                    }
-                    // Some prior transcript buffer exists
-                    else {
-                        // New person started speaking
-                        if (state.stateTranscriptBlock.personName !== currentPersonName) {
-                            // Push previous person's transcript as a block
-                            pushBufferToTranscript(state)
-
-                            // Update buffers for next mutation and store transcript block timestamp
+                    if (currentPersonName && currentTranscriptText) {
+                        // Starting fresh in a meeting or resume from no active transcript
+                        if (state.stateTranscriptBlock.transcriptTextBuffer === "") {
                             state.stateTranscriptBlock.personName = currentPersonName
                             state.stateTranscriptBlock.timestamp = new Date().toISOString()
                             state.stateTranscriptBlock.transcriptTextBuffer = currentTranscriptText
                         }
-                        // Same person speaking more
+                        // Some prior transcript buffer exists
                         else {
-                            // Update buffers for next mutation
-                            // Append only the new part of the transcript
-                            state.stateTranscriptBlock.transcriptTextBuffer = state.stateTranscriptBlock.transcriptTextBuffer + findNewPart(state.stateTranscriptBlock.transcriptTextBuffer, currentTranscriptText)
+                            // New person started speaking
+                            if (state.stateTranscriptBlock.personName !== currentPersonName) {
+                                // Push previous person's transcript as a block
+                                pushBufferToTranscript(state)
+
+                                // Update buffers for next mutation and store transcript block timestamp
+                                state.stateTranscriptBlock.personName = currentPersonName
+                                state.stateTranscriptBlock.timestamp = new Date().toISOString()
+                                state.stateTranscriptBlock.transcriptTextBuffer = currentTranscriptText
+                            }
+                            // Same person speaking more
+                            else {
+                                // Update buffers for next mutation
+                                // Append only the new part of the transcript
+                                state.stateTranscriptBlock.transcriptTextBuffer = state.stateTranscriptBlock.transcriptTextBuffer + findNewPart(state.stateTranscriptBlock.transcriptTextBuffer, currentTranscriptText)
+                            }
                         }
                     }
                 }
-            }
 
-            // Rendered by the side panel
-            broadcastLiveBuffer(state)
+                // Rendered by the side panel
+                broadcastLiveBuffer(state)
+            }
         }
         catch (err) {
             console.error(err)
