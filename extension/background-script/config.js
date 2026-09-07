@@ -32,7 +32,18 @@ export const PLATFORM_CONFIGS = {
             "content-scripts/teams/utils.js",
             "content-scripts/teams/index.js"
         ],
-        matches: ["https://teams.live.com/*", "https://teams.microsoft.com/*", "https://teams.cloud.microsoft/*"],
+        matches: [
+            "https://teams.live.com/*",
+            "https://teams.microsoft.com/*",
+            "https://teams.cloud.microsoft/*",
+            // Defender for Cloud Apps reverse proxy suffixes the app host, ex. teams.cloud.microsoft.mcas.ms
+            "https://teams.microsoft.com.mcas.ms/*",
+            "https://teams.cloud.microsoft.mcas.ms/*",
+            "https://teams.microsoft.com.mcas-gov.us/*",
+            "https://teams.cloud.microsoft.mcas-gov.us/*",
+            "https://teams.microsoft.com.mcas-gov.ms/*",
+            "https://teams.cloud.microsoft.mcas-gov.ms/*"
+        ],
         excludeMatches: [],
         permissions: ["notifications"]
     },
