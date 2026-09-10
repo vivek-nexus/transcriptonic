@@ -410,17 +410,10 @@ function renderFab() {
         chrome.runtime.sendMessage(message, () => { })
     })
 
-    // 1. Initial storage query on load
+    // Initial storage query on load
     chrome.storage.local.get(["transcript"], (resultUntyped) => {
         const result = /** @type {ResultLocal} */ (resultUntyped)
-        updateFabState(fab, result.transcript)
-    })
-
-    // 2. Storage event listener for ongoing updates
-    chrome.storage.onChanged.addListener((changes, areaName) => {
-        if (areaName === "local" && changes.transcript) {
-            updateFabState(fab, changes.transcript.newValue)
-        }
+        updateFabState(result.transcript)
     })
 }
 
@@ -492,21 +485,20 @@ function makeVerticallyDraggable(fab) {
 
 /**
  * Updates the FAB visual state based on the current transcript data.
- * @param {HTMLElement} fab 
- * @param {TranscriptBlock[] | undefined} transcript 
+ * @param {ContentScriptState} state
  */
-function updateFabState(fab, transcript) {
-    if (!fab) return
+function updateFabState(state) {
+    const fab = document.querySelector("#transcriptonic-fab")
 
-    const defaultLogo = fab.querySelector("#fab-default-logo")
-    const letterMark = fab.querySelector("#fab-letter-mark")
-    const miniBadge = fab.querySelector("#fab-mini-badge")
+    const defaultLogo = fab?.querySelector("#fab-default-logo")
+    const letterMark = fab?.querySelector("#fab-letter-mark")
+    const miniBadge = fab?.querySelector("#fab-mini-badge")
 
-    if (transcript && transcript.length > 0) {
-        const lastSpeaker = transcript[transcript.length - 1]?.personName
+    if (state.transcript && state.transcript.length > 0) {
+        const currentSpeaker = state.stateTranscriptBlock?.personName
 
-        if (lastSpeaker && lastSpeaker.trim() !== "") {
-            const initial = lastSpeaker.trim().charAt(0)
+        if (currentSpeaker && currentSpeaker.trim() !== "") {
+            const initial = currentSpeaker.trim().charAt(0)
 
             // Active Speaker State: Show letter mark + corner badge, hide central logo
             if (defaultLogo) defaultLogo.style.display = "none"

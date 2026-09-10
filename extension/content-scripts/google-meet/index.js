@@ -254,6 +254,7 @@ function transcriptMutationCallbackGoogleMeet(state, mutationsList) {
 
             // Rendered by the side panel
             broadcastLiveBuffer(state)
+            updateFabState(state)
         } catch (err) {
             console.error(err)
             if (!state.isTranscriptDomErrorCaptured && !state.hasMeetingEnded) {

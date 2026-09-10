@@ -199,6 +199,7 @@ function transcriptMutationCallbackZoom(state, mutationsList) {
 
                 // Rendered by the side panel
                 broadcastLiveBuffer(state)
+                updateFabState(state)
             }
         }
         catch (err) {
