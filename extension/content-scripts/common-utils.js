@@ -455,6 +455,9 @@ function formatElapsedTime(startIso) {
  * @param {string} startIso
  */
 function startFabTimer(fab, startIso) {
+    // Every meeting tab's content script resets the shared meetingStartTimestamp to null
+    // on load. new Date(null) is the Unix epoch, so ignore it and keep the current timer.
+    if (!startIso || Number.isNaN(new Date(startIso).getTime())) return
     if (fabTimerIntervalId) clearInterval(fabTimerIntervalId)
     const timerText = fab.querySelector("#fab-timer-text")
     const tick = () => {
