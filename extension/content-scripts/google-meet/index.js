@@ -62,20 +62,18 @@ function googleMeetRoutines(state) {
         // **** REGISTER TRANSCRIPT AND CHAT MESSAGES LISTENERS **** //
 
         // REGISTER TRANSCRIPT LISTENER
-        // Wait for captions icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
+        // Wait for translate+captions icon to be visible. When user is waiting in meeting lobbing for someone to let them in, the call end icon is visible, but the captions icon is still not visible.
         waitForElement(SELECTORS_GOOGLE_MEET.GOOGLE_SYMBOLS, SELECTORS_GOOGLE_MEET.TEXT_CAPTIONS)
             .then(() => {
-                // CRITICAL DOM DEPENDENCY
-                const captionsButton = selectElements(SELECTORS_GOOGLE_MEET.GOOGLE_SYMBOLS, SELECTORS_GOOGLE_MEET.TEXT_CAPTIONS)[0]
-
-                // Click captions icon for non manual operation modes. Async operation.
+                // Click translate+captions icon for non manual operation modes. Async operation.
                 chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
                     const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
                     if (resultSync.operationMode === "manual") {
                         console.log("Manual mode selected, leaving transcript off")
+                        showNotificationGoogleMeet({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
                     }
                     else {
-                        captionsButton.click()
+                        dispatchKeyboardShortcut("c", "KeyC", { bubbles: true })
                     }
                 })
 
@@ -93,12 +91,7 @@ function googleMeetRoutines(state) {
                     // Show confirmation message from extensionStatusJSON, once observation has started, based on operation mode
                     chrome.storage.sync.get(["operationMode"], function (resultSyncUntyped) {
                         const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
-                        if (resultSync.operationMode === "manual") {
-                            showNotificationGoogleMeet({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
-                        }
-                        else {
-                            showNotificationGoogleMeet(state.extensionStatusJSON)
-                        }
+                        showNotificationGoogleMeet(state.extensionStatusJSON)
                     })
                 }
                 else {
