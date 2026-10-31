@@ -135,16 +135,17 @@ function recoverLastMeeting() {
 /**
  * @description Efficiently waits until the element of the specified selector and textContent appears in the DOM. Polls only on animation frame change
  * @param {string} selector
- * @param {string | RegExp} [text]
+ * @param {string | string[]} [text]
  * @param {HTMLIFrameElement | null} iframe
  */
 async function waitForElement(selector, text, iframe = null) {
     // If an iframe is provided, use its content document; otherwise, default to top-level document
     const targetDoc = iframe ? /** @type {Document} */ (iframe.contentDocument) : document
+    const texts = text !== undefined ? (Array.isArray(text) ? text : [text]) : []
 
-    if (text) {
+    if (texts.length) {
         // loops for every animation frame change, until the required element is found
-        while (!Array.from(targetDoc.querySelectorAll(selector)).find(element => element.textContent === text)) {
+        while (!Array.from(targetDoc.querySelectorAll(selector)).find(element => texts.includes(element.textContent))) {
             await new Promise((resolve) => requestAnimationFrame(resolve))
         }
     }
@@ -179,6 +180,21 @@ async function waitForElementByStyle(selector, cssProp, cssPropValue) {
         await new Promise((resolve) => requestAnimationFrame(resolve))
     }
 }
+
+/**
+ * @param {string} key
+ * @param {string} code
+ * @param {KeyboardEventInit | undefined} modifiers
+ */
+function dispatchKeyboardShortcut(key, code, modifiers) {
+    let event = new KeyboardEvent('keydown', {
+        key: key,
+        code: code,
+        ...modifiers
+    })
+    document.dispatchEvent(event)
+}
+
 
 /** 
  * @description Single, flat polling monitor that handles initial attachment and all re-attachments.

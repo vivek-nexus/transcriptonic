@@ -84,7 +84,10 @@ function teamsMeetingRoutines(state) {
       else {
         // Allow keyboard event listener to be ready
         setTimeout(() => {
-          dispatchLiveCaptionsShortcut()
+          // Mac: Command+Shift+A
+          dispatchKeyboardShortcut("a", "KeyA", { metaKey: true, shiftKey: true, bubbles: true })
+          // Windows: Alt+Shift+C (defaulting non-Mac to Windows)
+          dispatchKeyboardShortcut("c", "KeyC", { altKey: true, shiftKey: true, bubbles: true })
           // Show message to enable because keyboard shortcut does not work in guest meetings
           showNotificationTeams(state.extensionStatusJSON)
         }, 2000)
