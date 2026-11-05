@@ -73,7 +73,7 @@ function googleMeetRoutines(state) {
                         showNotificationGoogleMeet({ status: 400, message: "<strong>TranscripTonic is not running</strong> <br /> Turn on captions using the CC icon, if needed" })
                     }
                     else {
-                        dispatchKeyboardShortcut("c", "KeyC", { bubbles: true })
+                        turnOnCaptionsGoogleMeet()
                     }
                 })
 

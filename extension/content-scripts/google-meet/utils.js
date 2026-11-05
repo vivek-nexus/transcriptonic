@@ -115,3 +115,32 @@ function pushUniqueChatBlock(state, chatBlock) {
         overWriteChromeStorage(state, ["chatMessages"], false)
     }
 }
+
+/**
+ * @description Returns the pressed state of the captions button: "true", "false", or null if the button has no aria-pressed attribute
+ * @returns {string | null}
+ */
+function getCaptionsPressedStateGoogleMeet() {
+    const captionsIcon = Array.from(document.querySelectorAll(SELECTORS_GOOGLE_MEET.GOOGLE_SYMBOLS))
+        .find(element => SELECTORS_GOOGLE_MEET.TEXT_CAPTIONS.includes(element.textContent ?? ""))
+    return captionsIcon?.closest("button")?.getAttribute("aria-pressed") ?? null
+}
+
+/**
+ * @description Turns on captions using the "c" keyboard shortcut. Meet may not have its shortcut handler ready when the captions icon first appears, so the first keypress can be silently dropped. Verify via aria-pressed and retry. Never sends "c" when captions are already on, since the shortcut toggles them.
+ */
+async function turnOnCaptionsGoogleMeet() {
+    const maxAttempts = 10
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const pressedState = getCaptionsPressedStateGoogleMeet()
+
+        // Captions are on ("true"), or state cannot be verified (null) -> do not risk toggling
+        if ((pressedState === "true") || (pressedState === null)) {
+            return
+        }
+        dispatchKeyboardShortcut("c", "KeyC", { bubbles: true })
+
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+    }
+    console.error("Could not turn on captions")
+}
