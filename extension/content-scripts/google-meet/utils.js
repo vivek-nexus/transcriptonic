@@ -133,14 +133,13 @@ async function turnOnCaptionsGoogleMeet() {
     const maxAttempts = 10
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         const pressedState = getCaptionsPressedStateGoogleMeet()
-        if (pressedState === "true") {
+
+        // Captions are on ("true"), or state cannot be verified (null) -> do not risk toggling
+        if ((pressedState === "true") || (pressedState === null)) {
             return
         }
         dispatchKeyboardShortcut("c", "KeyC", { bubbles: true })
-        // Button without aria-pressed: state cannot be verified, so do not risk toggling captions back off
-        if (pressedState === null) {
-            return
-        }
+
         await new Promise((resolve) => setTimeout(resolve, 1500))
     }
     console.error("Could not turn on captions")

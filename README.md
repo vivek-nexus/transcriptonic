@@ -5,7 +5,7 @@ Simple Google Meet transcripts. Private and open source.
 
 ![marquee-large](/assets/marquee-large.png)
 
-Extension status: 🟢 OPERATIONAL (v3.4.4)
+Extension status: 🟢 OPERATIONAL (v3.4.5)
 
 <br />
 <br />
