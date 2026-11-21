@@ -1,6 +1,6 @@
 import { ALARM_NAME } from "./config.js"
 import { processLastMeeting, recoverLastMeeting } from "./meetings.js"
-import { downloadTranscript, postTranscriptToWebhook } from "./exporters.js"
+import { downloadTranscript, postTranscriptToWebhook, postLiveBufferToWebhook } from "./exporters.js"
 import {
     getPermissionStatus,
     requestPlatformPermission,
@@ -83,6 +83,10 @@ chrome.runtime.onMessage.addListener(function (messageUnTyped, sender, sendRespo
             const response = { success: false, message: { errorCode: "015", errorMessage: "Invalid index" } }
             sendResponse(response)
         }
+    }
+
+    if (message.type === "broadcast_live_buffer" && message.stateTranscriptBlock) {
+        postLiveBufferToWebhook(message.stateTranscriptBlock)
     }
 
     if (message.type === "post_webhook_at_index") {

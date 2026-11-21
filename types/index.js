@@ -41,6 +41,10 @@
 /**
  * @typedef {string} WebhookUrl URL of the webhook
  */
+
+/**
+ * @typedef {boolean} LivePostWebhook Whether to also post each caption block to the webhook while the meeting is running
+ */
 /**
  * @typedef {boolean} WantGoogleMeet Indicates whether user explicitly opted in for Google Meet. Does not necessarily mean Google Meet is enabled for them. Only an indicator to re-inject content scripts between reloads.
  */
@@ -172,6 +176,7 @@
  * @property {HideCaptions} hideCaptions
  * @property {WebhookBodyType} webhookBodyType
  * @property {WebhookUrl} webhookUrl
+ * @property {LivePostWebhook} [livePostWebhook]
  * @property {WantGoogleMeet} wantGoogleMeet
  * @property {WantTeams} wantTeams
  * @property {WantZoom} wantZoom

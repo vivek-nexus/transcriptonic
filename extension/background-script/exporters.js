@@ -187,3 +187,32 @@ export function postTranscriptToWebhook(index) {
         })
     })
 }
+
+let lastLiveText = ""
+
+/**
+ * Posts the live caption buffer to the webhook URL, if live posting is turned on.
+ * Fire-and-forget: no retries, no notifications, errors only logged.
+ * @param {StateTranscriptBlock} block
+ */
+export function postLiveBufferToWebhook(block) {
+    const liveText = `${block.personName}|${block.timestamp}|${block.transcriptTextBuffer}`
+    if (!block.transcriptTextBuffer || liveText === lastLiveText) return
+    lastLiveText = liveText
+
+    chrome.storage.sync.get(["webhookUrl", "livePostWebhook"], function (resultSyncUntyped) {
+        const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
+        if (!resultSync.livePostWebhook || !resultSync.webhookUrl) return
+
+        fetch(resultSync.webhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                webhookBodyType: "live",
+                personName: block.personName,
+                timestamp: block.timestamp,
+                transcriptText: block.transcriptTextBuffer
+            })
+        }).catch((err) => console.error("Live webhook post failed", err))
+    })
+}

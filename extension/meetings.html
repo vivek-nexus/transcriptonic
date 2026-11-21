@@ -454,6 +454,13 @@
                                 Automatically post transcript to webhook URL, after each meeting
                             </label>
                         </div>
+                        <div class="checkbox-group" style="margin-top: 1.5rem;">
+                            <input type="checkbox" id="live-post-webhook">
+                            <label for="live-post-webhook">
+                                Also post each caption to webhook URL live, during the meeting
+                                <br /><span class="sub-text">Advanced. For local apps that react during the call. Fire-and-forget, no retries.</span>
+                            </label>
+                        </div>
                         <div class="checkbox-group" style="margin-top: 1.5rem; display: none;">
                             <input type="checkbox" id="auto-download-file" checked>
                             <label for="auto-download-file">
@@ -559,6 +566,22 @@
 }
 </pre>
                     </code>
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary>Webhook body (live, one per caption update)</summary>
+                        <div class="code-block accordion-content">
+                            <code>
+                            <pre>
+{
+    "webhookBodyType": "live",
+    "personName": "Priya",
+    "timestamp": "2024-01-15T10:00:00.000Z",
+    "transcriptText": "Hi every"
+}
+</pre>
+                        </code>
                         </div>
                     </details>
                 </div>

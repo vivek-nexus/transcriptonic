@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const saveButton = document.querySelector("#save-webhook")
     const autoPostCheckbox = document.querySelector("#auto-post-webhook")
     const autoDownloadCheckbox = document.querySelector("#auto-download-file")
+    const livePostCheckbox = document.querySelector("#live-post-webhook")
     const simpleWebhookBodyRadio = document.querySelector("#simple-webhook-body")
     const advancedWebhookBodyRadio = document.querySelector("#advanced-webhook-body")
     const recoverLastMeetingButton = document.querySelector("#recover-last-meeting")
@@ -69,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
         saveButton.disabled = true
 
         // Load saved webhook URL, auto-post setting, and webhook body type
-        chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting", "autoDownloadFileAfterMeeting", "webhookBodyType"], function (resultSyncUntyped) {
+        chrome.storage.sync.get(["webhookUrl", "autoPostWebhookAfterMeeting", "autoDownloadFileAfterMeeting", "webhookBodyType", "livePostWebhook"], function (resultSyncUntyped) {
             const resultSync = /** @type {ResultSync} */ (resultSyncUntyped)
 
             if (resultSync.webhookUrl) {
@@ -83,6 +84,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 autoDownloadCheckbox.checked = resultSync.autoDownloadFileAfterMeeting !== false
             }
             updateAutoDownloadCheckBox()
+            if (livePostCheckbox instanceof HTMLInputElement) {
+                livePostCheckbox.checked = resultSync.livePostWebhook === true
+            }
 
             // Set radio button state
             if (resultSync.webhookBodyType === "advanced") {
@@ -134,6 +138,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 updateAutoDownloadCheckBox()
             })
         })
+
+        // Auto save live post setting
+        if (livePostCheckbox instanceof HTMLInputElement) {
+            livePostCheckbox.addEventListener("change", function () {
+                chrome.storage.sync.set({ livePostWebhook: livePostCheckbox.checked }, function () { })
+            })
+        }
 
         if (autoDownloadCheckbox instanceof HTMLInputElement) {
             autoDownloadCheckbox.addEventListener("change", function () {
